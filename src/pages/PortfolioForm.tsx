@@ -95,39 +95,40 @@ const PortfolioForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     const response = await fetch("/api/create-portfolio", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
     });
-  
+
     const data = await response.json();
-  
+
     if (response.ok) {
-      localStorage.setItem("portfolioId", data.portfolioId); 
-      navigate("/templates"); 
+      localStorage.setItem("portfolioId", data.portfolioId);
+      navigate("/templates");
     } else {
       alert("Failed to submit data. Please try again.");
     }
   };
-  
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center">
-      <div className="max-w-2xl w-full bg-white text-gray-800 rounded-lg shadow-lg p-8 my-16">
+    <div className="min-h-screen bg-gray-100 text-white flex items-center justify-center">
+      <div className="max-w-3xl w-full bg-white text-gray-800 rounded-lg shadow-lg p-8 my-16">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">Create Your Portfolio</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block mb-2 font-bold">Name:</label>
-            <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full border p-2 rounded" required />
-          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block mb-2 font-bold">Name:</label>
+              <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full border p-2 rounded" required />
+            </div>
 
-          <div>
-            <label className="block mb-2 font-bold">Tech Role:</label>
-            <input type="text" name="role" list="rolesList" placeholder="Select or Type Role" value={experience.role} onChange={(e) => setExperience({ ...experience, role: e.target.value })} className="w-full border p-2 rounded" />
-            <datalist id="rolesList">{rolesList.map((role, idx) => <option key={idx} value={role} />)}</datalist>
+            <div>
+              <label className="block mb-2 font-bold">Tech Role:</label>
+              <input type="text" name="role" list="rolesList" placeholder="Select or Type Role" value={experience.role} onChange={(e) => setExperience({ ...experience, role: e.target.value })} className="w-full border p-2 rounded" />
+              <datalist id="rolesList">{rolesList.map((role, idx) => <option key={idx} value={role} />)}</datalist>
+            </div>
           </div>
 
           <div>
@@ -135,53 +136,27 @@ const PortfolioForm = () => {
             <textarea name="about" value={formData.about} onChange={handleChange} className="w-full border p-2 rounded" rows={4} required />
           </div>
 
-          <div>
-            <label className="block mb-2 font-bold">Skills (comma-separated):</label>
-            <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full border p-2 rounded" required />
-          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block mb-2 font-bold">Skills:</label>
+              <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full border p-2 rounded" required />
+            </div>
 
-          <div>
-            <label className="block mb-2 font-bold">Profile Image (Max 10MB):</label>
-            <input type="file" onChange={handleImageUpload} className="w-full border p-2 rounded" accept="image/*" required />
+            <div>
+              <label className="block mb-2 font-bold">Profile Image:</label>
+              <input type="file" onChange={handleImageUpload} className="w-full border p-2 rounded" accept="image/*" required />
+            </div>
           </div>
 
           <div>
             <h3 className="font-bold mb-2">Add Project:</h3>
-            {formData.projects.map((proj, idx) => (
-              <div key={idx} className="mb-4 border p-2 rounded">
-                <p>Title: {proj.title}</p>
-                <input type="file" onChange={(e) => handleProjectImageUpload(e, idx)} className="w-full border p-2 rounded mb-2" accept="image/*"  />
-              </div>
-            ))}
-            <input type="text" name="title" placeholder="Project Title" value={project.title} onChange={(e) => setProject({ ...project, title: e.target.value })} className="w-full border p-2 rounded mb-2"/>
+            <input type="text" name="title" placeholder="Project Title" value={project.title} onChange={(e) => setProject({ ...project, title: e.target.value })} className="w-full border p-2 rounded mb-2" />
             <button type="button" onClick={addProject} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Add Project</button>
           </div>
 
           <div>
             <h3 className="font-bold mb-2">Add Experience:</h3>
-
-            {formData.experience.map((exp, idx) => (
-              <div key={idx} className="mb-4 border p-2 rounded">
-                <p className="font-semibold">{exp.role}</p>
-                <p>{exp.organization}</p>
-                <p>{exp.duration}</p>
-                <ul className="list-disc pl-5">
-                  {exp.workDescription.map((desc, i) => (
-                    <li key={i}>{desc}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-
-            <input type="text" name="role" placeholder="Role" value={experience.role} onChange={handleExperienceChange} className="w-full border p-2 rounded mb-2" required />
-            <input type="text" name="organization" placeholder="Organization" value={experience.organization} onChange={handleExperienceChange} className="w-full border p-2 rounded mb-2" required />
-            <input type="text" name="duration" placeholder="Duration" value={experience.duration} onChange={handleExperienceChange} className="w-full border p-2 rounded mb-2" required />
-            
-            {experience.workDescription.map((desc, idx) => (
-              <input key={idx} type="text" placeholder={`Work Description ${idx + 1}`} value={desc} onChange={(e) => handleWorkDescriptionChange(e, idx)} className="w-full border p-2 rounded mb-2" />
-            ))}
-            <button type="button" onClick={addWorkDescriptionField} className="bg-gray-500 text-white py-2 px-4 rounded mr-4 mb-2 hover:bg-gray-600">Add More Work Description</button>
-
+            <input type="text" name="role" placeholder="Role" value={experience.role} onChange={handleExperienceChange} className="w-full border p-2 rounded mb-2" />
             <button type="button" onClick={addExperience} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Add Experience</button>
           </div>
 
