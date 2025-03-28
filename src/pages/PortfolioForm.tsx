@@ -57,27 +57,27 @@ const PortfolioForm = () => {
     }
   };
 
-  const handleProjectImageUpload = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
-    const file = e.target.files && e.target.files[0];
-    if (file && file.size <= 10 * 1024 * 1024) {
-      const updatedProjects = [...formData.projects];
-      updatedProjects[idx].image = file;
-      setFormData({ ...formData, projects: updatedProjects });
-    } else {
-      alert("Project image must be 10MB or less.");
-    }
-  };
+  // const handleProjectImageUpload = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+  //   const file = e.target.files && e.target.files[0];
+  //   if (file && file.size <= 10 * 1024 * 1024) {
+  //     const updatedProjects = [...formData.projects];
+  //     updatedProjects[idx].image = file;
+  //     setFormData({ ...formData, projects: updatedProjects });
+  //   } else {
+  //     alert("Project image must be 10MB or less.");
+  //   }
+  // };
 
   const handleExperienceChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setExperience({ ...experience, [name]: value });
   };
 
-  const handleWorkDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
-    const updatedDescriptions = [...experience.workDescription];
-    updatedDescriptions[idx] = e.target.value;
-    setExperience({ ...experience, workDescription: updatedDescriptions });
-  };
+  // const handleWorkDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+  //   const updatedDescriptions = [...experience.workDescription];
+  //   updatedDescriptions[idx] = e.target.value;
+  //   setExperience({ ...experience, workDescription: updatedDescriptions });
+  // };
 
   const addProject = () => {
     setFormData({ ...formData, projects: [...formData.projects, project] });
@@ -89,9 +89,9 @@ const PortfolioForm = () => {
     setExperience({ role: "", organization: "", duration: "", description: "", workDescription: [""] });
   };
 
-  const addWorkDescriptionField = () => {
-    setExperience({ ...experience, workDescription: [...experience.workDescription, ""] });
-  };
+  // const addWorkDescriptionField = () => {
+  //   setExperience({ ...experience, workDescription: [...experience.workDescription, ""] });
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
