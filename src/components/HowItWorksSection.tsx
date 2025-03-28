@@ -25,16 +25,16 @@ const HowItWorks = () => {
   ];
 
   return (
-    <div className="py-16 mx-16 lg:max-w-full">
+    <div className="py-16 mx-24">
       <div className="max-w-7xl items-center">
-        <div className="px-2 py-1 w-fit text-white text-xs mb-2 bg-yellow-500 rounded-2xl font-semibold hover:bg-yellow-400 transition cursor-pointer">
+        <div className="px-2 py-1 w-fit text-xs mb-2 bg-yellow-100 text-yellow-500 border border-yellow-400 rounded-2xl font-semibold transition cursor-pointer">
           How It Works
         </div>
         <div>
-          <h2 className="text-4xl font-extrabold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-gray-900 mb-2">
             How Portfolio-Generator Works
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 text-lg mb-6">
             Create a stunning portfolio by following these simple steps.
           </p>
         </div>

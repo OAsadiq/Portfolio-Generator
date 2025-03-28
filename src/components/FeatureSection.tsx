@@ -1,6 +1,6 @@
 const Feature = () => {
     return (
-      <div className="grid grid-cols-1 gap-12 py-10 mx-16 lg:max-w-full">
+      <div className="grid grid-cols-1 gap-12 py-10 mx-24">
         {/* Box 1 */}
         <div className="rounded-4xl flex items-center justify-between shadow-[0_0_20px_rgba(255,255,255,0.8)] bg-white">
           <div className="w-[50%] text-center p-12">

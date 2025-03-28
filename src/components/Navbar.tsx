@@ -19,7 +19,7 @@ const Navbar = () => {
                     <Link to="/" className="text-gray-900 font-semibold text-md hover:text-gray-500">
                         Home
                     </Link>
-                    <Link to="#" className="text-gray-300 font-semibold text-md">
+                    <Link to="#" className="text-gray-300 font-semibold text-md cursor-not-allowed">
                         Pricing (Coming soon)
                     </Link>
                     <Link to="/contact" className="text-gray-900 font-semibold text-md hover:text-gray-500">
@@ -36,7 +36,7 @@ const Navbar = () => {
                     </button>
 
                     <Link
-                        to="/form"
+                        to="/form-sample"
                         className="px-4 py-2 text-black bg-gray-200 rounded-xl font-semibold shadow-xl hover:bg-gray-300 transition"
                     >
                         Get Started
