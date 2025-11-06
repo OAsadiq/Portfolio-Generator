@@ -14,8 +14,9 @@ router.post("/deploy", async (req: Request, res: Response) => {
     if (!VERCEL_TOKEN) return res.status(500).json({ error: "Vercel token not set" });
 
     // Trigger deployment via Vercel API
-    const response = await fetch("https://api.vercel.com/v13/deployments", {
-      method: "POST",
+    const teamId = 'team_iLHwTUikzTNeBbZ5YRARmvVB'
+    const response = await fetch(`https://api.vercel.com/v6/deployments?teamId=${teamId}`, {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${VERCEL_TOKEN}`,
         "Content-Type": "application/json",
