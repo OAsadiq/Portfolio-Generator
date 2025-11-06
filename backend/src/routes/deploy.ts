@@ -1,68 +1,46 @@
-import express from "express";
-import fs from "fs";
-import path from "path";
-import dotenv from "dotenv";
-
-dotenv.config();
+import express, { Request, Response } from "express";
 const router = express.Router();
 
-router.post("/deploy", async (req, res) => {
+// POST /api/vercel/deploy
+router.post("/deploy", async (req: Request, res: Response) => {
   try {
-    const { username } = req.body; // Example: 'ayomide'
-    const folderPath = path.join(process.cwd(), "portfolios", username);
+    const { projectName, gitRepo } = req.body;
 
-    // Ensure portfolio folder exists
-    if (!fs.existsSync(folderPath)) {
-      return res.status(404).json({ error: "Portfolio not found" });
+    if (!projectName || !gitRepo) {
+      return res.status(400).json({ error: "Missing projectName or gitRepo" });
     }
 
-    // Create files object for deployment
-    const files = fs.readdirSync(folderPath).map((file) => {
-      const content = fs.readFileSync(path.join(folderPath, file));
-      return {
-        file,
-        data: content.toString("base64"),
-      };
-    });
+    const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
+    if (!VERCEL_TOKEN) return res.status(500).json({ error: "Vercel token not set" });
 
-    const payload = {
-      name: `${username}-portfolio`,
-      files: files.map((f) => ({
-        file: f.file,
-        data: f.data,
-        encoding: "base64",
-      })),
-      target: "production",
-      projectSettings: {
-        framework: null,
-      },
-    };
-
+    // Trigger deployment via Vercel API
     const response = await fetch("https://api.vercel.com/v13/deployments", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.VERCEL_TOKEN}`,
+        Authorization: `Bearer ${VERCEL_TOKEN}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        name: projectName,
+        gitSource: {
+          type: "github",
+          repoId: gitRepo,
+          ref: "main",
+        },
+      }),
     });
 
     const data = await response.json();
 
-    if (response.ok) {
-      res.json({
-        message: "Deployment successful",
-        url: data.url, // Example: ayomide-portfolio.vercel.app
-      });
-    } else {
-      res.status(400).json({
-        error: "Failed to deploy",
-        details: data,
-      });
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data.error || "Vercel deployment failed" });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+
+    // Return deployment URL to frontend
+    res.json({ success: true, deploymentUrl: data.url });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error triggering Vercel deploy" });
   }
 });
 

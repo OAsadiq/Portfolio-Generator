@@ -1,80 +1,85 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-
-interface TemplateField {
-  name: string;
-  label: string;
-  type: string;
-  required?: boolean;
-}
-
-interface Template {
-  id: string;
-  name: string;
-  fields: TemplateField[];
-}
+import { useParams } from "react-router-dom";
 
 const CreatePortfolio = () => {
   const { templateId } = useParams();
-  const navigate = useNavigate();
-  const [template, setTemplate] = useState<Template | null>(null);
-  const [formData, setFormData] = useState<Record<string, string | File>>({});
+  const [template, setTemplate] = useState<any>(null);
+  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [portfolioId, setPortfolioId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [deploying, setDeploying] = useState(false);
+  const [deployUrl, setDeployUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    // Get the selected template from localStorage (set on template selection)
     const stored = localStorage.getItem("selectedTemplate");
     if (stored) {
-      const parsed: Template = JSON.parse(stored);
-      if (parsed.id === templateId) setTemplate(parsed);
+      const parsed = JSON.parse(stored);
+      if (parsed.id === templateId) {
+        setTemplate(parsed);
+      }
     }
   }, [templateId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files?.[0] || value,
-    }));
+    setFormData({
+      ...formData,
+      [name]: files ? files[0] : value,
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!template) return;
+    if (!templateId) return;
 
     setLoading(true);
 
     try {
       const form = new FormData();
-      form.append("templateId", template.id);
-
-      // Append all fields
       Object.entries(formData).forEach(([key, value]) => {
-        if (value instanceof File) {
-          form.append(key, value);
-        } else {
-          form.append(key, value);
-        }
+        form.append(key, value as Blob | string);
       });
+      form.append("templateId", templateId);
 
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`, {
         method: "POST",
         body: form,
       });
 
-      if (!res.ok) {
-        const text = await res.text(); // in case backend returned HTML
-        throw new Error(text || "Failed to create portfolio");
-      }
+      if (!res.ok) throw new Error("Failed to generate portfolio");
 
       const data = await res.json();
-      localStorage.setItem("portfolioId", data.portfolioId);
-      navigate(`/preview/${data.portfolioId}`);
-    } catch (error: any) {
-      console.error(error);
-      alert(error.message || "Error generating portfolio");
+      setPortfolioId(data.portfolioId);
+      alert("Portfolio generated successfully!");
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Error generating portfolio");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVercelDeploy = async () => {
+    if (!portfolioId) return;
+    setDeploying(true);
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/vercel/deploy`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ portfolioId }),
+      });
+
+      if (!res.ok) throw new Error("Failed to deploy portfolio");
+
+      const data = await res.json();
+      setDeployUrl(data.url);
+      alert("Portfolio deployed successfully!");
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Error deploying portfolio");
+    } finally {
+      setDeploying(false);
     }
   };
 
@@ -83,8 +88,9 @@ const CreatePortfolio = () => {
   return (
     <div className="max-w-3xl mx-auto py-10">
       <h2 className="text-3xl font-bold mb-6">{template.name}</h2>
+
       <form onSubmit={handleSubmit} className="space-y-4">
-        {template.fields.map((field) => (
+        {template.fields.map((field: any) => (
           <div key={field.name}>
             <label className="block mb-1 font-semibold">{field.label}</label>
             {field.type === "textarea" ? (
@@ -108,12 +114,42 @@ const CreatePortfolio = () => {
 
         <button
           type="submit"
-          className="bg-yellow-500 text-black py-2 px-6 rounded hover:bg-yellow-600"
           disabled={loading}
+          className="bg-yellow-500 text-black py-2 px-6 rounded hover:bg-yellow-600"
         >
           {loading ? "Generating..." : "Generate Portfolio"}
         </button>
       </form>
+
+      {portfolioId && (
+        <div className="mt-6">
+          <h3 className="font-bold mb-2">Your Portfolio is Ready!</h3>
+          <a
+            href={`${import.meta.env.VITE_API_URL}/portfolios/${portfolioId}.html`}
+            target="_blank"
+            className="text-blue-600 underline mb-4 block"
+          >
+            Preview Portfolio
+          </a>
+
+          <button
+            onClick={handleVercelDeploy}
+            disabled={deploying}
+            className="bg-green-500 py-2 px-4 rounded text-white hover:bg-green-600"
+          >
+            {deploying ? "Deploying..." : "Deploy to Vercel"}
+          </button>
+
+          {deployUrl && (
+            <p className="mt-2">
+              Deployed URL:{" "}
+              <a href={deployUrl} target="_blank" className="text-blue-600 underline">
+                {deployUrl}
+              </a>
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 };
