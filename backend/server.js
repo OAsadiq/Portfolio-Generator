@@ -1,13 +1,15 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import templateRoutes from "./routes/templateRoutes";
+
+dotenv.config();
 
 const app = express();
-app.use(bodyParser.json());
 app.use(cors());
-app.set("view engine", "ejs");
+app.use(express.json());
 
-app.use("/api", require("./routes/api"));
+app.use("/api", templateRoutes);
 
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

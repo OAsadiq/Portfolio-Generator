@@ -1,152 +1,125 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const templates = [
-  {
-    id: 1,
-    title: "Modern Template",
-    description: "A sleek and modern design for tech professionals.",
-    image: "/assets/templates/template2.png",
-    url: "https://jakore.vercel.app",
-    price: 0,
-  },
-  {
-    id: 2,
-    title: "Minimal Template",
-    description: "A clean, minimal template for simplicity lovers.",
-    image: "/assets/templates/template2.png",
-    url: "https://minimal-template.vercel.app",
-    price: 0, // Free Template
-  },
-  {
-    id: 3,
-    title: "Creative Template",
-    description: "A colorful, creative design to showcase your skills.",
-    image: "/assets/templates/template3.png",
-    url: "https://creative-template.vercel.app",
-    price: 15, // Paid Template
-  },
-  {
-    id: 4,
-    title: "Professional Template",
-    description: "A sophisticated and professional look for tech experts.",
-    image: "/assets/templates/template3.png",
-    url: "https://professional-template.vercel.app",
-    price: 20, // Paid Template
-  },
-  {
-    id: 5,
-    title: "Classic Template",
-    description: "Timeless design for showcasing your experience and skills.",
-    image: "/assets/templates/template1.jpg",
-    url: "https://classic-template.vercel.app",
-    price: 0, // Free Template
-  },
-];
+interface Template {
+  id: string;
+  name: string;
+  description: string;
+  thumbnail?: string;
+  price?: number;
+}
 
 const TemplateSelection = () => {
   const navigate = useNavigate();
-  const [hoveredTemplate, setHoveredTemplate] = useState<number | null>(null);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSelect = async (templateId: number) => {
-    const portfolioId = localStorage.getItem("portfolioId");
+  // ✅ Fetch templates from backend
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const API_URL = import.meta.env.VITE_API_URL;
 
-    const response = await fetch("/api/select-template", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ templateId, portfolioId }),
-    });
+        const res = await fetch(`${API_URL}/api/templates`);
+        const data = await res.json();
 
-    if (response.ok) {
-      navigate(`/portfolio/${portfolioId}`);
-    } else {
-      alert("Failed to select template. Please try again.");
+        if (res.ok) {
+          setTemplates(data);
+        } else {
+          console.error("Failed to load templates:", data.error);
+        }
+      } catch (err) {
+        console.error("Error fetching templates:", err);
+      }
+    };
+
+    fetchTemplates();
+  }, []);
+
+  const handleSelect = async (templateId: string) => {
+    try {
+      setLoading(true);
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates/select/${templateId}`);
+      const data = await res.json();
+
+      if (res.ok) {
+        // Store selected template config for the next page
+        localStorage.setItem("selectedTemplate", JSON.stringify(data));
+        navigate(`/create/${data.id}`);
+      } else {
+        alert(data.error || "Failed to load template");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error selecting template.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 text-white flex items-center justify-center">
-      <div className="max-w-6xl w-full bg-white text-gray-800 rounded-4xl shadow-lg p-10 my-16">
-        <h2 className="text-5xl font-extrabold mb-4 text-center leading-tight text-black">
+    <div className="min-h-screen bg-gray-100 text-gray-800 flex items-center justify-center">
+      <div className="max-w-5xl w-full bg-white rounded-3xl shadow-lg p-10 my-16">
+        <h2 className="text-4xl font-bold mb-4 text-center">
           Choose Your <span className="text-yellow-500">Portfolio</span> Template
         </h2>
 
-        <p className="text-center text-lg text-gray-600 mb-8">
-          Select a template that best represents your personal style and skills.
+        <p className="text-center text-gray-600 mb-8">
+          Select a template to start creating your portfolio.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {templates.map((template) => (
-            <div
-              key={template.id}
-              className={`rounded-lg overflow-hidden shadow-lg hover:shadow-xl relative transition-transform ${
-                template.price > 0 ? "hover:scale-100" : "hover:scale-105"
-              }`}
-              onMouseEnter={() => setHoveredTemplate(template.id)}
-              onMouseLeave={() => setHoveredTemplate(null)}
-            >
-              <div className="relative">
+        {templates.length === 0 ? (
+          <p className="text-center text-gray-500">Loading templates...</p>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {templates.map((template) => (
+              <div
+                key={template.id}
+                onMouseEnter={() => setHoveredTemplate(template.id)}
+                onMouseLeave={() => setHoveredTemplate(null)}
+                className="relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-transform hover:scale-105"
+              >
                 <img
-                  src={template.image}
-                  alt={template.title}
-                  className={`w-full h-auto object-fit ${
-                    template.price > 0 ? "opacity-70" : ""
-                  } transition-opacity`}
+                  src={template.thumbnail || "/assets/templates/default.png"}
+                  alt={template.name}
+                  className="w-full h-auto object-cover"
                 />
 
-                {/* Display Price or 'Free' as a tag */}
                 {hoveredTemplate === template.id && (
-                  <div
-                    className={`absolute top-2 right-2 ${
-                      template.price > 0 ? "bg-yellow-100" : "bg-yellow-100"
-                    } px-2 py-1 w-fit h-fit text-xs text-yellow-500 border border-yellow-400 rounded-2xl font-semibold`}
-                  >
-                    {template.price > 0 ? "Coming Soon" : "Free"}
+                  <div className="absolute top-2 right-2 bg-yellow-100 px-2 py-1 text-xs text-yellow-600 rounded-2xl">
+                    {template.price && template.price > 0 ? "Paid" : "Free"}
                   </div>
                 )}
-              </div>
 
-              <div className="p-5">
-                <h3 className="text-xl font-bold mb-1 text-black">{template.title}</h3>
-                <p className="text-gray-700 text-sm mb-4">{template.description}</p>
+                <div className="p-4">
+                  <h3 className="font-bold text-lg">{template.name}</h3>
+                  <p className="text-sm text-gray-600">{template.description}</p>
 
-                <div className="flex items-end gap-4">
-                  {template.price > 0 ? (
-                    <button
-                      className="bg-gray-800 text-white text-sm py-2 px-4 rounded w-full opacity-50 cursor-not-allowed"
-                    >
-                      View
-                    </button>
-                  ) : (
+                  <div className="mt-4 flex gap-3">
                     <a
-                      href={template.url}
+                      href={`${import.meta.env.VITE_API_URL}/api/templates/${template.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-gray-800 text-white text-sm py-2 px-4 rounded w-full hover:bg-gray-600 text-center"
+                      className="bg-gray-800 text-white text-sm py-2 px-4 rounded w-full text-center hover:bg-gray-600"
                     >
                       View
                     </a>
-                  )}
 
-                  {template.price > 0 ? (
-                    <button
-                      className="bg-yellow-500 text-white text-sm py-2 px-4 rounded w-full opacity-50 cursor-not-allowed"
-                    >
-                      Select
-                    </button>
-                  ) : (
                     <button
                       onClick={() => handleSelect(template.id)}
-                      className="bg-yellow-500 text-white text-sm py-2 px-4 rounded w-full hover:bg-yellow-600"
+                      disabled={loading}
+                      className="bg-yellow-500 text-white text-sm py-2 px-4 rounded w-full hover:bg-yellow-600 disabled:opacity-50"
                     >
-                      Select
+                      {loading ? "Loading..." : "Select"}
                     </button>
-                  )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

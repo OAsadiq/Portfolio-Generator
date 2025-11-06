@@ -1,8 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import PortfolioForm from "./pages/PortfolioForm";
+import PortfolioForm from "./pages/CreatePortfolio";
 import TemplateSelection from "./pages/TemplateSelection";
-import PreviewPage from "./pages/PreviewPage";
+import CreatePortfolio from "./pages/CreatePortfolio";
+import PreviewPortfolio from "./pages/PreviewPortfolio";
 
 function App() {
   return (
@@ -12,7 +13,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/form" element={<PortfolioForm />} />
           <Route path="/templates" element={<TemplateSelection />} />
-          <Route path="/preview" element={<PreviewPage />} />
+          <Route path="/create/:templateId" element={<CreatePortfolio />} />
+          <Route path="/preview/:id" element={<PreviewPortfolio />} />
         </Routes>
       </div>
     </Router>
