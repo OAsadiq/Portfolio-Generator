@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import templateRoutes from "./routes/templatesRoutes";
 import path from "path";
+import deployRouter from "./routes/deploy";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -22,6 +23,8 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/portfolios", express.static(path.join(__dirname, "portfolios")));
 
 app.use("/api/templates", templateRoutes);
+app.use("/api/vercel", deployRouter);
+
 
 app.get("/", (req, res) => {
   res.send("Portfolio Generator Backend Running");
