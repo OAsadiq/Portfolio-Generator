@@ -10,6 +10,7 @@ app.use(
   cors({
     origin: [
       "https://cautious-barnacle-q5jx4gxq49phx75x-4173.app.github.dev",
+      "https://oa-portfolio-generator.vercel.app",
       "https://*.github.dev"
     ],
     methods: ["GET", "POST"],
