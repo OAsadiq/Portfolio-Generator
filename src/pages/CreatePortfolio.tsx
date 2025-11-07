@@ -1,11 +1,25 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
+interface TemplateField {
+  name: string;
+  label: string;
+  type: string;
+  required?: boolean;
+}
+
+interface Template {
+  id: string;
+  name: string;
+  description: string;
+  fields: TemplateField[];
+}
+
 const CreatePortfolio = () => {
   const { templateId } = useParams();
-  const [template, setTemplate] = useState<any>(null);
+  const [template, setTemplate] = useState<Template | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
-  const [portfolioId, setPortfolioId] = useState<string | null>(null);
+  const [portfolioSlug, setPortfolioSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [deploying, setDeploying] = useState(false);
   const [deployUrl, setDeployUrl] = useState<string | null>(null);
@@ -13,10 +27,8 @@ const CreatePortfolio = () => {
   useEffect(() => {
     const stored = localStorage.getItem("selectedTemplate");
     if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed.id === templateId) {
-        setTemplate(parsed);
-      }
+      const parsed: Template = JSON.parse(stored);
+      if (parsed.id === templateId) setTemplate(parsed);
     }
   }, [templateId]);
 
@@ -49,25 +61,25 @@ const CreatePortfolio = () => {
       if (!res.ok) throw new Error("Failed to generate portfolio");
 
       const data = await res.json();
-      setPortfolioId(data.portfolioId);
+      setPortfolioSlug(data.portfolioSlug);
       console.log("Portfolio generated successfully!");
     } catch (err: any) {
       console.error(err);
-      console.log(err.message || "Error generating portfolio");
+      alert(err.message || "Error generating portfolio");
     } finally {
       setLoading(false);
     }
   };
 
   const handleVercelDeploy = async () => {
-    if (!portfolioId) return;
+    if (!portfolioSlug) return;
     setDeploying(true);
 
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/vercel/deploy`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ portfolioId }),
+        body: JSON.stringify({ portfolioSlug }),
       });
 
       if (!res.ok) throw new Error("Failed to deploy portfolio");
@@ -90,7 +102,7 @@ const CreatePortfolio = () => {
       <h2 className="text-3xl font-bold mb-6">{template.name}</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {template.fields.map((field: any) => (
+        {template.fields.map((field) => (
           <div key={field.name}>
             <label className="block mb-1 font-semibold">{field.label}</label>
             {field.type === "textarea" ? (
@@ -121,11 +133,11 @@ const CreatePortfolio = () => {
         </button>
       </form>
 
-      {portfolioId && (
+      {portfolioSlug && (
         <div className="mt-6">
           <h3 className="font-bold mb-2">Your Portfolio is Ready!</h3>
           <a
-            href={`${import.meta.env.VITE_API_URL}/portfolios/${portfolioId}.html`}
+            href={`${import.meta.env.VITE_API_URL}/portfolios/${portfolioSlug}.html`}
             target="_blank"
             className="text-blue-600 underline mb-4 block"
           >
