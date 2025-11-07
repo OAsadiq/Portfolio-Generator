@@ -50,10 +50,10 @@ const CreatePortfolio = () => {
 
       const data = await res.json();
       setPortfolioId(data.portfolioId);
-      alert("Portfolio generated successfully!");
+      console.log("Portfolio generated successfully!");
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Error generating portfolio");
+      console.log(err.message || "Error generating portfolio");
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ const CreatePortfolio = () => {
 
       const data = await res.json();
       setDeployUrl(data.url);
-      alert("Portfolio deployed successfully!");
+      console.log("Portfolio deployed successfully!");
     } catch (err: any) {
       console.error(err);
       alert(err.message || "Error deploying portfolio");
