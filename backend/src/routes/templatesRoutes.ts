@@ -2,7 +2,6 @@ import express, { Request, Response } from "express";
 import path from "path";
 import fs from "fs";
 import multer from "multer";
-import crypto from "crypto";
 import rateLimit from "express-rate-limit";
 import slugify from "slugify";
 import { templates } from "../templates/templateConfig";
