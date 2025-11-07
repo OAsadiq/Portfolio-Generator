@@ -1,47 +1,88 @@
-import express, { Request, Response } from "express";
+import express from "express";
+import fs from "fs";
+import path from "path";
+import fetch from "node-fetch";
+
 const router = express.Router();
 
-// POST /api/vercel/deploy
-router.post("/deploy", async (req: Request, res: Response) => {
-  try {
-    const { projectName, gitRepo } = req.body;
+interface VercelDeploymentResponse {
+  url?: string;
+  name?: string;
+  created?: number;
+  state?: string;
+  [key: string]: any;
+}
 
-    if (!projectName || !gitRepo) {
-      return res.status(400).json({ error: "Missing projectName or gitRepo" });
-    }
+router.post("/deploy", async (req, res) => {
+  try {
+    const { portfolioId } = req.body;
+    console.log("🟡 Incoming deploy request for:", portfolioId);
 
     const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
-    if (!VERCEL_TOKEN) return res.status(500).json({ error: "Vercel token not set" });
+    console.log("🔑 VERCEL_TOKEN present?", !!VERCEL_TOKEN);
 
-    // Trigger deployment via Vercel API
-    const teamId = 'team_iLHwTUikzTNeBbZ5YRARmvVB'
-    const response = await fetch(`https://api.vercel.com/v6/deployments?teamId=${teamId}`, {
-      method: "GET",
+    const filePath = path.join(__dirname, "../portfolios", `${portfolioId}.html`);
+    console.log("📂 Looking for file:", filePath, fs.existsSync(filePath));
+
+    if (!portfolioId) {
+      return res.status(400).json({ error: "portfolioId is required" });
+    }
+    if (!VERCEL_TOKEN) {
+      return res.status(500).json({ error: "Server missing Vercel token" });
+    }
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: "Portfolio file not found" });
+    }
+
+    const fileContent = fs.readFileSync(filePath, "utf8");
+
+    const payload = {
+      name: `portfolio-${portfolioId}`,
+      files: [
+        {
+          file: "index.html",
+          data: fileContent,
+        },
+      ],
+      projectSettings: {
+        framework: null,
+      },
+    };
+
+    console.log("🚀 Deploying to Vercel...");
+
+    const vercelRes = await fetch("https://api.vercel.com/v13/deployments", {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${VERCEL_TOKEN}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        name: projectName,
-        gitSource: {
-          type: "github",
-          repoId: gitRepo,
-          ref: "main",
-        },
-      }),
+      body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
+    // ✅ Safely cast the JSON response
+    const vercelData = (await vercelRes.json()) as VercelDeploymentResponse;
 
-    if (!response.ok) {
-      return res.status(response.status).json({ error: data.error || "Vercel deployment failed" });
+    console.log("📦 Vercel response:", vercelData);
+
+    if (!vercelRes.ok) {
+      return res.status(400).json({
+        error: "Failed to deploy portfolio",
+        details: vercelData,
+      });
     }
 
-    // Return deployment URL to frontend
-    res.json({ success: true, deploymentUrl: data.url });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error triggering Vercel deploy" });
+    res.status(200).json({
+      message: "Portfolio deployed successfully",
+      deployment: vercelData,
+      url: vercelData.url ? `https://${vercelData.url}` : null,
+    });
+  } catch (error: any) {
+    console.error("🔥 Deployment error:", error);
+    res.status(500).json({
+      error: "Server error during deployment",
+      details: String(error),
+    });
   }
 });
 
