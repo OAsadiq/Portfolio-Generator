@@ -6,7 +6,7 @@ const minimalTemplate: TemplateConfig = {
   description: "A clean, simple personal portfolio design.",
   thumbnail: "/images/minimal-template.png", // optional
   fields: [
-    { name: "name", label: "Full Name", type: "text", required: true },
+    { name: "fullName", label: "Full Name", type: "text", required: true },
     { name: "bio", label: "Short Bio", type: "textarea" },
     { name: "email", label: "Email", type: "email" },
     { name: "profilePicture", label: "Profile Picture", type: "file" }
@@ -15,7 +15,7 @@ const minimalTemplate: TemplateConfig = {
     <!DOCTYPE html>
     <html>
       <head>
-        <title>${data.name}</title>
+        <title>${data.fullName}</title>
         <style>
           body { font-family: Arial; text-align: center; padding: 2rem; }
           img { width: 150px; border-radius: 50%; }

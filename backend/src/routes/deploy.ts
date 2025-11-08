@@ -1,88 +1,67 @@
-import express from "express";
-import fs from "fs";
+import express, { Request, Response } from "express";
 import path from "path";
-import fetch from "node-fetch";
+import fs from "fs";
+import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const router = express.Router();
 
-interface VercelDeploymentResponse {
-  url?: string;
-  name?: string;
-  created?: number;
-  state?: string;
-  [key: string]: any;
-}
+router.post("/deploy", async (req: Request, res: Response) => {
+  const { portfolioId } = req.body;
+  console.log(`🟡 Incoming deploy request for: ${portfolioId}`);
 
-router.post("/deploy", async (req, res) => {
+  const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
+  const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
+
+  console.log("🔑 VERCEL_TOKEN present?", !!VERCEL_TOKEN);
+
+  if (!VERCEL_TOKEN) {
+    return res.status(400).json({ error: "Missing VERCEL_TOKEN in environment" });
+  }
+
+  const filePath = path.join(__dirname, "../portfolios", `${portfolioId}.html`);
+
+  if (!fs.existsSync(filePath)) {
+    console.log("❌ Portfolio not found at:", filePath);
+    return res.status(404).json({ error: "Portfolio file not found" });
+  }
+
   try {
-    const { portfolioId } = req.body;
-    console.log("🟡 Incoming deploy request for:", portfolioId);
+    const htmlContent = fs.readFileSync(filePath, "utf8");
 
-    const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
-    console.log("🔑 VERCEL_TOKEN present?", !!VERCEL_TOKEN);
-
-    const filePath = path.join(__dirname, "../portfolios", `${portfolioId}.html`);
-    console.log("📂 Looking for file:", filePath, fs.existsSync(filePath));
-
-    if (!portfolioId) {
-      return res.status(400).json({ error: "portfolioId is required" });
-    }
-    if (!VERCEL_TOKEN) {
-      return res.status(500).json({ error: "Server missing Vercel token" });
-    }
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: "Portfolio file not found" });
-    }
-
-    const fileContent = fs.readFileSync(filePath, "utf8");
-
-    const payload = {
-      name: `portfolio-${portfolioId}`,
-      files: [
-        {
-          file: "index.html",
-          data: fileContent,
+    // Deploy to Vercel
+    const vercelResponse = await axios.post(
+      "https://api.vercel.com/v13/deployments",
+      {
+        name: portfolioId,
+        files: [
+          {
+            file: "index.html",
+            data: htmlContent,
+          },
+        ],
+        projectSettings: {
+          framework: null,
         },
-      ],
-      projectSettings: {
-        framework: null,
       },
-    };
+      {
+        headers: {
+          Authorization: `Bearer ${VERCEL_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        params: {
+          teamId: VERCEL_TEAM_ID,
+        },
+      }
+    );
 
-    console.log("🚀 Deploying to Vercel...");
-
-    const vercelRes = await fetch("https://api.vercel.com/v13/deployments", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${VERCEL_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    // ✅ Safely cast the JSON response
-    const vercelData = (await vercelRes.json()) as VercelDeploymentResponse;
-
-    console.log("📦 Vercel response:", vercelData);
-
-    if (!vercelRes.ok) {
-      return res.status(400).json({
-        error: "Failed to deploy portfolio",
-        details: vercelData,
-      });
-    }
-
-    res.status(200).json({
-      message: "Portfolio deployed successfully",
-      deployment: vercelData,
-      url: vercelData.url ? `https://${vercelData.url}` : null,
-    });
+    console.log("✅ Deployed:", vercelResponse.data.url);
+    res.json({ message: "Deployment successful", url: `https://${vercelResponse.data.url}` });
   } catch (error: any) {
-    console.error("🔥 Deployment error:", error);
-    res.status(500).json({
-      error: "Server error during deployment",
-      details: String(error),
-    });
+    console.error("❌ Deployment failed:", error.response?.data || error.message);
+    res.status(400).json({ error: "Failed to deploy portfolio" });
   }
 });
 

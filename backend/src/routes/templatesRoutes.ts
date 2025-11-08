@@ -12,8 +12,8 @@ const router = express.Router();
 // Multer setup for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, "..", "uploads");
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+    const uploadDir = path.join(process.cwd(), "src", "uploads");
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
@@ -38,7 +38,7 @@ router.get("/", (req, res) => {
   res.json(list);
 });
 
-// Preview template (HTML)
+// Preview template
 router.get("/:id", (req: Request, res: Response) => {
   const { id } = req.params;
   const templatePath = path.resolve(`./src/templates/${id}/index.html`);
@@ -51,7 +51,7 @@ router.get("/:id", (req: Request, res: Response) => {
   res.send(html);
 });
 
-// Select a template and return its config
+// Select a template
 router.get("/select/:id", (req: Request, res: Response) => {
   const { id } = req.params;
   const template = Object.values(templates).find((t) => t.id === id);
@@ -68,18 +68,17 @@ router.get("/select/:id", (req: Request, res: Response) => {
   });
 });
 
-// ✅ Create portfolio route
+// ✅ Create portfolio
 router.post(
   "/create-portfolio",
   generateLimiter,
-  upload.any(), // handle file uploads
+  upload.any(),
   async (req: Request, res: Response) => {
     try {
       const { templateId, ...body } = req.body;
       const template = templates[templateId];
       if (!template) return res.status(404).json({ error: "Template not found" });
 
-      // Merge uploaded files into data
       const data: Record<string, any> = { ...body };
       if (req.files) {
         (req.files as Express.Multer.File[]).forEach((file) => {
@@ -87,15 +86,14 @@ router.post(
         });
       }
 
-      // Generate a slug from user's full name
-      const portfolioDir = path.join(__dirname, "portfolios");
-      if (!fs.existsSync(portfolioDir)) fs.mkdirSync(portfolioDir);
+      // ✅ Use consistent directory
+      const portfolioDir = path.join(process.cwd(), "src", "portfolios");
+      if (!fs.existsSync(portfolioDir)) fs.mkdirSync(portfolioDir, { recursive: true });
 
       const baseSlug = slugify(data.fullName || "user", { lower: true, strict: true });
       let slug = baseSlug;
       let counter = 1;
 
-      // Check for existing portfolios with same slug
       while (fs.existsSync(path.join(portfolioDir, `${slug}.html`))) {
         slug = `${baseSlug}-${counter}`;
         counter++;
@@ -103,14 +101,20 @@ router.post(
 
       const portfolioPath = path.join(portfolioDir, `${slug}.html`);
 
-      // Generate HTML
+      console.log("🟢 Generating portfolio for:", data.fullName);
+      console.log("📄 Template used:", templateId);
+      console.log("📁 Saving at:", portfolioPath);
+
       const html = template.generateHTML(data);
       fs.writeFileSync(portfolioPath, html, "utf-8");
 
-      // Return the slug to frontend for friendly URL
-      res.json({ portfolioSlug: slug });
+      res.json({
+        message: "Portfolio generated successfully",
+        portfolioSlug: slug,
+        filePath: `/src/portfolios/${slug}.html`,
+      });
     } catch (err) {
-      console.error(err);
+      console.error("❌ Portfolio generation failed:", err);
       res.status(500).json({ error: "Failed to generate portfolio" });
     }
   }
