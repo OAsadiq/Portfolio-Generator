@@ -4,7 +4,7 @@ const minimalTemplate: TemplateConfig = {
   id: "minimal-template",
   name: "Minimal Template",
   description: "A clean, simple personal portfolio design.",
-  thumbnail: "./images/professional-template.jpg",
+  thumbnail: "backend/src/images/minimal-template.jpg",
   fields: [
     { name: "fullName", label: "Full Name", type: "text", required: true },
     { name: "bio", label: "Short Bio", type: "textarea" },
@@ -18,7 +18,7 @@ const minimalTemplate: TemplateConfig = {
         <title>${data.fullName}</title>
         <style>
           body { font-family: Arial; text-align: center; padding: 2rem; }
-          img { width: 150px; border-radius: 50%; }
+          img { width: 100px; border-radius: 50%; }
         </style>
       </head>
       <body>

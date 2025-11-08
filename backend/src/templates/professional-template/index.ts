@@ -4,7 +4,7 @@ const professionalTemplate: TemplateConfig = {
   id: "professional-template",
   name: "Professional Template",
   description: "A modern professional portfolio with work experience and social links.",
-  thumbnail: "./images/professional-template.jpg",
+  thumbnail: "backend/src/images/professional-template.jpg",
   fields: [
     { name: "fullName", label: "Full Name", type: "text", required: true },
     { name: "bio", label: "Short Bio", type: "textarea" },
@@ -23,7 +23,7 @@ const professionalTemplate: TemplateConfig = {
         <style>
           body { font-family: Arial; max-width: 800px; margin: auto; padding: 2rem; background: #f5f5f5; }
           header { display: flex; align-items: center; gap: 2rem; background: #ffffff; padding: 1rem; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-          img { width: 150px; border-radius: 50%; }
+          img { width: 100px; border-radius: 50%; }
           h1 { margin: 0; color: #333; }
           section { margin-top: 2rem; background: #fff; padding: 1rem 2rem; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
           footer { text-align: center; margin-top: 3rem; font-size: 12px; color: #777; }
