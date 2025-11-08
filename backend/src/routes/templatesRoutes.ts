@@ -26,9 +26,15 @@ const upload = multer({ storage });
 
 const generateLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 1,
-  message: { error: "Please wait before generating another portfolio" }
+  max: 5,
+  keyGenerator: (req) => {
+    const ip = req.ip || "unknown";
+    const templateId = (req.body?.templateId || "global").toString();
+    return `${ip}-${templateId}`;
+  },
+  message: { error: "You’ve reached the limit. Please wait a bit before generating more." },
 });
+
 
 // List all templates
 router.get("/", (req, res) => {

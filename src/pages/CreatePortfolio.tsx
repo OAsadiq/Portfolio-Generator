@@ -23,6 +23,7 @@ const CreatePortfolio = () => {
   const [loading, setLoading] = useState(false);
   const [deploying, setDeploying] = useState(false);
   const [deployUrl, setDeployUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("selectedTemplate");
@@ -63,12 +64,12 @@ const CreatePortfolio = () => {
       const data = await res.json();
       setPortfolioSlug(data.portfolioSlug);
       console.log("Portfolio generated successfully!");
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Error generating portfolio");
-    } finally {
-      setLoading(false);
-    }
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Error generating portfolio");
+      } finally {
+        setLoading(false);
+      }
   };
 
   const handleVercelDeploy = async () => {
@@ -79,17 +80,16 @@ const CreatePortfolio = () => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/vercel/deploy`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ portfolioSlug }),
+        body: JSON.stringify({ portfolioId: portfolioSlug }), // ✅ renamed key
       });
 
       if (!res.ok) throw new Error("Failed to deploy portfolio");
 
       const data = await res.json();
       setDeployUrl(data.url);
-      console.log("Portfolio deployed successfully!");
+      console.log("✅ Portfolio deployed successfully!");
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Error deploying portfolio");
     } finally {
       setDeploying(false);
     }
@@ -126,12 +126,13 @@ const CreatePortfolio = () => {
 
         <button
           type="submit"
-          disabled={loading}
-          className="bg-yellow-500 text-black py-2 px-6 rounded hover:bg-yellow-600"
+          disabled={loading || deploying}
+          className="bg-yellow-500 text-black py-2 px-6 rounded hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Generating..." : "Generate Portfolio"}
         </button>
       </form>
+      {error && <p className="text-red-600 mt-2">{error}</p>}
 
       {portfolioSlug && (
         <div className="mt-6">
@@ -140,13 +141,17 @@ const CreatePortfolio = () => {
             href={`${import.meta.env.VITE_API_URL}/portfolios/${portfolioSlug}.html`}
             target="_blank"
             className="text-blue-600 underline mb-4 block"
+            onClick={(e) => {
+              e.preventDefault();
+              window.open(`${import.meta.env.VITE_API_URL}/portfolios/${portfolioSlug}.html`, "_blank");
+            }}
           >
             Preview Portfolio
           </a>
 
           <button
             onClick={handleVercelDeploy}
-            disabled={deploying}
+            disabled={deploying || !portfolioSlug}
             className="bg-green-500 py-2 px-4 rounded text-white hover:bg-green-600"
           >
             {deploying ? "Deploying..." : "Deploy to Vercel"}
