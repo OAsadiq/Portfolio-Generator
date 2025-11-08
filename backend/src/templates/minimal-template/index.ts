@@ -26,6 +26,7 @@ const minimalTemplate: TemplateConfig = {
         <h1>${data.name}</h1>
         <p>${data.bio}</p>
         <a href="mailto:${data.email}">${data.email}</a>
+        <footer>Made with ❤️ using OA-Portfolio-Generator</footer>
       </body>
     </html>
   `

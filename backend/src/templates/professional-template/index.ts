@@ -56,7 +56,7 @@ const professionalTemplate: TemplateConfig = {
           </ul>
         </section>
 
-        <footer>Made with <strong>OA-Portfolio-Generator</strong></footer>
+        <footer>Made with ❤️ using OA-Portfolio-Generator</footer>
       </body>
     </html>
   `
