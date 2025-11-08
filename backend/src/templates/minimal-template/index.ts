@@ -4,7 +4,7 @@ const minimalTemplate: TemplateConfig = {
   id: "minimal-template",
   name: "Minimal Template",
   description: "A clean, simple personal portfolio design.",
-  thumbnail: "/images/minimal-template.png", // optional
+  thumbnail: "images/professional-template.jpg", // optional
   fields: [
     { name: "fullName", label: "Full Name", type: "text", required: true },
     { name: "bio", label: "Short Bio", type: "textarea" },

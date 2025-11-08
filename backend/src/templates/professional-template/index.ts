@@ -4,7 +4,7 @@ const professionalTemplate: TemplateConfig = {
   id: "professional-template",
   name: "Professional Template",
   description: "A modern professional portfolio with work experience and social links.",
-  thumbnail: "/images/professional-template.png",
+  thumbnail: "/images/professional-template.jpg",
   fields: [
     { name: "fullName", label: "Full Name", type: "text", required: true },
     { name: "bio", label: "Short Bio", type: "textarea" },
