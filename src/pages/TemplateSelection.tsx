@@ -73,7 +73,7 @@ const TemplateSelection = () => {
         {templates.length === 0 ? (
           <p className="text-center text-gray-500">Loading templates...</p>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {templates.map((template) => (
               <div
                 key={template.id}

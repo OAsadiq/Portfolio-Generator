@@ -6,15 +6,15 @@ const HowItWorks = () => {
   const steps = [
     {
       id: 1,
-      title: "Step 1: Fill Out the Form",
-      description: "Provide your name, bio, skills, and project details to start.",
-      img: "/assets/feature13.jpg",
+      title: "Step 1: Select a Template",
+      description: "Choose a template that suits your portfolio style.",
+      img: "/assets/feature15.jpg",
     },
     {
       id: 2,
-      title: "Step 2: Select a Template",
-      description: "Choose a template that suits your portfolio style.",
-      img: "/assets/feature15.jpg",
+      title: "Step 2: Fill Out the Form",
+      description: "Provide your name, bio, skills, and project details to start.",
+      img: "/assets/feature13.jpg",
     },
     {
       id: 3,

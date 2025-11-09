@@ -18,7 +18,7 @@ const Hero = () => {
             </p>
 
             <div className="relative">
-                <Link to="/form">
+                <Link to="/templates">
                     <button className="px-12 py-3 text-lg bg-yellow-500 text-white rounded-xl shadow-lg hover:bg-yellow-400 transition duration-300 transform hover:scale-105 cursor-pointer">
                     Get Started
                     </button>
