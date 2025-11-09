@@ -45,17 +45,22 @@ router.get("/", (req, res) => {
 });
 
 // Preview template
-router.get("/:id", (req: Request, res: Response) => {
+router.get("/:id", async (req, res) => {
   const { id } = req.params;
-  const templatePath = path.resolve(`./src/templates/${id}/index.html`);
+  const template = templates[id];
 
-  if (!fs.existsSync(templatePath)) {
+  if (!template) {
     return res.status(404).send("Template not found");
   }
 
-  const html = fs.readFileSync(templatePath, "utf-8");
-  res.send(html);
+  const filePath = path.join(__dirname, `../templates/${id}/preview.html`);
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send("Preview file missing");
+  }
 });
+
 
 // Select a template
 router.get("/select/:id", (req: Request, res: Response) => {
