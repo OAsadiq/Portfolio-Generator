@@ -82,7 +82,7 @@ const TemplateSelection = () => {
                 className="relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-transform hover:scale-105"
               >
                 <img
-                  src={template.thumbnail || "/assets/templates/minimal-template.jpg"}
+                  src={`${import.meta.env.VITE_API_URL}${template.thumbnail}`}
                   alt={template.name}
                   className="w-full h-auto object-cover"
                 />
