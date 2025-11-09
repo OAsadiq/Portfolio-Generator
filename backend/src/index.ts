@@ -24,7 +24,7 @@ app.use(
 app.use(express.json());
 app.use("/uploads", express.static(path.join(process.cwd(), "src/uploads")));
 app.use("/portfolios", express.static(path.join(process.cwd(), "src/portfolios")));
-app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/images", express.static(path.join(__dirname, "../public/images")));
 
 app.use("/api/templates", templateRoutes);
 app.use("/api/vercel", deployRoutes);
