@@ -84,7 +84,7 @@ const TemplateSelection = () => {
                 <img
                   src={`${import.meta.env.VITE_API_URL}${template.thumbnail}`}
                   alt={template.name}
-                  className="w-full h-auto object-cover"
+                  className="w-full h-72 object-cover"
                 />
 
                 {hoveredTemplate === template.id && (
@@ -93,7 +93,7 @@ const TemplateSelection = () => {
                   </div>
                 )}
 
-                <div className="p-4">
+                <div className="p-4 justify-end">
                   <h3 className="font-bold text-lg">{template.name}</h3>
                   <p className="text-sm text-gray-600">{template.description}</p>
 
