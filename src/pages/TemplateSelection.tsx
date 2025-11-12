@@ -13,6 +13,7 @@ const TemplateSelection = () => {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
   const [loading, setLoading] = useState(false);
 
   // ✅ Fetch templates from backend
@@ -98,14 +99,12 @@ const TemplateSelection = () => {
                   <p className="text-sm text-gray-600">{template.description}</p>
 
                   <div className="mt-4 flex gap-3">
-                    <a
-                      href={`${import.meta.env.VITE_API_URL}/api/templates/${template.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => setPreviewTemplate(template)}
                       className="bg-gray-800 text-white text-sm py-2 px-4 rounded w-full text-center hover:bg-gray-600"
                     >
                       View
-                    </a>
+                    </button>
 
                     <button
                       onClick={() => handleSelect(template.id)}
@@ -121,6 +120,24 @@ const TemplateSelection = () => {
           </div>
         )}
       </div>
+      {/* Preview Modal */}
+      {previewTemplate && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex justify-center items-center">
+          <div className="relative bg-white rounded-xl shadow-2xl w-11/12 md:w-3/4 lg:w-2/3 h-[80vh] overflow-hidden">
+            <button
+              onClick={() => setPreviewTemplate(null)}
+              className="absolute top-3 right-3 text-black bg-gray-200 hover:bg-gray-300 rounded-full p-2"
+            >
+              ✕
+            </button>
+            <iframe
+              src={`${import.meta.env.VITE_API_URL}/templates/${previewTemplate.id}/preview.html`}
+              title={`${previewTemplate.name} Preview`}
+              className="w-full h-full border-none"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

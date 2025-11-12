@@ -1,22 +1,35 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Professional Template — Preview</title>
   <style>
-    /* copy the same styles (lightweight) so preview matches generated pages */
-    body{background:#fff;color:#000;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0}
-    .wrap{max-width:900px;margin:48px auto;padding:24px}
-    .hero{display:flex;flex-direction:column;align-items:center;text-align:center}
-    .avatar{width:160px;height:160px;border-radius:50%;border:6px solid #ff4d86;object-fit:cover;background:#fff}
-    h1{font-size:36px;margin:18px 0}
-    .accent{color:#00d65b}
-    .bio{color:#9ca3af;max-width:700px}
-    .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px}
-    .card{background:#1f1f1f;padding:20px;border-radius:12px;text-align:center}
-    footer{margin-top:40px;text-align:center;color:#9ca3af}
+    :root {
+      --bg: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #3b82f6; /* clean professional blue */
+      --card: #f3f4f6;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      margin: 0;
+    }
+    .wrap { max-width: 900px; margin: 48px auto; padding: 24px; }
+    .hero { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .avatar { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--accent); object-fit: cover; }
+    h1 { font-size: 36px; margin: 18px 0; }
+    .accent { color: var(--accent); }
+    .role { color: var(--accent); font-weight: 700; }
+    .bio { color: var(--muted); max-width: 700px; }
+    .cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-top: 36px; }
+    .card { background: var(--card); padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    footer { margin-top: 40px; text-align: center; color: var(--muted); font-size: 14px; }
     @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:600px){.cards{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -24,17 +37,17 @@
     <div class="hero">
       <img class="avatar" src="https://i.pravatar.cc/150?img=3" alt="Avatar" />
       <h1>Hey, I'm <span class="accent">Jakore</span></h1>
-      <div style="color:#00d65b;font-weight:700">Graphics Designer</div>
+      <div class="role">Graphics Designer</div>
       <p class="bio">Crafting seamless experiences and bold visuals. University student by day, creative thinker and aspiring innovator by night.</p>
     </div>
 
     <section>
-      <h2 style="text-align:center;color:#000;margin-top:36px">My Services</h2>
-      <div class="cards">
-        <div class="card"><h3>Illustration</h3><p style="color:#9ca3af">Custom illustrations</p></div>
-        <div class="card"><h3>Branding</h3><p style="color:#9ca3af">Logos and identities</p></div>
-        <div class="card"><h3>Graphic Design</h3><p style="color:#9ca3af">Posters & social</p></div>
-        <div class="card"><h3>Printing</h3><p style="color:#9ca3af">High-quality prints</p></div>
+      <h2 style="text-align:center;margin-top:36px">My <span class="accent">Services</span></h2>
+      <div class="cards" style="display:flex;justify-content:center;">
+        <div class="card"><h3>Illustration</h3><p style="color:var(--muted)">Custom illustrations</p></div>
+        <div class="card"><h3>Branding</h3><p style="color:var(--muted)">Logos and identities</p></div>
+        <div class="card"><h3>Graphic Design</h3><p style="color:var(--muted)">Posters & social</p></div>
+        <div class="card"><h3>Printing</h3><p style="color:var(--muted)">High-quality prints</p></div>
       </div>
     </section>
 
