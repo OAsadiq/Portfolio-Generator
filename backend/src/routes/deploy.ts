@@ -38,6 +38,7 @@ router.post("/deploy", async (req, res) => {
 
     const payload = {
       name: `portfolio-${portfolioId}`,
+      public: true,
       files: [
         {
           file: "index.html",
@@ -60,9 +61,7 @@ router.post("/deploy", async (req, res) => {
       body: JSON.stringify(payload),
     });
 
-    // ✅ Safely cast the JSON response
     const vercelData = (await vercelRes.json()) as VercelDeploymentResponse;
-
     console.log("📦 Vercel response:", vercelData);
 
     if (!vercelRes.ok) {

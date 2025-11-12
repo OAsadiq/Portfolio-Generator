@@ -126,7 +126,7 @@ const TemplateSelection = () => {
           <div className="relative bg-white rounded-xl shadow-2xl w-11/12 md:w-3/4 lg:w-2/3 h-[80vh] overflow-hidden">
             <button
               onClick={() => setPreviewTemplate(null)}
-              className="absolute top-3 right-3 text-black bg-gray-200 hover:bg-gray-300 rounded-full p-2"
+              className="absolute top-3 right-4 text-black bg-gray-200 hover:bg-gray-300 rounded-full p-3"
             >
               ✕
             </button>
