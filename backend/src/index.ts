@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 4000;
 app.use(
   cors({
     origin: [
-      "https://oa-portfolio-generator.vercel.app",
+      "https://oaportfoliogenerator.vercel.app",
       "https://*.vercel.app"
     ],
     methods: ["GET", "POST"],
