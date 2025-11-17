@@ -5,116 +5,133 @@ import fetch from "node-fetch";
 
 const router = express.Router();
 
-type VercelDeploymentResponse = {
-  id?: string;
-  url?: string; 
-  state?: string;
-  aliases?: Array<{ domain?: string; url?: string }>;
+/** Types from Vercel API */
+interface VercelDeployment {
+  id: string;
+  url?: string;
+  alias?: Array<{ domain?: string; url?: string }>;
+  readyState?: string;
+  createdAt?: number;
   [key: string]: any;
-};
+}
 
-const WAIT_INTERVAL_MS = 2000;
-const MAX_POLLS = 12; 
+interface DeploymentDetailsResponse {
+  aliases?: Array<{ domain?: string; url?: string }>;
+  url?: string;
+  readyState?: string;
+  [key: string]: any;
+}
 
 router.post("/deploy", async (req, res) => {
   try {
-    const { portfolioId } = req.body as { portfolioId?: string };
+    const { portfolioId } = req.body;
     const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
 
-    if (!portfolioId) {
+    if (!portfolioId)
       return res.status(400).json({ error: "portfolioId is required" });
-    }
-    if (!VERCEL_TOKEN) {
-      return res.status(500).json({ error: "Server missing Vercel token" });
-    }
 
-    const filePath = path.join(__dirname, "../portfolios", `${portfolioId}.html`);
+    if (!VERCEL_TOKEN)
+      return res
+        .status(500)
+        .json({ error: "Server missing Vercel token in environment variables" });
+
+    const filePath = path.join(
+      __dirname,
+      "../portfolios",
+      `${portfolioId}.html`
+    );
+
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: "Portfolio file not found" });
+      return res.status(404).json({ error: "Portfolio HTML file not found" });
     }
 
     const fileContent = fs.readFileSync(filePath, "utf8");
 
-    const payload = {
-      name: `portfolio-${portfolioId}`,
-      public: true,
-      files: [{ file: "index.html", data: fileContent }],
-      projectSettings: { framework: null },
-    };
+    console.log("🚀 Deploying portfolio:", portfolioId);
 
-    console.log("🚀 Creating deployment for:", portfolioId);
-
+    /** 1️⃣ Create the deployment */
     const deployRes = await fetch("https://api.vercel.com/v13/deployments", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${VERCEL_TOKEN}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        name: `portfolio-${portfolioId}`,
+        files: [{ file: "index.html", data: fileContent }],
+        projectSettings: { framework: null },
+      }),
     });
 
-    const deployData = (await deployRes.json()) as VercelDeploymentResponse;
+    const deployData = (await deployRes.json()) as VercelDeployment;
 
     if (!deployRes.ok) {
-      console.error("❌ Vercel deploy error:", deployData);
+      console.error("❌ Deployment failed:", deployData);
       return res.status(400).json({
-        error: "Failed to deploy portfolio",
+        error: "Failed to deploy to Vercel",
         details: deployData,
       });
     }
 
+    console.log("🟢 Deployment created:", deployData.id);
+
     const deploymentId = deployData.id;
-    console.log("📦 Deployment created:", deploymentId, "temp url:", deployData.url);
 
-    let finalUrl: string | null = null;
-    let pollCount = 0;
-
-    while (pollCount < MAX_POLLS) {
-      pollCount++;
-      const detailsRes = await fetch(`https://api.vercel.com/v13/deployments/${deploymentId}`, {
+    /** 2️⃣ Fetch deployment details to get the PUBLIC domain */
+    const detailsRes = await fetch(
+      `https://api.vercel.com/v13/deployments/${deploymentId}`,
+      {
         headers: {
           Authorization: `Bearer ${VERCEL_TOKEN}`,
-          "Content-Type": "application/json",
         },
-      });
+      }
+    );
 
-      const detailsData = (await detailsRes.json()) as VercelDeploymentResponse;
-      console.log(`🔁 Poll #${pollCount} state=${detailsData.state} aliases=${JSON.stringify(detailsData.aliases)}`);
+    const detailsData = (await detailsRes.json()) as DeploymentDetailsResponse;
 
-      const aliasCandidate = detailsData.aliases?.[0]?.domain || detailsData.aliases?.[0]?.url;
-      if (aliasCandidate) {
-        finalUrl = `https://${aliasCandidate.replace(/^https?:\/\//, "")}`;
+    console.log("📦 Deployment details response:", detailsData);
+
+    /** 3️⃣ Extract the REAL PUBLIC URL */
+
+    let finalUrl: string | null = null;
+
+    // 🔍 A) Check aliases safely
+    if (detailsData.aliases && detailsData.aliases.length > 0) {
+      const alias = detailsData.aliases[0]; // now safe because we checked length
+
+      const candidate =
+        alias?.domain ||
+        alias?.url ||
+        null;
+
+      if (candidate) {
+        finalUrl = `https://${candidate.replace(/^https?:\/\//, "")}`;
         console.log("🌍 Alias found:", finalUrl);
-        break;
-      }
-
-      if (detailsData.state === "READY" && deployData.url) {
-        finalUrl = `https://${deployData.url}`;
-        console.log("✅ Deployment READY, using deployment url:", finalUrl);
-        break;
-      }
-      await new Promise((r) => setTimeout(r, WAIT_INTERVAL_MS));
-    }
-
-    if (!finalUrl) {
-      if (deployData.url) {
-        finalUrl = `https://${deployData.url}`;
-        console.warn("⚠️ No alias found - falling back to deploy url:", finalUrl);
-      } else {
-        console.error("❌ No URL available for deployment", deployData);
-        return res.status(500).json({ error: "Deployment succeeded but no URL available", details: deployData });
       }
     }
 
+    // 🔍 B) If no alias, use the fallback domain in detailsData.url
+    if (!finalUrl && detailsData.url) {
+      finalUrl = `https://${detailsData.url}`;
+    }
+
+    // 🔍 C) Absolute fallback
+    if (!finalUrl && deployData.url) {
+      finalUrl = `https://${deployData.url}`;
+    }
+
+    console.log("🌍 Final PUBLIC URL:", finalUrl);
+
+    /** 4️⃣ Return result */
     return res.status(200).json({
       message: "Portfolio deployed successfully",
       deploymentId,
       url: finalUrl,
     });
-  } catch (err: any) {
-    console.error("🔥 Deployment Error:", err);
+  } catch (err) {
+    console.error("🔥 Deployment error:", err);
     return res.status(500).json({
-      error: "Internal Server Error during deployment",
+      error: "Server-side deployment failure",
       details: String(err),
     });
   }
