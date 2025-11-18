@@ -19,7 +19,8 @@
     "express-rate-limit": "^8.2.1",
     "multer": "^2.0.2",
     "node-fetch": "^3.3.2",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "vercel": "^48.10.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
