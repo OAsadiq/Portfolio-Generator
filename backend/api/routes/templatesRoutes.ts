@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import slugify from "slugify";
-import { templates } from "../../api/templates/templateConfig";
+import { templates } from "../templates/templateConfig";
 
 export function createPortfolio(body: any) {
   const { templateId, ...data } = body;
