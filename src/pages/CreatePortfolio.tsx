@@ -48,28 +48,26 @@ const CreatePortfolio = () => {
     setLoading(true);
 
     try {
-      const form = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        form.append(key, value as Blob | string);
-      });
-      form.append("templateId", templateId);
-
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`, {
+      const res = await fetch("/api/templates/create-portfolio", {
         method: "POST",
-        body: form,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateId,
+          formData,
+        }),
       });
+
 
       if (!res.ok) throw new Error("Failed to generate portfolio");
 
       const data = await res.json();
       setPortfolioSlug(data.portfolioSlug);
-      console.log("Portfolio generated successfully!");
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message || "Error generating portfolio");
-      } finally {
-        setLoading(false);
-      }
+
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleVercelDeploy = async () => {
@@ -77,24 +75,23 @@ const CreatePortfolio = () => {
     setDeploying(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/vercel/deploy`, {
+      const res = await fetch("/api/vercel/deploy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ portfolioId: portfolioSlug }), // ✅ renamed key
+        body: JSON.stringify({ portfolioId: portfolioSlug }),
       });
 
       if (!res.ok) throw new Error("Failed to deploy portfolio");
 
       const data = await res.json();
       setDeployUrl(data.url);
-      console.log("✅ Portfolio deployed successfully!");
-    } catch (err: any) {
+      console.log("🚀 Portfolio deployed to Vercel:", data.url);
+    } catch (err) {
       console.error(err);
     } finally {
       setDeploying(false);
     }
   };
-
   if (!template) return <p>Loading template...</p>;
 
   return (
@@ -138,12 +135,12 @@ const CreatePortfolio = () => {
         <div className="mt-6">
           <h3 className="font-bold mb-2">Your Portfolio is Ready!</h3>
           <a
-            href={`${import.meta.env.VITE_API_URL}/portfolios/${portfolioSlug}.html`}
+            href={`/portfolios/${portfolioSlug}.html`}
             target="_blank"
             className="text-blue-600 underline mb-4 block"
             onClick={(e) => {
               e.preventDefault();
-              window.open(`${import.meta.env.VITE_API_URL}/portfolios/${portfolioSlug}.html`, "_blank");
+              window.open(`/portfolios/${portfolioSlug}.html`);
             }}
           >
             Preview Portfolio

@@ -1,21 +1,19 @@
-import { TemplateConfig } from "../templateTypes";
-
-const minimalTemplate: TemplateConfig = {
-  id: "minimal-template",
-  name: "Minimal Template",
-  description: "A clean, simple personal portfolio design.",
-  thumbnail: "/images/minimal-template.jpg",
-  fields: [
-    { name: "fullName", label: "Full Name", type: "text", required: true },
-    { name: "bio", label: "Short Bio", type: "textarea" },
-    { name: "email", label: "Email", type: "email" },
-    { name: "profilePicture", label: "Profile Picture", type: "file" },
-    { name: "linkedin", label: "LinkedIn URL", type: "text" },
-    { name: "github", label: "GitHub URL", type: "text" },
-    { name: "experience1", label: "Work Experience 1", type: "textarea" },
-    { name: "experience2", label: "Work Experience 2", type: "textarea" },
-  ],
-  generateHTML: (data) => `
+const minimalTemplate = {
+    id: "minimal-template",
+    name: "Minimal Template",
+    description: "A clean, simple personal portfolio design.",
+    thumbnail: "/images/minimal-template.jpg",
+    fields: [
+        { name: "fullName", label: "Full Name", type: "text", required: true },
+        { name: "bio", label: "Short Bio", type: "textarea" },
+        { name: "email", label: "Email", type: "email" },
+        { name: "profilePicture", label: "Profile Picture", type: "file" },
+        { name: "linkedin", label: "LinkedIn URL", type: "text" },
+        { name: "github", label: "GitHub URL", type: "text" },
+        { name: "experience1", label: "Work Experience 1", type: "textarea" },
+        { name: "experience2", label: "Work Experience 2", type: "textarea" },
+    ],
+    generateHTML: (data) => `
     <!DOCTYPE html>
     <html>
       <head>

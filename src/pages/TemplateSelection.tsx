@@ -20,9 +20,8 @@ const TemplateSelection = () => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const API_URL = import.meta.env.VITE_API_URL;
 
-        const res = await fetch(`${API_URL}/api/templates`);
+        const res = await fetch(`/api/templates`);
         const data = await res.json();
 
         if (res.ok) {
@@ -42,15 +41,21 @@ const TemplateSelection = () => {
     try {
       setLoading(true);
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates/select/${templateId}`);
+      const res = await fetch(`/api/templates`);
       const data = await res.json();
 
       if (res.ok) {
-        // Store selected template config for the next page
-        localStorage.setItem("selectedTemplate", JSON.stringify(data));
-        navigate(`/create/${data.id}`);
+        const selected = data.find((t: any) => t.id === templateId);
+
+        if (!selected) {
+          alert("Template not found");
+          return;
+        }
+
+        localStorage.setItem("selectedTemplate", JSON.stringify(selected));
+        navigate(`/create/${selected.id}`);
       } else {
-        alert(data.error || "Failed to load template");
+        alert("Failed to load templates");
       }
     } catch (error) {
       console.error(error);
@@ -59,6 +64,7 @@ const TemplateSelection = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800 flex items-center justify-center">
@@ -83,7 +89,7 @@ const TemplateSelection = () => {
                 className="relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-transform hover:scale-105"
               >
                 <img
-                  src={`${import.meta.env.VITE_API_URL}${template.thumbnail}`}
+                  src={`${template.thumbnail}`}
                   alt={template.name}
                   className="w-full h-72 object-cover"
                 />
@@ -131,7 +137,7 @@ const TemplateSelection = () => {
               ✕
             </button>
             <iframe
-              src={`${import.meta.env.VITE_API_URL}/templates/${previewTemplate.id}/preview.html`}
+              src={`/templates/${previewTemplate.id}/preview.html`}
               title={`${previewTemplate.name} Preview`}
               className="w-full h-full border-none"
             />

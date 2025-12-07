@@ -1,6 +1,4 @@
-import { TemplateConfig } from "../templateTypes";
-
-const professionalTemplate: TemplateConfig = {
+const professionalTemplate = {
   id: "professional-template",
   name: "Professional Template",
   description: "A dark, modern portfolio layout with hero, services and tech stack.",
@@ -17,7 +15,7 @@ const professionalTemplate: TemplateConfig = {
     { name: "socials", label: "Social links (Json string`{name: instagram, url: #}`)", type: "text" },
   ],
   // generateHTML: receives data and returns full HTML string
-  generateHTML: (data: any) => {
+  generateHTML: (data) => {
     // sanitize fallback values (very minimal)
     const name = data.fullName || "Your Name";
     const role = data.role || "Designer";
@@ -25,8 +23,8 @@ const professionalTemplate: TemplateConfig = {
     const profile = data.profilePicture || "/images/default-avatar.png";
     const ctaText = data.ctaText || "Book a Design";
     const ctaUrl = data.ctaUrl || "#";
-    const services = (data.services || "Illustration,Branding,Graphic Design,Printing").split(",").map((s: string) => s.trim());
-    const tools = (data.tools || "CorelDRAW,Adobe Photoshop,Figma,Adobe Illustrator").split(",").map((t: string) => t.trim());
+    const services = (data.services || "Illustration,Branding,Graphic Design,Printing").split(",").map((s) => s.trim());
+    const tools = (data.tools || "CorelDRAW,Adobe Photoshop,Figma,Adobe Illustrator").split(",").map((t) => t.trim());
     let socials = [];
     try {
       socials = data.socials ? JSON.parse(data.socials) : [{ name: "instagram", url: "#" }, { name: "x", url: "#" }, { name: "whatsapp", url: "#" }];
@@ -227,7 +225,7 @@ const professionalTemplate: TemplateConfig = {
               My <span style="color:var(--accent)">Services</span>
             </h2>
             <div class="cards">
-              ${services.map((s: string) => `
+              ${services.map((s) => `
                 <div class="card" style="display:flex;justify-content:center;">
                   <div style="font-size:28px;color:var(--accent)">✦</div>
                   <h3>${s}</h3>
@@ -244,7 +242,7 @@ const professionalTemplate: TemplateConfig = {
               Tools & <span style="color:var(--accent)">Tech Stack</span>
             </h2>
             <div class="tools-grid" style="display:flex;justify-content:center;">
-              ${tools.map((t: string) => `
+              ${tools.map((t) => `
                 <div class="tool">
                   <div style="font-size:28px;color:var(--accent)">●</div>
                   <div style="margin-top:12px">${t}</div>
@@ -257,7 +255,7 @@ const professionalTemplate: TemplateConfig = {
             <h2 id="contact-heading" style="text-align:center;font-size:32px;margin:24px 0 6px">Contact</h2>
             <p style="text-align:center;color:var(--muted)">Let’s connect on social.</p>
             <div style="display:flex;justify-content:center;gap:12px;margin-top:18px">
-              ${socials.map((s: any) => `
+              ${socials.map((s) => `
                 <a href="${s.url}" style="display:inline-block;padding:10px 14px;border-radius:50%;background:var(--accent);color:white;text-decoration:none;font-weight:700">
                   ${(s.name || '').charAt(0).toUpperCase()}
                 </a>
