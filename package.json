@@ -6,8 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.api.json && vite build",
-    "vercel-build": "tsc -p tsconfig.json --pretty",
-    "build:api": "tsc --project tsconfig.json",
     "lint": "eslint .",
     "preview": "vite preview"
   },
