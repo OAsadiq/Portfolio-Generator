@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   try {
     const portfolioPath = path.join(
       process.cwd(),
-      "public",
+      "tmp",
       "portfolios",
       `${portfolioId}.html`
     );
