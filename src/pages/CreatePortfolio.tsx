@@ -48,7 +48,7 @@ const CreatePortfolio = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/templates/create-portfolio", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -75,7 +75,7 @@ const CreatePortfolio = () => {
     setDeploying(true);
 
     try {
-      const res = await fetch("/api/vercel/deploy", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/vercel/deploy`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ portfolioId: portfolioSlug }),
