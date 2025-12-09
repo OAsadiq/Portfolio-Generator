@@ -33,7 +33,9 @@ const CreatePortfolio = () => {
     }
   }, [templateId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value, files } = e.target as HTMLInputElement;
     setFormData({
       ...formData,
@@ -46,23 +48,25 @@ const CreatePortfolio = () => {
     if (!templateId) return;
 
     setLoading(true);
+    setError(null);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          templateId,
-          formData,
-        }),
-      });
-
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            templateId,
+            formData,
+          }),
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to generate portfolio");
 
       const data = await res.json();
       setPortfolioSlug(data.portfolioSlug);
-
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -72,26 +76,30 @@ const CreatePortfolio = () => {
 
   const handleVercelDeploy = async () => {
     if (!portfolioSlug) return;
+
     setDeploying(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/vercel/deploy`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ portfolioId: portfolioSlug }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/vercel/deploy`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ portfolioId: portfolioSlug }),
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to deploy portfolio");
 
       const data = await res.json();
       setDeployUrl(data.url);
-      console.log("🚀 Portfolio deployed to Vercel:", data.url);
     } catch (err) {
       console.error(err);
     } finally {
       setDeploying(false);
     }
   };
+
   if (!template) return <p>Loading template...</p>;
 
   return (
@@ -129,13 +137,15 @@ const CreatePortfolio = () => {
           {loading ? "Generating..." : "Generate Portfolio"}
         </button>
       </form>
+
       {error && <p className="text-red-600 mt-2">{error}</p>}
 
       {portfolioSlug && (
         <div className="mt-6">
           <h3 className="font-bold mb-2">Your Portfolio is Ready!</h3>
+
           <a
-            href={`/api/templates/preview?slug=${portfolioSlug}`}
+            href={`${import.meta.env.VITE_API_URL}/api/templates/preview?slug=${portfolioSlug}`}
             target="_blank"
             className="text-blue-600 underline"
           >

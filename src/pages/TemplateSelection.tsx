@@ -21,7 +21,7 @@ const TemplateSelection = () => {
     const fetchTemplates = async () => {
       try {
 
-        const res = await fetch(`/api/templates`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`);
         const data = await res.json();
 
         if (res.ok) {
