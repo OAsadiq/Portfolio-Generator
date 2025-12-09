@@ -1,16 +1,23 @@
-import fs from "fs";
-import path from "path";
+import { get } from "@vercel/blob";
 
-export default function handler(req, res) {
-  const { slug } = req.query;
+export default async function handler(req, res) {
+  try {
+    const { slug } = req.query;
 
-  const filePath = path.join(process.cwd(), "tmp", "portfolios", `${slug}.html`);
+    const blob = await get(`portfolios/${slug}.html`);
 
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).send("Portfolio not found");
+    if (!blob) {
+      return res.status(404).send("Portfolio not found");
+    }
+
+    const response = await fetch(blob.url);
+    const html = await response.text();
+
+    res.setHeader("Content-Type", "text/html");
+    res.send(html);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Preview failed");
   }
-
-  const html = fs.readFileSync(filePath, "utf-8");
-  res.setHeader("Content-Type", "text/html");
-  res.send(html);
 }

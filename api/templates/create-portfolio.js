@@ -1,6 +1,5 @@
-import fs from "fs";
-import path from "path";
-import {templates} from "./templateConfig.js";
+import { put } from "@vercel/blob";
+import { templates } from "./templateConfig.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -15,28 +14,25 @@ export default async function handler(req, res) {
     }
 
     const template = templates[templateId];
-
     if (!template) {
       return res.status(404).json({ error: "Template not found" });
     }
 
     const slug = `portfolio-${Date.now()}`;
+    const html = template.generateHTML(formData);
 
-    const outputDir = "/tmp/portfolios"; // ✔️ writable on Vercel
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
-
-    const finalHTML = template.generateHTML(formData);
-
-    fs.writeFileSync(`${outputDir}/${slug}.html`, finalHTML);
+    // Upload to Vercel Blob Storage
+    const blob = await put(`portfolios/${slug}.html`, html, {
+      contentType: "text/html",
+    });
 
     return res.status(200).json({
       portfolioSlug: slug,
-      tmpPath: `${outputDir}/${slug}.html`,
+      previewUrl: blob.url, // 🔥 Direct permanent URL
     });
+
   } catch (err) {
-    console.error("Portfolio generation error:", err);
+    console.error("Blob Save Error:", err);
     return res.status(500).json({ error: "Failed to generate portfolio" });
   }
 }

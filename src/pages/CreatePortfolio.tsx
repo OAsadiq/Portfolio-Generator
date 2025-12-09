@@ -135,13 +135,9 @@ const CreatePortfolio = () => {
         <div className="mt-6">
           <h3 className="font-bold mb-2">Your Portfolio is Ready!</h3>
           <a
-            href={`/portfolios/${portfolioSlug}.html`}
+            href={`/api/templates/preview?slug=${portfolioSlug}`}
             target="_blank"
-            className="text-blue-600 underline mb-4 block"
-            onClick={(e) => {
-              e.preventDefault();
-              window.open(`/portfolios/${portfolioSlug}.html`);
-            }}
+            className="text-blue-600 underline"
           >
             Preview Portfolio
           </a>
