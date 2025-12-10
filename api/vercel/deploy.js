@@ -1,5 +1,10 @@
-import fs from "fs";
-import path from "path";
+import { get } from "@vercel/blob";
+
+function enableCORS(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -13,58 +18,58 @@ export default async function handler(req, res) {
   }
 
   try {
-    const portfolioPath = path.join(
-      process.cwd(),
-      "tmp",
-      "portfolios",
-      `${portfolioId}.html`
-    );
+    // 1️⃣ Load HTML file from Blob storage
+    const blob = await get(`portfolios/${portfolioId}.html`);
 
-    if (!fs.existsSync(portfolioPath)) {
-      return res.status(404).json({ error: "Portfolio file not found" });
+    if (!blob?.url) {
+      return res.status(404).json({ error: "Portfolio not found in blob" });
     }
 
-    const htmlContent = fs.readFileSync(portfolioPath, "utf8");
+    const htmlResponse = await fetch(blob.url);
+    const html = await htmlResponse.text();
 
-    // Prepare files object for Vercel Deploy API
+    // 2️⃣ Prepare file for Vercel deploy
     const files = [
       {
         file: "index.html",
-        data: htmlContent,
+        data: html,
       },
     ];
 
-    // Deploy to Vercel
-    const vercelRes = await fetch("https://api.vercel.com/v13/deployments", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.VERCEL_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: portfolioId,
-        files,
-        projectSettings: {
-          framework: null,
+    // 3️⃣ Deploy to Vercel
+    const vercelRes = await fetch(
+      "https://api.vercel.com/v13/deployments",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.VERCEL_TOKEN}`,
+          "Content-Type": "application/json",
         },
-      }),
-    });
+        body: JSON.stringify({
+          name: portfolioId,
+          files,
+          projectSettings: { framework: null },
+        }),
+      }
+    );
 
     const result = await vercelRes.json();
     console.log("VERCEL RESPONSE:", result);
 
     if (!vercelRes.ok) {
       return res.status(500).json({
-        error: "Vercel deploy failed",
+        error: "Vercel deployment failed",
         details: result,
       });
     }
 
+    // 4️⃣ Return final domain (NOT deploy URL)
     return res.status(200).json({
-      url: result.url ? `https://${result.url}` : null,
+      url: `https://${portfolioId}.vercel.app`,
     });
+
   } catch (err) {
-    console.error("Vercel deploy error:", err);
+    console.error("Deploy error:", err);
     return res.status(500).json({ error: "Server error during deploy" });
   }
 }

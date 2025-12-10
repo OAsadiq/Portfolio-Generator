@@ -141,7 +141,7 @@ const CreatePortfolio = () => {
       {error && <p className="text-red-600 mt-2">{error}</p>}
 
       {portfolioSlug && (
-        <div className="mt-6">
+        <div className="mt-6 flex flex-col">
           <h3 className="font-bold mb-2">Your Portfolio is Ready!</h3>
 
           <a
@@ -155,7 +155,7 @@ const CreatePortfolio = () => {
           <button
             onClick={handleVercelDeploy}
             disabled={deploying || !portfolioSlug}
-            className="bg-green-500 py-2 px-4 rounded text-white hover:bg-green-600"
+            className="bg-yellow-500 text-black py-2 px-6 rounded hover:bg-yellow-600"
           >
             {deploying ? "Deploying..." : "Deploy to Vercel"}
           </button>
