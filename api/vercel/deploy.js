@@ -1,71 +1,60 @@
-import { get } from "@vercel/blob";
-
-function enableCORS(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-}
+// api/vercel/deploy.js
+import { list } from "@vercel/blob";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { portfolioId } = req.body;
-
-  if (!portfolioId) {
-    return res.status(400).json({ error: "Missing portfolioId" });
-  }
-
   try {
-    // 1️⃣ Load HTML file from Blob storage
-    const blob = await get(`portfolios/${portfolioId}.html`);
+    const { portfolioId } = req.body;
 
-    if (!blob?.url) {
-      return res.status(404).json({ error: "Portfolio not found in blob" });
+    if (!portfolioId)
+      return res.status(400).json({ error: "Missing portfolioId" });
+
+    const key = `portfolios/${portfolioId}.html`;
+
+    const files = await list({ prefix: "portfolios/" });
+    const file = files.blobs.find(b => b.pathname === key);
+
+    if (!file) {
+      return res.status(404).json({ error: "Portfolio file not found" });
     }
 
-    const htmlResponse = await fetch(blob.url);
+    const htmlResponse = await fetch(file.url);
     const html = await htmlResponse.text();
 
-    // 2️⃣ Prepare file for Vercel deploy
-    const files = [
-      {
-        file: "index.html",
-        data: html,
+    // Deploy to Vercel
+    const deployRes = await fetch("https://api.vercel.com/v13/deployments", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.VERCEL_TOKEN}`,
+        "Content-Type": "application/json",
       },
-    ];
+      body: JSON.stringify({
+        name: portfolioId,
+        projectSettings: { framework: null },
+        files: [
+          { file: "index.html", data: html }
+        ]
+      }),
+    });
 
-    // 3️⃣ Deploy to Vercel
-    const vercelRes = await fetch(
-      "https://api.vercel.com/v13/deployments",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.VERCEL_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: portfolioId,
-          files,
-          projectSettings: { framework: null },
-        }),
-      }
-    );
+    const deployJson = await deployRes.json();
 
-    const result = await vercelRes.json();
-    console.log("VERCEL RESPONSE:", result);
-
-    if (!vercelRes.ok) {
+    if (!deployRes.ok) {
       return res.status(500).json({
         error: "Vercel deployment failed",
-        details: result,
+        details: deployJson,
       });
     }
 
-    // 4️⃣ Return final domain (NOT deploy URL)
+    // Vercel gives `url` like bright-sunbeam-123.vercel.app
+    // But user wants: https://portfolioId.vercel.app
+    const customDomain = `${portfolioId}.vercel.app`;
+
     return res.status(200).json({
-      url: `https://${portfolioId}.vercel.app`,
+      url: `https://${customDomain}`
     });
 
   } catch (err) {
