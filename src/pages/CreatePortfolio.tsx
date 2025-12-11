@@ -103,19 +103,19 @@ const CreatePortfolio = () => {
   if (!template) return <p>Loading template...</p>;
 
   return (
-    <div className="max-w-3xl mx-auto py-10">
+    <div className="max-w-3xl mx-auto py-10 px-4 sm:px-6">
       <h2 className="text-3xl font-bold mb-6">{template.name}</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {template.fields.map((field) => (
           <div key={field.name}>
-            <label className="block mb-1 font-semibold">{field.label}</label>
+            <label className="block mb-2 font-semibold text-sm sm:text-base">{field.label}</label>
             {field.type === "textarea" ? (
               <textarea
                 name={field.name}
                 onChange={handleChange}
                 required={field.required}
-                className="w-full border rounded p-2"
+                className="w-full border rounded p-2 sm:p-3"
               />
             ) : (
               <input
@@ -123,7 +123,7 @@ const CreatePortfolio = () => {
                 name={field.name}
                 onChange={handleChange}
                 required={field.required}
-                className="w-full border rounded p-2"
+                className="w-full border rounded p-2 sm:p-3"
               />
             )}
           </div>
@@ -132,7 +132,7 @@ const CreatePortfolio = () => {
         <button
           type="submit"
           disabled={loading || deploying}
-          className="bg-yellow-500 text-black py-2 px-6 rounded hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-yellow-500 text-black py-2 px-4 sm:px-6 rounded w-full sm:w-auto hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Generating..." : "Generate Portfolio"}
         </button>
@@ -141,13 +141,13 @@ const CreatePortfolio = () => {
       {error && <p className="text-red-600 mt-2">{error}</p>}
 
       {portfolioSlug && (
-        <div className="mt-6 flex flex-col">
+        <div className="mt-6 flex flex-col gap-3">
           <h3 className="font-bold mb-2">Your Portfolio is Ready!</h3>
 
           <a
             href={`${import.meta.env.VITE_API_URL}/api/templates/preview?slug=${portfolioSlug}`}
             target="_blank"
-            className="text-blue-600 underline"
+            className="text-blue-600 underline break-all"
           >
             Preview Portfolio
           </a>
@@ -155,7 +155,7 @@ const CreatePortfolio = () => {
           <button
             onClick={handleVercelDeploy}
             disabled={deploying || !portfolioSlug}
-            className="bg-yellow-500 text-black py-2 px-6 rounded hover:bg-yellow-600"
+            className="bg-yellow-500 text-black py-2 px-4 sm:px-6 rounded w-full sm:w-auto hover:bg-yellow-600"
           >
             {deploying ? "Deploying..." : "Deploy to Vercel"}
           </button>
@@ -163,7 +163,7 @@ const CreatePortfolio = () => {
           {deployUrl && (
             <p className="mt-2">
               Deployed URL:{" "}
-              <a href={deployUrl} target="_blank" className="text-blue-600 underline">
+              <a href={deployUrl} target="_blank" className="text-blue-600 underline break-all">
                 {deployUrl}
               </a>
             </p>

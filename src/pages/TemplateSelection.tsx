@@ -68,19 +68,19 @@ const TemplateSelection = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800 flex items-center justify-center">
-      <div className="max-w-5xl w-full bg-white rounded-3xl shadow-lg p-10 my-16">
-        <h2 className="text-4xl font-bold mb-4 text-center">
+      <div className="max-w-5xl w-full bg-white rounded-3xl shadow-lg p-6 md:p-10 my-10 md:my-16">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-center">
           Choose Your <span className="text-yellow-500">Portfolio</span> Template
         </h2>
 
-        <p className="text-center text-gray-600 mb-8">
+        <p className="text-center text-gray-600 mb-6 md:mb-8 px-4">
           Select a template to start creating your portfolio.
         </p>
 
         {templates.length === 0 ? (
           <p className="text-center text-gray-500">Loading templates...</p>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {templates.map((template) => (
               <div
                 key={template.id}
@@ -91,7 +91,7 @@ const TemplateSelection = () => {
                 <img
                   src={`${template.thumbnail}`}
                   alt={template.name}
-                  className="w-full h-72 object-cover"
+                  className="w-full h-52 sm:h-64 md:h-72 object-cover"
                 />
 
                 {hoveredTemplate === template.id && (
@@ -104,7 +104,7 @@ const TemplateSelection = () => {
                   <h3 className="font-bold text-lg">{template.name}</h3>
                   <p className="text-sm text-gray-600">{template.description}</p>
 
-                  <div className="mt-4 flex gap-3">
+                  <div className="mt-4 flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() => setPreviewTemplate(template)}
                       className="bg-gray-800 text-white text-sm py-2 px-4 rounded w-full text-center hover:bg-gray-600"
@@ -129,7 +129,7 @@ const TemplateSelection = () => {
       {/* Preview Modal */}
       {previewTemplate && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex justify-center items-center">
-          <div className="relative bg-white rounded-xl shadow-2xl w-11/12 md:w-3/4 lg:w-2/3 h-[80vh] overflow-hidden">
+          <div className="relative bg-white rounded-xl shadow-2xl w-11/12 sm:w-10/12 md:w-3/4 lg:w-2/3 h-[75vh] md:h-[80vh] overflow-hidden">
             <button
               onClick={() => setPreviewTemplate(null)}
               className="absolute top-3 right-4 text-black bg-gray-200 hover:bg-gray-300 rounded-full p-3"
