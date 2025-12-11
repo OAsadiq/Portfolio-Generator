@@ -1,20 +1,32 @@
+import { Link } from "react-router-dom";
+
 const PricingSection = () => {
   return (
-    <div className="bg-gray-100 py-20">
+    <div className="bg-gray-100 py-20 px-6">
       <div className="max-w-5xl mx-auto text-center">
-        <h2 className="text-4xl font-bold text-gray-900">Simple Pricing, Powerful Portfolio Features</h2>
-        <p className="text-lg text-gray-600 mt-2">Unlock the full potential of your portfolio with our premium plans.</p>
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+          Simple Pricing, Powerful Portfolio Features
+        </h2>
+
+        <p className="text-base md:text-lg text-gray-600 mt-2">
+          Unlock the full potential of your portfolio with our premium plans.
+        </p>
 
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Free Plan */}
-          <div className="bg-white shadow-lg rounded-2xl p-8 text-left">
+          <div className="bg-white shadow-lg rounded-2xl p-6 md:p-8 text-left">
             <div className="flex justify-between items-center">
-              <h3 className="text-4xl font-extrabold text-gray-900">$0<span className="text-xl font-normal">/year</span></h3>
-              <div className="px-2 py-1 w-fit h-fit text-xs mb-2 bg-yellow-100 text-yellow-500 border border-yellow-400 rounded-2xl font-semibold transition cursor-pointer">
+              <h3 className="text-2xl md:text-4xl font-extrabold text-gray-900">
+                $0<span className="text-lg font-normal">/year</span>
+              </h3>
+              <div className="px-2 py-1 text-xs bg-yellow-100 text-yellow-500 border border-yellow-400 rounded-2xl font-semibold">
                 Free Plan
               </div>
             </div>
-            <p className="text-md text-gray-600 mt-2">Start for free and create your personalized portfolio today!</p>
+
+            <p className="text-gray-600 mt-2">
+              Start for free and create your personalized portfolio today!
+            </p>
 
             <ul className="mt-6 space-y-3 text-gray-700">
               <li>✓ Access to basic templates</li>
@@ -22,20 +34,28 @@ const PricingSection = () => {
               <li>✓ Free hosting (with subdomain)</li>
             </ul>
 
-            <button className="mt-8 w-full bg-black text-white py-3 rounded-lg hover:bg-yellow-500">
-              Get Started
-            </button>
+            <Link to="/templates">
+              <button className="mt-8 w-full bg-black text-white py-3 rounded-lg hover:bg-yellow-500">
+                Get Started
+              </button>
+            </Link>
+            
           </div>
 
           {/* Pro Plan */}
-          <div className="bg-white shadow-lg rounded-2xl p-8 text-left">
+          <div className="bg-white shadow-lg rounded-2xl p-6 md:p-8 text-left">
             <div className="flex justify-between items-center">
-              <h3 className="text-4xl font-extrabold text-gray-900">$99<span className="text-xl font-normal">/year</span></h3>
-              <div className="px-2 py-1 w-fit h-fit text-xs mb-2 bg-yellow-100 text-yellow-500 border border-yellow-400 rounded-2xl font-semibold transition cursor-pointer">
+              <h3 className="text-2xl md:text-4xl font-extrabold text-gray-900">
+                $**<span className="text-lg font-normal">/One Time Payment</span>
+              </h3>
+              <div className="px-2 py-1 text-xs bg-yellow-100 text-yellow-500 border border-yellow-400 rounded-2xl font-semibold">
                 Pro Plan
               </div>
             </div>
-            <p className="text-md text-gray-600 mt-2">Upgrade to Pro and access advanced portfolio features.</p>
+
+            <p className="text-gray-600 mt-2">
+              Upgrade to Pro and access advanced portfolio features.
+            </p>
 
             <ul className="mt-6 space-y-3 text-gray-700">
               <li>✓ Access to all premium templates</li>

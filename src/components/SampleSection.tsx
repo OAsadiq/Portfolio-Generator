@@ -4,7 +4,7 @@ const SampleSection = () => {
     const [websiteLink] = useState("https://jakore.vercel.app");
 
     return (
-        <div className="mt-16 flex justify-center">
+        <div className="mt-10 flex justify-center">
             <div className="w-[90%] rounded-t-4xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.8)] bg-white">
                 <div
                     className="w-[90%] mx-auto mt-20 overflow-y-auto"
@@ -24,7 +24,7 @@ const SampleSection = () => {
                     scrolling="no"
                     style={{
                         overflowY: 'hidden',
-                        height: "590px"
+                        height: "680px"
                     }}
                     ></iframe>
                 </div>
