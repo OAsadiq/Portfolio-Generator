@@ -15,18 +15,81 @@ const minimalTemplate = {
     ],
     generateHTML: (data) => `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/svg+xml" href="/assets/OA-PG-logo.png" />
         <title>${data.fullName}</title>
         <style>
-          body { font-family: Arial; max-width: 800px; margin: auto; padding: 2rem; background: #f5f5f5; }
-          header { display: flex; align-items: center; gap: 2rem; background: #ffffff; padding: 1rem; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-          img { width: 100px; border-radius: 50%; }
-          h1 { margin: 0; color: #333; }
-          section { margin-top: 2rem; background: #fff; padding: 1rem 2rem; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-          footer { text-align: center; margin-top: 3rem; font-size: 12px; color: #777; }
-          a { color: #0070f3; text-decoration: none; }
-          .social-links { display: flex; gap: 1rem; margin-top: 0.5rem; }
+          body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: auto;
+            padding: 1rem;
+            background: #f5f5f5;
+          }
+
+          header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: #ffffff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+          }
+
+          img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+
+          h1 {
+            margin: 0;
+            color: #333;
+            font-size: 1.8rem;
+          }
+
+          section {
+            margin-top: 1.5rem;
+            background: #fff;
+            padding: 1.2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+          }
+
+          footer {
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 12px;
+            color: #777;
+          }
+
+          a {
+            color: #0070f3;
+            text-decoration: none;
+          }
+
+          .social-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+          }
+
+          @media (max-width: 640px) {
+            header {
+              flex-direction: column;
+              text-align: center;
+            }
+
+            h1 {
+              font-size: 1.5rem;
+            }
+          }
         </style>
       </head>
       <body>

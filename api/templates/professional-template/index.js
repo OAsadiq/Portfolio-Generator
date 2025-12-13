@@ -36,7 +36,8 @@ const professionalTemplate = {
       <html lang="en">
       <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/svg+xml" href="/assets/OA-PG-logo.png" />
         <title>${name} — ${role}</title>
         <style>
           :root {
@@ -66,6 +67,7 @@ const professionalTemplate = {
           .nav {
             display: flex;
             justify-content: center;
+            flex-wrap: wrap;
             gap: 16px;
             margin-bottom: 40px;
           }
@@ -163,12 +165,13 @@ const professionalTemplate = {
           }
 
           .cards, .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            display: flex;
             gap: 20px;
+            justify-content: center;
           }
 
           .card, .tool {
+            display: block;
             background: var(--card);
             padding: 28px;
             border-radius: 14px;
@@ -181,6 +184,11 @@ const professionalTemplate = {
             margin: 12px 0 6px;
           }
 
+          img {
+            max-width: 100%;
+            height: auto;
+          }
+          
           footer {
             margin-top: 60px;
             padding: 24px;
@@ -196,8 +204,42 @@ const professionalTemplate = {
             h1{font-size:32px;}
           }
           @media (max-width:520px){
-            .cards,.tools-grid{grid-template-columns:1fr;}
+            .cards,.tools-grid{display:block;}
             .avatar{width:140px;height:140px;}
+            .card,
+            .tool {
+              padding: 20px;
+              margin-block: 20px;
+            }
+            .card h3 {
+              font-size: 18px;
+            }
+          }
+
+          @media (max-width: 640px) {
+            .container {
+              padding: 32px 16px;
+            }
+
+            .cta-row {
+              flex-direction: column;
+              width: 100%;
+            }
+
+            .cta-row .btn {
+              width: 60%;
+              text-align: center;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            h1 {
+              font-size: 26px;
+            }
+
+            .bio {
+              font-size: 14px;
+            }
           }
         </style>
       </head>
@@ -226,7 +268,7 @@ const professionalTemplate = {
             </h2>
             <div class="cards">
               ${services.map((s) => `
-                <div class="card" style="display:flex;justify-content:center;">
+                <div class="card">
                   <div style="font-size:28px;color:var(--accent)">✦</div>
                   <h3>${s}</h3>
                   <p style="color:var(--muted);margin-top:8px">
@@ -241,7 +283,7 @@ const professionalTemplate = {
             <h2 id="tools-heading" style="text-align:center;font-size:32px;margin:0 0 18px">
               Tools & <span style="color:var(--accent)">Tech Stack</span>
             </h2>
-            <div class="tools-grid" style="display:flex;justify-content:center;">
+            <div class="tools-grid">
               ${tools.map((t) => `
                 <div class="tool">
                   <div style="font-size:28px;color:var(--accent)">●</div>
