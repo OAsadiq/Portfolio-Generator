@@ -12,7 +12,7 @@ function App() {
       <div className="min-h-screen bg-gray-100">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/" element={<Contact />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/form" element={<PortfolioForm />} />
           <Route path="/templates" element={<TemplateSelection />} />
           <Route path="/create/:templateId" element={<CreatePortfolio />} />
