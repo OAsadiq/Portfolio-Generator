@@ -17,7 +17,7 @@ const PricingSection = () => {
           <div className="bg-white shadow-lg rounded-2xl p-6 md:p-8 text-left">
             <div className="flex justify-between items-center">
               <h3 className="text-2xl md:text-4xl font-extrabold text-gray-900">
-                $0<span className="text-lg font-normal">/year</span>
+                $0<span className="text-lg font-normal">/one time payment</span>
               </h3>
               <div className="px-2 py-1 text-xs bg-yellow-100 text-yellow-500 border border-yellow-400 rounded-2xl font-semibold">
                 Free Plan
@@ -46,7 +46,7 @@ const PricingSection = () => {
           <div className="bg-white shadow-lg rounded-2xl p-6 md:p-8 text-left">
             <div className="flex justify-between items-center">
               <h3 className="text-2xl md:text-4xl font-extrabold text-gray-900">
-                $**<span className="text-lg font-normal">/One Time Payment</span>
+                $**<span className="text-lg font-normal">/one time payment</span>
               </h3>
               <div className="px-2 py-1 text-xs bg-yellow-100 text-yellow-500 border border-yellow-400 rounded-2xl font-semibold">
                 Pro Plan
