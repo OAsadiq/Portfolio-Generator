@@ -22,15 +22,11 @@ const ContactMain = () => {
             <div className="space-y-4 text-gray-700">
               <p>
                 <span className="font-semibold">Email:</span>{" "}
-                support@oaportfoliogenerator.com
+                support@oaportfoliogenerator.xyz
               </p>
               <p>
                 <span className="font-semibold">Phone:</span>{" "}
-                +234 000 000 0000
-              </p>
-              <p>
-                <span className="font-semibold">Availability:</span>{" "}
-                Monday – Friday, 9am – 5pm
+                +1 678 951 6618
               </p>
             </div>
           </div>
