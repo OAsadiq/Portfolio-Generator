@@ -3,7 +3,6 @@ const ContactMain = () => {
     <div className="text-gray-900">
 
       <main className="max-w-6xl mx-auto px-4 py-16">
-        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-3">
             Get in <span className="text-yellow-500">Touch</span>
