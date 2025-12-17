@@ -7,7 +7,7 @@ const Navbar = () => {
 
   const shareOnTwitter = () => {
     const text = encodeURIComponent(
-      "Create your stunning portfolio effortlessly with Portfolio-Generator!"
+      "Create your stunning portfolio effortlessly with OA-Portfolio-Generator!"
     );
     const url = encodeURIComponent(window.location.href);
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");

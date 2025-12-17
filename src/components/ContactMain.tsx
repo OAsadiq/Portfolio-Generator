@@ -12,9 +12,7 @@ const ContactMain = () => {
           </p>
         </div>
 
-        {/* Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* Main Info */}
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <h2 className="text-2xl font-bold mb-4">Contact Information</h2>
 
@@ -30,7 +28,6 @@ const ContactMain = () => {
             </div>
           </div>
 
-          {/* Contact Form */}
           <form className="bg-white rounded-2xl shadow-lg p-8 space-y-5">
             <div>
               <label className="block mb-1 font-semibold">Full Name</label>
