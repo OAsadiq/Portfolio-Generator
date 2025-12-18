@@ -24,6 +24,15 @@ const CreatePortfolio = () => {
   const [deploying, setDeploying] = useState(false);
   const [deployUrl, setDeployUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+    });
+  };
+
 
   useEffect(() => {
     const stored = localStorage.getItem("selectedTemplate");
@@ -33,14 +42,23 @@ const CreatePortfolio = () => {
     }
   }, [templateId]);
 
-  const handleChange = (
+  const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, files } = e.target as HTMLInputElement;
-    setFormData({
-      ...formData,
-      [name]: files ? files[0] : value,
-    });
+
+    if (files && files[0]) {
+      const base64 = await fileToBase64(files[0]);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: base64, // ✅ store base64, not File
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
