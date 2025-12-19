@@ -10,6 +10,27 @@ const Hero = () => {
             .then(data => setUserCount(data.count));
     }, []);
 
+    const [animatedCount, setAnimatedCount] = useState(0);
+
+    useEffect(() => {
+    if (userCount === null) return;
+
+    const duration = 1200; // ms
+    const startTime = performance.now();
+
+    const animate = (time: number) => {
+        const progress = Math.min((time - startTime) / duration, 1);
+        const value = Math.floor(progress * userCount);
+        setAnimatedCount(value);
+
+        if (progress < 1) {
+        requestAnimationFrame(animate);
+        }
+    };
+
+    requestAnimationFrame(animate);
+    }, [userCount]);
+
 
     return (
         <div className="max-w-4xl mx-auto text-center mt-10 px-4">
@@ -58,12 +79,21 @@ const Hero = () => {
                         transform hover:scale-105 
                         cursor-pointer
                     ">
-                        Get Started
+                        Start Generating
                     </button>
                 </Link>
             </div>
-            <div className="text-center py-6">
-                <p>{userCount}+ portfolios generated</p>
+            <div className="flex items-center justify-center gap-3 mt-8 text-black">
+                <div className="flex -space-x-2">
+                    <div className="h-6 w-6 rounded-full bg-pink-400" />
+                    <div className="h-6 w-6 rounded-full bg-blue-400" />
+                    <div className="h-6 w-6 rounded-full bg-green-400" />
+                    <div className="h-6 w-6 rounded-full bg-orange-400" />
+                </div>
+
+                <p className="text-sm sm:text-base md:text-lg ">
+                    <span className="font-bold">{animatedCount}+</span> Portfolio Generated
+                </p>
             </div>
         </div>
     );
