@@ -7,6 +7,8 @@ function enableCORS(res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
+const COUNT_KEY = "stats/portfolio-count.json";
+
 export default async function handler(req, res) {
   enableCORS(res);
 
@@ -33,6 +35,21 @@ export default async function handler(req, res) {
       access: "public",
       contentType: "text/html",
     });
+
+    let count = 0;
+    try {
+      const existing = await list(COUNT_KEY);
+      const data = JSON.parse(await existing.text());
+      count = data.count || 0;
+    } catch {
+      count = 0;
+    }
+
+    await put(
+      COUNT_KEY,
+      JSON.stringify({ count: count + 1 }),
+      { access: "public", contentType: "application/json" }
+    );
 
     return res.status(200).json({
       portfolioSlug: slug,

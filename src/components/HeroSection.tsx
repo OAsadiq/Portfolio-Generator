@@ -1,6 +1,16 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const Hero = () => {
+    const [userCount, setUserCount] = useState<number | null>(null);
+
+    useEffect(() => {
+        fetch("/api/stats/portfolio-count")
+            .then(res => res.json())
+            .then(data => setUserCount(data.count));
+    }, []);
+
+
     return (
         <div className="max-w-4xl mx-auto text-center mt-10 px-4">
             
@@ -52,7 +62,9 @@ const Hero = () => {
                     </button>
                 </Link>
             </div>
-
+            <div className="text-center py-6">
+                <p>{userCount}+ portfolios generated</p>
+            </div>
         </div>
     );
 };
