@@ -35,7 +35,7 @@ const PricingSection = () => {
             </ul>
 
             <Link to="/templates">
-              <button className="mt-8 w-full bg-black text-white py-3 rounded-lg hover:bg-yellow-500">
+              <button className="mt-8 w-full bg-black text-white py-3 rounded-lg hover:bg-yellow-500 hover:text-gray-800">
                 Get Started
               </button>
             </Link>

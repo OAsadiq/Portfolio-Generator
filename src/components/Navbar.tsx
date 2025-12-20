@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaTwitter, FaBars, FaTimes } from "react-icons/fa";
+import { FaBars, FaTimes } from "react-icons/fa";
+import { FaXTwitter } from 'react-icons/fa6';
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -46,7 +47,7 @@ const Navbar = () => {
             onClick={shareOnTwitter}
             className="bg-white text-gray-900 px-2 py-1 rounded-lg flex items-center hover:text-blue-400 transition"
           >
-            <FaTwitter className="mr-2" /> Share
+            <FaXTwitter className="mr-1" /> Share
           </button>
 
           <Link
@@ -94,7 +95,7 @@ const Navbar = () => {
             onClick={shareOnTwitter}
             className="w-full bg-gray-100 py-2 rounded-lg flex justify-center items-center text-gray-900 hover:bg-gray-200 transition"
           >
-            <FaTwitter className="mr-2" /> Share
+            <FaXTwitter className="mr-1" /> Share
           </button>
 
           <Link

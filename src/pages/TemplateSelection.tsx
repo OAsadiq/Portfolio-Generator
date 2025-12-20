@@ -115,7 +115,7 @@ const TemplateSelection = () => {
                     <button
                       onClick={() => handleSelect(template.id)}
                       disabled={loading}
-                      className="bg-yellow-500 text-white text-sm py-2 px-4 rounded w-full hover:bg-yellow-600 disabled:opacity-50"
+                      className="bg-yellow-500 text-gray-800 text-sm py-2 px-4 rounded w-full hover:bg-yellow-600 disabled:opacity-50"
                     >
                       {loading ? "Loading..." : "Select"}
                     </button>

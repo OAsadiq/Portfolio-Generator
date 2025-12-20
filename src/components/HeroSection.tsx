@@ -52,7 +52,7 @@ const Hero = () => {
             {/* Main Heading */}
             <h1 className="
                 text-3xl sm:text-4xl md:text-5xl lg:text-6xl 
-                font-extrabold mb-4 leading-tight text-black
+                font-extrabold mb-4 leading-tight text-gray-800
             ">
                 Create Stunning <span className="text-yellow-500">Portfolios</span> Effortlessly
             </h1>
@@ -71,8 +71,9 @@ const Hero = () => {
                     <button className="
                         px-8 sm:px-10 md:px-12 
                         py-3 
-                        text-base sm:text-lg 
-                        bg-yellow-500 text-white 
+                        text-base sm:text-lg
+                        font-semibold 
+                        bg-yellow-500 text-gray-800 
                         rounded-xl shadow-lg 
                         hover:bg-yellow-400 
                         transition duration-300 

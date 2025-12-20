@@ -23,7 +23,7 @@ const CallToActionSection = () => {
             </Link>
             
             <Link to="/contact">
-              <button className="bg-yellow-400 border-2 px-6 py-3 rounded-lg hover:bg-yellow-500">
+              <button className="bg-yellow-500 text-black px-6 py-3 rounded-lg hover:bg-yellow-600">
                 Contact Us
               </button>
             </Link>
