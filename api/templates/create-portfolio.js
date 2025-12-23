@@ -1,4 +1,4 @@
-import { put } from "@vercel/blob";
+import { put, list } from "@vercel/blob";
 import { templates } from "./templateConfig.js";
 
 function enableCORS(res) {
@@ -18,6 +18,7 @@ export default async function handler(req, res) {
 
   try {
     const { templateId, formData } = req.body;
+
     if (!templateId || !formData) {
       return res.status(400).json({ error: "Missing template or form data" });
     }
@@ -27,28 +28,38 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Template not found" });
     }
 
-    const slug = `portfolio-${Date.now()}`;
+    // ✅ Portfolio HTML
+    const slug = `portfolio-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const finalHTML = template.generateHTML(formData);
 
-    // Save to Vercel Blob
-    const { url } = await put(`portfolios/${slug}.html`, finalHTML, {
-      access: "public",
-      contentType: "text/html",
-    });
+    const { url } = await put(
+      `portfolios/${slug}.html`,
+      finalHTML,
+      {
+        access: "public",
+        contentType: "text/html",
+      }
+    );
 
+    // ✅ Read existing count
     let count = 0;
     try {
       const existing = await list(COUNT_KEY);
       const data = JSON.parse(await existing.text());
       count = data.count || 0;
     } catch {
-      count = 0;
+      count = 0; // first time
     }
 
+    // ✅ Overwrite count safely
     await put(
       COUNT_KEY,
       JSON.stringify({ count: count + 1 }),
-      { access: "public", contentType: "application/json" }
+      {
+        access: "public",
+        contentType: "application/json",
+        allowOverwrite: true, // 🔑 THIS FIXES YOUR ERROR
+      }
     );
 
     return res.status(200).json({
