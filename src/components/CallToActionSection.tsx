@@ -6,19 +6,19 @@ const CallToActionSection = () => {
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
         
         <h2 className="text-2xl md:text-4xl font-bold text-gray-900 md:w-1/2">
-          Ready to create your personalized portfolio?
+          Ready to land your next writing client?
         </h2>
 
         <div className="flex flex-col md:flex-row justify-between gap-6 md:gap-0">
           
           <p className="text-gray-600 md:w-1/2 text-base md:text-lg">
-            Take the next step and showcase your skills and projects in a custom-built portfolio.
+            Stop losing clients to writers with better portfolios. Create yours in 10 minutes and start pitching with confidence.
           </p>
 
           <div className="flex flex-row gap-4">
             <Link to="/templates">
               <button className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-300 hover:text-black">
-                Get Started
+                Create Portfolio
               </button>
             </Link>
             

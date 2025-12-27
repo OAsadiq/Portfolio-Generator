@@ -13,24 +13,23 @@ const Hero = () => {
     const [animatedCount, setAnimatedCount] = useState(0);
 
     useEffect(() => {
-    if (userCount === null) return;
+        if (userCount === null) return;
 
-    const duration = 1200; // ms
-    const startTime = performance.now();
+        const duration = 1200;
+        const startTime = performance.now();
 
-    const animate = (time: number) => {
-        const progress = Math.min((time - startTime) / duration, 1);
-        const value = Math.floor(progress * userCount);
-        setAnimatedCount(value);
+        const animate = (time: number) => {
+            const progress = Math.min((time - startTime) / duration, 1);
+            const value = Math.floor(progress * userCount);
+            setAnimatedCount(value);
 
-        if (progress < 1) {
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
         requestAnimationFrame(animate);
-        }
-    };
-
-    requestAnimationFrame(animate);
     }, [userCount]);
-
 
     return (
         <div className="max-w-4xl mx-auto text-center mt-10 px-4">
@@ -45,24 +44,24 @@ const Hero = () => {
                     bg-yellow-100 text-yellow-600 
                     border border-yellow-400
                 ">
-                    Maximize your Efficiency & Productivity
+                    Trusted by Freelance Writers
                 </span>
             </div>
 
-            {/* Main Heading */}
+            {/* Main Heading - WRITER FOCUSED */}
             <h1 className="
                 text-3xl sm:text-4xl md:text-5xl lg:text-6xl 
                 font-extrabold mb-4 leading-tight text-gray-800
             ">
-                Create Stunning <span className="text-yellow-500">Portfolios</span> Effortlessly
+                Professional <span className="text-yellow-500">Writing Portfolios</span> in Less Than 10 Minutes
             </h1>
 
-            {/* Subheading */}
+            {/* Subheading - WRITER FOCUSED */}
             <p className="
                 text-sm sm:text-base md:text-lg 
                 text-gray-600 mx-auto mb-8 max-w-2xl
             ">
-                Stand out from the crowd with a custom portfolio page! Showcase your skills, projects, and creativity with just a few clicks.
+                Land more freelance clients with a portfolio that showcases your best work. No coding, no design skills—just your writing.
             </p>
 
             {/* CTA Button */}
@@ -80,7 +79,7 @@ const Hero = () => {
                         transform hover:scale-105 
                         cursor-pointer
                     ">
-                        Start Generating
+                        Create Your Portfolio
                     </button>
                 </Link>
             </div>
@@ -93,7 +92,7 @@ const Hero = () => {
                 </div>
 
                 <p className="text-sm sm:text-base md:text-lg ">
-                    <span className="font-bold">{animatedCount}+</span> Portfolio Generated
+                    <span className="font-bold">{animatedCount}+</span> Writers Using Our Platform
                 </p>
             </div>
         </div>

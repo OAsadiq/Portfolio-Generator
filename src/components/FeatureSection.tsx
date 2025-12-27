@@ -5,16 +5,16 @@ const Feature = () => {
       <div className="rounded-4xl flex flex-col lg:flex-row items-center shadow-[0_0_20px_rgba(255,255,255,0.8)] bg-white overflow-hidden">
         <div className="w-full lg:w-1/2 text-center p-8 md:p-12">
           <h2 className="text-black text-3xl md:text-4xl font-bold mb-2">
-            Effortless & Fast Setup
+            Showcase Your Best Work
           </h2>
           <p className="text-gray-900 text-md md:text-lg font-semibold">
-            Create a personalized portfolio by simply filling out a form. No coding required!
+            Display your writing samples with links to published articles. Let your words speak for themselves and win more clients.
           </p>
         </div>
         <div className="w-full lg:w-1/2">
           <img
             src="/assets/feature4.jpg"
-            alt="Effortless Portfolio Creation"
+            alt="Showcase Writing Samples"
             className="object-cover w-full h-64 md:h-[50vh]"
           />
         </div>
@@ -24,16 +24,16 @@ const Feature = () => {
       <div className="rounded-4xl flex flex-col lg:flex-row-reverse items-center shadow-[0_0_20px_rgba(255,255,255,0.8)] bg-white overflow-hidden">
         <div className="w-full lg:w-1/2 text-center p-8 md:p-12">
           <h2 className="text-black text-3xl md:text-4xl font-bold mb-2">
-            Beautiful Template Selection
+            Templates Built for Writers
           </h2>
           <p className="text-gray-900 text-md md:text-lg font-semibold">
-            Choose from a variety of professionally designed templates to make your portfolio stand out.
+            Clean, professional designs that put your writing front and center. No distracting elements—just your content.
           </p>
         </div>
         <div className="w-full lg:w-1/2">
           <img
             src="/assets/feature5.jpg"
-            alt="Template Selection"
+            alt="Professional Writer Templates"
             className="object-cover w-full h-64 md:h-[50vh]"
           />
         </div>
@@ -43,16 +43,16 @@ const Feature = () => {
       <div className="rounded-4xl flex flex-col lg:flex-row items-center shadow-[0_0_20px_rgba(255,255,255,0.8)] bg-white overflow-hidden">
         <div className="w-full lg:w-1/2 text-center p-8 md:p-12">
           <h2 className="text-black text-3xl md:text-4xl font-bold mb-2">
-            Free & Instant Access
+            Live in Minutes, Not Days
           </h2>
           <p className="text-gray-700 text-md md:text-lg font-semibold">
-            Generate your portfolio website for free and access it instantly with a custom link.
+            Stop spending hours on WordPress or hiring designers. Get your portfolio live instantly and start pitching clients today.
           </p>
         </div>
         <div className="w-full lg:w-1/2">
           <img
             src="/assets/feature6.jpg"
-            alt="Free and Instant Access"
+            alt="Quick Portfolio Setup"
             className="object-cover w-full h-64 md:h-[50vh]"
           />
         </div>
@@ -62,16 +62,16 @@ const Feature = () => {
       <div className="rounded-4xl flex flex-col lg:flex-row-reverse items-center shadow-[0_0_20px_rgba(255,255,255,0.8)] bg-white overflow-hidden">
         <div className="w-full lg:w-1/2 text-center p-8 md:p-12">
           <h2 className="text-black text-3xl md:text-4xl font-bold mb-2">
-            Responsive Design
+            Client Testimonials Built In
           </h2>
           <p className="text-gray-700 text-md md:text-lg font-semibold">
-            Your portfolio will look stunning on all devices, from desktops to mobile phones.
+            Showcase what past clients say about your work. Social proof that helps you land more gigs.
           </p>
         </div>
         <div className="w-full lg:w-1/2">
           <img
             src="/assets/feature8.jpg"
-            alt="Responsive Design"
+            alt="Client Testimonials"
             className="object-cover w-full h-64 md:h-[50vh]"
           />
         </div>

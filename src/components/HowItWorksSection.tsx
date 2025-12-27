@@ -6,20 +6,20 @@ const HowItWorks = () => {
   const steps = [
     {
       id: 1,
-      title: "Step 1: Select a Template",
-      description: "Choose a template that suits your portfolio style.",
+      title: "Step 1: Choose a Writer Template",
+      description: "Pick a professional template designed specifically for writers and copywriters.",
       img: "/assets/feature15.jpg",
     },
     {
       id: 2,
-      title: "Step 2: Fill Out the Form",
-      description: "Provide your name, bio, skills, and project details to start.",
+      title: "Step 2: Add Your Writing Samples",
+      description: "Fill in your bio, add links to your best published work, and include client testimonials.",
       img: "/assets/feature13.jpg",
     },
     {
       id: 3,
-      title: "Step 3: Generate Your Site",
-      description: "Click generate, and your personalized portfolio site is ready!",
+      title: "Step 3: Go Live Instantly",
+      description: "Your portfolio is generated and ready to share with clients in minutes. No waiting, no coding.",
       img: "/assets/feature16.jpg",
     },
   ];
@@ -32,11 +32,11 @@ const HowItWorks = () => {
         </div>
 
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-          How OA-Portfolio-Generator Works
+          From Zero to Portfolio in 3 Easy Steps
         </h2>
 
         <p className="text-gray-600 text-base md:text-lg mb-6">
-          Create a stunning portfolio by following these simple steps.
+          No technical skills needed. Just fill out a simple form and you're done.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

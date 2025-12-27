@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -20,12 +21,15 @@ const TemplateSelection = () => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-
         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`);
         const data = await res.json();
 
         if (res.ok) {
-          setTemplates(data);
+          const writerTemplates = data.filter((template: Template) => {
+            return template.id !== 'professional-writer-template';
+          });
+          
+          setTemplates(writerTemplates);
         } else {
           console.error("Failed to load templates:", data.error);
         }
@@ -41,7 +45,7 @@ const TemplateSelection = () => {
     try {
       setLoading(true);
 
-      const res = await fetch(`/api/templates`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`);
       const data = await res.json();
 
       if (res.ok) {
@@ -65,16 +69,16 @@ const TemplateSelection = () => {
     }
   };
 
-
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800 flex items-center justify-center">
       <div className="max-w-5xl w-full bg-white rounded-3xl shadow-lg p-6 md:p-10 my-10 md:my-16">
+        {/* ✅ UPDATED HEADING - Writer-Focused */}
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-center">
-          Choose Your <span className="text-yellow-500">Portfolio</span> Template
+          Choose Your <span className="text-yellow-500">Writer Portfolio</span> Template
         </h2>
 
         <p className="text-center text-gray-600 mb-6 md:mb-8 px-4">
-          Select a template to start creating your portfolio.
+          Professional templates designed specifically for writers and copywriters.
         </p>
 
         {templates.length === 0 ? (
@@ -125,7 +129,13 @@ const TemplateSelection = () => {
             ))}
           </div>
         )}
+
+        {/* ✅ OPTIONAL: Add "More templates coming soon" message */}
+        <p className="text-center text-gray-500 text-sm mt-8">
+          💡 More templates coming soon for designers, developers, and other creatives.
+        </p>
       </div>
+
       {/* Preview Modal */}
       {previewTemplate && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex justify-center items-center">

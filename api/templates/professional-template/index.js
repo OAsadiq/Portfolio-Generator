@@ -1,317 +1,568 @@
-const professionalTemplate = {
-  id: "professional-template",
-  name: "Professional Template",
-  description: "A dark, modern portfolio layout with hero, services and tech stack.",
+const professionalWriterTemplate = {
+  id: "professional-writer-template",
+  name: "Professional Writer",
+  description: "Modern, multi-section portfolio for established freelance writers.",
   thumbnail: "/images/professional-template.jpg",
   fields: [
     { name: "fullName", label: "Full Name", type: "text", required: true },
-    { name: "role", label: "Role / Title", type: "text" },
-    { name: "bio", label: "Short Bio", type: "textarea" },
+    { name: "headline", label: "Professional Headline", type: "text", placeholder: "e.g., B2B Content Writer | SaaS Specialist", required: true },
+    { name: "bio", label: "About You (3-4 sentences)", type: "textarea", required: true },
     { name: "profilePicture", label: "Profile Picture", type: "file" },
-    { name: "ctaText", label: "Primary CTA Text", type: "text" },
-    { name: "ctaUrl", label: "Primary CTA URL", type: "text" },
-    { name: "services", label: "Services (comma separated)", type: "text" },
-    { name: "tools", label: "Tools (comma separated)", type: "text" },
-    { name: "socials", label: "Social links (Json string`{name: instagram, url: #}`)", type: "text" },
+    
+    // Specialties
+    { name: "specialty1", label: "Specialty 1", type: "text", placeholder: "e.g., SEO Blog Posts" },
+    { name: "specialty2", label: "Specialty 2", type: "text", placeholder: "e.g., Email Campaigns" },
+    { name: "specialty3", label: "Specialty 3", type: "text", placeholder: "e.g., Case Studies" },
+    
+    // Writing Samples
+    { name: "sample1Title", label: "Writing Sample 1 - Title", type: "text", required: true },
+    { name: "sample1Type", label: "Sample 1 - Type", type: "text", placeholder: "Blog Post, Article, Case Study, etc." },
+    { name: "sample1Description", label: "Sample 1 - Description", type: "textarea" },
+    { name: "sample1Link", label: "Sample 1 - Link", type: "text", required: true },
+    
+    { name: "sample2Title", label: "Writing Sample 2 - Title", type: "text" },
+    { name: "sample2Type", label: "Sample 2 - Type", type: "text" },
+    { name: "sample2Description", label: "Sample 2 - Description", type: "textarea" },
+    { name: "sample2Link", label: "Sample 2 - Link", type: "text" },
+    
+    { name: "sample3Title", label: "Writing Sample 3 - Title", type: "text" },
+    { name: "sample3Type", label: "Sample 3 - Type", type: "text" },
+    { name: "sample3Description", label: "Sample 3 - Description", type: "textarea" },
+    { name: "sample3Link", label: "Sample 3 - Link", type: "text" },
+    
+    { name: "sample4Title", label: "Writing Sample 4 - Title", type: "text" },
+    { name: "sample4Type", label: "Sample 4 - Type", type: "text" },
+    { name: "sample4Description", label: "Sample 4 - Description", type: "textarea" },
+    { name: "sample4Link", label: "Sample 4 - Link", type: "text" },
+    
+    // Testimonials
+    { name: "testimonial1", label: "Client Testimonial 1", type: "textarea" },
+    { name: "testimonial1Author", label: "Client 1 Name", type: "text" },
+    { name: "testimonial1Role", label: "Client 1 Role/Company", type: "text" },
+    
+    { name: "testimonial2", label: "Client Testimonial 2", type: "textarea" },
+    { name: "testimonial2Author", label: "Client 2 Name", type: "text" },
+    { name: "testimonial2Role", label: "Client 2 Role/Company", type: "text" },
+    
+    { name: "testimonial3", label: "Client Testimonial 3", type: "textarea" },
+    { name: "testimonial3Author", label: "Client 3 Name", type: "text" },
+    { name: "testimonial3Role", label: "Client 3 Role/Company", type: "text" },
+    
+    // Contact
+    { name: "email", label: "Email Address", type: "email", required: true },
+    { name: "linkedin", label: "LinkedIn URL", type: "text" },
+    { name: "twitter", label: "Twitter/X URL", type: "text" },
+    { name: "website", label: "Personal Website (Optional)", type: "text" },
   ],
-  // generateHTML: receives data and returns full HTML string
+  
   generateHTML: (data) => {
-    // sanitize fallback values (very minimal)
     const name = data.fullName || "Your Name";
-    const role = data.role || "Designer";
-    const bio = data.bio || "Crafting seamless experiences and bold visuals.";
+    const headline = data.headline || "Freelance Writer";
+    const bio = data.bio || "Crafting compelling content for brands and businesses.";
     const profile = data.profilePicture || "/images/default-avatar.png";
-    const ctaText = data.ctaText || "Book a Design";
-    const ctaUrl = data.ctaUrl || "#";
-    const services = (data.services || "Illustration,Branding,Graphic Design,Printing").split(",").map((s) => s.trim());
-    const tools = (data.tools || "CorelDRAW,Adobe Photoshop,Figma,Adobe Illustrator").split(",").map((t) => t.trim());
-    let socials = [];
-    try {
-      socials = data.socials ? JSON.parse(data.socials) : [{ name: "instagram", url: "#" }, { name: "x", url: "#" }, { name: "whatsapp", url: "#" }];
-    } catch (e) {
-      socials = [{ name: "instagram", url: "#" }, { name: "x", url: "#" }, { name: "whatsapp", url: "#" }];
+    const email = data.email || "";
+    
+    // Build specialties
+    let specialtiesHTML = "";
+    for (let i = 1; i <= 3; i++) {
+      const specialty = data[`specialty${i}`];
+      if (specialty) {
+        specialtiesHTML += `
+          <div class="specialty-pill">
+            <span class="specialty-icon">✍️</span>
+            ${specialty}
+          </div>
+        `;
+      }
     }
-
-    return `<!doctype html>
-      <html lang="en">
+    
+    // Build writing samples
+    let samplesHTML = "";
+    for (let i = 1; i <= 4; i++) {
+      const title = data[`sample${i}Title`];
+      const type = data[`sample${i}Type`];
+      const desc = data[`sample${i}Description`];
+      const link = data[`sample${i}Link`];
+      
+      if (title && link) {
+        samplesHTML += `
+          <article class="sample-card">
+            ${type ? `<span class="sample-type">${type}</span>` : ""}
+            <h3 class="sample-title">${title}</h3>
+            ${desc ? `<p class="sample-description">${desc}</p>` : ""}
+            <a href="${link}" target="_blank" class="sample-cta">
+              Read Full Article
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </article>
+        `;
+      }
+    }
+    
+    // Build testimonials
+    let testimonialsHTML = "";
+    for (let i = 1; i <= 3; i++) {
+      const testimonial = data[`testimonial${i}`];
+      const author = data[`testimonial${i}Author`];
+      const role = data[`testimonial${i}Role`];
+      
+      if (testimonial && author) {
+        testimonialsHTML += `
+          <div class="testimonial-card">
+            <div class="quote-icon">"</div>
+            <p class="testimonial-text">${testimonial}</p>
+            <div class="testimonial-author">
+              <strong>${author}</strong>
+              ${role ? `<span class="testimonial-role">${role}</span>` : ""}
+            </div>
+          </div>
+        `;
+      }
+    }
+    
+    return `
+    <!DOCTYPE html>
+    <html lang="en">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" type="image/svg+xml" href="/assets/OA-PG-logo.png" />
-        <title>${name} — ${role}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <title>${name} - ${headline}</title>
         <style>
-          :root {
-            --bg: #ffffff;
-            --panel: #f9fafb;
-            --card: #f3f4f6;
-            --muted: #6b7280;
-            --accent: #2563eb; /* cool neutral blue */
-            --accent-dark: #1e40af;
-            --text: #111827;
-            --border: #e5e7eb;
-          }
-          html, body {
-            height: 100%;
+          * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+
+          :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+          }
+
+          body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg);
             color: var(--text);
-            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            line-height: 1.6;
           }
 
           .container {
             max-width: 1100px;
             margin: 0 auto;
-            padding: 48px 20px;
+            padding: 0 1.5rem;
           }
 
-          .nav {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 40px;
-          }
-
-          .nav .pill {
-            background: var(--panel);
-            border-radius: 12px;
-            padding: 10px 18px;
-            border: 1px solid var(--border);
-            box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-            display: flex;
-            gap: 12px;
-            align-items: center;
-          }
-
+          /* Header/Hero Section */
           .hero {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
+            padding: 5rem 0 4rem;
             text-align: center;
           }
 
-          .avatar {
-            width: 180px;
-            height: 180px;
+          .profile-image {
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
-            border: 6px solid var(--accent);
             object-fit: cover;
-            background: #fff;
+            margin: 0 auto 2rem;
+            border: 4px solid var(--primary);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
           }
 
           h1 {
-            font-size: 44px;
-            margin: 0;
+            font-size: 3rem;
             font-weight: 800;
+            color: var(--text);
+            margin-bottom: 1rem;
             letter-spacing: -0.02em;
           }
 
-          h1 .accent {
-            color: var(--accent);
-          }
-
-          .role {
-            margin-top: 6px;
-            color: var(--accent-dark);
+          .headline {
+            font-size: 1.25rem;
+            color: var(--primary);
             font-weight: 600;
+            margin-bottom: 1.5rem;
           }
 
           .bio {
-            max-width: 720px;
-            color: var(--muted);
-            margin-top: 12px;
+            font-size: 1.125rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            line-height: 1.7;
+          }
+
+          .social-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+          }
+
+          .social-link {
+            padding: 0.75rem 1.5rem;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: all 0.2s;
+          }
+
+          .social-link:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+          }
+
+          .cta-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.125rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+          }
+
+          .cta-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+          }
+
+          /* Specialties Section */
+          .specialties {
+            padding: 3rem 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+          }
+
+          .specialties-grid {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 800px;
+            margin: 0 auto;
+          }
+
+          .specialty-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            font-weight: 500;
+            color: var(--text);
+          }
+
+          .specialty-icon {
+            font-size: 1.25rem;
+          }
+
+          /* Section Headers */
+          .section {
+            padding: 4rem 0;
+          }
+
+          .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+          }
+
+          .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+          }
+
+          .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-light);
+          }
+
+          /* Writing Samples */
+          .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+          }
+
+          .sample-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s;
+          }
+
+          .sample-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            transform: translateY(-4px);
+            border-color: var(--primary);
+          }
+
+          .sample-type {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #eff6ff;
+            color: var(--primary);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+          }
+
+          .sample-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+          }
+
+          .sample-description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
             line-height: 1.6;
           }
 
-          .cta-row {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
+          .sample-cta {
+            display: inline-flex;
             align-items: center;
-          }
-
-          .btn {
-            padding: 12px 18px;
-            border-radius: 10px;
-            font-weight: 600;
+            gap: 0.5rem;
+            color: var(--primary);
             text-decoration: none;
-            display: inline-block;
-            transition: all 0.2s ease;
+            font-weight: 600;
+            transition: gap 0.2s;
           }
 
-          .btn-primary {
-            background: var(--accent);
-            color: white;
+          .sample-cta:hover {
+            gap: 0.75rem;
           }
 
-          .btn-primary:hover {
-            background: var(--accent-dark);
+          /* Testimonials */
+          .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
           }
 
-          .btn-outline {
-            background: transparent;
-            color: var(--accent);
-            border: 2px solid var(--accent);
-          }
-
-          .btn-outline:hover {
-            background: var(--accent);
-            color: white;
-          }
-
-          section {
-            margin-top: 64px;
-          }
-
-          .cards, .tools-grid {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-          }
-
-          .card, .tool {
-            display: block;
-            background: var(--card);
-            padding: 28px;
-            border-radius: 14px;
-            text-align: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+          .testimonial-card {
+            background: var(--card-bg);
             border: 1px solid var(--border);
-          }
-
-          .card h3 {
-            margin: 12px 0 6px;
-          }
-
-          img {
-            max-width: 100%;
-            height: auto;
-          }
-          
-          footer {
-            margin-top: 60px;
-            padding: 24px;
             border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+          }
+
+          .quote-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            opacity: 0.2;
+            position: absolute;
+            top: 1rem;
+            left: 1.5rem;
+          }
+
+          .testimonial-text {
+            position: relative;
+            z-index: 1;
+            font-size: 1.125rem;
+            color: var(--text);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+          }
+
+          .testimonial-author {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+          }
+
+          .testimonial-author strong {
+            color: var(--text);
+            font-weight: 600;
+          }
+
+          .testimonial-role {
+            color: var(--text-light);
+            font-size: 0.875rem;
+          }
+
+          /* Contact Section */
+          .contact-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 4rem 2rem;
+            border-radius: 20px;
             text-align: center;
-            color: var(--muted);
-            background: var(--panel);
-            border-top: 1px solid var(--border);
+            color: white;
           }
 
-          @media (max-width:900px){
-            .cards,.tools-grid{grid-template-columns:repeat(2,1fr);}
-            h1{font-size:32px;}
-          }
-          @media (max-width:520px){
-            .cards,.tools-grid{display:block;}
-            .avatar{width:140px;height:140px;}
-            .card,
-            .tool {
-              padding: 20px;
-              margin-block: 20px;
-            }
-            .card h3 {
-              font-size: 18px;
-            }
+          .contact-section h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
           }
 
-          @media (max-width: 640px) {
-            .container {
-              padding: 32px 16px;
-            }
-
-            .cta-row {
-              flex-direction: column;
-              width: 100%;
-            }
-
-            .cta-row .btn {
-              width: 60%;
-              text-align: center;
-            }
+          .contact-section p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
           }
-          
-          @media (max-width: 480px) {
+
+          .contact-button {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: white;
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.125rem;
+            transition: all 0.3s;
+          }
+
+          .contact-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3);
+          }
+
+          /* Footer */
+          footer {
+            padding: 3rem 0;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.875rem;
+          }
+
+          footer a {
+            color: var(--primary);
+            text-decoration: none;
+          }
+
+          footer a:hover {
+            text-decoration: underline;
+          }
+
+          /* Responsive */
+          @media (max-width: 768px) {
             h1 {
-              font-size: 26px;
+              font-size: 2rem;
             }
 
-            .bio {
-              font-size: 14px;
+            .section-title {
+              font-size: 1.875rem;
+            }
+
+            .hero {
+              padding: 3rem 0 2rem;
+            }
+
+            .samples-grid,
+            .testimonials-grid {
+              grid-template-columns: 1fr;
+            }
+
+            .contact-section {
+              padding: 3rem 1.5rem;
+            }
+
+            .contact-section h2 {
+              font-size: 1.875rem;
             }
           }
         </style>
       </head>
       <body>
         <div class="container">
-          <nav class="nav" aria-label="primary">
-            <div class="pill">
-              <a href="/" class="btn btn-outline">${ctaText}</a>
-            </div>
-          </nav>
-
-          <header class="hero">
-            <img class="avatar" src="${profile}" alt="${name}" />
-            <h1>Hey, I'm <span class="accent">${name}</span></h1>
-            <div class="role">${role}</div>
+          <!-- Hero Section -->
+          <section class="hero">
+            <img src="${profile}" alt="${name}" class="profile-image" />
+            <h1>${name}</h1>
+            <p class="headline">${headline}</p>
             <p class="bio">${bio}</p>
-            <div class="cta-row">
-              <a class="btn btn-outline" href="${ctaUrl}">${ctaText}</a>
-              <a class="btn btn-primary" href="${ctaUrl}">Available for new projects</a>
-            </div>
-          </header>
+            
+            ${data.linkedin || data.twitter || data.website ? `
+              <div class="social-links">
+                ${data.linkedin ? `<a href="${data.linkedin}" target="_blank" class="social-link">LinkedIn</a>` : ''}
+                ${data.twitter ? `<a href="${data.twitter}" target="_blank" class="social-link">Twitter</a>` : ''}
+                ${data.website ? `<a href="${data.website}" target="_blank" class="social-link">Website</a>` : ''}
+              </div>
+            ` : ''}
+            
+            <a href="mailto:${email}" class="cta-button">Let's Work Together</a>
+          </section>
 
-          <section aria-labelledby="services-heading">
-            <h2 id="services-heading" style="text-align:center;font-size:32px;margin:0 0 18px">
-              My <span style="color:var(--accent)">Services</span>
-            </h2>
-            <div class="cards">
-              ${services.map((s) => `
-                <div class="card">
-                  <div style="font-size:28px;color:var(--accent)">✦</div>
-                  <h3>${s}</h3>
-                  <p style="color:var(--muted);margin-top:8px">
-                    Custom ${s.toLowerCase()} solutions for brands and businesses.
-                  </p>
-                </div>
-              `).join("")}
+          <!-- Specialties -->
+          ${specialtiesHTML ? `
+            <section class="specialties">
+              <div class="specialties-grid">
+                ${specialtiesHTML}
+              </div>
+            </section>
+          ` : ''}
+
+          <!-- Writing Samples -->
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">Featured Work</h2>
+              <p class="section-subtitle">A selection of my best writing</p>
+            </div>
+            <div class="samples-grid">
+              ${samplesHTML || '<p style="text-align:center;color:var(--text-light);">No samples added yet.</p>'}
             </div>
           </section>
 
-          <section aria-labelledby="tools-heading">
-            <h2 id="tools-heading" style="text-align:center;font-size:32px;margin:0 0 18px">
-              Tools & <span style="color:var(--accent)">Tech Stack</span>
-            </h2>
-            <div class="tools-grid">
-              ${tools.map((t) => `
-                <div class="tool">
-                  <div style="font-size:28px;color:var(--accent)">●</div>
-                  <div style="margin-top:12px">${t}</div>
-                </div>
-              `).join("")}
+          <!-- Testimonials -->
+          ${testimonialsHTML ? `
+            <section class="section">
+              <div class="section-header">
+                <h2 class="section-title">Client Testimonials</h2>
+                <p class="section-subtitle">What people say about working with me</p>
+              </div>
+              <div class="testimonials-grid">
+                ${testimonialsHTML}
+              </div>
+            </section>
+          ` : ''}
+
+          <!-- Contact CTA -->
+          <section class="section">
+            <div class="contact-section">
+              <h2>Ready to Get Started?</h2>
+              <p>Let's discuss how I can help with your content needs.</p>
+              <a href="mailto:${email}" class="contact-button">Send Me an Email</a>
             </div>
           </section>
-
-          <section aria-labelledby="contact-heading">
-            <h2 id="contact-heading" style="text-align:center;font-size:32px;margin:24px 0 6px">Contact</h2>
-            <p style="text-align:center;color:var(--muted)">Let’s connect on social.</p>
-            <div style="display:flex;justify-content:center;gap:12px;margin-top:18px">
-              ${socials.map((s) => `
-                <a href="${s.url}" style="display:inline-block;padding:10px 14px;border-radius:50%;background:var(--accent);color:white;text-decoration:none;font-weight:700">
-                  ${(s.name || '').charAt(0).toUpperCase()}
-                </a>
-              `).join("")}
-            </div>
-          </section>
-
-          <footer>
-            Made with <strong>OA-Portfolio-Generator</strong>
-          </footer>
         </div>
+
+        <footer>
+          <p>Built with <a href="https://oaportfoliogenerator.vercel.app" target="_blank">OA-Portfolio-Generator</a></p>
+        </footer>
       </body>
-      </html>`;
-  },
+    </html>
+    `;
+  }
 };
 
-export default professionalTemplate;
+export default professionalWriterTemplate;
