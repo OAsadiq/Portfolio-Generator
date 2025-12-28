@@ -122,7 +122,7 @@ const CreatePortfolio = () => {
   if (!template) return <p>Loading template...</p>;
 
   return (
-    <div className="max-w-3xl mx-auto py-10 px-4 sm:px-6">
+    <div className="max-w-3xl mx-auto py-10 px-4 sm:px-6 bg-gray-100">
       <h2 className="text-3xl font-bold mb-6">{template.name}</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
