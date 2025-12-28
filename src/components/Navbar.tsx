@@ -8,7 +8,7 @@ const Navbar = () => {
 
   const shareOnTwitter = () => {
     const text = encodeURIComponent(
-      "Create your stunning portfolio effortlessly with OA-Portfolio-Generator!"
+      "Create your stunning writer portfolio effortlessly with Foliobase!"
     );
     const url = encodeURIComponent(window.location.href);
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
@@ -23,7 +23,7 @@ const Navbar = () => {
           to="/"
           className="text-md lg:text-xl font-bold text-gray-900 transition"
         >
-          OA-Portfolio-Generator
+          Foliobase
         </Link>
 
         {/* DESKTOP LINKS */}

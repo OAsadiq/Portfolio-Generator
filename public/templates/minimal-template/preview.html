@@ -1,89 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>John Doe - Portfolio Preview</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/OA-PG-logo.png" />
+    <title>Sarah Mitchell - Freelance Writer</title>
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: Arial, sans-serif;
+        font-family: 'Georgia', 'Times New Roman', serif;
         max-width: 800px;
-        margin: auto;
-        padding: 2rem;
-        background: #f5f5f5;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+        background: #fafafa;
+        color: #2c2c2c;
+        line-height: 1.7;
       }
+
       header {
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        background: #ffffff;
-        padding: 1rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        padding: 2rem 0 3rem;
+        border-bottom: 2px solid #e0e0e0;
       }
-      img {
-        width: 100px;
-        height: 100px;
+
+      .profile-img {
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
         object-fit: cover;
+        margin-bottom: 1.5rem;
+        border: 3px solid #333;
       }
+
       h1 {
-        margin: 0;
-        color: #333;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: #1a1a1a;
+        font-weight: 600;
       }
-      section {
-        margin-top: 2rem;
-        background: #fff;
-        padding: 1rem 2rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+      .writer-type {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+        font-style: italic;
       }
-      footer {
-        text-align: center;
-        margin-top: 3rem;
-        font-size: 12px;
-        color: #777;
+
+      .bio {
+        font-size: 1.1rem;
+        color: #444;
+        max-width: 600px;
+        margin: 0 auto;
       }
-      a {
-        color: #0070f3;
-        text-decoration: none;
-      }
+
       .social-links {
         display: flex;
-        gap: 1rem;
-        margin-top: 0.5rem;
+        gap: 1.5rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+      }
+
+      .social-links a {
+        color: #0066cc;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+
+      .social-links a:hover {
+        color: #004999;
+        text-decoration: underline;
+      }
+
+      section {
+        margin-top: 4rem;
+      }
+
+      h2 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        color: #1a1a1a;
+        text-align: center;
+        position: relative;
+        padding-bottom: 0.5rem;
+      }
+
+      h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: #333;
+      }
+
+      .sample-card {
+        background: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border-left: 4px solid #333;
+      }
+
+      .sample-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.8rem;
+        color: #1a1a1a;
+      }
+
+      .sample-desc {
+        color: #555;
+        margin-bottom: 1rem;
+        font-size: 1.05rem;
+      }
+
+      .sample-link {
+        display: inline-block;
+        color: #0066cc;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s;
+      }
+
+      .sample-link:hover {
+        color: #004999;
+        transform: translateX(4px);
+      }
+
+      .testimonial-card {
+        background: #f5f5f5;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #666;
+      }
+
+      .testimonial-text {
+        font-size: 1.15rem;
+        font-style: italic;
+        color: #333;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+      }
+
+      .testimonial-author {
+        text-align: right;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .contact-section {
+        text-align: center;
+        background: white;
+        padding: 3rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      }
+
+      .contact-section h2 {
+        margin-bottom: 1.5rem;
+      }
+
+      .contact-section p {
+        font-size: 1.1rem;
+        color: #555;
+        margin-bottom: 2rem;
+      }
+
+      .email-button {
+        display: inline-block;
+        background: #333;
+        color: white;
+        padding: 1rem 2.5rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+      }
+
+      .email-button:hover {
+        background: #000;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e0e0e0;
+        font-size: 0.9rem;
+        color: #888;
+      }
+
+      footer a {
+        color: #0066cc;
+        text-decoration: none;
+      }
+
+      @media (max-width: 640px) {
+        body {
+          padding: 1.5rem 1rem;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        h2 {
+          font-size: 1.6rem;
+        }
+
+        .profile-img {
+          width: 100px;
+          height: 100px;
+        }
+
+        .sample-card, .testimonial-card {
+          padding: 1.5rem;
+        }
+
+        .contact-section {
+          padding: 2rem 1.5rem;
+        }
+
+        .email-button {
+          padding: 0.9rem 2rem;
+          font-size: 1rem;
+        }
       }
     </style>
   </head>
   <body>
     <header>
-      <img src="https://i.pravatar.cc/150?img=3" alt="Profile Picture" />
-      <div>
-        <h1>John Doe</h1>
-        <div class="social-links">
-          <a href="https://linkedin.com/in/johndoe" target="_blank">LinkedIn</a>
-          <a href="https://github.com/johndoe" target="_blank">GitHub</a>
-        </div>
+      <img src="https://i.pravatar.cc/150?img=5" alt="Sarah Mitchell" class="profile-img" />
+      <h1>Sarah Mitchell</h1>
+      <p class="writer-type">B2B Content Writer & Copywriter</p>
+      <p class="bio">I help SaaS companies turn complex ideas into compelling content that drives conversions. Specializing in long-form articles, case studies, and email campaigns.</p>
+      <div class="social-links">
+        <a href="https://linkedin.com/in/sarahmitchell" target="_blank">LinkedIn</a>
+        <a href="https://twitter.com/sarahwrites" target="_blank">Twitter</a>
       </div>
     </header>
 
     <section>
-      <h2>About Me</h2>
-      <p>
-        I am a passionate software developer focused on creating clean,
-        efficient, and scalable web applications. I love exploring new
-        technologies and continuously improving my craft.
-      </p>
+      <h2>Writing Samples</h2>
+      
+      <div class="sample-card">
+        <h3>How AI is Transforming Customer Support in 2024</h3>
+        <p class="sample-desc">A 2,000-word deep dive into AI automation trends for TechCrunch, featuring interviews with 5 industry leaders and data from 200+ companies.</p>
+        <a href="#" class="sample-link">Read Article →</a>
+      </div>
+
+      <div class="sample-card">
+        <h3>The Complete Guide to SaaS Content Marketing</h3>
+        <p class="sample-desc">Comprehensive 5,000-word guide covering strategy, SEO, and distribution tactics. Generated 15K+ monthly visits for client.</p>
+        <a href="#" class="sample-link">Read Article →</a>
+      </div>
+
+      <div class="sample-card">
+        <h3>Email Campaign: Product Launch Series</h3>
+        <p class="sample-desc">5-email sequence that achieved 45% open rate and 12% conversion rate for a B2B SaaS product launch.</p>
+        <a href="#" class="sample-link">Read Article →</a>
+      </div>
     </section>
 
     <section>
-      <h2>Work Experience</h2>
-      <ul>
-        <li>Frontend Developer at XYZ Tech (2021 - Present)</li>
-        <li>Intern at Webify Solutions (2020 - 2021)</li>
-      </ul>
+      <h2>What Clients Say</h2>
+      
+      <div class="testimonial-card">
+        <p class="testimonial-text">"Sarah's writing transformed our blog from generic to genuinely helpful. Our organic traffic doubled in 6 months."</p>
+        <p class="testimonial-author">— Michael Chen, VP Marketing at CloudSync</p>
+      </div>
+
+      <div class="testimonial-card">
+        <p class="testimonial-text">"Working with Sarah was seamless. She understands technical concepts quickly and makes them accessible to our audience."</p>
+        <p class="testimonial-author">— Jennifer Lopez, Content Director at DataFlow</p>
+      </div>
     </section>
 
-    <footer>Made with ❤️ using <b>OA-Portfolio-Generator</b></footer>
+    <section class="contact-section">
+      <h2>Let's Work Together</h2>
+      <p>Interested in working with me? I'd love to hear about your project.</p>
+      <a href="mailto:sarah@example.com" class="email-button">Get in Touch</a>
+    </section>
+
+    <footer>
+      <p>Built with <a href="https://oaportfoliogenerator.vercel.app" target="_blank">Foliobase</a></p>
+    </footer>
   </body>
 </html>
