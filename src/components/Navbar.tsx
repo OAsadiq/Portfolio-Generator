@@ -15,7 +15,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="max-w-7xl mx-6 lg:mx-auto bg-slate-800/50 backdrop-blur-md border border-slate-700/50 shadow-lg shadow-slate-900/20 p-4 rounded-lg sticky top-0 z-50">
+    <nav className="max-w-7xl mx-6 lg:mx-auto bg-slate-800/50 backdrop-blur-md border border-slate-700/50 shadow-lg shadow-slate-900/20 p-4 rounded-xl sticky top-0 z-50">
       <div className="flex justify-between items-center">
 
         {/* LOGO */}
@@ -27,7 +27,7 @@ const Navbar = () => {
         </Link>
 
         {/* DESKTOP LINKS */}
-        <div className="hidden md:flex items-center space-x-6">
+        <div className="hidden lg:flex items-center space-x-6 -mr-32">
           <Link to="/" className="text-slate-300 font-semibold hover:text-yellow-400 transition">
             Home
           </Link>
@@ -42,7 +42,7 @@ const Navbar = () => {
         </div>
 
         {/* DESKTOP BUTTONS */}
-        <div className="hidden md:flex items-center space-x-3">
+        <div className="hidden lg:flex items-center space-x-3">
           <button
             onClick={shareOnTwitter}
             className="bg-slate-700/50 text-slate-300 px-3 py-2 rounded-lg flex items-center hover:text-yellow-400 hover:bg-slate-700 transition border border-slate-600/50"
@@ -60,7 +60,7 @@ const Navbar = () => {
 
         {/* MOBILE MENU BUTTON */}
         <button
-          className="md:hidden text-slate-300 text-lg lg:text-2xl hover:text-yellow-400 transition"
+          className="lg:hidden text-slate-300 text-lg lg:text-2xl hover:text-yellow-400 transition"
           onClick={() => setMobileOpen(!mobileOpen)}
         >
           {mobileOpen ? <FaTimes /> : <FaBars />}
@@ -69,7 +69,7 @@ const Navbar = () => {
 
       {/* MOBILE DROPDOWN MENU */}
       {mobileOpen && (
-        <div className="md:hidden mt-4 bg-slate-800/80 backdrop-blur-md rounded-lg border border-slate-700/50 p-4 space-y-4 animate-slideDown">
+        <div className="lg:hidden mt-4 bg-slate-800/80 backdrop-blur-md rounded-lg border border-slate-700/50 p-4 space-y-4 animate-slideDown">
 
           <Link
             to="/"

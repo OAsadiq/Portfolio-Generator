@@ -21,15 +21,15 @@ const CallToActionSection = () => {
               Stop losing clients to writers with better portfolios. Create yours in 10 minutes and start pitching with confidence.
             </p>
 
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               <Link to="/templates">
-                <button className="bg-yellow-400 text-slate-900 px-8 sm:px-10 md:px-12  py-3 text-base sm:text-lg rounded-lg hover:bg-yellow-300 transition font-semibold shadow-lg shadow-yellow-400/20">
+                <button className="bg-yellow-400 text-slate-900 px-8 sm:px-10 md:px-12 py-3 text-base sm:text-md rounded-lg hover:bg-yellow-300 transition font-semibold shadow-lg shadow-yellow-400/20">
                   Create Portfolio
                 </button>
               </Link>
               
               <Link to="/contact">
-                <button className="bg-slate-700/50 border border-slate-600/50 text-slate-200 text-base sm:text-lg px-8 sm:px-10 md:px-12  py-3 rounded-lg hover:bg-slate-700 hover:text-yellow-400 transition font-semibold">
+                <button className="bg-slate-700/50 border border-slate-600/50 text-slate-200 text-base sm:text-md px-8 sm:px-10 md:px-12  py-3 rounded-lg hover:bg-slate-700 hover:text-yellow-400 transition font-semibold">
                   Contact Us
                 </button>
               </Link>
