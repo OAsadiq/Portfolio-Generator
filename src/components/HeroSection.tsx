@@ -53,7 +53,7 @@ const Hero = () => {
                 text-3xl sm:text-4xl md:text-5xl lg:text-6xl 
                 font-extrabold mb-4 leading-tight text-slate-50
             ">
-                Professional <span className="text-yellow-400">Writing Portfolios</span> in 10 Minutes
+                Professional Writing Portfolios in 10 Minutes
             </h1>
 
             {/* Subheading - WRITER FOCUSED */}

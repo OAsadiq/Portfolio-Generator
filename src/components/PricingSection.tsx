@@ -4,7 +4,7 @@ const PricingSection = () => {
   return (
     <div className="py-20 px-6">
       <div className="max-w-5xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-slate-50">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-50">
           Simple Pricing for Freelance Writers
         </h2>
 
@@ -35,7 +35,7 @@ const PricingSection = () => {
               </li>
               <li className="flex items-start">
                 <span className="text-yellow-400 mr-2">✓</span>
-                Up to 5 writing samples
+                Up to 3 writing samples
               </li>
               <li className="flex items-start">
                 <span className="text-yellow-400 mr-2">✓</span>
@@ -66,7 +66,7 @@ const PricingSection = () => {
             
             <div className="flex justify-between items-center relative z-10">
               <h3 className="text-2xl md:text-4xl font-extrabold text-slate-50">
-                $19<span className="text-lg font-normal text-slate-400">/month</span>
+                $**<span className="text-lg font-normal text-slate-400">/month</span>
               </h3>
               <div className="px-2 py-1 text-xs bg-yellow-400/20 text-yellow-300 border border-yellow-400/40 rounded-2xl font-semibold">
                 Pro Plan
@@ -111,7 +111,7 @@ const PricingSection = () => {
         </div>
 
         <p className="text-slate-500 text-sm mt-8">
-          💡 Start with the free plan. Upgrade only when you need a custom domain.
+          💡 Start with the free plan. Join waitlist to get 15% off first payment on the pro plan.
         </p>
       </div>
     </div>

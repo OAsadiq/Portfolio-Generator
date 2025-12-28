@@ -76,8 +76,8 @@ const Feature = () => {
             </div>
 
             {/* Decorative elements */}
-            <div className="absolute -top-6 -right-6 w-24 h-24 bg-yellow-400/10 rounded-full blur-2xl"></div>
-            <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl"></div>
+            <div className="absolute -top-6 right-2 lg:-right-6 w-24 h-24 bg-yellow-400/10 rounded-full blur-2xl"></div>
+            <div className="absolute -bottom-6 left-2 lg:-left-6 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl"></div>
           </div>
         </div>
 
@@ -144,8 +144,8 @@ const Feature = () => {
             </div>
 
             {/* Decorative elements */}
-            <div className="absolute -top-6 -left-6 w-24 h-24 bg-purple-400/10 rounded-full blur-2xl"></div>
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl"></div>
+            <div className="absolute -top-6 left-2 lg:-left-6 w-24 h-24 bg-purple-400/10 rounded-full blur-2xl"></div>
+            <div className="absolute -bottom-6 right-2 lg:-right-6 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl"></div>
           </div>
 
           <div className="space-y-6 order-1 lg:order-2">
@@ -275,7 +275,7 @@ const Feature = () => {
             </div>
 
             {/* Decorative elements */}
-            <div className="absolute -top-6 -right-6 w-24 h-24 bg-green-400/10 rounded-full blur-2xl"></div>
+            <div className="absolute -top-6 right-2 lg:-right-6 w-24 h-24 bg-green-400/10 rounded-full blur-2xl"></div>
           </div>
         </div>
 
@@ -336,8 +336,8 @@ const Feature = () => {
             </div>
 
             {/* Decorative elements */}
-            <div className="absolute -top-6 -left-6 w-24 h-24 bg-pink-400/10 rounded-full blur-2xl"></div>
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-purple-400/10 rounded-full blur-2xl"></div>
+            <div className="absolute -top-6 left-2 lg:-left-6 w-24 h-24 bg-pink-400/10 rounded-full blur-2xl"></div>
+            <div className="absolute -bottom-6 right-2 lg:-right-6 w-32 h-32 bg-purple-400/10 rounded-full blur-2xl"></div>
           </div>
 
           <div className="space-y-6 order-1 lg:order-2">
