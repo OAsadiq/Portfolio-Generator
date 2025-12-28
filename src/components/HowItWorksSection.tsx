@@ -27,15 +27,15 @@ const HowItWorks = () => {
   return (
     <div className="py-16 px-6 md:px-24">
       <div className="max-w-7xl mx-auto">
-        <div className="px-2 py-1 w-fit text-xs mb-2 bg-yellow-100 text-yellow-500 border border-yellow-400 rounded-2xl font-semibold">
+        <div className="px-2 py-1 w-fit text-xs mb-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 rounded-2xl font-semibold">
           How It Works
         </div>
 
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+        <h2 className="text-3xl md:text-4xl font-bold text-slate-50 mb-2">
           From Zero to Portfolio in 3 Easy Steps
         </h2>
 
-        <p className="text-gray-600 text-base md:text-lg mb-6">
+        <p className="text-slate-400 text-base md:text-lg mb-6">
           No technical skills needed. Just fill out a simple form and you're done.
         </p>
 
@@ -45,15 +45,17 @@ const HowItWorks = () => {
             {steps.map((step) => (
               <div
                 key={step.id}
-                className={`p-4 rounded-xl cursor-pointer transition ${
-                  selectedStep === step.id ? "bg-yellow-100" : "bg-white"
+                className={`p-4 rounded-xl cursor-pointer transition border ${
+                  selectedStep === step.id 
+                    ? "bg-yellow-500/10 border-yellow-500/50" 
+                    : "bg-slate-800/50 border-slate-700/50 hover:border-slate-600"
                 }`}
                 onClick={() => setSelectedStep(step.id)}
               >
-                <h3 className="text-lg font-bold text-gray-900">{step.title}</h3>
+                <h3 className="text-lg font-bold text-slate-50">{step.title}</h3>
                 <p
-                  className={`text-sm ${
-                    selectedStep === step.id ? "text-gray-600" : "text-gray-500"
+                  className={`text-sm mt-1 ${
+                    selectedStep === step.id ? "text-slate-300" : "text-slate-400"
                   }`}
                 >
                   {step.description}
@@ -67,7 +69,7 @@ const HowItWorks = () => {
             <img
               src={steps[selectedStep - 1].img}
               alt="Step Illustration"
-              className="w-full h-[40vh] md:h-[70vh] object-cover rounded-4xl shadow-[0_0_20px_rgba(255,255,255,0.8)]"
+              className="w-full h-[40vh] md:h-[70vh] object-cover rounded-4xl border border-slate-700/50"
             />
           </div>
         </div>

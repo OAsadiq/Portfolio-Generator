@@ -8,35 +8,35 @@ const Navbar = () => {
 
   const shareOnTwitter = () => {
     const text = encodeURIComponent(
-      "Create your stunning writer portfolio effortlessly with Foliobase!"
+      "Create your stunning portfolio effortlessly with Foliobase!"
     );
     const url = encodeURIComponent(window.location.href);
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
   };
 
   return (
-    <nav className="max-w-7xl mx-6 lg:mx-auto bg-white shadow-lg p-4 rounded-lg sticky top-0 z-50">
+    <nav className="max-w-7xl mx-6 lg:mx-auto bg-slate-800/50 backdrop-blur-md border border-slate-700/50 shadow-lg shadow-slate-900/20 p-4 rounded-lg sticky top-0 z-50">
       <div className="flex justify-between items-center">
 
         {/* LOGO */}
         <Link
           to="/"
-          className="text-md lg:text-xl font-bold text-gray-900 transition"
+          className="text-md lg:text-xl font-bold text-slate-50 hover:text-yellow-400 transition"
         >
-          Foliobase
+          Folio<span className="text-yellow-400">base</span>
         </Link>
 
         {/* DESKTOP LINKS */}
         <div className="hidden md:flex items-center space-x-6">
-          <Link to="/" className="text-gray-900 font-semibold hover:text-gray-500">
+          <Link to="/" className="text-slate-300 font-semibold hover:text-yellow-400 transition">
             Home
           </Link>
 
-          <span className="text-gray-300 font-semibold cursor-not-allowed">
+          <span className="text-slate-600 font-semibold cursor-not-allowed">
             Pricing (Coming soon)
           </span>
 
-          <Link to="/contact" className="text-gray-900 font-semibold hover:text-gray-500">
+          <Link to="/contact" className="text-slate-300 font-semibold hover:text-yellow-400 transition">
             Contact
           </Link>
         </div>
@@ -45,14 +45,14 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-3">
           <button
             onClick={shareOnTwitter}
-            className="bg-white text-gray-900 px-2 py-1 rounded-lg flex items-center hover:text-blue-400 transition"
+            className="bg-slate-700/50 text-slate-300 px-3 py-2 rounded-lg flex items-center hover:text-yellow-400 hover:bg-slate-700 transition border border-slate-600/50"
           >
             <FaXTwitter className="mr-1" /> Share
           </button>
 
           <Link
             to="/templates"
-            className="px-4 py-2 text-black bg-gray-200 rounded-xl font-semibold shadow-xl hover:bg-gray-300 transition"
+            className="px-4 py-2 text-slate-900 bg-yellow-400 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
           >
             Get Started
           </Link>
@@ -60,7 +60,7 @@ const Navbar = () => {
 
         {/* MOBILE MENU BUTTON */}
         <button
-          className="md:hidden text-gray-900 text-lg lg:text-2xl"
+          className="md:hidden text-slate-300 text-lg lg:text-2xl hover:text-yellow-400 transition"
           onClick={() => setMobileOpen(!mobileOpen)}
         >
           {mobileOpen ? <FaTimes /> : <FaBars />}
@@ -69,23 +69,23 @@ const Navbar = () => {
 
       {/* MOBILE DROPDOWN MENU */}
       {mobileOpen && (
-        <div className="md:hidden mt-4 bg-white rounded-lg shadow-md p-4 space-y-4 animate-slideDown">
+        <div className="md:hidden mt-4 bg-slate-800/80 backdrop-blur-md rounded-lg border border-slate-700/50 p-4 space-y-4 animate-slideDown">
 
           <Link
             to="/"
-            className="block text-gray-900 font-semibold hover:text-gray-500"
+            className="block text-slate-300 font-semibold hover:text-yellow-400 transition"
             onClick={() => setMobileOpen(false)}
           >
             Home
           </Link>
 
-          <span className="block text-gray-300 font-semibold cursor-not-allowed">
+          <span className="block text-slate-600 font-semibold cursor-not-allowed">
             Pricing (Coming soon)
           </span>
 
           <Link
             to="/contact"
-            className="block text-gray-900 font-semibold hover:text-gray-500"
+            className="block text-slate-300 font-semibold hover:text-yellow-400 transition"
             onClick={() => setMobileOpen(false)}
           >
             Contact
@@ -93,7 +93,7 @@ const Navbar = () => {
 
           <button
             onClick={shareOnTwitter}
-            className="w-full bg-gray-100 py-2 rounded-lg flex justify-center items-center text-gray-900 hover:bg-gray-200 transition"
+            className="w-full bg-slate-700/50 border border-slate-600/50 py-2 rounded-lg flex justify-center items-center text-slate-300 hover:text-yellow-400 hover:bg-slate-700 transition"
           >
             <FaXTwitter className="mr-1" /> Share
           </button>
@@ -101,7 +101,7 @@ const Navbar = () => {
           <Link
             to="/templates"
             onClick={() => setMobileOpen(false)}
-            className="block text-center bg-gray-200 py-2 rounded-xl font-semibold shadow hover:bg-gray-300 transition"
+            className="block text-center bg-yellow-400 text-slate-900 py-2 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
           >
             Get Started
           </Link>

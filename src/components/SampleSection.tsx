@@ -1,15 +1,22 @@
 const SampleSection = () => {
     return (
         <div className="mt-10 flex justify-center">
-            <div className="w-[90%] rounded-t-4xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.8)] bg-white">
+            <div className="w-[90%] rounded-t-4xl overflow-hidden  bg-white">
                 {/* Header badge */}
                 <div className="flex justify-center pt-8">
-                    <span className="px-3 py-1 text-xs bg-yellow-100 text-yellow-600 border border-yellow-400 rounded-2xl font-semibold">
+                    <span className="
+                        text-xs sm:text-sm 
+                        font-medium 
+                        px-3 py-1 sm:px-4 sm:py-1 
+                        rounded-xl 
+                        bg-yellow-500/10 text-yellow-400
+                        border border-yellow-500/30
+                    ">
                         Live Preview
                     </span>
                 </div>
                 
-                <h3 className="text-center text-xl md:text-2xl font-bold text-gray-800 mt-4 px-4">
+                <h3 className="text-center text-xl md:text-2xl font-bold text-slate-800 mt-4 px-4">
                     See What Your Portfolio Will Look Like
                 </h3>
                 

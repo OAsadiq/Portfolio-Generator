@@ -41,8 +41,8 @@ const Hero = () => {
                     font-medium 
                     px-3 py-1 sm:px-4 sm:py-1 
                     rounded-xl 
-                    bg-yellow-100 text-yellow-600 
-                    border border-yellow-400
+                    bg-yellow-500/10 text-yellow-400
+                    border border-yellow-500/30
                 ">
                     Trusted by Freelance Writers
                 </span>
@@ -51,15 +51,15 @@ const Hero = () => {
             {/* Main Heading - WRITER FOCUSED */}
             <h1 className="
                 text-3xl sm:text-4xl md:text-5xl lg:text-6xl 
-                font-extrabold mb-4 leading-tight text-gray-800
+                font-extrabold mb-4 leading-tight text-slate-50
             ">
-                Professional <span className="text-yellow-500">Writing Portfolios</span> in Less Than 10 Minutes
+                Professional <span className="text-yellow-400">Writing Portfolios</span> in 10 Minutes
             </h1>
 
             {/* Subheading - WRITER FOCUSED */}
             <p className="
                 text-sm sm:text-base md:text-lg 
-                text-gray-600 mx-auto mb-8 max-w-2xl
+                text-slate-400 mx-auto mb-8 max-w-2xl
             ">
                 Land more freelance clients with a portfolio that showcases your best work. No coding, no design skills—just your writing.
             </p>
@@ -72,9 +72,9 @@ const Hero = () => {
                         py-3 
                         text-base sm:text-lg
                         font-semibold 
-                        bg-yellow-500 text-gray-800 
-                        rounded-xl shadow-lg 
-                        hover:bg-yellow-400 
+                        bg-yellow-400 text-slate-900
+                        rounded-xl shadow-lg shadow-yellow-400/20
+                        hover:bg-yellow-300
                         transition duration-300 
                         transform hover:scale-105 
                         cursor-pointer
@@ -83,16 +83,16 @@ const Hero = () => {
                     </button>
                 </Link>
             </div>
-            <div className="flex items-center justify-center gap-3 mt-8 text-black">
+            <div className="flex items-center justify-center gap-3 mt-8 text-slate-300">
                 <div className="flex -space-x-2">
-                    <div className="h-6 w-6 rounded-full bg-pink-400" />
-                    <div className="h-6 w-6 rounded-full bg-blue-400" />
-                    <div className="h-6 w-6 rounded-full bg-green-400" />
-                    <div className="h-6 w-6 rounded-full bg-orange-400" />
+                    <div className="h-6 w-6 rounded-full bg-pink-400 border-2 border-slate-900" />
+                    <div className="h-6 w-6 rounded-full bg-blue-400 border-2 border-slate-900" />
+                    <div className="h-6 w-6 rounded-full bg-green-400 border-2 border-slate-900" />
+                    <div className="h-6 w-6 rounded-full bg-orange-400 border-2 border-slate-900" />
                 </div>
 
                 <p className="text-sm sm:text-base md:text-lg ">
-                    <span className="font-bold">{animatedCount}+</span> Writers Using Our Platform
+                    <span className="font-bold text-yellow-400">{animatedCount}+</span> Writers Using Our Platform
                 </p>
             </div>
         </div>

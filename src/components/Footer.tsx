@@ -1,10 +1,10 @@
 const Footer = () => {
     return (
         <>
-            <footer className="mt-20 text-center text-sm text-gray-700 bg-white p-8">
-                © 2025 <a href="https://oasadiq.vercel.app" className="hover:text-yellow-500 hover:underline">OAsadiq</a> | 
-                <a href="/contact" className="ml-2 text-gray-700 hover:underline">Contact Us</a> | 
-                <a href="#" className="ml-2 text-gray-700 hover:underline">Privacy Policy</a>
+            <footer className="mt-20 text-center text-sm text-slate-500 bg-slate-900/50 border-t border-slate-800 p-8 backdrop-blur-sm">
+                © 2025 <a href="https://oasadiq.vercel.app" className="hover:text-yellow-400 hover:underline transition">OAsadiq</a> | 
+                <a href="/contact" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Contact Us</a> | 
+                <a href="#" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Privacy Policy</a>
             </footer>
         </>
     );

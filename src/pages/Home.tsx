@@ -9,13 +9,13 @@ import Footer from "../components/Footer";
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-gray-100 text-white pt-6">
+    <div className="min-h-screen pt-6">
       <Navbar />
       <Hero />
       <SampleSection />
       <Feature />
       <HowItWorks />
-      <PricingSection/>
+      <PricingSection />
       <CallToActionSection />
       <Footer />
     </div>
