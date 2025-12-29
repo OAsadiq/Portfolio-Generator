@@ -177,7 +177,7 @@ const HowItWorks = () => {
                     </div>
                   </div>
 
-                  <p className="text-slate-400 text-base md:text-lg mb-8 leading-relaxed">
+                  <p className="text-slate-400 text-sm md:text-base mb-8 leading-relaxed">
                     Click generate and your portfolio is live immediately. Share your unique URL with clients and start landing gigs today.
                   </p>
 
