@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 interface TemplateField {
   name: string;
@@ -27,6 +29,7 @@ const CreatePortfolio = () => {
   const [deployUrl, setDeployUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [completedFields, setCompletedFields] = useState(0);
+  const { user } = useAuth();
 
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -73,17 +76,29 @@ const CreatePortfolio = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!templateId) return;
+    if (!templateId || !user) return;
 
     setLoading(true);
     setError(null);
 
     try {
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        setError("Please log in to create a portfolio");
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`
+          },
           body: JSON.stringify({
             templateId,
             formData,
@@ -91,9 +106,16 @@ const CreatePortfolio = () => {
         }
       );
 
-      if (!res.ok) throw new Error("Failed to generate portfolio");
-
       const data = await res.json();
+
+      if (!res.ok) {
+        // Check for free template limit
+        if (data.code === 'FREE_TEMPLATE_LIMIT_REACHED') {
+          throw new Error("You've already used your free template. Upgrade to Pro for unlimited portfolios!");
+        }
+        throw new Error(data.error || "Failed to generate portfolio");
+      }
+
       setPortfolioSlug(data.portfolioSlug);
     } catch (err: any) {
       setError(err.message);
