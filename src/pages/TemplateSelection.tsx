@@ -73,6 +73,7 @@ const TemplateSelection = () => {
       
       {/* Animated Background Effects - Same as Homepage */}
       <div className="fixed inset-0 pointer-events-none">
+
         {/* Animated Grid */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-grid-horizontal"></div>

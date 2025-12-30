@@ -24,3 +24,15 @@ body {
 body::-webkit-scrollbar {
   display: none;  /* Chrome, Safari, Opera */
 }
+
+/* Ensure ALL background effects never block pointer events */
+.fixed.inset-0.pointer-events-none *,
+.fixed.pointer-events-none * {
+  pointer-events: none !important;
+}
+
+/* Alternative: Use a custom class */
+.background-layer,
+.background-layer * {
+  pointer-events: none !important;
+}
