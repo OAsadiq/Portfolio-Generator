@@ -12,15 +12,6 @@ const Home = () => {
     <div className="min-h-screen bg-slate-900 text-slate-50 pt-6 relative overflow-hidden">
       {/* Animated Background Effects */}
       <div className="fixed inset-0 pointer-events-none">
-        
-        {/* 1. Gradient Mesh Background - Colorful Blobs */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-blob"></div>
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-yellow-500/20 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
-          <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-green-500/20 rounded-full blur-3xl animate-blob animation-delay-6000"></div>
-        </div>
-
         {/* 2. Animated Grid Lines */}
         <div className="absolute inset-0">
           {/* Horizontal lines */}

@@ -1,5 +1,11 @@
-import { put, list } from "@vercel/blob";
+import { createClient } from '@supabase/supabase-js';
 import { templates } from "./templateConfig.js";
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
 
 function enableCORS(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -7,10 +13,22 @@ function enableCORS(res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
-const COUNT_KEY = "stats/portfolio-count.json";
+// Helper function to create URL-safe slug from name
+function createSlug(fullName) {
+  return fullName
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/[\s_]+/g, '-')   // Replace spaces with hyphens
+    .replace(/^-+|-+$/g, '');  // Remove leading/trailing hyphens
+}
 
 export default async function handler(req, res) {
   enableCORS(res);
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
 
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -28,46 +46,78 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Template not found" });
     }
 
-    // ✅ Portfolio HTML
-    const slug = `portfolio-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    // ✅ Create slug from user's name
+    const userName = formData.fullName || 'writer';
+    const userEmail = formData.email || '';
+    const baseSlug = createSlug(userName);
+    
+    // Add unique timestamp to ensure uniqueness
+    const timestamp = Date.now();
+    const slug = `${baseSlug}-${timestamp}`;
+
+    // ✅ Generate portfolio HTML
     const finalHTML = template.generateHTML(formData);
 
-    const { url } = await put(
-      `portfolios/${slug}.html`,
-      finalHTML,
-      {
-        access: "public",
-        contentType: "text/html",
-      }
-    );
+    // ✅ Upload to Supabase Storage
+    const filePath = `portfolios/${slug}.html`;
+    
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('portfolios')
+      .upload(filePath, finalHTML, {
+        contentType: 'text/html',
+        cacheControl: '3600',
+        upsert: false
+      });
 
-    // ✅ Read existing count
-    let count = 0;
-    try {
-      const existing = await list(COUNT_KEY);
-      const data = JSON.parse(await existing.text());
-      count = data.count || 0;
-    } catch {
-      count = 0; // first time
+    if (uploadError) {
+      console.error("Supabase upload error:", uploadError);
+      return res.status(500).json({ 
+        error: "Failed to upload portfolio",
+        details: uploadError.message 
+      });
     }
 
-    // ✅ Overwrite count safely
-    await put(
-      COUNT_KEY,
-      JSON.stringify({ count: count + 1 }),
-      {
-        access: "public",
-        contentType: "application/json",
-        allowOverwrite: true, // 🔑 THIS FIXES YOUR ERROR
+    // ✅ Get public URL
+    const { data: urlData } = supabase.storage
+      .from('portfolios')
+      .getPublicUrl(filePath);
+
+    // ✅ Store portfolio metadata in database (optional but recommended)
+    try {
+      const { error: dbError } = await supabase
+        .from('portfolios')
+        .insert({
+          slug: slug,
+          user_name: userName,
+          user_email: userEmail,
+          template_id: templateId,
+          file_path: filePath,
+        });
+
+      if (dbError) {
+        console.error("Database insert error:", dbError);
+        // Don't fail the request if DB insert fails
       }
-    );
+    } catch (dbErr) {
+      console.error("Database error:", dbErr);
+      // Continue even if DB fails
+    }
+
+    // ✅ Return URLs
+    const customUrl = `https://${slug}-foliobase.vercel.app`;
 
     return res.status(200).json({
       portfolioSlug: slug,
-      publicUrl: url,
+      publicUrl: urlData.publicUrl,
+      customUrl: customUrl,
+      message: "Portfolio generated successfully"
     });
+
   } catch (err) {
     console.error("Portfolio generation error:", err);
-    return res.status(500).json({ error: "Failed to generate portfolio" });
+    return res.status(500).json({ 
+      error: "Failed to generate portfolio",
+      details: err.message 
+    });
   }
 }

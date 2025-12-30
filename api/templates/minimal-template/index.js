@@ -553,7 +553,7 @@ const minimalTemplate = {
         </div>
 
         <footer>
-          <p>Built with <a href="https://foliobase.vercel.app" target="_blank">Foliobase</a></p>
+          <p>Built with <a href="https://foliobase.vercel.app" target="_blank">Foliobase💙</a></p>
         </footer>
       </body>
     </html>

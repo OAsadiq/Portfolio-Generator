@@ -1,4 +1,10 @@
-import { list } from "@vercel/blob";
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
 
 function enableCORS(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -9,21 +15,41 @@ function enableCORS(res) {
 export default async function handler(req, res) {
   enableCORS(res);
 
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   const { slug } = req.query;
+
+  if (!slug) {
+    return res.status(400).send("Portfolio slug is required");
+  }
+
   const filePath = `portfolios/${slug}.html`;
 
   try {
-    const { blobs } = await list({ prefix: "portfolios/" });
+    // ✅ Download file from Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('portfolios')
+      .download(filePath);
 
-    const file = blobs.find((b) => b.pathname === filePath);
-
-    if (!file) {
+    if (error) {
+      console.error("Supabase download error:", error);
       return res.status(404).send("Portfolio not found");
     }
 
-    const response = await fetch(file.url);
-    const html = await response.text();
+    // ✅ Convert blob to text
+    const html = await data.text();
 
+    // ✅ Optional: Increment view count in database
+    try {
+      await supabase.rpc('increment_portfolio_views', { portfolio_slug: slug });
+    } catch (viewErr) {
+      console.log("View count update failed (not critical):", viewErr);
+      // Continue even if view count fails
+    }
+
+    // ✅ Return HTML
     res.setHeader("Content-Type", "text/html");
     res.send(html);
 

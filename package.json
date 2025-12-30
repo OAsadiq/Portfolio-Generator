@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@fontsource/poppins": "^5.2.5",
+    "@supabase/supabase-js": "^2.89.0",
     "@tailwindcss/vite": "^4.0.15",
     "@vercel/blob": "^2.0.0",
     "axios": "^1.8.4",

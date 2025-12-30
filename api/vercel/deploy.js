@@ -1,7 +1,24 @@
-// api/vercel/deploy.js
-import { list } from "@vercel/blob";
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
+
+function enableCORS(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+}
 
 export default async function handler(req, res) {
+  enableCORS(res);
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -9,22 +26,30 @@ export default async function handler(req, res) {
   try {
     const { portfolioId } = req.body;
 
-    if (!portfolioId)
+    if (!portfolioId) {
       return res.status(400).json({ error: "Missing portfolioId" });
-
-    const key = `portfolios/${portfolioId}.html`;
-
-    const files = await list({ prefix: "portfolios/" });
-    const file = files.blobs.find(b => b.pathname === key);
-
-    if (!file) {
-      return res.status(404).json({ error: "Portfolio file not found" });
     }
 
-    const htmlResponse = await fetch(file.url);
-    const html = await htmlResponse.text();
+    // ✅ Construct file path
+    const filePath = `portfolios/${portfolioId}.html`;
 
-    // Deploy to Vercel
+    // ✅ Download portfolio HTML from Supabase Storage
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from('portfolios')
+      .download(filePath);
+
+    if (downloadError || !fileData) {
+      console.error("Supabase download error:", downloadError);
+      return res.status(404).json({ 
+        error: "Portfolio file not found",
+        details: downloadError?.message 
+      });
+    }
+
+    // ✅ Convert blob to text
+    const html = await fileData.text();
+
+    // ✅ Deploy to Vercel
     const deployRes = await fetch("https://api.vercel.com/v13/deployments", {
       method: "POST",
       headers: {
@@ -43,22 +68,40 @@ export default async function handler(req, res) {
     const deployJson = await deployRes.json();
 
     if (!deployRes.ok) {
+      console.error("Vercel deployment failed:", deployJson);
       return res.status(500).json({
         error: "Vercel deployment failed",
         details: deployJson,
       });
     }
 
-    // Vercel gives `url` like bright-sunbeam-123.vercel.app
-    // But user wants: https://portfolioId.vercel.app
-    const customDomain = `${portfolioId}.vercel.app`;
+    // ✅ Get the actual Vercel URL from response
+    const vercelUrl = `${portfolioId}.vercel.app`;
+
+    // ✅ Optional: Update database with deployment info
+    try {
+      await supabase
+        .from('portfolios')
+        .update({ 
+          deployed_url: `https://${vercelUrl}`,
+          deployed_at: new Date().toISOString()
+        })
+        .eq('slug', portfolioId);
+    } catch (dbErr) {
+      console.error("Database update error:", dbErr);
+      // Don't fail the request if DB update fails
+    }
 
     return res.status(200).json({
-      url: `https://${customDomain}`
+      url: `https://${vercelUrl}`,
+      message: "Portfolio deployed successfully"
     });
 
   } catch (err) {
     console.error("Deploy error:", err);
-    return res.status(500).json({ error: "Server error during deploy" });
+    return res.status(500).json({ 
+      error: "Server error during deploy",
+      details: err.message 
+    });
   }
 }

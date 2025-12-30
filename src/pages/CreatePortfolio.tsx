@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -128,7 +127,6 @@ const CreatePortfolio = () => {
       setDeploying(false);
     }
   };
-
 
   const getFieldSection = (fieldName: string) => {
     if (fieldName.includes('fullName') || fieldName.includes('writerType') || fieldName.includes('bio') || fieldName.includes('profilePicture')) {
