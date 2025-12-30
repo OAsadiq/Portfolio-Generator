@@ -39,7 +39,6 @@ export default async function handler(req, res) {
   }
 }
 
-// Fallback: Count from storage if database doesn't exist yet
 async function countFromStorage(res) {
   try {
     const { data, error } = await supabase.storage
