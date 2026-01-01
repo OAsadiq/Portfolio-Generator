@@ -84,7 +84,7 @@ const CreatePortfolio = () => {
     try {
       // Get current session token
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         setError("Please log in to create a portfolio");
         setLoading(false);
@@ -95,7 +95,7 @@ const CreatePortfolio = () => {
         `${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`,
         {
           method: "POST",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${session.access_token}`
           },
