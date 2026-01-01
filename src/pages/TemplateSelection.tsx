@@ -1,4 +1,4 @@
-// src/components/TemplateSelection.tsx - Updated with Auth
+// src/components/TemplateSelection.tsx - Fixed with proper Auth
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -10,42 +10,80 @@ interface Template {
   description: string;
   thumbnail?: string;
   price?: number;
+  available?: boolean;
 }
 
 const TemplateSelection = () => {
   const navigate = useNavigate();
-  const { user, hasUsedFreeTemplate, checkTemplateUsage } = useAuth();
+  const { user, hasUsedFreeTemplate, checkTemplateUsage, session } = useAuth();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
   const [selectedLoading, setSelectedLoading] = useState<string | null>(null);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
+        // Get auth token
+        const token = session?.access_token;
+        
+        if (!token) {
+          setError("Please log in to view templates");
+          setLoading(false);
+          return;
+        }
+
         const apiUrl = import.meta.env.VITE_API_URL;
         
-        const res = await fetch(`${apiUrl}/api/templates`);
+        const res = await fetch(`${apiUrl}/api/templates`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        // Check if response is JSON
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const text = await res.text();
+          console.error('Non-JSON response:', text.substring(0, 200));
+          throw new Error('Server error: Invalid response format');
+        }
         
         if (!res.ok) {
-          throw new Error(`Failed to load templates (Status: ${res.status})`);
+          const errorData = await res.json();
+          throw new Error(errorData.error || `Failed to load templates (Status: ${res.status})`);
         }
         
         const data = await res.json();
 
-        if (!Array.isArray(data)) {
+        // Handle correct response format: { templates: [...], hasUsedFreeTemplate: boolean }
+        const templateList = data.templates || data;
+
+        if (!Array.isArray(templateList)) {
+          console.error('Invalid response:', data);
           throw new Error('Invalid response format from API');
         }
 
-        const writerTemplates = data.filter((template: Template) => {
+        // Filter out non-writer templates if needed
+        const writerTemplates = templateList.filter((template: Template) => {
           return template.id !== 'professional-writer-template';
         });
         
-        console.log('Filtered templates:', writerTemplates.length);
+        console.log('Loaded templates:', writerTemplates.length);
         setTemplates(writerTemplates);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching templates:", err);
+        setError(err.message || "Failed to load templates");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -55,7 +93,7 @@ const TemplateSelection = () => {
     if (user) {
       checkTemplateUsage();
     }
-  }, [user, checkTemplateUsage]);
+  }, [user, checkTemplateUsage, session]);
 
   const handleSelect = async (templateId: string) => {
     // Check if trying to use free template again
@@ -67,25 +105,40 @@ const TemplateSelection = () => {
     try {
       setSelectedLoading(templateId);
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`);
-      const data = await res.json();
-
-      if (res.ok) {
-        const selected = data.find((t: any) => t.id === templateId);
-
-        if (!selected) {
-          alert("Template not found");
-          return;
-        }
-
-        localStorage.setItem("selectedTemplate", JSON.stringify(selected));
-        navigate(`/create/${selected.id}`);
-      } else {
-        alert("Failed to load templates");
+      const token = session?.access_token;
+      
+      if (!token) {
+        alert("Please log in to continue");
+        return;
       }
-    } catch (error) {
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to load template");
+      }
+
+      const data = await res.json();
+      const templateList = data.templates || data;
+
+      const selected = templateList.find((t: any) => t.id === templateId);
+
+      if (!selected) {
+        alert("Template not found");
+        return;
+      }
+
+      localStorage.setItem("selectedTemplate", JSON.stringify(selected));
+      navigate(`/create/${selected.id}`);
+    } catch (error: any) {
       console.error(error);
-      alert("Error selecting template.");
+      alert(error.message || "Error selecting template.");
     } finally {
       setSelectedLoading(null);
     }
@@ -94,6 +147,29 @@ const TemplateSelection = () => {
   const isTemplateLocked = (templateId: string) => {
     return templateId === 'minimal-template' && hasUsedFreeTemplate;
   };
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-slate-50 flex items-center justify-center py-10 px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-slate-50 mb-2">Unable to Load Templates</h3>
+          <p className="text-slate-400 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-yellow-400 text-slate-900 px-6 py-2.5 rounded-lg font-semibold hover:bg-yellow-300 transition"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-50 flex items-center justify-center py-10 md:py-16 px-4 relative overflow-hidden">
@@ -145,10 +221,14 @@ const TemplateSelection = () => {
         </div>
 
         {/* Templates Grid */}
-        {templates.length === 0 ? (
+        {loading ? (
           <div className="text-center py-20">
             <div className="inline-block w-12 h-12 border-4 border-slate-700 border-t-yellow-400 rounded-full animate-spin"></div>
             <p className="text-slate-400 mt-4">Loading templates...</p>
+          </div>
+        ) : templates.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-slate-400">No templates available</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
@@ -316,7 +396,7 @@ const TemplateSelection = () => {
         </div>
       )}
 
-      {/* Preview Modal - same as before */}
+      {/* Preview Modal */}
       {previewTemplate && (
         <div className="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex justify-center items-center p-4 animate-fadeIn">
           <div className="relative bg-slate-800/90 backdrop-blur-md border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-6xl h-[85vh] overflow-hidden">
