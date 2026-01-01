@@ -24,18 +24,26 @@ const TemplateSelection = () => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`);
+        const apiUrl = import.meta.env.VITE_API_URL;
+        
+        const res = await fetch(`${apiUrl}/api/templates`);
+        
+        if (!res.ok) {
+          throw new Error(`Failed to load templates (Status: ${res.status})`);
+        }
+        
         const data = await res.json();
 
-        if (res.ok) {
-          const writerTemplates = data.filter((template: Template) => {
-            return template.id !== 'professional-writer-template';
-          });
-          
-          setTemplates(writerTemplates);
-        } else {
-          console.error("Failed to load templates:", data.error);
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid response format from API');
         }
+
+        const writerTemplates = data.filter((template: Template) => {
+          return template.id !== 'professional-writer-template';
+        });
+        
+        console.log('Filtered templates:', writerTemplates.length);
+        setTemplates(writerTemplates);
       } catch (err) {
         console.error("Error fetching templates:", err);
       }

@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from 'react';
+import { supabase } from '../lib/supabase';
 
 const CallToActionSection = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
   const [formData, setFormData] = useState({ firstName: '', email: '' });
 
-  // Add id to section for scroll navigation
   const sectionId = "waitlist";
 
   const handleInputChange = (e: { target: { name: any; value: any; }; }) => {
@@ -27,26 +26,37 @@ const CallToActionSection = () => {
     setSubmitMessage('');
 
     try {
-      const response = await fetch('https://app.loops.so/api/v1/contacts/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer YOUR_LOOPS_API_KEY`, // Replace with your actual API key
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          email: formData.email,
-        }),
+      console.log({ 
+        email: formData.email, 
+        firstName: formData.firstName 
       });
 
-      if (response.ok) {
+      const { data, error } = await supabase
+        .from('waitlist')
+        .insert({
+          email: formData.email,
+          first_name: formData.firstName,
+          source: 'website'
+        })
+        .select();
+
+      console.log({ data, error });
+
+      if (error) {
+        
+        if (error.code === '23505') {
+          setSubmitMessage('✅ You\'re already on the waitlist!');
+        } else if (error.message) {
+          setSubmitMessage(`Error: ${error.message}`);
+        } else {
+          throw error;
+        }
+      } else {
         setSubmitMessage('🎉 Successfully joined the waitlist!');
         setFormData({ firstName: '', email: '' });
-      } else {
-        setSubmitMessage('Something went wrong. Please try again.');
       }
-    } catch (error) {
-      setSubmitMessage('Unable to connect. Please try again later.');
+    } catch (error: any) {
+      setSubmitMessage(`Unable to join: ${error.message || 'Please try again later.'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -63,8 +73,8 @@ const CallToActionSection = () => {
       <div className="max-w-6xl mx-auto bg-gradient-to-br from-yellow-500/10 to-slate-800/50 border border-yellow-500/30 rounded-3xl p-8 md:p-12 backdrop-blur-sm shadow-xl shadow-yellow-500/10 relative overflow-hidden">
         
         {/* Glow effect */}
-        <div className="absolute -top-32 -right-32 w-64 h-64 bg-yellow-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute -top-32 -right-32 w-64 h-64 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col gap-4">
           
@@ -101,14 +111,14 @@ const CallToActionSection = () => {
             <button
               onClick={handleWaitlistSubmit}
               disabled={isSubmitting}
-              className="w-full lg:w-1/3 bg-yellow-400 text-slate-900 px-6 py-3 text-base rounded-lg hover:bg-yellow-300 transition font-semibold shadow-lg shadow-yellow-400/20 disabled:opacity-50 cursor-pointer"
+              className="w-full lg:w-1/3 bg-yellow-400 text-slate-900 px-6 py-3 text-base rounded-lg hover:bg-yellow-300 transition font-semibold shadow-lg shadow-yellow-400/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Joining...' : 'Join Waitlist'}
             </button>
           </div>
           
           {submitMessage && (
-            <p className={`text-center text-sm ${submitMessage.includes('success') ? 'text-green-400' : 'text-red-400'}`}>
+            <p className={`text-center text-sm ${submitMessage.includes('success') || submitMessage.includes('already') ? 'text-red-400' : 'text-green-400'}`}>
               {submitMessage}
             </p>
           )}

@@ -106,6 +106,10 @@ const CreatePortfolio = () => {
         }
       );
 
+      if (res.status === 413) {
+        throw new Error('Portfolio data is too large. Please reduce the amount of content and try again.');
+      }
+
       const data = await res.json();
 
       if (!res.ok) {
