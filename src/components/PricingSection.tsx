@@ -1,6 +1,83 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const PricingSection = () => {
+  const { user, signInWithGoogle } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleUpgrade = async () => {
+    if (!user) {
+      sessionStorage.setItem('pendingUpgrade', 'true');
+      await signInWithGoogle();
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const apiUrl = `${import.meta.env.VITE_API_URL}/api/stripe/actions`;
+      const priceId = import.meta.env.VITE_STRIPE_PRO_PRICE_ID;
+      
+      console.log('Starting checkout with:', {
+        apiUrl,
+        priceId,
+        userId: user.id,
+        userEmail: user.email
+      });
+
+      if (!priceId) {
+        throw new Error('Please contact support.');
+      }
+      
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: 'create-checkout-session',
+          priceId: priceId,
+          userId: user.id,
+          userEmail: user.email,
+        }),
+      });
+
+      console.log(res.status);
+
+      // Check response status BEFORE parsing JSON
+      if (!res.ok) {
+        const errorText = await res.text();
+        let errorMessage = "Failed to start checkout";
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // If not JSON, use the text or default message
+          errorMessage = errorText || errorMessage;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (err: any) {
+      console.error("Checkout error:", err);
+      setError(err.message || "Failed to start checkout. Please try again.");
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="py-20 px-6">
       <div className="max-w-5xl mx-auto text-center">
@@ -11,6 +88,20 @@ const PricingSection = () => {
         <p className="text-base md:text-lg text-slate-400 mt-2">
           Start free, upgrade when you need custom domains and advanced features.
         </p>
+
+        {error && (
+          <div className="mt-6 mb-8 max-w-lg mx-auto bg-red-500/10 border border-red-500/30 rounded-2xl p-4 flex items-center justify-center gap-3 text-red-400">
+            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className="ml-2 hover:text-red-300">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
 
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Free Plan */}
@@ -56,14 +147,13 @@ const PricingSection = () => {
                 Start Free
               </button>
             </Link>
-            
           </div>
 
           {/* Pro Plan */}
           <div className="bg-gradient-to-br from-yellow-500/10 to-slate-800/50 border-2 border-yellow-500/50 shadow-xl shadow-yellow-500/10 rounded-2xl p-6 md:p-8 text-left backdrop-blur-sm relative overflow-hidden">
             {/* Glow effect */}
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-yellow-400/20 rounded-full blur-3xl"></div>
-            
+
             <div className="flex justify-between items-center relative z-10">
               <h3 className="text-2xl md:text-4xl font-extrabold text-slate-50">
                 $**<span className="text-lg font-normal text-slate-400">/month</span>
@@ -104,14 +194,18 @@ const PricingSection = () => {
               </li>
             </ul>
 
-            <button className="mt-8 w-full bg-slate-600 text-slate-400 py-3 rounded-lg cursor-not-allowed relative z-10 font-semibold">
-              Coming Soon
+            <button
+              onClick={handleUpgrade}
+              disabled={loading}
+              className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 py-3 rounded-lg cursor-pointer relative z-10 font-bold shadow-lg shadow-yellow-400/20 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed hidden"
+            >
+              {loading ? "Loading..." : "Upgrade Now"}
             </button>
           </div>
         </div>
 
         <p className="text-slate-500 text-sm mt-8">
-          💡 Start with the free plan. Join waitlist to get 15% off first payment on the pro plan.
+          💡 Start with the free plan. Upgrade anytime to unlock pro features.
         </p>
       </div>
     </div>

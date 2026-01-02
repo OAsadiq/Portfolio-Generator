@@ -4,6 +4,7 @@ import SampleSection from "../components/SampleSection";
 import Feature from "../components/FeatureSection";
 import HowItWorks from "../components/HowItWorksSection";
 import PricingSection from "../components/PricingSection"
+import UpgradeHandler from "../components/UpgradeHandler";
 import CallToActionSection from "../components/CallToActionSection";
 import Footer from "../components/Footer";
 
@@ -159,6 +160,7 @@ const Home = () => {
         <Feature />
         <HowItWorks />
         <PricingSection/>
+        <UpgradeHandler />
         <CallToActionSection />
         <Footer />
       </div>

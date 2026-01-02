@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@fontsource/poppins": "^5.2.5",
+    "@stripe/stripe-js": "^8.6.0",
     "@supabase/supabase-js": "^2.89.0",
     "@tailwindcss/vite": "^4.0.15",
     "@vercel/blob": "^2.0.0",
@@ -27,6 +28,7 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.4.0",
     "slugify": "^1.6.6",
+    "stripe": "^20.1.0",
     "tailwindcss": "^4.0.15",
     "vercel": "^50.0.0"
   },

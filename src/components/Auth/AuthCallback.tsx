@@ -23,8 +23,20 @@ const AuthCallback = () => {
 
         if (session) {
           console.log('✅ Successfully authenticated!', session.user.email);
-          // Redirect to templates page
-          navigate('/templates', { replace: true });
+          
+          // Check if user was trying to upgrade before login
+          const pendingUpgrade = sessionStorage.getItem('pendingUpgrade');
+          
+          if (pendingUpgrade === 'true') {
+            // Clear the flag
+            sessionStorage.removeItem('pendingUpgrade');
+            
+            // Redirect to pricing page to complete the upgrade
+            navigate('/pricing', { replace: true });
+          } else {
+            // Normal flow - redirect to templates page
+            navigate('/templates', { replace: true });
+          }
         } else {
           // No session, go back to login
           navigate('/login', { replace: true });
