@@ -112,14 +112,19 @@ const CreatePortfolio = () => {
 
       const data = await res.json();
 
+      // In CreatePortfolio.tsx, replace the error handling:
       if (!res.ok) {
         // Check for free template limit
         if (data.code === 'FREE_TEMPLATE_LIMIT_REACHED') {
           throw new Error("You've already used your free template. Upgrade to Pro for unlimited portfolios!");
         }
+        // Check for pro template requirement
+        if (data.code === 'PRO_TEMPLATE_REQUIRED') {
+          throw new Error("This template requires a Pro subscription. Upgrade to unlock all templates!");
+        }
         throw new Error(data.error || "Failed to generate portfolio");
       }
-
+      
       setPortfolioSlug(data.portfolioSlug);
     } catch (err: any) {
       setError(err.message);

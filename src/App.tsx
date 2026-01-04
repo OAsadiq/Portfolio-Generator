@@ -9,6 +9,7 @@ import CreatePortfolio from './pages/CreatePortfolio';
 import PreviewPortfolio from './pages/PreviewPortfolio';
 import Contact from './pages/Contact';
 import Home from './pages/Home';
+import Success from './pages/Success';
 
 function App() {
   return (
@@ -34,6 +35,9 @@ function App() {
               <ProtectedRoute>
                 <CreatePortfolio />
               </ProtectedRoute>
+            } />
+            <Route path="/success" element={
+                <Success />
             } />
             
             {/* Preview is public */}

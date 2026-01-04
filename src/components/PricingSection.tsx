@@ -156,7 +156,7 @@ const PricingSection = () => {
 
             <div className="flex justify-between items-center relative z-10">
               <h3 className="text-2xl md:text-4xl font-extrabold text-slate-50">
-                $**<span className="text-lg font-normal text-slate-400">/month</span>
+                $9<span className="text-lg font-normal text-slate-400">/month</span>
               </h3>
               <div className="px-2 py-1 text-xs bg-yellow-400/20 text-yellow-300 border border-yellow-400/40 rounded-2xl font-semibold">
                 Pro Plan

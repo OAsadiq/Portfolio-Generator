@@ -30,6 +30,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing portfolioId" });
     }
 
+    console.log('📦 Deploying portfolio:', portfolioId);
+
     // ✅ Construct file path
     const filePath = `portfolios/${portfolioId}.html`;
 
@@ -39,7 +41,7 @@ export default async function handler(req, res) {
       .download(filePath);
 
     if (downloadError || !fileData) {
-      console.error("Supabase download error:", downloadError);
+      console.error("❌ Supabase download error:", downloadError);
       return res.status(404).json({ 
         error: "Portfolio file not found",
         details: downloadError?.message 
@@ -50,6 +52,7 @@ export default async function handler(req, res) {
     const html = await fileData.text();
 
     // ✅ Deploy to Vercel
+    console.log('🚀 Deploying to Vercel...');
     const deployRes = await fetch("https://api.vercel.com/v13/deployments", {
       method: "POST",
       headers: {
@@ -68,7 +71,7 @@ export default async function handler(req, res) {
     const deployJson = await deployRes.json();
 
     if (!deployRes.ok) {
-      console.error("Vercel deployment failed:", deployJson);
+      console.error("❌ Vercel deployment failed:", deployJson);
       return res.status(500).json({
         error: "Vercel deployment failed",
         details: deployJson,
@@ -77,19 +80,25 @@ export default async function handler(req, res) {
 
     // ✅ Get the actual Vercel URL from response
     const vercelUrl = `${portfolioId}.vercel.app`;
+    console.log('✅ Deployed to:', vercelUrl);
 
-    // ✅ Optional: Update database with deployment info
-    try {
-      await supabase
-        .from('portfolios')
-        .update({ 
-          deployed_url: `https://${vercelUrl}`,
-          deployed_at: new Date().toISOString()
-        })
-        .eq('slug', portfolioId);
-    } catch (dbErr) {
-      console.error("Database update error:", dbErr);
-      // Don't fail the request if DB update fails
+    // ✅ Update database with deployment info
+    console.log('💾 Updating database...');
+    const { data: updatedPortfolio, error: updateError } = await supabase
+      .from('portfolios')
+      .update({ 
+        deployed_url: `https://${vercelUrl}`,
+        deployed_at: new Date().toISOString()
+      })
+      .eq('slug', portfolioId)
+      .select();
+
+    if (updateError) {
+      console.error("❌ Database update error:", updateError);
+      // Still return success since deployment worked
+      console.log('⚠️ Deploy succeeded but DB update failed');
+    } else {
+      console.log('✅ Database updated:', updatedPortfolio);
     }
 
     return res.status(200).json({
@@ -98,7 +107,7 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    console.error("Deploy error:", err);
+    console.error("❌ Deploy error:", err);
     return res.status(500).json({ 
       error: "Server error during deploy",
       details: err.message 

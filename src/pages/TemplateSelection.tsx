@@ -1,4 +1,4 @@
-// src/components/TemplateSelection.tsx - Fixed with proper Auth
+// src/components/TemplateSelection.tsx - Complete with Pro Support
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -15,7 +15,7 @@ interface Template {
 
 const TemplateSelection = () => {
   const navigate = useNavigate();
-  const { user, hasUsedFreeTemplate, checkTemplateUsage, session } = useAuth();
+  const { user, hasUsedFreeTemplate, isPro, checkTemplateUsage, checkSubscription, session } = useAuth();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
@@ -64,7 +64,7 @@ const TemplateSelection = () => {
         
         const data = await res.json();
 
-        // Handle correct response format: { templates: [...], hasUsedFreeTemplate: boolean }
+        // Handle correct response format
         const templateList = data.templates || data;
 
         if (!Array.isArray(templateList)) {
@@ -72,13 +72,10 @@ const TemplateSelection = () => {
           throw new Error('Invalid response format from API');
         }
 
-        // Filter out non-writer templates if needed
-        const writerTemplates = templateList.filter((template: Template) => {
-          return template.id !== 'professional-writer-template';
-        });
-        
-        console.log('Loaded templates:', writerTemplates.length);
-        setTemplates(writerTemplates);
+        // DON'T FILTER - Show ALL templates
+        console.log('✅ Loaded templates:', templateList.length);
+        console.log('Templates:', templateList.map(t => ({ id: t.id, name: t.name })));
+        setTemplates(templateList);
       } catch (err: any) {
         console.error("Error fetching templates:", err);
         setError(err.message || "Failed to load templates");
@@ -89,15 +86,16 @@ const TemplateSelection = () => {
 
     fetchTemplates();
     
-    // Check usage when component mounts
+    // Check usage and subscription when component mounts
     if (user) {
       checkTemplateUsage();
+      checkSubscription();
     }
-  }, [user, checkTemplateUsage, session]);
+  }, [user, checkTemplateUsage, checkSubscription, session]);
 
   const handleSelect = async (templateId: string) => {
-    // Check if trying to use free template again
-    if (templateId === 'minimal-template' && hasUsedFreeTemplate) {
+    // Check if template is locked
+    if (isTemplateLocked(templateId)) {
       setShowLimitModal(true);
       return;
     }
@@ -145,7 +143,22 @@ const TemplateSelection = () => {
   };
 
   const isTemplateLocked = (templateId: string) => {
-    return templateId === 'minimal-template' && hasUsedFreeTemplate;
+    console.log('Checking if locked:', { templateId, isPro, hasUsedFreeTemplate });
+    
+    // Pro users: No templates locked
+    if (isPro) {
+      return false;
+    }
+    
+    // Free users:
+    // - minimal-template is locked if already used
+    // - All other templates are locked (require Pro)
+    if (templateId === 'minimal-template') {
+      return hasUsedFreeTemplate; // Locked only if already used
+    }
+    
+    // All other templates require Pro
+    return true;
   };
 
   // Show error state
@@ -209,13 +222,23 @@ const TemplateSelection = () => {
             Professional templates designed specifically for writers and copywriters. Pick one and start building in minutes.
           </p>
 
-          {/* Usage Status */}
-          {hasUsedFreeTemplate && (
+          {/* Pro Status Badge */}
+          {isPro && (
+            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-yellow-400/20 border border-yellow-400/40 rounded-full">
+              <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+              <span className="text-yellow-400 text-sm font-bold">Pro Member - All Templates Unlocked ✨</span>
+            </div>
+          )}
+
+          {/* Usage Status for Free Users */}
+          {!isPro && hasUsedFreeTemplate && (
             <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full">
               <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="text-blue-400 text-sm">You've used your free template. Upgrade for more.</span>
+              <span className="text-blue-400 text-sm">You've used your free template. Upgrade for unlimited access!</span>
             </div>
           )}
         </div>
@@ -236,6 +259,7 @@ const TemplateSelection = () => {
               const isHovered = hoveredTemplate === template.id;
               const isLoading = selectedLoading === template.id;
               const isLocked = isTemplateLocked(template.id);
+              const isFreeTemplate = template.id === 'minimal-template';
 
               return (
                 <div
@@ -245,7 +269,7 @@ const TemplateSelection = () => {
                   style={{
                     transform: isHovered ? 'scale(1.05)' : 'scale(1)',
                     transition: 'all 0.3s ease',
-                    opacity: isLocked ? 0.6 : 1
+                    opacity: isLocked ? 0.7 : 1
                   }}
                   className={`relative bg-slate-800/50 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl ${
                     isHovered 
@@ -253,17 +277,31 @@ const TemplateSelection = () => {
                       : 'border-slate-700/50'
                   } border`}
                 >
+                  {/* Pro Badge for Pro Users */}
+                  {isPro && !isLocked && (
+                    <div className="absolute top-3 left-3 bg-yellow-400/90 backdrop-blur-sm px-3 py-1 text-xs text-slate-900 rounded-full font-bold z-10 flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      PRO
+                    </div>
+                  )}
+
                   {/* Locked Overlay */}
                   {isLocked && (
-                    <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-20 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-slate-900/85 backdrop-blur-sm z-20 flex items-center justify-center">
                       <div className="text-center p-4">
                         <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-3">
                           <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                           </svg>
                         </div>
-                        <p className="text-slate-300 font-semibold mb-1">Already Used</p>
-                        <p className="text-slate-500 text-sm">Upgrade for more templates</p>
+                        <p className="text-slate-300 font-semibold mb-1">
+                          {isFreeTemplate ? 'Already Used' : 'Pro Only'}
+                        </p>
+                        <p className="text-slate-500 text-sm">
+                          {isFreeTemplate ? 'Upgrade to create more' : 'Upgrade to unlock'}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -290,10 +328,10 @@ const TemplateSelection = () => {
 
                     {isHovered && !isLocked && (
                       <div 
-                        className="absolute top-3 right-3 bg-yellow-400/20 backdrop-blur-sm border border-yellow-800/40 px-3 py-1 text-xs text-yellow-300 rounded-full font-semibold"
+                        className="absolute top-3 right-3 bg-yellow-400/20 backdrop-blur-sm border border-yellow-400/40 px-3 py-1 text-xs text-yellow-300 rounded-full font-semibold"
                         style={{ animation: 'fadeIn 0.3s ease-out' }}
                       >
-                        {template.price && template.price > 0 ? "Paid" : "Free"}
+                        {isFreeTemplate ? "Free" : "Pro"}
                       </div>
                     )}
                   </div>
@@ -334,7 +372,7 @@ const TemplateSelection = () => {
                             Loading...
                           </span>
                         ) : isLocked ? (
-                          "Used"
+                          isFreeTemplate ? "Used" : "🔒 Pro"
                         ) : (
                           "Select"
                         )}
@@ -370,9 +408,11 @@ const TemplateSelection = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-slate-50 mb-2">Free Template Limit Reached</h3>
+              <h3 className="text-xl font-bold text-slate-50 mb-2">Upgrade to Pro</h3>
               <p className="text-slate-400 mb-6">
-                You've already created your free portfolio. Upgrade to Pro to create unlimited portfolios with custom domains and more features!
+                {hasUsedFreeTemplate 
+                  ? "You've already used your free template. Upgrade to Pro for unlimited portfolios and all premium templates!"
+                  : "This template requires a Pro subscription. Upgrade to unlock all premium features!"}
               </p>
               <div className="flex gap-3">
                 <button
@@ -381,15 +421,13 @@ const TemplateSelection = () => {
                 >
                   Close
                 </button>
-                <button
-                  onClick={() => {
-                    setShowLimitModal(false);
-                    // Navigate to pricing or upgrade page
-                  }}
-                  className="flex-1 bg-yellow-400 text-slate-900 py-2.5 px-4 rounded-lg font-semibold hover:bg-yellow-300 transition"
-                >
-                  Upgrade to Pro
-                </button>
+                <Link to="/#pricing" className="flex-1">
+                  <button
+                    className="w-full bg-yellow-400 text-slate-900 py-2.5 px-4 rounded-lg font-semibold hover:bg-yellow-300 transition"
+                  >
+                    Upgrade to Pro
+                  </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -422,8 +460,8 @@ const TemplateSelection = () => {
             />
 
             <div className="absolute bottom-0 left-0 right-0 bg-slate-900/50 backdrop-blur-sm border-t border-slate-700/50 px-6 py-4 flex items-center justify-between">
-              <div className="text-slate-600 text-sm">
-                {previewTemplate.price && previewTemplate.price > 0 ? "Paid Template" : "Free Forever"}
+              <div className="text-slate-400 text-sm">
+                {previewTemplate.id === 'minimal-template' ? "Free Forever" : "Pro Template"}
               </div>
               <button
                 onClick={() => {
