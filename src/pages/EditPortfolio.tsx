@@ -5,6 +5,20 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
+interface TemplateField {
+  name: string;
+  label: string;
+  type: string;
+  required?: boolean;
+  placeholder?: string;
+}
+interface Template {
+  id: string;
+  name: string;
+  description: string;
+  fields: TemplateField[];
+}
+
 const EditPortfolio = () => {
   const { slug } = useParams();
   const { user } = useAuth();
@@ -14,6 +28,8 @@ const EditPortfolio = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [template] = useState<Template | null>(null);
+  
 
   useEffect(() => {
     fetchPortfolio();
@@ -135,6 +151,25 @@ const EditPortfolio = () => {
     );
   }
 
+  const getFieldSection = (fieldName: string) => {
+    if (fieldName.includes('fullName') || fieldName.includes('writerType') || fieldName.includes('bio') || fieldName.includes('profilePicture')) {
+      return 'personal';
+    }
+    if (fieldName.includes('sample')) return 'samples';
+    if (fieldName.includes('testimonial')) return 'testimonials';
+    if (fieldName.includes('email') || fieldName.includes('linkedin') || fieldName.includes('twitter')) {
+      return 'contact';
+    }
+    return 'other';
+  };
+
+  const groupedFields = template?.fields.reduce((acc, field) => {
+    const section = getFieldSection(field.name);
+    if (!acc[section]) acc[section] = [];
+    acc[section].push(field);
+    return acc;
+  }, {} as Record<string, TemplateField[]>);
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-50 py-10 px-4 relative overflow-hidden">
       {/* Background Effects */}
@@ -148,7 +183,7 @@ const EditPortfolio = () => {
         <div className="mb-8">
           <Link
             to="/dashboard"
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors mb-4 mr-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -168,110 +203,158 @@ const EditPortfolio = () => {
 
         {/* Edit Form */}
         <form onSubmit={handleSave} className="space-y-6">
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
-            <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
-              <span className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center text-lg">
-                👤
-              </span>
-              Personal Information
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  Full Name <span className="text-yellow-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="fullName"
-                  value={formData.fullName || ''}
-                  onChange={handleChange}
-                  required
-                  className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  Writer Type
-                </label>
-                <input
-                  type="text"
-                  name="writerType"
-                  value={formData.writerType || ''}
-                  onChange={handleChange}
-                  placeholder="e.g., Freelance Content Writer"
-                  className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  Bio <span className="text-yellow-400">*</span>
-                </label>
-                <textarea
-                  name="bio"
-                  value={formData.bio || ''}
-                  onChange={handleChange}
-                  required
-                  rows={4}
-                  placeholder="Tell us about yourself..."
-                  className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
-                />
+          {/* Personal Information */}
+          {groupedFields?.personal && (
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
+              <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
+                <span className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center text-lg">
+                  👤
+                </span>
+                Personal Information
+              </h2>
+              <div className="space-y-4">
+                {groupedFields.personal.map((field) => (
+                  <div key={field.name}>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">
+                      {field.label}
+                      {field.required && <span className="text-yellow-400 ml-1">*</span>}
+                    </label>
+                    {field.type === "textarea" ? (
+                      <textarea
+                        name={field.name}
+                        onChange={handleChange}
+                        required={field.required}
+                        placeholder={field.placeholder}
+                        rows={4}
+                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
+                      />
+                    ) : (
+                      <input
+                        type={field.type}
+                        name={field.name}
+                        onChange={handleChange}
+                        required={field.required}
+                        placeholder={field.placeholder}
+                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
+                      />
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          )}
 
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
-            <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
-              <span className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center text-lg">
-                📧
-              </span>
-              Contact Information
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  Email <span className="text-yellow-400">*</span>
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email || ''}
-                  onChange={handleChange}
-                  required
-                  className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  LinkedIn URL
-                </label>
-                <input
-                  type="url"
-                  name="linkedin"
-                  value={formData.linkedin || ''}
-                  onChange={handleChange}
-                  placeholder="https://linkedin.com/in/yourprofile"
-                  className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  Twitter Handle
-                </label>
-                <input
-                  type="text"
-                  name="twitter"
-                  value={formData.twitter || ''}
-                  onChange={handleChange}
-                  placeholder="@yourhandle"
-                  className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
-                />
+          {/* Writing Samples */}
+          {groupedFields?.samples && (
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
+              <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
+                <span className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center text-lg">
+                  📄
+                </span>
+                Writing Samples
+              </h2>
+              <div className="space-y-4">
+                {groupedFields.samples.map((field) => (
+                  <div key={field.name}>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">
+                      {field.label}
+                      {field.required && <span className="text-yellow-400 ml-1">*</span>}
+                    </label>
+                    {field.type === "textarea" ? (
+                      <textarea
+                        name={field.name}
+                        onChange={handleChange}
+                        required={field.required}
+                        placeholder={field.placeholder}
+                        rows={3}
+                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
+                      />
+                    ) : (
+                      <input
+                        type={field.type}
+                        name={field.name}
+                        onChange={handleChange}
+                        required={field.required}
+                        placeholder={field.placeholder}
+                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
+                      />
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Testimonials */}
+          {groupedFields?.testimonials && (
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
+              <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
+                <span className="w-8 h-8 bg-pink-500/20 rounded-lg flex items-center justify-center text-lg">
+                  💬
+                </span>
+                Client Testimonials
+                <span className="text-sm text-slate-500 font-normal">(Optional)</span>
+              </h2>
+              <div className="space-y-4">
+                {groupedFields.testimonials.map((field) => (
+                  <div key={field.name}>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">
+                      {field.label}
+                    </label>
+                    {field.type === "textarea" ? (
+                      <textarea
+                        name={field.name}
+                        onChange={handleChange}
+                        required={field.required}
+                        placeholder={field.placeholder}
+                        rows={3}
+                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
+                      />
+                    ) : (
+                      <input
+                        type={field.type}
+                        name={field.name}
+                        onChange={handleChange}
+                        required={field.required}
+                        placeholder={field.placeholder}
+                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Contact Information */}
+          {groupedFields?.contact && (
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
+              <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
+                <span className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center text-lg">
+                  📧
+                </span>
+                Contact Information
+              </h2>
+              <div className="space-y-4">
+                {groupedFields.contact.map((field) => (
+                  <div key={field.name}>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">
+                      {field.label}
+                      {field.required && <span className="text-yellow-400 ml-1">*</span>}
+                    </label>
+                    <input
+                      type={field.type}
+                      name={field.name}
+                      onChange={handleChange}
+                      required={field.required}
+                      placeholder={field.placeholder}
+                      className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (

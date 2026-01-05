@@ -143,22 +143,18 @@ const TemplateSelection = () => {
   };
 
   const isTemplateLocked = (templateId: string) => {
-    console.log('Checking if locked:', { templateId, isPro, hasUsedFreeTemplate });
-    
-    // Pro users: No templates locked
+    // Pro users can use all templates
     if (isPro) {
       return false;
     }
     
-    // Free users:
-    // - minimal-template is locked if already used
-    // - All other templates are locked (require Pro)
-    if (templateId === 'minimal-template') {
-      return hasUsedFreeTemplate; // Locked only if already used
+    // Non-pro users who already used free template cannot use it again
+    if (templateId === 'minimal-template' && hasUsedFreeTemplate) {
+      return true;
     }
     
-    // All other templates require Pro
-    return true;
+    // All other templates are locked for free users (assuming only 'minimal-template' is free)
+    return templateId !== 'minimal-template';
   };
 
   // Show error state
