@@ -10,6 +10,8 @@ import PreviewPortfolio from './pages/PreviewPortfolio';
 import Contact from './pages/Contact';
 import Home from './pages/Home';
 import Success from './pages/Success';
+import ProDashboard from './pages/ProDashboard';
+import EditPortfolio from './pages/EditPortfolio';
 
 function App() {
   return (
@@ -37,9 +39,21 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/success" element={
+              <ProtectedRoute>
                 <Success />
+              </ProtectedRoute>
             } />
-            
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <ProDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/edit/:slug" element={
+              <ProtectedRoute>
+                <EditPortfolio />
+              </ProtectedRoute>
+            } />
+
             {/* Preview is public */}
             <Route path="/preview/:id" element={<PreviewPortfolio />} />
           </Routes>

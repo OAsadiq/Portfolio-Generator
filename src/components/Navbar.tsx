@@ -94,6 +94,13 @@ const Navbar = () => {
                   >
                     My Templates
                   </Link>
+                  <Link
+                    to="/dashboard"
+                    className="block px-4 py-2 text-slate-300 hover:bg-slate-700 hover:text-yellow-400 transition text-sm"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    Dashboard
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     className="w-full text-left px-4 py-2 text-red-400 hover:bg-slate-700 transition text-sm"
@@ -174,6 +181,13 @@ const Navbar = () => {
                   className="block text-center bg-slate-700/50 border border-slate-600/50 py-2 rounded-lg text-slate-300 hover:text-yellow-400 hover:bg-slate-700 transition mb-2"
                 >
                   My Templates
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="block text-center bg-slate-700/50 border border-slate-600/50 py-2 rounded-lg text-slate-300 hover:text-yellow-400 hover:bg-slate-700 transition mb-2"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Dashboard
                 </Link>
                 <button
                   onClick={() => {
