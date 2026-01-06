@@ -22,6 +22,7 @@ const EditPortfolio = () => {
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,10 +57,20 @@ const EditPortfolio = () => {
 
       setPortfolio(data);
       
+      console.log('📊 Portfolio loaded:', {
+        slug: data.slug,
+        template_id: data.template_id,
+        has_template_fields: !!data.template_fields,
+        template_fields_count: data.template_fields?.length || 0,
+        form_data_keys: Object.keys(data.form_data || {})
+      });
+      
       // Get template fields from portfolio or fallback to form_data keys
       if (data.template_fields && Array.isArray(data.template_fields)) {
+        console.log('✅ Using template_fields from database');
         setTemplateFields(data.template_fields);
       } else {
+        console.warn('⚠️ No template_fields found, creating from form_data');
         // Fallback: create fields from existing form_data
         const fields = Object.keys(data.form_data || {}).map(key => ({
           name: key,
@@ -68,6 +79,7 @@ const EditPortfolio = () => {
           required: false,
           placeholder: `Enter ${key.replace(/([A-Z])/g, ' $1').trim()}`
         }));
+        console.log('📝 Created', fields.length, 'fields from form_data');
         setTemplateFields(fields);
       }
     } catch (err: any) {
@@ -83,11 +95,18 @@ const EditPortfolio = () => {
     const existingData = portfolio.form_data || {};
     const initializedData: any = {};
 
+    if (templateFields.length === 0) {
+      console.warn('No template fields available, using existing form_data as-is');
+      setFormData(existingData);
+      return;
+    }
+
     // Add all template fields - existing values or empty strings
     templateFields.forEach(field => {
       initializedData[field.name] = existingData[field.name] || '';
     });
 
+    console.log('Form initialized with', Object.keys(initializedData).length, 'fields');
     setFormData(initializedData);
   };
 
@@ -99,9 +118,76 @@ const EditPortfolio = () => {
     }));
   };
 
+  const handlePreview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!portfolio) return;
+
+    setPreviewing(true);
+    setError(null);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        setError('Please log in to continue');
+        return;
+      }
+
+      // Call backend to generate preview
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/templates/preview?slug=${portfolio.slug}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            slug: portfolio.slug,
+            templateId: portfolio.template_id,
+            formData
+          })
+        }
+      );
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to generate preview');
+      }
+
+      const data = await res.json();
+      
+      // Open preview in new tab
+      if (data.previewUrl) {
+        window.open(data.previewUrl, '_blank');
+      } else if (data.html) {
+        // If we get HTML directly, open it in a new tab
+        const blob = new Blob([data.html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+      }
+
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setPreviewing(false);
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!portfolio) return;
+
+    // Validate required fields
+    const missingFields = templateFields
+      .filter(field => field.required && !formData[field.name])
+      .map(field => field.label);
+
+    if (missingFields.length > 0) {
+      setError(`Please fill in required fields: ${missingFields.join(', ')}`);
+      return;
+    }
 
     setSaving(true);
     setError(null);
@@ -112,8 +198,12 @@ const EditPortfolio = () => {
 
       if (!session) {
         setError('Please log in to continue');
+        setSaving(false);
         return;
       }
+
+      console.log('💾 Saving portfolio:', portfolio.slug);
+      console.log('📋 Form data keys:', Object.keys(formData));
 
       // Call backend to regenerate portfolio
       const res = await fetch(
@@ -132,15 +222,28 @@ const EditPortfolio = () => {
         }
       );
 
+      console.log('📡 Response status:', res.status);
+
       if (!res.ok) {
         const data = await res.json();
+        console.error('❌ Save failed:', data);
         throw new Error(data.error || 'Failed to update portfolio');
       }
 
-      // Success - redirect to dashboard
-      navigate('/dashboard');
+      const data = await res.json();
+      console.log('✅ Save successful:', data);
+
+      // Success - show success message and redirect
+      alert('✅ Portfolio updated successfully!');
+      
+      // Small delay to ensure storage is updated before redirect
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
+      
     } catch (err: any) {
-      setError(err.message);
+      console.error('❌ Save error:', err);
+      setError(err.message || 'Failed to save changes. Please check console for details.');
     } finally {
       setSaving(false);
     }
@@ -157,7 +260,7 @@ const EditPortfolio = () => {
     );
   }
 
-  if (error || !portfolio) {
+  if (error && !portfolio) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 text-center">
@@ -167,7 +270,7 @@ const EditPortfolio = () => {
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-slate-50 mb-2">Portfolio Not Found</h2>
-          <p className="text-slate-400 mb-6">{error || 'This portfolio does not exist or you do not have access to it.'}</p>
+          <p className="text-slate-400 mb-6">{error}</p>
           <Link to="/dashboard">
             <button className="bg-yellow-400 text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-300 transition">
               Back to Dashboard
@@ -178,7 +281,7 @@ const EditPortfolio = () => {
     );
   }
 
-  if (templateFields.length === 0) {
+  if (!portfolio || templateFields.length === 0) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 text-center">
@@ -460,7 +563,7 @@ const EditPortfolio = () => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <Link to="/dashboard" className="flex-1">
               <button
                 type="button"
@@ -469,6 +572,25 @@ const EditPortfolio = () => {
                 Cancel
               </button>
             </Link>
+            
+            <button
+              type="button"
+              onClick={handlePreview}
+              disabled={previewing}
+              className="flex-1 bg-blue-500/20 border-2 border-blue-500 text-blue-400 py-4 px-6 rounded-xl font-bold hover:bg-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              {previewing ? (
+                <span className="flex items-center justify-center gap-3">
+                  <div className="w-6 h-6 border-3 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  Generating Preview...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  👁️ Preview Changes
+                </span>
+              )}
+            </button>
+
             <button
               type="submit"
               disabled={saving}

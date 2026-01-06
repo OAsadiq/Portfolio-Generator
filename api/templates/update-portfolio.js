@@ -1,5 +1,6 @@
+// api/templates/update-portfolio.js
 import { createClient } from '@supabase/supabase-js';
-import { templates } from './templateConfig.js';
+import { templates } from "./templateConfig.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -7,7 +8,6 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -21,97 +21,108 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get auth token from header
+    const { slug, templateId, formData } = req.body;
+
+    console.log('📝 Update request:', { slug, templateId, formDataKeys: Object.keys(formData) });
+    
+    // Get user from auth token
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const token = authHeader.split(' ')[1];
-
-    // Verify token and get user
+    const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
-      console.error('Auth error:', authError);
+      console.error('❌ Auth error:', authError);
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    console.log('✅ User authenticated:', user.email);
-
-    const { slug, templateId, formData } = req.body;
-
-    if (!slug || !templateId || !formData) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Verify portfolio belongs to user
-    const { data: existingPortfolio, error: fetchError } = await supabase
+    // Verify portfolio ownership
+    const { data: portfolio, error: portfolioError } = await supabase
       .from('portfolios')
       .select('*')
       .eq('slug', slug)
       .eq('user_id', user.id)
       .single();
 
-    if (fetchError || !existingPortfolio) {
-      console.error('Portfolio not found:', fetchError);
+    if (portfolioError || !portfolio) {
+      console.error('❌ Portfolio error:', portfolioError);
       return res.status(404).json({ error: 'Portfolio not found' });
     }
 
-    console.log('✅ Portfolio found:', slug);
+    console.log('✅ Portfolio found:', portfolio.slug);
 
-    // Get template
+    // Get the template
     const template = templates[templateId];
     if (!template) {
-      return res.status(404).json({ error: 'Template not found' });
+      console.error('❌ Template not found:', templateId);
+      return res.status(404).json({ error: "Template not found" });
     }
 
-    // Regenerate HTML
-    const finalHTML = template.generateHTML(formData);
+    console.log('✅ Template found:', template.name);
 
-    // Upload updated HTML to Supabase Storage
+    // Generate new HTML
+    const generatedHtml = template.generateHTML(formData);
+    console.log('✅ HTML generated, length:', generatedHtml.length);
+
+    // Update storage file
     const filePath = `portfolios/${slug}.html`;
+    
+    console.log('📤 Uploading to storage:', filePath);
+    
+    // First try to remove old file
+    try {
+      await supabase.storage
+        .from('portfolios')
+        .remove([filePath]);
+      console.log('🗑️ Old file removed');
+    } catch (removeErr) {
+      console.log('⚠️ No old file to remove (or error):', removeErr);
+    }
 
+    // Upload new file
     const { error: uploadError } = await supabase.storage
       .from('portfolios')
-      .update(filePath, finalHTML, {
+      .upload(filePath, generatedHtml, {
         contentType: 'text/html',
         cacheControl: '3600',
-        upsert: true
+        upsert: true // Important: allows overwriting
       });
 
     if (uploadError) {
-      console.error('❌ Supabase upload error:', uploadError);
-      return res.status(500).json({
-        error: 'Failed to upload updated portfolio',
-        details: uploadError.message
+      console.error('❌ Storage upload error:', uploadError);
+      return res.status(500).json({ 
+        error: 'Failed to update portfolio file',
+        details: uploadError.message 
       });
     }
 
-    console.log('✅ Portfolio HTML updated in storage');
+    console.log('✅ Storage updated successfully');
 
-    // Update portfolio record in database
+    // Update database - PRESERVE template_fields
     const { error: updateError } = await supabase
       .from('portfolios')
       .update({
         form_data: formData,
-        user_name: formData.fullName || existingPortfolio.user_name,
-        user_email: formData.email || existingPortfolio.user_email,
+        user_name: formData.fullName || portfolio.user_name,
+        user_email: formData.email || portfolio.user_email,
+        // ✅ DO NOT modify template_fields - keep existing
         updated_at: new Date().toISOString()
       })
-      .eq('id', existingPortfolio.id);
+      .eq('slug', slug)
+      .eq('user_id', user.id);
 
     if (updateError) {
-      console.error('❌ Error updating portfolio:', updateError);
-      return res.status(500).json({ 
-        error: 'Failed to update portfolio',
-        details: updateError.message 
-      });
+      console.error('❌ Database update error:', updateError);
+      throw updateError;
     }
 
-    console.log('✅ Portfolio updated successfully');
+    console.log('✅ Database updated successfully');
 
-    return res.status(200).json({
+    return res.status(200).json({ 
+      success: true,
       message: 'Portfolio updated successfully',
       slug: slug
     });
@@ -119,8 +130,8 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('❌ Update portfolio error:', error);
     return res.status(500).json({ 
-      error: 'Internal server error',
-      details: error.message 
+      error: error.message || 'Failed to update portfolio',
+      details: error.toString()
     });
   }
 }
