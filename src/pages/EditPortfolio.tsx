@@ -12,28 +12,28 @@ interface TemplateField {
   required?: boolean;
   placeholder?: string;
 }
-interface Template {
-  id: string;
-  name: string;
-  description: string;
-  fields: TemplateField[];
-}
 
 const EditPortfolio = () => {
   const { slug } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [portfolio, setPortfolio] = useState<any>(null);
+  const [templateFields, setTemplateFields] = useState<TemplateField[]>([]);
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [template] = useState<Template | null>(null);
-  
 
   useEffect(() => {
     fetchPortfolio();
   }, [slug, user]);
+
+  // Initialize formData with ALL template fields when portfolio loads
+  useEffect(() => {
+    if (portfolio && templateFields.length > 0) {
+      initializeFormData();
+    }
+  }, [portfolio, templateFields]);
 
   const fetchPortfolio = async () => {
     if (!user || !slug) return;
@@ -55,13 +55,40 @@ const EditPortfolio = () => {
       }
 
       setPortfolio(data);
-      setFormData(data.form_data || {});
+      
+      // Get template fields from portfolio or fallback to form_data keys
+      if (data.template_fields && Array.isArray(data.template_fields)) {
+        setTemplateFields(data.template_fields);
+      } else {
+        // Fallback: create fields from existing form_data
+        const fields = Object.keys(data.form_data || {}).map(key => ({
+          name: key,
+          label: key.replace(/([A-Z])/g, ' $1').trim(),
+          type: typeof data.form_data[key] === 'string' && data.form_data[key].length > 100 ? 'textarea' : 'text',
+          required: false,
+          placeholder: `Enter ${key.replace(/([A-Z])/g, ' $1').trim()}`
+        }));
+        setTemplateFields(fields);
+      }
     } catch (err: any) {
       console.error('Error fetching portfolio:', err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Initialize formData with ALL template fields (even empty ones)
+  const initializeFormData = () => {
+    const existingData = portfolio.form_data || {};
+    const initializedData: any = {};
+
+    // Add all template fields - existing values or empty strings
+    templateFields.forEach(field => {
+      initializedData[field.name] = existingData[field.name] || '';
+    });
+
+    setFormData(initializedData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -151,6 +178,27 @@ const EditPortfolio = () => {
     );
   }
 
+  if (templateFields.length === 0) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 text-center">
+          <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-50 mb-2">No Template Data</h2>
+          <p className="text-slate-400 mb-6">This portfolio has no template information.</p>
+          <Link to="/dashboard">
+            <button className="bg-yellow-400 text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-300 transition">
+              Back to Dashboard
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const getFieldSection = (fieldName: string) => {
     if (fieldName.includes('fullName') || fieldName.includes('writerType') || fieldName.includes('bio') || fieldName.includes('profilePicture')) {
       return 'personal';
@@ -163,7 +211,7 @@ const EditPortfolio = () => {
     return 'other';
   };
 
-  const groupedFields = template?.fields.reduce((acc, field) => {
+  const groupedFields = templateFields.reduce((acc, field) => {
     const section = getFieldSection(field.name);
     if (!acc[section]) acc[section] = [];
     acc[section].push(field);
@@ -196,7 +244,7 @@ const EditPortfolio = () => {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-bold text-slate-50 mb-2">
-            Edit {portfolio.user_name}
+            Edit {portfolio.user_name || 'Portfolio'}
           </h1>
           <p className="text-slate-400">Update your portfolio information and regenerate</p>
         </div>
@@ -204,7 +252,7 @@ const EditPortfolio = () => {
         {/* Edit Form */}
         <form onSubmit={handleSave} className="space-y-6">
           {/* Personal Information */}
-          {groupedFields?.personal && (
+          {groupedFields.personal && groupedFields.personal.length > 0 && (
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
               <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
                 <span className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center text-lg">
@@ -222,6 +270,7 @@ const EditPortfolio = () => {
                     {field.type === "textarea" ? (
                       <textarea
                         name={field.name}
+                        value={formData[field.name] || ''}
                         onChange={handleChange}
                         required={field.required}
                         placeholder={field.placeholder}
@@ -232,6 +281,7 @@ const EditPortfolio = () => {
                       <input
                         type={field.type}
                         name={field.name}
+                        value={formData[field.name] || ''}
                         onChange={handleChange}
                         required={field.required}
                         placeholder={field.placeholder}
@@ -245,7 +295,7 @@ const EditPortfolio = () => {
           )}
 
           {/* Writing Samples */}
-          {groupedFields?.samples && (
+          {groupedFields.samples && groupedFields.samples.length > 0 && (
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
               <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
                 <span className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center text-lg">
@@ -263,6 +313,7 @@ const EditPortfolio = () => {
                     {field.type === "textarea" ? (
                       <textarea
                         name={field.name}
+                        value={formData[field.name] || ''}
                         onChange={handleChange}
                         required={field.required}
                         placeholder={field.placeholder}
@@ -273,6 +324,7 @@ const EditPortfolio = () => {
                       <input
                         type={field.type}
                         name={field.name}
+                        value={formData[field.name] || ''}
                         onChange={handleChange}
                         required={field.required}
                         placeholder={field.placeholder}
@@ -286,7 +338,7 @@ const EditPortfolio = () => {
           )}
 
           {/* Testimonials */}
-          {groupedFields?.testimonials && (
+          {groupedFields.testimonials && groupedFields.testimonials.length > 0 && (
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
               <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
                 <span className="w-8 h-8 bg-pink-500/20 rounded-lg flex items-center justify-center text-lg">
@@ -304,6 +356,7 @@ const EditPortfolio = () => {
                     {field.type === "textarea" ? (
                       <textarea
                         name={field.name}
+                        value={formData[field.name] || ''}
                         onChange={handleChange}
                         required={field.required}
                         placeholder={field.placeholder}
@@ -314,6 +367,7 @@ const EditPortfolio = () => {
                       <input
                         type={field.type}
                         name={field.name}
+                        value={formData[field.name] || ''}
                         onChange={handleChange}
                         required={field.required}
                         placeholder={field.placeholder}
@@ -327,7 +381,7 @@ const EditPortfolio = () => {
           )}
 
           {/* Contact Information */}
-          {groupedFields?.contact && (
+          {groupedFields.contact && groupedFields.contact.length > 0 && (
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
               <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
                 <span className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center text-lg">
@@ -345,11 +399,50 @@ const EditPortfolio = () => {
                     <input
                       type={field.type}
                       name={field.name}
+                      value={formData[field.name] || ''}
                       onChange={handleChange}
                       required={field.required}
                       placeholder={field.placeholder}
                       className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
                     />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Other Fields */}
+          {groupedFields.other && groupedFields.other.length > 0 && (
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
+              <h2 className="text-xl font-bold text-slate-50 mb-6">Additional Information</h2>
+              <div className="space-y-4">
+                {groupedFields.other.map((field) => (
+                  <div key={field.name}>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">
+                      {field.label}
+                      {field.required && <span className="text-yellow-400 ml-1">*</span>}
+                    </label>
+                    {field.type === "textarea" ? (
+                      <textarea
+                        name={field.name}
+                        value={formData[field.name] || ''}
+                        onChange={handleChange}
+                        required={field.required}
+                        placeholder={field.placeholder}
+                        rows={3}
+                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
+                      />
+                    ) : (
+                      <input
+                        type={field.type}
+                        name={field.name}
+                        value={formData[field.name] || ''}
+                        onChange={handleChange}
+                        required={field.required}
+                        placeholder={field.placeholder}
+                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
+                      />
+                    )}
                   </div>
                 ))}
               </div>

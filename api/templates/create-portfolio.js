@@ -171,13 +171,14 @@ export default async function handler(req, res) {
         const { data: portfolio, error: insertError } = await supabase
             .from('portfolios')
             .insert({
-                user_id: user.id,           // ✅ ADDED THIS!
+                user_id: user.id,           
                 slug: slug,
                 user_name: userName,
                 user_email: userEmail,
                 template_id: templateId,
+                template_fields: template.fields,
                 file_path: filePath,
-                form_data: formData,        // ✅ Also saving form data
+                form_data: formData,       
                 status: 'active',
             })
             .select()
