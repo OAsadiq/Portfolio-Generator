@@ -30,7 +30,6 @@ const TemplateSelection = () => {
         setLoading(true);
         setError(null);
 
-        // Get auth token
         const token = session?.access_token;
         
         if (!token) {
@@ -49,7 +48,6 @@ const TemplateSelection = () => {
           }
         });
 
-        // Check if response is JSON
         const contentType = res.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
           const text = await res.text();
@@ -64,7 +62,6 @@ const TemplateSelection = () => {
         
         const data = await res.json();
 
-        // Handle correct response format
         const templateList = data.templates || data;
 
         if (!Array.isArray(templateList)) {
@@ -72,7 +69,6 @@ const TemplateSelection = () => {
           throw new Error('Invalid response format from API');
         }
 
-        // DON'T FILTER - Show ALL templates
         console.log('✅ Loaded templates:', templateList.length);
         console.log('Templates:', templateList.map(t => ({ id: t.id, name: t.name })));
         setTemplates(templateList);
@@ -86,7 +82,6 @@ const TemplateSelection = () => {
 
     fetchTemplates();
     
-    // Check usage and subscription when component mounts
     if (user) {
       checkTemplateUsage();
       checkSubscription();
@@ -94,7 +89,7 @@ const TemplateSelection = () => {
   }, [user, checkTemplateUsage, checkSubscription, session]);
 
   const handleSelect = async (templateId: string) => {
-    // Check if template is locked
+
     if (isTemplateLocked(templateId)) {
       setShowLimitModal(true);
       return;
@@ -143,21 +138,18 @@ const TemplateSelection = () => {
   };
 
   const isTemplateLocked = (templateId: string) => {
-    // Pro users can use all templates
+
     if (isPro) {
       return false;
     }
     
-    // Non-pro users who already used free template cannot use it again
     if (templateId === 'minimal-template' && hasUsedFreeTemplate) {
       return true;
     }
     
-    // All other templates are locked for free users (assuming only 'minimal-template' is free)
     return templateId !== 'minimal-template';
   };
 
-  // Show error state
   if (error) {
     return (
       <div className="min-h-screen bg-slate-900 text-slate-50 flex items-center justify-center py-10 px-4">

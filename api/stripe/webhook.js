@@ -7,7 +7,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-// Disable body parsing, need raw body for webhook signature verification
 export const config = {
   api: {
     bodyParser: false,
@@ -24,9 +23,8 @@ async function buffer(readable) {
 
 export default async function handler(req, res) {
   console.log('🔔 Webhook received');
-  
+
   if (req.method !== 'POST') {
-    console.log('❌ Invalid method:', req.method);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -41,50 +39,43 @@ export default async function handler(req, res) {
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
-    console.log('✅ Webhook signature verified:', event.type);
+    console.log(event.type);
   } catch (err) {
-    console.error('❌ Webhook signature verification failed:', err.message);
+    console.error(err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle events
   try {
-    console.log('📦 Processing event:', event.type);
-    
+
     switch (event.type) {
       case 'checkout.session.completed':
-        console.log('💳 Checkout completed');
         await handleCheckoutCompleted(event.data.object);
         break;
-        
+
       case 'customer.subscription.updated':
-        console.log('🔄 Subscription updated');
         await handleSubscriptionUpdate(event.data.object);
         break;
-        
+
       case 'customer.subscription.deleted':
-        console.log('🗑️ Subscription deleted');
         await handleSubscriptionUpdate(event.data.object);
         break;
-        
+
       case 'invoice.paid':
-        console.log('💰 Invoice paid');
         await handleInvoicePaid(event.data.object);
         break;
-        
+
       case 'invoice.payment_failed':
-        console.log('⚠️ Payment failed');
         await handlePaymentFailed(event.data.object);
         break;
 
       default:
-        console.log(`ℹ️ Unhandled event type: ${event.type}`);
+        console.log(`${event.type}`);
     }
 
     console.log('✅ Event processed successfully');
     res.json({ received: true });
   } catch (error) {
-    console.error('❌ Webhook handler error:', error);
+    console.error(error);
     console.error('Error details:', {
       message: error.message,
       stack: error.stack,
@@ -94,11 +85,10 @@ export default async function handler(req, res) {
   }
 }
 
-// Helper function to calculate period end based on interval
 function calculatePeriodEnd(startTimestamp, interval, intervalCount) {
   const startDate = new Date(startTimestamp * 1000);
   const endDate = new Date(startDate);
-  
+
   switch (interval) {
     case 'day':
       endDate.setDate(endDate.getDate() + intervalCount);
@@ -113,46 +103,26 @@ function calculatePeriodEnd(startTimestamp, interval, intervalCount) {
       endDate.setFullYear(endDate.getFullYear() + intervalCount);
       break;
   }
-  
+
   return endDate;
 }
 
 async function handleCheckoutCompleted(session) {
-  console.log('📝 Processing checkout session:', session.id);
   const { customer, subscription, metadata, mode } = session;
 
   if (mode === 'subscription') {
-    console.log('💳 Handling subscription checkout');
-    console.log('Customer ID:', customer);
-    console.log('Subscription ID:', subscription);
-    console.log('Metadata:', metadata);
 
     try {
-      // Get full subscription details from Stripe
       const subscriptionData = await stripe.subscriptions.retrieve(subscription, {
         expand: ['latest_invoice', 'default_payment_method']
       });
-      
-      console.log('📊 Raw subscription data fields:', {
-        id: subscriptionData.id,
-        status: subscriptionData.status,
-        start_date: subscriptionData.start_date,
-        billing_cycle_anchor: subscriptionData.billing_cycle_anchor,
-        current_period_start: subscriptionData.current_period_start,
-        current_period_end: subscriptionData.current_period_end,
-        plan_interval: subscriptionData.plan?.interval,
-        plan_interval_count: subscriptionData.plan?.interval_count
-      });
 
-      // Determine period start and end
       let periodStart, periodEnd;
-      
+
       if (subscriptionData.current_period_start && subscriptionData.current_period_end) {
-        // Use the fields if they exist
         periodStart = subscriptionData.current_period_start;
         periodEnd = subscriptionData.current_period_end;
       } else if (subscriptionData.start_date && subscriptionData.plan) {
-        // Calculate from start_date and plan interval
         periodStart = subscriptionData.start_date;
         const endDate = calculatePeriodEnd(
           subscriptionData.start_date,
@@ -161,7 +131,6 @@ async function handleCheckoutCompleted(session) {
         );
         periodEnd = Math.floor(endDate.getTime() / 1000);
       } else if (subscriptionData.billing_cycle_anchor && subscriptionData.plan) {
-        // Fallback to billing_cycle_anchor
         periodStart = subscriptionData.billing_cycle_anchor;
         const endDate = calculatePeriodEnd(
           subscriptionData.billing_cycle_anchor,
@@ -170,18 +139,9 @@ async function handleCheckoutCompleted(session) {
         );
         periodEnd = Math.floor(endDate.getTime() / 1000);
       } else {
-        console.error('❌ Cannot determine period dates from subscription data');
         throw new Error('Invalid subscription data: cannot determine period dates');
       }
 
-      console.log('📅 Calculated period dates:', {
-        periodStart,
-        periodEnd,
-        periodStartDate: new Date(periodStart * 1000).toISOString(),
-        periodEndDate: new Date(periodEnd * 1000).toISOString()
-      });
-
-      // Prepare data for Supabase
       const subscriptionRecord = {
         user_id: metadata.userId,
         stripe_customer_id: customer,
@@ -193,9 +153,6 @@ async function handleCheckoutCompleted(session) {
         updated_at: new Date().toISOString()
       };
 
-      console.log('💾 Upserting to Supabase:', subscriptionRecord);
-
-      // Upsert to Supabase
       const { data, error } = await supabase
         .from('subscriptions')
         .upsert(subscriptionRecord, {
@@ -204,18 +161,14 @@ async function handleCheckoutCompleted(session) {
         .select();
 
       if (error) {
-        console.error('❌ Supabase error:', error);
         throw error;
       }
 
-      console.log('✅ Subscription saved to Supabase:', data);
     } catch (err) {
-      console.error('❌ Error in handleCheckoutCompleted:', err);
       throw err;
     }
   } else if (metadata?.type === 'premium_template') {
-    console.log('🎨 Handling template purchase');
-    
+
     try {
       const { data, error } = await supabase
         .from('template_purchases')
@@ -228,25 +181,20 @@ async function handleCheckoutCompleted(session) {
         .select();
 
       if (error) {
-        console.error('❌ Template purchase error:', error);
         throw error;
       }
 
-      console.log('✅ Template purchase saved:', data);
     } catch (err) {
-      console.error('❌ Error saving template purchase:', err);
       throw err;
     }
   }
 }
 
 async function handleSubscriptionUpdate(subscription) {
-  console.log('🔄 Updating subscription:', subscription.id);
-  
+
   try {
-    // Determine period start and end
     let periodStart, periodEnd;
-    
+
     if (subscription.current_period_start && subscription.current_period_end) {
       periodStart = subscription.current_period_start;
       periodEnd = subscription.current_period_end;
@@ -259,7 +207,6 @@ async function handleSubscriptionUpdate(subscription) {
       );
       periodEnd = Math.floor(endDate.getTime() / 1000);
     } else {
-      console.error('❌ Cannot determine period dates');
       throw new Error('Invalid subscription data: cannot determine period dates');
     }
 
@@ -271,8 +218,6 @@ async function handleSubscriptionUpdate(subscription) {
       updated_at: new Date().toISOString()
     };
 
-    console.log('💾 Updating with data:', updateData);
-
     const { data, error } = await supabase
       .from('subscriptions')
       .update(updateData)
@@ -280,20 +225,16 @@ async function handleSubscriptionUpdate(subscription) {
       .select();
 
     if (error) {
-      console.error('❌ Update error:', error);
       throw error;
     }
 
-    console.log('✅ Subscription updated:', data);
   } catch (err) {
-    console.error('❌ Error in handleSubscriptionUpdate:', err);
     throw err;
   }
 }
 
 async function handleInvoicePaid(invoice) {
-  console.log('💰 Processing paid invoice:', invoice.id);
-  
+
   try {
     const { data, error } = await supabase
       .from('subscriptions')
@@ -305,20 +246,16 @@ async function handleInvoicePaid(invoice) {
       .select();
 
     if (error) {
-      console.error('❌ Invoice update error:', error);
       throw error;
     }
 
-    console.log('✅ Invoice processed:', data);
   } catch (err) {
-    console.error('❌ Error in handleInvoicePaid:', err);
     throw err;
   }
 }
 
 async function handlePaymentFailed(invoice) {
-  console.log('⚠️ Processing failed payment:', invoice.id);
-  
+
   try {
     const { data, error } = await supabase
       .from('subscriptions')
@@ -330,15 +267,11 @@ async function handlePaymentFailed(invoice) {
       .select();
 
     if (error) {
-      console.error('❌ Payment failed update error:', error);
       throw error;
     }
 
-    console.log('⚠️ Subscription marked past_due:', data);
-    
     // TODO: Send email notification to user
   } catch (err) {
-    console.error('❌ Error in handlePaymentFailed:', err);
     throw err;
   }
 }

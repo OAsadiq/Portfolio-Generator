@@ -65,7 +65,6 @@ const ProDashboard = () => {
       setLoading(true);
       setError(null);
 
-      // Fetch portfolios
       const { data: portfolioData, error: portfolioError } = await supabase
         .from('portfolios')
         .select('id, slug, template_id, user_name, status, deployed_url, created_at, views')
@@ -77,7 +76,6 @@ const ProDashboard = () => {
         throw portfolioError;
       }
 
-      // Fetch template usage count
       const { data: usageData, error: usageError } = await supabase
         .from('user_portfolio_usage')
         .select('template_id')
@@ -107,9 +105,7 @@ const ProDashboard = () => {
 
   const handleDeletePortfolio = async (portfolioId: string, portfolioSlug: string) => {
     try {
-      console.log('Deleting portfolio:', { portfolioId, portfolioSlug, userId: user?.id });
-      
-      // Delete from database
+
       const { error: deleteError } = await supabase
         .from('portfolios')
         .delete()
@@ -117,13 +113,9 @@ const ProDashboard = () => {
         .eq('user_id', user?.id);
 
       if (deleteError) {
-        console.error('Delete error:', deleteError);
         throw new Error(deleteError.message || 'Failed to delete portfolio');
       }
 
-      console.log('✅ Portfolio deleted from database');
-
-      // Try to delete from storage
       try {
         const filePath = `portfolios/${portfolioSlug}.html`;
         const { error: storageError } = await supabase.storage
@@ -131,15 +123,14 @@ const ProDashboard = () => {
           .remove([filePath]);
         
         if (storageError) {
-          console.warn('Storage delete error:', storageError);
+          console.warn(storageError);
         } else {
-          console.log('✅ Portfolio deleted from storage');
+          console.log('Portfolio deleted from storage');
         }
       } catch (storageErr) {
         console.warn('Failed to delete from storage:', storageErr);
       }
 
-      // Delete from usage tracking
       try {
         const { error: usageError } = await supabase
           .from('user_portfolio_usage')
@@ -150,19 +141,16 @@ const ProDashboard = () => {
         if (usageError) {
           console.warn('Usage delete error:', usageError);
         } else {
-          console.log('✅ Portfolio deleted from usage tracking');
+          console.log('Portfolio deleted from usage tracking');
         }
       } catch (usageErr) {
         console.warn('Failed to delete usage record:', usageErr);
       }
 
-      // Close modal
       setDeleteConfirm(null);
 
-      // Show success message
       showToast('Portfolio deleted successfully!', 'success');
 
-      // Refresh data
       await fetchDashboardData();
     } catch (err: any) {
       console.error('Error deleting portfolio:', err);

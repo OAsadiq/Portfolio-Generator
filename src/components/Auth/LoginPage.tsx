@@ -11,7 +11,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user && !loading) {
       const from = (location.state as any)?.from?.pathname || '/templates';

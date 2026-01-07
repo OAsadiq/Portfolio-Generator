@@ -1,4 +1,3 @@
-// src/lib/supabase.ts
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -16,7 +15,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
-// Database types
 export interface UserPortfolioUsage {
   id: string;
   user_id: string;

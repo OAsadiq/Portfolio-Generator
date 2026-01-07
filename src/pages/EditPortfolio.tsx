@@ -23,13 +23,23 @@ const EditPortfolio = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [previewing, setPreviewing] = useState(false);
+  const [deploying, setDeploying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+    });
+  };
 
   useEffect(() => {
     fetchPortfolio();
   }, [slug, user]);
 
-  // Initialize formData with ALL template fields when portfolio loads
   useEffect(() => {
     if (portfolio && templateFields.length > 0) {
       initializeFormData();
@@ -49,7 +59,6 @@ const EditPortfolio = () => {
         .single();
 
       if (error) throw error;
-
       if (!data) {
         setError('Portfolio not found');
         return;
@@ -57,21 +66,18 @@ const EditPortfolio = () => {
 
       setPortfolio(data);
       
-      console.log('📊 Portfolio loaded:', {
+      console.log({
         slug: data.slug,
         template_id: data.template_id,
         has_template_fields: !!data.template_fields,
         template_fields_count: data.template_fields?.length || 0,
-        form_data_keys: Object.keys(data.form_data || {})
+        form_data_keys: Object.keys(data.form_data || {}),
+        deployed_url: data.deployed_url
       });
       
-      // Get template fields from portfolio or fallback to form_data keys
       if (data.template_fields && Array.isArray(data.template_fields)) {
-        console.log('✅ Using template_fields from database');
         setTemplateFields(data.template_fields);
       } else {
-        console.warn('⚠️ No template_fields found, creating from form_data');
-        // Fallback: create fields from existing form_data
         const fields = Object.keys(data.form_data || {}).map(key => ({
           name: key,
           label: key.replace(/([A-Z])/g, ' $1').trim(),
@@ -79,7 +85,6 @@ const EditPortfolio = () => {
           required: false,
           placeholder: `Enter ${key.replace(/([A-Z])/g, ' $1').trim()}`
         }));
-        console.log('📝 Created', fields.length, 'fields from form_data');
         setTemplateFields(fields);
       }
     } catch (err: any) {
@@ -90,32 +95,39 @@ const EditPortfolio = () => {
     }
   };
 
-  // Initialize formData with ALL template fields (even empty ones)
   const initializeFormData = () => {
     const existingData = portfolio.form_data || {};
     const initializedData: any = {};
 
     if (templateFields.length === 0) {
-      console.warn('No template fields available, using existing form_data as-is');
       setFormData(existingData);
       return;
     }
 
-    // Add all template fields - existing values or empty strings
     templateFields.forEach(field => {
       initializedData[field.name] = existingData[field.name] || '';
     });
 
-    console.log('Form initialized with', Object.keys(initializedData).length, 'fields');
     setFormData(initializedData);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev: any) => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleChange = async (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value, files } = e.target as HTMLInputElement;
+
+    if (files && files[0]) {
+      const base64 = await fileToBase64(files[0]);
+      setFormData((prev: any) => ({
+        ...prev,
+        [name]: base64,
+      }));
+    } else {
+      setFormData((prev: any) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handlePreview = async (e: React.FormEvent) => {
@@ -126,50 +138,47 @@ const EditPortfolio = () => {
     setError(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        setError('Please log in to continue');
-        return;
-      }
-
-      // Call backend to generate preview
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/templates/preview?slug=${portfolio.slug}`,
+        `${import.meta.env.VITE_API_URL}/api/templates`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
           },
           body: JSON.stringify({
-            slug: portfolio.slug,
             templateId: portfolio.template_id,
-            formData
+            ...formData
           })
         }
       );
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to generate preview');
+        throw new Error('Failed to generate preview');
       }
 
       const data = await res.json();
-      
-      // Open preview in new tab
-      if (data.previewUrl) {
-        window.open(data.previewUrl, '_blank');
-      } else if (data.html) {
-        // If we get HTML directly, open it in a new tab
+
+      if (data.html) {
         const blob = new Blob([data.html], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        setTimeout(() => URL.revokeObjectURL(url), 100);
+        const newWindow = window.open(url, '_blank');
+        
+        if (newWindow) {
+          newWindow.addEventListener('load', () => {
+            URL.revokeObjectURL(url);
+          });
+        } else {
+          URL.revokeObjectURL(url);
+        }
       }
 
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1000);
+
     } catch (err: any) {
-      setError(err.message);
+      console.error('Preview error:', err);
+      setError('Failed to generate preview. Please try again.');
     } finally {
       setPreviewing(false);
     }
@@ -179,7 +188,6 @@ const EditPortfolio = () => {
     e.preventDefault();
     if (!portfolio) return;
 
-    // Validate required fields
     const missingFields = templateFields
       .filter(field => field.required && !formData[field.name])
       .map(field => field.label);
@@ -191,9 +199,9 @@ const EditPortfolio = () => {
 
     setSaving(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
-      // Get current session token
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
@@ -202,10 +210,6 @@ const EditPortfolio = () => {
         return;
       }
 
-      console.log('💾 Saving portfolio:', portfolio.slug);
-      console.log('📋 Form data keys:', Object.keys(formData));
-
-      // Call backend to regenerate portfolio
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/templates/update-portfolio`,
         {
@@ -222,8 +226,6 @@ const EditPortfolio = () => {
         }
       );
 
-      console.log('📡 Response status:', res.status);
-
       if (!res.ok) {
         const data = await res.json();
         console.error('❌ Save failed:', data);
@@ -233,19 +235,55 @@ const EditPortfolio = () => {
       const data = await res.json();
       console.log('✅ Save successful:', data);
 
-      // Success - show success message and redirect
-      alert('✅ Portfolio updated successfully!');
+      setSuccessMessage('✅ Portfolio updated successfully!');
+
+      await fetchPortfolio();
       
-      // Small delay to ensure storage is updated before redirect
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 500);
+      setTimeout(() => setSuccessMessage(null), 3000);
       
     } catch (err: any) {
-      console.error('❌ Save error:', err);
       setError(err.message || 'Failed to save changes. Please check console for details.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeploy = async () => {
+    if (!portfolio) return;
+
+    setDeploying(true);
+    setError(null);
+
+    try {
+
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/vercel/deploy`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ portfolioId: portfolio.slug })
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error('Failed to deploy portfolio');
+      }
+
+      const data = await res.json();
+
+      setSuccessMessage(`✅ Successfully deployed to: ${data.url}`);
+      
+      await supabase
+        .from('portfolios')
+        .update({ deployed_url: data.url })
+        .eq('slug', portfolio.slug);
+
+      await fetchPortfolio();
+
+    } catch (err: any) {
+      setError(err.message || 'Failed to deploy portfolio');
+    } finally {
+      setDeploying(false);
     }
   };
 
@@ -350,7 +388,35 @@ const EditPortfolio = () => {
             Edit {portfolio.user_name || 'Portfolio'}
           </h1>
           <p className="text-slate-400">Update your portfolio information and regenerate</p>
+
+          {/* Deployment Status */}
+          {portfolio.deployed_url && (
+            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-xl">
+              <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-green-400 text-sm">Currently deployed at: </span>
+              <a
+                href={portfolio.deployed_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-green-300 hover:text-green-200 underline text-sm"
+              >
+                {portfolio.deployed_url}
+              </a>
+            </div>
+          )}
         </div>
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-6 bg-green-500/10 border border-green-500/30 rounded-2xl p-4 flex items-center gap-3 animate-fadeIn">
+            <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-green-400">{successMessage}</span>
+          </div>
+        )}
 
         {/* Edit Form */}
         <form onSubmit={handleSave} className="space-y-6">
@@ -380,6 +446,20 @@ const EditPortfolio = () => {
                         rows={4}
                         className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
                       />
+                    ) : field.type === "file" ? (
+                      <div>
+                        {formData[field.name] && (
+                          <div className="mb-2 text-sm text-slate-400">
+                            Current: {formData[field.name].substring(0, 50)}...
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          name={field.name}
+                          onChange={handleChange}
+                          className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 hover:file:bg-yellow-300 file:cursor-pointer"
+                        />
+                      </div>
                     ) : (
                       <input
                         type={field.type}
@@ -423,6 +503,20 @@ const EditPortfolio = () => {
                         rows={3}
                         className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
                       />
+                    ) : field.type === "file" ? (
+                      <div>
+                        {formData[field.name] && (
+                          <div className="mb-2 text-sm text-slate-400">
+                            Current: {formData[field.name].substring(0, 50)}...
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          name={field.name}
+                          onChange={handleChange}
+                          className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 hover:file:bg-yellow-300 file:cursor-pointer"
+                        />
+                      </div>
                     ) : (
                       <input
                         type={field.type}
@@ -466,6 +560,20 @@ const EditPortfolio = () => {
                         rows={3}
                         className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
                       />
+                    ) : field.type === "file" ? (
+                      <div>
+                        {formData[field.name] && (
+                          <div className="mb-2 text-sm text-slate-400">
+                            Current: {formData[field.name].substring(0, 50)}...
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          name={field.name}
+                          onChange={handleChange}
+                          className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 hover:file:bg-yellow-300 file:cursor-pointer"
+                        />
+                      </div>
                     ) : (
                       <input
                         type={field.type}
@@ -499,15 +607,31 @@ const EditPortfolio = () => {
                       {field.label}
                       {field.required && <span className="text-yellow-400 ml-1">*</span>}
                     </label>
-                    <input
-                      type={field.type}
-                      name={field.name}
-                      value={formData[field.name] || ''}
-                      onChange={handleChange}
-                      required={field.required}
-                      placeholder={field.placeholder}
-                      className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
-                    />
+                    {field.type === "file" ? (
+                      <div>
+                        {formData[field.name] && (
+                          <div className="mb-2 text-sm text-slate-400">
+                            Current: {formData[field.name].substring(0, 50)}...
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          name={field.name}
+                          onChange={handleChange}
+                          className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 hover:file:bg-yellow-300 file:cursor-pointer"
+                        />
+                      </div>
+                    ) : (
+                      <input
+                        type={field.type}
+                        name={field.name}
+                        value={formData[field.name] || ''}
+                        onChange={handleChange}
+                        required={field.required}
+                        placeholder={field.placeholder}
+                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -563,8 +687,8 @@ const EditPortfolio = () => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/dashboard" className="flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link to="/dashboard" className="lg:col-span-1">
               <button
                 type="button"
                 className="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-4 px-6 rounded-xl font-bold transition"
@@ -577,16 +701,16 @@ const EditPortfolio = () => {
               type="button"
               onClick={handlePreview}
               disabled={previewing}
-              className="flex-1 bg-blue-500/20 border-2 border-blue-500 text-blue-400 py-4 px-6 rounded-xl font-bold hover:bg-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="lg:col-span-1 bg-blue-500/20 border-2 border-blue-500 text-blue-400 py-4 px-6 rounded-xl font-bold hover:bg-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {previewing ? (
-                <span className="flex items-center justify-center gap-3">
-                  <div className="w-6 h-6 border-3 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                  Generating Preview...
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-3 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  Previewing...
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  👁️ Preview Changes
+                  👁️ Preview
                 </span>
               )}
             </button>
@@ -594,16 +718,34 @@ const EditPortfolio = () => {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 py-4 px-6 rounded-xl font-bold shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300"
+              className="lg:col-span-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 py-4 px-6 rounded-xl font-bold shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300"
             >
               {saving ? (
-                <span className="flex items-center justify-center gap-3">
-                  <div className="w-6 h-6 border-3 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-                  Saving Changes...
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-3 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                  Saving...
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  💾 Save Changes
+                  💾 Save
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDeploy}
+              disabled={deploying || saving}
+              className="lg:col-span-1 bg-green-500/20 border-2 border-green-500 text-green-400 py-4 px-6 rounded-xl font-bold hover:bg-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              {deploying ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-3 border-green-400 border-t-transparent rounded-full animate-spin"></div>
+                  Deploying...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  🚀 {portfolio.deployed_url ? 'Redeploy' : 'Deploy'}
                 </span>
               )}
             </button>
@@ -621,6 +763,13 @@ const EditPortfolio = () => {
         }
         .bg-radial-gradient {
           background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(15, 23, 42, 0.2) 50%, rgba(15, 23, 42, 0.6) 100%);
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
         }
       `}</style>
     </div>

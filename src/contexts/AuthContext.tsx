@@ -24,18 +24,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [hasUsedFreeTemplate, setHasUsedFreeTemplate] = useState(false);
   const [isPro, setIsPro] = useState(false);
 
-  // Check if user has Pro subscription
   const checkSubscription = useCallback(async () => {
     if (!user) {
-      console.log('❌ No user, setting isPro to false');
       setIsPro(false);
       return;
     }
 
     try {
-      console.log('🔍 Checking subscription for user:', user.id);
-      
-      // Get the most recent subscription (in case there are multiple)
+
       const { data, error } = await supabase
         .from('subscriptions')
         .select('status, plan, created_at')
@@ -43,35 +39,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .order('created_at', { ascending: false })
         .limit(1);
 
-      console.log('📊 Subscription data:', data);
-
       if (error) {
-        console.error('❌ Subscription error:', error);
+        console.error(error);
         setIsPro(false);
         return;
       }
 
-      // Check if we got any results
       if (data && data.length > 0) {
         const subscription = data[0];
         if (subscription.status === 'active' && subscription.plan === 'pro') {
-          console.log('✅ User HAS Pro subscription!');
           setIsPro(true);
         } else {
-          console.log('❌ Subscription found but not active pro:', subscription);
           setIsPro(false);
         }
       } else {
-        console.log('❌ No subscription found');
         setIsPro(false);
       }
     } catch (err) {
-      console.error('Exception checking subscription:', err);
+      console.error(err);
       setIsPro(false);
     }
   }, [user]);
 
-  // Check if user has used their free template
   const checkTemplateUsage = useCallback(async () => {
     if (!user) {
       setHasUsedFreeTemplate(false);
@@ -79,9 +68,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     try {
-      console.log('🔍 Checking template usage for user:', user.id);
-      
-      // Count how many times user has used the minimal-template
       const { error, count } = await supabase
         .from('user_portfolio_usage')
         .select('*', { count: 'exact', head: false })
@@ -89,14 +75,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .eq('template_id', 'minimal-template');
 
       if (error) {
-        console.error('Error checking template usage:', error);
+        console.error(error);
         return;
       }
 
       const usageCount = count || 0;
       const hasUsed = usageCount > 0;
-      console.log('📊 Minimal template usage count:', usageCount);
-      console.log('📊 Has used free template:', hasUsed);
+
       setHasUsedFreeTemplate(hasUsed);
     } catch (err) {
       console.error('Exception checking template usage:', err);
@@ -121,20 +106,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsPro(false);
   };
 
-  // Get initial session
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('📱 Initial session:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('🔄 Auth state changed:', _event, session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -143,22 +124,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Check subscription and template usage when user changes
   useEffect(() => {
     if (user) {
-      console.log('👤 User logged in, checking subscription and usage');
       checkSubscription();
       checkTemplateUsage();
     } else {
-      console.log('👤 No user, resetting state');
       setIsPro(false);
       setHasUsedFreeTemplate(false);
     }
   }, [user, checkSubscription, checkTemplateUsage]);
 
-  // Log current state for debugging
   useEffect(() => {
-    console.log('🎯 Current Auth State:', {
+    console.log({
       userEmail: user?.email,
       isPro,
       hasUsedFreeTemplate,

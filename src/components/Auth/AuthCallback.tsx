@@ -7,14 +7,12 @@ const AuthCallback = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Handle the OAuth callback
     const handleCallback = async () => {
       try {
-        // Check if we have a session
+
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting session:', error);
           navigate('/login', { 
             state: { error: 'Authentication failed. Please try again.' } 
           });
@@ -22,23 +20,18 @@ const AuthCallback = () => {
         }
 
         if (session) {
-          console.log('✅ Successfully authenticated!', session.user.email);
-          
-          // Check if user was trying to upgrade before login
+
           const pendingUpgrade = sessionStorage.getItem('pendingUpgrade');
           
           if (pendingUpgrade === 'true') {
-            // Clear the flag
+
             sessionStorage.removeItem('pendingUpgrade');
             
-            // Redirect to pricing page to complete the upgrade
             navigate('/pricing', { replace: true });
           } else {
-            // Normal flow - redirect to templates page
             navigate('/templates', { replace: true });
           }
         } else {
-          // No session, go back to login
           navigate('/login', { replace: true });
         }
       } catch (err) {

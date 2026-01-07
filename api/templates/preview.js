@@ -28,28 +28,24 @@ export default async function handler(req, res) {
   const filePath = `portfolios/${slug}.html`;
 
   try {
-    // ✅ Download file from Supabase Storage
+
     const { data, error } = await supabase.storage
       .from('portfolios')
       .download(filePath);
 
     if (error) {
-      console.error("Supabase download error:", error);
+      console.error(error);
       return res.status(404).send("Portfolio not found");
     }
 
-    // ✅ Convert blob to text
     const html = await data.text();
 
-    // ✅ Optional: Increment view count in database
     try {
       await supabase.rpc('increment_portfolio_views', { portfolio_slug: slug });
     } catch (viewErr) {
-      console.log("View count update failed (not critical):", viewErr);
-      // Continue even if view count fails
+      console.log(viewErr);
     }
 
-    // ✅ Return HTML
     res.setHeader("Content-Type", "text/html");
     res.send(html);
 
