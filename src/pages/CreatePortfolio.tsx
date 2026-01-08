@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import PortfolioVisualBuilder from '../components/PortfolioVisualBuilder.tsx';
 
 interface TemplateField {
   name: string;
@@ -10,6 +11,7 @@ interface TemplateField {
   type: string;
   required?: boolean;
   placeholder?: string;
+  section?: string;
 }
 
 interface Template {
@@ -17,6 +19,7 @@ interface Template {
   name: string;
   description: string;
   fields: TemplateField[];
+  isPro?: boolean; // Flag to determine if template requires Pro
 }
 
 const CreatePortfolio = () => {
@@ -29,7 +32,7 @@ const CreatePortfolio = () => {
   const [deployUrl, setDeployUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [completedFields, setCompletedFields] = useState(0);
-  const { user } = useAuth();
+  const { user, isPro } = useAuth();
 
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -112,13 +115,10 @@ const CreatePortfolio = () => {
 
       const data = await res.json();
 
-      // In CreatePortfolio.tsx, replace the error handling:
       if (!res.ok) {
-        // Check for free template limit
         if (data.code === 'FREE_TEMPLATE_LIMIT_REACHED') {
           throw new Error("You've already used your free template. Upgrade to Pro for unlimited portfolios!");
         }
-        // Check for pro template requirement
         if (data.code === 'PRO_TEMPLATE_REQUIRED') {
           throw new Error("This template requires a Pro subscription. Upgrade to unlock all templates!");
         }
@@ -180,6 +180,8 @@ const CreatePortfolio = () => {
 
   const progress = template ? (completedFields / template.fields.length) * 100 : 0;
 
+  const isProTemplate = template?.id === "professional-writer-template" || template?.isPro;
+
   if (!template) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
@@ -187,6 +189,76 @@ const CreatePortfolio = () => {
           <div className="inline-block w-12 h-12 border-4 border-slate-700 border-t-yellow-400 rounded-full animate-spin mb-4"></div>
           <p className="text-slate-400">Loading template...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (isProTemplate && !isPro) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-slate-50 py-10 px-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 text-center">
+          <div className="w-16 h-16 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-50 mb-2">Pro Template</h2>
+          <p className="text-slate-400 mb-6">
+            This advanced template with visual builder is only available for Pro members.
+          </p>
+          <div className="space-y-3 mb-6 text-left">
+            <div className="flex items-start gap-2">
+              <svg className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-slate-300 text-sm">Canva-style visual builder</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <svg className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-slate-300 text-sm">Modal popups for writing samples</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <svg className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-slate-300 text-sm">Advanced customization options</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <svg className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-slate-300 text-sm">Unlimited portfolios</span>
+            </div>
+          </div>
+          <Link to="/pricing" className="w-full block">
+            <button className="w-full bg-yellow-400 text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-300 transition">
+              Upgrade to Pro
+            </button>
+          </Link>
+          <Link
+            to="/templates"
+            className="inline-flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors mt-4"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Templates
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (isProTemplate && isPro) {
+    return (
+      <div className="min-h-screen bg-slate-900">
+        <PortfolioVisualBuilder
+          template={template}
+          onSave={handleSubmit}
+          onCancel={() => window.history.back()}
+        />
       </div>
     );
   }
@@ -214,7 +286,7 @@ const CreatePortfolio = () => {
               Your Portfolio is Ready! 🎉
             </h2>
             <p className="text-slate-400 text-lg mb-8">
-              Your professional writing portfolio has been generated successfully.
+              Your professional portfolio has been generated successfully.
             </p>
 
             {/* Action Buttons */}
@@ -231,6 +303,15 @@ const CreatePortfolio = () => {
                 </svg>
                 Preview Portfolio
               </a>
+
+              <Link to={`/edit/${portfolioSlug}`}>
+                <button className="inline-flex items-center justify-center gap-2 bg-blue-500/20 border-2 border-blue-500 text-blue-400 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/30 transition-all">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit Portfolio
+                </button>
+              </Link>
 
               <button
                 onClick={handleVercelDeploy}

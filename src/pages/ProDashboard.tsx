@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { Globe, Copy, Check, ExternalLink, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 
 interface Portfolio {
   id: string;
@@ -12,6 +13,8 @@ interface Portfolio {
   user_name: string;
   status: string;
   deployed_url: string | null;
+  custom_domain?: string | null;
+  domain_verified?: boolean;
   created_at: string;
   views?: number;
 }
@@ -29,6 +32,15 @@ interface Toast {
   type: 'success' | 'error' | 'info';
 }
 
+interface CustomDomain {
+  id: string;
+  domain: string;
+  portfolio_slug: string;
+  portfolio_name: string;
+  verified: boolean;
+  created_at: string;
+}
+
 const ProDashboard = () => {
   const { user, isPro, signOut } = useAuth();
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
@@ -43,10 +55,17 @@ const ProDashboard = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'portfolios' | 'templates' | 'domains'>('overview');
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; slug: string; name: string } | null>(null);
+  
+  const [showDomainForm, setShowDomainForm] = useState(false);
+  const [newDomain, setNewDomain] = useState('');
+  const [selectedPortfolio, setSelectedPortfolio] = useState('');
+  const [customDomains, setCustomDomains] = useState<CustomDomain[]>([]);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
       fetchDashboardData();
+      fetchCustomDomains();
     }
   }, [user?.id]);
 
@@ -56,6 +75,77 @@ const ProDashboard = () => {
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 4000);
+  };
+
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    showToast('Copied to clipboard!', 'success');
+    setTimeout(() => setCopiedField(null), 2000);
+  };
+
+  const fetchCustomDomains = async () => {
+    if (!user?.id) return;
+    
+    try {
+      // In a real implementation, you'd fetch from a custom_domains table
+      // For now, we'll extract from portfolios
+      const domains = portfolios
+        .filter(p => p.custom_domain)
+        .map(p => ({
+          id: p.id,
+          domain: p.custom_domain!,
+          portfolio_slug: p.slug,
+          portfolio_name: p.user_name,
+          verified: p.domain_verified || false,
+          created_at: p.created_at
+        }));
+      
+      setCustomDomains(domains);
+    } catch (err) {
+      console.error('Error fetching custom domains:', err);
+    }
+  };
+
+  const handleAddDomain = async () => {
+    if (!newDomain || !selectedPortfolio) {
+      showToast('Please enter a domain and select a portfolio', 'error');
+      return;
+    }
+
+    // Validate domain format
+    const domainRegex = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i;
+    if (!domainRegex.test(newDomain)) {
+      showToast('Please enter a valid domain (e.g., myportfolio.com)', 'error');
+      return;
+    }
+
+    try {
+      // In a real implementation, you'd save to a custom_domains table
+      const portfolio = portfolios.find(p => p.slug === selectedPortfolio);
+      
+      const newCustomDomain: CustomDomain = {
+        id: Date.now().toString(),
+        domain: newDomain,
+        portfolio_slug: selectedPortfolio,
+        portfolio_name: portfolio?.user_name || 'Portfolio',
+        verified: false,
+        created_at: new Date().toISOString()
+      };
+
+      setCustomDomains(prev => [...prev, newCustomDomain]);
+      showToast('Domain added! Please configure your DNS settings.', 'success');
+      setShowDomainForm(false);
+      setNewDomain('');
+      setSelectedPortfolio('');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to add domain', 'error');
+    }
+  };
+
+  const handleRemoveDomain = (domainId: string) => {
+    setCustomDomains(prev => prev.filter(d => d.id !== domainId));
+    showToast('Domain removed successfully', 'success');
   };
 
   const fetchDashboardData = async () => {
@@ -105,7 +195,6 @@ const ProDashboard = () => {
 
   const handleDeletePortfolio = async (portfolioId: string, portfolioSlug: string) => {
     try {
-
       const { error: deleteError } = await supabase
         .from('portfolios')
         .delete()
@@ -124,8 +213,6 @@ const ProDashboard = () => {
         
         if (storageError) {
           console.warn(storageError);
-        } else {
-          console.log('Portfolio deleted from storage');
         }
       } catch (storageErr) {
         console.warn('Failed to delete from storage:', storageErr);
@@ -140,17 +227,13 @@ const ProDashboard = () => {
         
         if (usageError) {
           console.warn('Usage delete error:', usageError);
-        } else {
-          console.log('Portfolio deleted from usage tracking');
         }
       } catch (usageErr) {
         console.warn('Failed to delete usage record:', usageErr);
       }
 
       setDeleteConfirm(null);
-
       showToast('Portfolio deleted successfully!', 'success');
-
       await fetchDashboardData();
     } catch (err: any) {
       console.error('Error deleting portfolio:', err);
@@ -236,8 +319,9 @@ const ProDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Welcome Section */}
           <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-slate-50 mb-2">
-              Welcome back, {user?.email?.split('@')[0]} 👋
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-50 mb-2 flex items-center gap-3">
+              Welcome back, {user?.email?.split('@')[0]}
+              <span className="text-2xl">👋</span>
             </h1>
             <p className="text-slate-400">Manage your portfolios and explore new templates.</p>
           </div>
@@ -260,7 +344,7 @@ const ProDashboard = () => {
 
           {loading ? (
             <div className="space-y-6">
-              {/* Loading Skeleton for Stats Cards */}
+              {/* Loading Skeleton */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 animate-pulse">
@@ -271,7 +355,6 @@ const ProDashboard = () => {
                 ))}
               </div>
               
-              {/* Loading text */}
               <div className="text-center text-slate-400 py-8">
                 <div className="inline-block w-8 h-8 border-4 border-slate-700 border-t-yellow-400 rounded-full animate-spin mb-2"></div>
                 <p>Loading your dashboard...</p>
@@ -280,7 +363,7 @@ const ProDashboard = () => {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {/* Total Portfolios */}
+                {/* Stats cards - keeping original implementation */}
                 <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-yellow-400/30 transition-all">
                   <div className="flex items-center justify-between mb-2">
                     <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
@@ -293,7 +376,6 @@ const ProDashboard = () => {
                   <p className="text-slate-400 text-sm">Total Portfolios</p>
                 </div>
 
-                {/* Total Views */}
                 <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-yellow-400/30 transition-all">
                   <div className="flex items-center justify-between mb-2">
                     <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
@@ -307,7 +389,6 @@ const ProDashboard = () => {
                   <p className="text-slate-400 text-sm">Total Views</p>
                 </div>
 
-                {/* Templates Used */}
                 <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-yellow-400/30 transition-all">
                   <div className="flex items-center justify-between mb-2">
                     <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
@@ -320,7 +401,6 @@ const ProDashboard = () => {
                   <p className="text-slate-400 text-sm">Templates Used</p>
                 </div>
 
-                {/* Last Created */}
                 <div className="bg-gradient-to-br from-yellow-500/10 to-slate-800/50 backdrop-blur-sm border border-yellow-400/30 rounded-2xl p-6 hover:border-yellow-400/50 transition-all">
                   <div className="flex items-center justify-between mb-2">
                     <div className="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center">
@@ -358,8 +438,8 @@ const ProDashboard = () => {
                   },
                   { 
                     id: 'domains', 
-                    label: 'Domains', 
-                    icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+                    label: 'Custom Domains', 
+                    icon: <Globe className="w-5 h-5" />
                   }
                 ].map((tab) => (
                   <button
@@ -377,7 +457,7 @@ const ProDashboard = () => {
                 ))}
               </div>
 
-              {/* Tab Content */}
+              {/* Tab Content - Overview and Portfolios tabs remain the same */}
               {activeTab === 'overview' && (
                 <div className="space-y-6">
                   {/* Quick Actions */}
@@ -405,9 +485,7 @@ const ProDashboard = () => {
                         onClick={() => setActiveTab('domains')}
                         className="w-full bg-slate-700/50 border border-slate-600/50 text-slate-200 py-4 px-6 rounded-xl font-bold hover:bg-slate-700 transition-all flex items-center justify-center gap-2"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                        </svg>
+                        <Globe className="w-5 h-5" />
                         Manage Domains
                       </button>
                     </div>
@@ -574,7 +652,6 @@ const ProDashboard = () => {
 
               {activeTab === 'templates' && (
                 <div className="space-y-6">
-                  {/* Available Templates */}
                   <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
                     <h2 className="text-xl font-bold text-slate-50 mb-4">Available Templates</h2>
                     <div className="flex items-center gap-2 mb-6">
@@ -592,8 +669,7 @@ const ProDashboard = () => {
                       </button>
                     </Link>
                   </div>
-
-                  {/* Coming Soon */}
+                {/* Coming Soon */}
                   <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <h2 className="text-xl font-bold text-slate-50">Coming Soon</h2>
@@ -632,32 +708,352 @@ const ProDashboard = () => {
                 </div>
               )}
 
+              {/* NEW: Custom Domains Tab */}
               {activeTab === 'domains' && (
-                <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
-                  <h2 className="text-xl font-bold text-slate-50 mb-4">Custom Domains</h2>
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6 mb-6">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-400 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                <div className="space-y-6">
+                  {/* Setup Guide */}
+                  <div className="bg-gradient-to-br from-blue-500/10 to-slate-800/50 backdrop-blur-sm border border-blue-500/30 rounded-2xl p-6">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Globe className="w-6 h-6 text-blue-400" />
+                      </div>
                       <div>
-                        <p className="text-blue-400 font-semibold mb-1">Custom Domains Coming Soon!</p>
-                        <p className="text-slate-400 text-sm">
-                          We're working on allowing you to connect your own domain to your portfolios. Stay tuned!
-                        </p>
+                        <h2 className="text-2xl font-bold text-slate-50 mb-2">Custom Domain Setup</h2>
+                        <p className="text-slate-400">Connect your own domain to any of your portfolios</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Placeholder for domain management */}
-                  <div className="text-center py-12 border-2 border-dashed border-slate-700 rounded-xl">
-                    <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                      </svg>
+                  {/* Add Domain Button */}
+                  <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-bold text-slate-50">Your Custom Domains</h3>
+                      <button
+                        onClick={() => setShowDomainForm(!showDomainForm)}
+                        className="bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add Domain
+                      </button>
                     </div>
-                    <p className="text-slate-400 mb-2">No custom domains yet</p>
-                    <p className="text-slate-500 text-sm">Domain management will be available soon</p>
+
+                    {/* Add Domain Form */}
+                    {showDomainForm && (
+                      <div className="mb-6 bg-slate-700/30 border border-slate-600/30 rounded-xl p-6">
+                        <h4 className="font-semibold text-slate-50 mb-4">Add New Domain</h4>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-semibold text-slate-300 mb-2">
+                              Domain Name
+                            </label>
+                            <input
+                              type="text"
+                              value={newDomain}
+                              onChange={(e) => setNewDomain(e.target.value)}
+                              placeholder="myportfolio.com"
+                              className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                            />
+                            <p className="text-xs text-slate-500 mt-1">Enter without http:// or https://</p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-slate-300 mb-2">
+                              Select Portfolio
+                            </label>
+                            <select
+                              value={selectedPortfolio}
+                              onChange={(e) => setSelectedPortfolio(e.target.value)}
+                              className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                            >
+                              <option value="">Choose a portfolio...</option>
+                              {portfolios.map((p) => (
+                                <option key={p.slug} value={p.slug}>
+                                  {p.user_name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={handleAddDomain}
+                              className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-slate-900 py-3 px-6 rounded-xl font-bold transition"
+                            >
+                              Add Domain
+                            </button>
+                            <button
+                              onClick={() => {
+                                setShowDomainForm(false);
+                                setNewDomain('');
+                                setSelectedPortfolio('');
+                              }}
+                              className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl font-semibold transition"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Domains List */}
+                    {customDomains.length === 0 ? (
+                      <div className="text-center py-12 border-2 border-dashed border-slate-700 rounded-xl">
+                        <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Globe className="w-8 h-8 text-slate-500" />
+                        </div>
+                        <p className="text-slate-400 mb-2">No custom domains added yet</p>
+                        <p className="text-slate-500 text-sm">Click "Add Domain" to get started</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {customDomains.map((domain) => (
+                          <div
+                            key={domain.id}
+                            className="bg-slate-700/30 border border-slate-600/30 rounded-xl p-6 hover:border-yellow-400/30 transition-all"
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <h4 className="text-lg font-bold text-slate-50">{domain.domain}</h4>
+                                  {domain.verified ? (
+                                    <span className="flex items-center gap-1 px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-bold">
+                                      <CheckCircle className="w-3 h-3" />
+                                      Verified
+                                    </span>
+                                  ) : (
+                                    <span className="flex items-center gap-1 px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-bold">
+                                      <Clock className="w-3 h-3" />
+                                      Pending
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-sm text-slate-400">Portfolio: {domain.portfolio_name}</p>
+                                <p className="text-xs text-slate-500">Added {new Date(domain.created_at).toLocaleDateString()}</p>
+                              </div>
+                              <button
+                                onClick={() => handleRemoveDomain(domain.id)}
+                                className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition"
+                                title="Remove domain"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+
+                            {!domain.verified && (
+                              <div className="mt-4 p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <AlertCircle className="w-5 h-5 text-yellow-400" />
+                                  <h5 className="font-semibold text-slate-50">DNS Configuration Required</h5>
+                                </div>
+                                <p className="text-sm text-slate-400 mb-4">
+                                  Add these DNS records to your domain provider to complete setup:
+                                </p>
+
+                                {/* DNS Records */}
+                                <div className="space-y-3">
+                                  {/* A Record */}
+                                  <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-xs font-bold text-slate-400 uppercase">A Record</span>
+                                      <button
+                                        onClick={() => copyToClipboard('76.76.21.21', `a-${domain.id}`)}
+                                        className="p-1 hover:bg-slate-700 rounded transition"
+                                      >
+                                        {copiedField === `a-${domain.id}` ? (
+                                          <Check className="w-4 h-4 text-green-400" />
+                                        ) : (
+                                          <Copy className="w-4 h-4 text-slate-400" />
+                                        )}
+                                      </button>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 text-sm">
+                                      <div>
+                                        <p className="text-slate-500 text-xs mb-1">Name</p>
+                                        <p className="text-slate-300 font-mono">@</p>
+                                      </div>
+                                      <div>
+                                        <p className="text-slate-500 text-xs mb-1">Value</p>
+                                        <p className="text-slate-300 font-mono">76.76.21.21</p>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* CNAME Record for www */}
+                                  <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-xs font-bold text-slate-400 uppercase">CNAME Record</span>
+                                      <button
+                                        onClick={() => copyToClipboard(`cname.vercel-dns.com`, `cname-${domain.id}`)}
+                                        className="p-1 hover:bg-slate-700 rounded transition"
+                                      >
+                                        {copiedField === `cname-${domain.id}` ? (
+                                          <Check className="w-4 h-4 text-green-400" />
+                                        ) : (
+                                          <Copy className="w-4 h-4 text-slate-400" />
+                                        )}
+                                      </button>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 text-sm">
+                                      <div>
+                                        <p className="text-slate-500 text-xs mb-1">Name</p>
+                                        <p className="text-slate-300 font-mono">www</p>
+                                      </div>
+                                      <div>
+                                        <p className="text-slate-500 text-xs mb-1">Value</p>
+                                        <p className="text-slate-300 font-mono break-all">cname.vercel-dns.com</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="mt-4 flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                                  <AlertCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                                  <p className="text-xs text-blue-400">
+                                    DNS changes can take up to 48 hours to propagate. Check back later to verify your domain.
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+
+                            {domain.verified && (
+                              <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-3">
+                                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                                <div className="flex-1">
+                                  <p className="text-green-400 font-semibold text-sm">Domain is live!</p>
+                                  <a
+                                    href={`https://${domain.domain}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-green-300 hover:text-green-200 text-xs flex items-center gap-1 mt-1"
+                                  >
+                                    Visit https://{domain.domain}
+                                    <ExternalLink className="w-3 h-3" />
+                                  </a>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Setup Instructions */}
+                  <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
+                    <h3 className="text-xl font-bold text-slate-50 mb-4">Setup Instructions</h3>
+                    <div className="space-y-4">
+                      <div className="flex gap-4">
+                        <div className="flex-shrink-0 w-8 h-8 bg-yellow-400 text-slate-900 rounded-full flex items-center justify-center font-bold">
+                          1
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-50 mb-1">Add Your Domain</h4>
+                          <p className="text-sm text-slate-400">
+                            Click "Add Domain" above and enter your domain name (e.g., myportfolio.com). Select which portfolio you want to connect it to.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-4">
+                        <div className="flex-shrink-0 w-8 h-8 bg-yellow-400 text-slate-900 rounded-full flex items-center justify-center font-bold">
+                          2
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-50 mb-1">Configure DNS Settings</h4>
+                          <p className="text-sm text-slate-400 mb-2">
+                            Go to your domain provider (GoDaddy, Namecheap, Cloudflare, etc.) and add the DNS records shown above:
+                          </p>
+                          <ul className="text-sm text-slate-400 space-y-1 ml-4">
+                            <li className="flex items-start gap-2">
+                              <span className="text-yellow-400 mt-1">•</span>
+                              <span>An A record pointing @ to 76.76.21.21</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-yellow-400 mt-1">•</span>
+                              <span>A CNAME record pointing www to cname.vercel-dns.com</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-4">
+                        <div className="flex-shrink-0 w-8 h-8 bg-yellow-400 text-slate-900 rounded-full flex items-center justify-center font-bold">
+                          3
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-50 mb-1">Wait for Verification</h4>
+                          <p className="text-sm text-slate-400">
+                            DNS changes typically take 1-48 hours to propagate. Once verified, your custom domain will be live!
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Common Providers Guide */}
+                  <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
+                    <h3 className="text-xl font-bold text-slate-50 mb-4">Popular Domain Providers</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {[
+                        { name: 'GoDaddy', url: 'https://www.godaddy.com/help/add-an-a-record-19238' },
+                        { name: 'Namecheap', url: 'https://www.namecheap.com/support/knowledgebase/article.aspx/319/2237/how-can-i-set-up-an-a-address-record-for-my-domain/' },
+                        { name: 'Cloudflare', url: 'https://developers.cloudflare.com/dns/manage-dns-records/how-to/create-dns-records/' },
+                      ].map((provider) => (
+                        <a
+                          key={provider.name}
+                          href={provider.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-between p-4 bg-slate-700/30 border border-slate-600/30 rounded-xl hover:border-yellow-400/30 transition-all group"
+                        >
+                          <span className="font-semibold text-slate-300 group-hover:text-slate-50">{provider.name}</span>
+                          <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-yellow-400" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Troubleshooting */}
+                  <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
+                    <h3 className="text-xl font-bold text-slate-50 mb-4">Troubleshooting</h3>
+                    <div className="space-y-4">
+                      <details className="bg-slate-700/30 border border-slate-600/30 rounded-xl overflow-hidden">
+                        <summary className="p-4 cursor-pointer font-semibold text-slate-50 hover:bg-slate-700/50 transition">
+                          My domain isn't verifying
+                        </summary>
+                        <div className="p-4 pt-0 text-sm text-slate-400 space-y-2">
+                          <p>• DNS changes can take up to 48 hours to propagate globally</p>
+                          <p>• Verify you've added both the A record and CNAME record correctly</p>
+                          <p>• Check that there are no conflicting DNS records</p>
+                          <p>• Try clearing your DNS cache or using a different browser</p>
+                        </div>
+                      </details>
+
+                      <details className="bg-slate-700/30 border border-slate-600/30 rounded-xl overflow-hidden">
+                        <summary className="p-4 cursor-pointer font-semibold text-slate-50 hover:bg-slate-700/50 transition">
+                          SSL certificate issues
+                        </summary>
+                        <div className="p-4 pt-0 text-sm text-slate-400 space-y-2">
+                          <p>• SSL certificates are automatically provisioned after DNS verification</p>
+                          <p>• This usually takes 5-10 minutes after verification</p>
+                          <p>• Try accessing your site with https:// after waiting</p>
+                        </div>
+                      </details>
+
+                      <details className="bg-slate-700/30 border border-slate-600/30 rounded-xl overflow-hidden">
+                        <summary className="p-4 cursor-pointer font-semibold text-slate-50 hover:bg-slate-700/50 transition">
+                          Can I use a subdomain?
+                        </summary>
+                        <div className="p-4 pt-0 text-sm text-slate-400 space-y-2">
+                          <p>• Yes! You can use subdomains like portfolio.yoursite.com</p>
+                          <p>• Add a CNAME record with your subdomain name pointing to cname.vercel-dns.com</p>
+                          <p>• Follow the same verification process</p>
+                        </div>
+                      </details>
+                    </div>
                   </div>
                 </div>
               )}

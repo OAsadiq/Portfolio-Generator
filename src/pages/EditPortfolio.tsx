@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { Eye, Save, Rocket } from 'lucide-react';
 
 interface TemplateField {
   name: string;
@@ -16,7 +17,6 @@ interface TemplateField {
 const EditPortfolio = () => {
   const { slug } = useParams();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [portfolio, setPortfolio] = useState<any>(null);
   const [templateFields, setTemplateFields] = useState<TemplateField[]>([]);
   const [formData, setFormData] = useState<any>({});
@@ -172,10 +172,6 @@ const EditPortfolio = () => {
         }
       }
 
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1000);
-
     } catch (err: any) {
       console.error('Preview error:', err);
       setError('Failed to generate preview. Please try again.');
@@ -235,7 +231,7 @@ const EditPortfolio = () => {
       const data = await res.json();
       console.log('✅ Save successful:', data);
 
-      setSuccessMessage('✅ Portfolio updated successfully!');
+      setSuccessMessage('Portfolio updated successfully!');
 
       await fetchPortfolio();
       
@@ -710,7 +706,7 @@ const EditPortfolio = () => {
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  👁️ Preview
+                  <Eye className="w-5 h-5" /> Preview
                 </span>
               )}
             </button>
@@ -727,7 +723,7 @@ const EditPortfolio = () => {
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  💾 Save
+                  <Save className="w-5 h-5" /> Save
                 </span>
               )}
             </button>
@@ -745,7 +741,7 @@ const EditPortfolio = () => {
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  🚀 {portfolio.deployed_url ? 'Redeploy' : 'Deploy'}
+                  <Rocket className="w-5 h-5" /> {portfolio.deployed_url ? 'Redeploy' : 'Deploy'}
                 </span>
               )}
             </button>

@@ -122,11 +122,11 @@ const PricingSection = () => {
             <ul className="mt-6 space-y-3 text-slate-300">
               <li className="flex items-start">
                 <span className="text-yellow-400 mr-2">✓</span>
-                Writer-focused templates
+                Writer-focused template
               </li>
               <li className="flex items-start">
                 <span className="text-yellow-400 mr-2">✓</span>
-                Up to 3 writing samples
+                One writing samples
               </li>
               <li className="flex items-start">
                 <span className="text-yellow-400 mr-2">✓</span>
@@ -156,7 +156,7 @@ const PricingSection = () => {
 
             <div className="flex justify-between items-center relative z-10">
               <h3 className="text-2xl md:text-4xl font-extrabold text-slate-50">
-                $9<span className="text-lg font-normal text-slate-400">/month</span>
+                $*<span className="text-lg font-normal text-slate-400">/month</span>
               </h3>
               <div className="px-2 py-1 text-xs bg-yellow-400/20 text-yellow-300 border border-yellow-400/40 rounded-2xl font-semibold">
                 Pro Plan
