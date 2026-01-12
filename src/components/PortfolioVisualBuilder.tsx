@@ -90,30 +90,29 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
   // FIXED HANDLERS
   // ============================================================================
 
-  const handleInputChange = async ( field: string,
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value, files } = e.target as HTMLInputElement;
-
-    if (files && files[0]) {
-      const base64 = await fileToBase64(files[0]);
-      setFormData((prev) => ({
-        ...prev,
-        [name]: base64,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-
+  const handleInputChange = (field: string, value: any) => {
     const newData = { ...formData, [field]: value };
     setFormData(newData);
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(newData);
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
+  };
+
+  const handleFileChange = async (field: string, file: File | null) => {
+    if (!file) return;
+    
+    try {
+      const base64 = await fileToBase64(file);
+      const newData = { ...formData, [field]: base64 };
+      setFormData(newData);
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push(newData);
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+    } catch (error) {
+      console.error('Error converting file to base64:', error);
+    }
   };
 
   const undo = () => {
@@ -276,6 +275,7 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
             <ContentTab 
               formData={formData} 
               onChange={handleInputChange}
+              onFileChange={handleFileChange}
               onOpenSampleModal={(num: React.SetStateAction<number>) => { setCurrentSample(num); setSampleModalOpen(true); }}
               onOpenTestimonialModal={(num: React.SetStateAction<number>) => { setCurrentTestimonial(num); setTestimonialModalOpen(true); }}
               onDeleteSample={handleDeleteSample}
@@ -401,7 +401,7 @@ function DesignTab({ formData, onChange }: any) {
   );
 }
 
-function ContentTab({ formData, onChange, onOpenSampleModal, onOpenTestimonialModal, onDeleteSample, onDeleteTestimonial }: any) {
+function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpenTestimonialModal, onDeleteSample, onDeleteTestimonial }: any) {
   return (
     <div className="space-y-6">
       <div>
@@ -409,13 +409,46 @@ function ContentTab({ formData, onChange, onOpenSampleModal, onOpenTestimonialMo
         <div className="space-y-4">
           {/* Profile Image Input */}
           <div>
-            <label className="block text-sm font-bold text-slate-300 mb-2">Profile Image URL</label>
-            <input 
-              type="file" 
-              value={formData.profileImage || ''} 
-              onChange={(e) => onChange('profileImage', e.target.value)} 
-              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition" 
-            />
+            <label className="block text-sm font-bold text-slate-300 mb-2">Profile Image</label>
+            <div className="space-y-3">
+              {formData.profileImage && (
+                <div className="flex items-center gap-3 p-3 bg-slate-900/50 border border-slate-700 rounded-xl">
+                  <img src={formData.profileImage} alt="Preview" className="w-16 h-16 rounded-full object-cover" />
+                  <div className="flex-1">
+                    <p className="text-sm text-slate-300 font-semibold">Image uploaded</p>
+                    <p className="text-xs text-slate-500">Click below to change</p>
+                  </div>
+                  <button 
+                    onClick={() => onChange('profileImage', '')} 
+                    className="p-2 hover:bg-red-500/20 rounded-lg transition"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-400" />
+                  </button>
+                </div>
+              )}
+              <label className="block">
+                <div className="w-full bg-slate-900/50 border-2 border-dashed border-slate-700 hover:border-yellow-400 rounded-xl px-4 py-6 text-center cursor-pointer transition group">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-12 h-12 bg-yellow-400/20 rounded-full flex items-center justify-center group-hover:bg-yellow-400/30 transition">
+                      <Plus className="w-6 h-6 text-yellow-400" />
+                    </div>
+                    <p className="text-sm font-semibold text-slate-300">
+                      {formData.profileImage ? 'Change Image' : 'Upload Profile Image'}
+                    </p>
+                    <p className="text-xs text-slate-500">PNG, JPG up to 5MB</p>
+                  </div>
+                </div>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) onFileChange('profileImage', file);
+                  }}
+                />
+              </label>
+            </div>
           </div>
           
           <div>
@@ -450,6 +483,14 @@ function ContentTab({ formData, onChange, onOpenSampleModal, onOpenTestimonialMo
           <div>
             <label className="block text-sm font-bold text-slate-300 mb-2">Email Address</label>
             <input type="email" value={formData.email} onChange={(e) => onChange('email', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="your@email.com" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-slate-300 mb-2">Phone Number (Optional)</label>
+            <input type="tel" value={formData.phone || ''} onChange={(e) => onChange('phone', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="+1 (555) 123-4567" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-slate-300 mb-2">Location (Optional)</label>
+            <input type="text" value={formData.location || ''} onChange={(e) => onChange('location', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="San Francisco, CA" />
           </div>
         </div>
       </div>
