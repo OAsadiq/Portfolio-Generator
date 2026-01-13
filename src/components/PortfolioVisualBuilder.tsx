@@ -484,14 +484,6 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
             <label className="block text-sm font-bold text-slate-300 mb-2">Email Address</label>
             <input type="email" value={formData.email} onChange={(e) => onChange('email', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="your@email.com" />
           </div>
-          <div>
-            <label className="block text-sm font-bold text-slate-300 mb-2">Phone Number (Optional)</label>
-            <input type="tel" value={formData.phone || ''} onChange={(e) => onChange('phone', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="+1 (555) 123-4567" />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-slate-300 mb-2">Location (Optional)</label>
-            <input type="text" value={formData.location || ''} onChange={(e) => onChange('location', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="San Francisco, CA" />
-          </div>
         </div>
       </div>
 
@@ -615,62 +607,66 @@ function SettingsTab({ autoSave, onToggleAutoSave }: any) {
 }
 
 function PreviewCanvas({ formData, previewMode }: any) {
+  const isMobile = previewMode === 'mobile';
+  const isTablet = previewMode === 'tablet';
+  const isDesktop = previewMode === 'desktop';
+
   return (
-    <div className="flex-1 overflow-auto p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 custom-scrollbar">
-      <div className={`bg-white transition-all duration-500 ${previewMode === 'desktop' ? 'w-full max-w-7xl mx-auto' : previewMode === 'tablet' ? 'w-[768px] mx-auto' : 'w-[375px] mx-auto'}`}>
+    <div className="flex-1 overflow-auto p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <div className={`bg-white transition-all duration-500 ${isDesktop ? 'w-full max-w-7xl mx-auto' : isTablet ? 'w-[768px] mx-auto' : 'w-[375px] mx-auto'}`}>
         
         {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center text-center px-8 py-16 relative overflow-hidden">
+        <section className={`min-h-screen flex items-center justify-center text-center relative overflow-hidden ${isMobile ? 'px-4 py-8' : 'px-8 py-16'}`}>
           <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent pointer-events-none"></div>
-          <div className="relative z-10 max-w-4xl mx-auto">
+          <div className={`relative z-10 max-w-4xl mx-auto ${isMobile ? 'max-w-sm' : isTablet ? 'max-w-2xl' : 'max-w-4xl'}`}>
             {formData.profileImage ? (
               <img 
                 src={formData.profileImage} 
                 alt={formData.fullName || 'Profile'} 
-                className="w-40 h-40 rounded-full mx-auto mb-6 object-cover border-4 shadow-xl"
+                className={`rounded-full mx-auto mb-6 object-cover border-4 shadow-xl ${isMobile ? 'w-24 h-24' : isTablet ? 'w-32 h-32' : 'w-40 h-40'}`}
                 style={{ borderColor: formData.primaryColor, boxShadow: `0 8px 24px rgba(37, 99, 235, 0.15)` }}
               />
             ) : (
               <div 
-                className="w-40 h-40 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-5xl font-bold shadow-xl" 
+                className={`rounded-full mx-auto mb-6 flex items-center justify-center text-white font-bold shadow-xl ${isMobile ? 'w-24 h-24 text-2xl' : isTablet ? 'w-32 h-32 text-4xl' : 'w-40 h-40 text-5xl'}`}
                 style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
               >
                 {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : '?'}
               </div>
             )}
             
-            <h1 className="text-6xl font-black mb-4 text-slate-900 leading-tight" style={{ letterSpacing: '-0.03em' }}>
+            <h1 className={`font-black mb-4 text-slate-900 leading-tight ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-6xl'}`} style={{ letterSpacing: '-0.03em' }}>
               {formData.fullName || 'Your Name'}
             </h1>
-            <p className="text-2xl font-semibold mb-6" style={{ color: formData.primaryColor }}>
+            <p className={`font-semibold mb-6 ${isMobile ? 'text-lg' : isTablet ? 'text-xl' : 'text-2xl'}`} style={{ color: formData.primaryColor }}>
               {formData.headline || 'Your Professional Title'}
             </p>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed">
+            <p className={`text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed ${isMobile ? 'text-base' : isTablet ? 'text-lg' : 'text-xl'}`}>
               {formData.bio || 'Your bio will appear here. Click "Content" tab to add your information...'}
             </p>
             
             {(formData.linkedin || formData.twitter || formData.website) && (
-              <div className="flex gap-4 justify-center mb-8">
+              <div className={`flex gap-4 justify-center mb-8 ${isMobile ? 'gap-2' : 'gap-4'}`}>
                 {formData.linkedin && (
-                  <div className="w-12 h-12 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-white transition cursor-pointer">
-                    <span className="text-xs font-bold">IN</span>
+                  <div className={`rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-white transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
+                    <span className={`font-bold ${isMobile ? 'text-xs' : 'text-xs'}`}>IN</span>
                   </div>
                 )}
                 {formData.twitter && (
-                  <div className="w-12 h-12 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-slate-900 hover:border-slate-900 hover:text-white transition cursor-pointer">
-                    <span className="text-xs font-bold">X</span>
+                  <div className={`rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-slate-900 hover:border-slate-900 hover:text-white transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
+                    <span className={`font-bold ${isMobile ? 'text-xs' : 'text-xs'}`}>X</span>
                   </div>
                 )}
                 {formData.website && (
-                  <div className="w-12 h-12 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-slate-700 hover:border-slate-700 hover:text-white transition cursor-pointer">
-                    <Globe className="w-5 h-5" />
+                  <div className={`rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-slate-700 hover:border-slate-700 hover:text-white transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
+                    <Globe className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
                   </div>
                 )}
               </div>
             )}
             
             <button 
-              className="px-10 py-4 rounded-full text-white font-bold text-lg shadow-2xl hover:scale-105 transition inline-flex items-center gap-3"
+              className={`rounded-full text-white font-bold shadow-2xl hover:scale-105 transition inline-flex items-center gap-3 ${isMobile ? 'px-6 py-3 text-base' : isTablet ? 'px-8 py-3 text-lg' : 'px-10 py-4 text-lg'}`}
               style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -679,47 +675,18 @@ function PreviewCanvas({ formData, previewMode }: any) {
               Get In Touch
             </button>
             
-            {/* Contact Info Display */}
-            {(formData.email || formData.phone || formData.location) && (
-              <div className="mt-8 pt-8 border-t border-slate-200 flex flex-wrap gap-6 justify-center text-sm text-slate-600">
-                {formData.email && (
-                  <div className="flex items-center gap-2">
-                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M2 4L10 11L18 4M2 4H18V14H2V4Z"/>
-                    </svg>
-                    {formData.email}
-                  </div>
-                )}
-                {formData.phone && (
-                  <div className="flex items-center gap-2">
-                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M2 3C2 2.44772 2.44772 2 3 2H5.15287C5.64171 2 6.0589 2.35341 6.13927 2.8356L6.87858 7.27147C6.95075 7.70451 6.73206 8.13397 6.3394 8.3303L4.79126 9.10437C5.90756 11.8783 8.12168 14.0924 10.8956 15.2087L11.6697 13.6606C11.866 13.2679 12.2955 13.0492 12.7285 13.1214L17.1644 13.8607C17.6466 13.9411 18 14.3583 18 14.8471V17C18 17.5523 17.5523 18 17 18H15C7.8203 18 2 12.1797 2 5V3Z"/>
-                    </svg>
-                    {formData.phone}
-                  </div>
-                )}
-                {formData.location && (
-                  <div className="flex items-center gap-2">
-                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10 2C6.13401 2 3 5.13401 3 9C3 13.25 10 20 10 20C10 20 17 13.25 17 9C17 5.13401 13.866 2 10 2ZM10 11.5C8.61929 11.5 7.5 10.3807 7.5 9C7.5 7.61929 8.61929 6.5 10 6.5C11.3807 6.5 12.5 7.61929 12.5 9C12.5 10.3807 11.3807 11.5 10 11.5Z"/>
-                    </svg>
-                    {formData.location}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </section>
 
         {/* Specialties Section */}
         {[1,2,3,4].some(n => formData[`specialty${n}`]) && (
-          <section className="py-16 bg-slate-50">
-            <div className="max-w-5xl mx-auto px-8">
-              <div className="flex gap-4 justify-center flex-wrap">
+          <section className={`bg-slate-50 ${isMobile ? 'py-8' : 'py-16'}`}>
+            <div className={`max-w-5xl mx-auto ${isMobile ? 'px-4' : 'px-8'}`}>
+              <div className={`flex justify-center flex-wrap ${isMobile ? 'gap-2' : 'gap-4'}`}>
                 {[1,2,3,4].map(n => formData[`specialty${n}`] ? (
                   <div 
                     key={n} 
-                    className="px-6 py-3 bg-white rounded-full border-2 font-semibold flex items-center gap-3 hover:scale-105 transition shadow-sm"
+                    className={`bg-white rounded-full border-2 font-semibold flex items-center gap-3 hover:scale-105 transition shadow-sm ${isMobile ? 'px-4 py-2 text-sm' : 'px-6 py-3'}`}
                     style={{ borderColor: formData.primaryColor, color: formData.primaryColor }}
                   >
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -735,38 +702,38 @@ function PreviewCanvas({ formData, previewMode }: any) {
 
         {/* Writing Samples Section */}
         {[1,2,3,4].some(n => formData[`sample${n}Title`]) && (
-          <section className="py-20 px-8">
+          <section className={`py-20 px-8 ${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
-                <h2 className="text-5xl font-black text-slate-900 mb-4">Featured Work</h2>
-                <p className="text-xl text-slate-600">A curated selection of my best writing samples</p>
+                <h2 className={`font-black text-slate-900 mb-4 ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'}`}>Featured Work</h2>
+                <p className={`text-slate-600 ${isMobile ? 'text-lg' : 'text-xl'}`}>A curated selection of my best writing samples</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className={`grid gap-8 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
                 {[1,2,3,4].map(n => {
                   if (!formData[`sample${n}Title`]) return null;
                   return (
                     <article key={n} className="bg-white border-2 border-slate-200 rounded-3xl overflow-hidden hover:border-blue-500 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
                       <div 
-                        className="h-48 flex items-center justify-center text-6xl"
+                        className={`flex items-center justify-center text-6xl ${isMobile ? 'h-32 text-4xl' : isTablet ? 'h-40 text-5xl' : 'h-48'}`}
                         style={{ background: `linear-gradient(135deg, ${formData.primaryColor}20, ${formData.accentColor}20)` }}
                       >
                         📄
                       </div>
-                      <div className="p-6">
+                      <div className={`${isMobile ? 'p-4' : 'p-6'}`}>
                         <span 
-                          className="inline-block px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide mb-3"
+                          className={`inline-block rounded-full text-xs font-bold uppercase tracking-wide mb-3 ${isMobile ? 'px-3 py-1 text-xs' : 'px-4 py-1'}`}
                           style={{ background: `${formData.primaryColor}15`, color: formData.primaryColor }}
                         >
                           {formData[`sample${n}Type`] || 'Article'}
                         </span>
-                        <h3 className="text-xl font-bold text-slate-900 mb-3 leading-tight">
+                        <h3 className={`font-bold text-slate-900 mb-3 leading-tight ${isMobile ? 'text-lg' : 'text-xl'}`}>
                           {formData[`sample${n}Title`]}
                         </h3>
-                        <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                        <p className={`text-slate-600 leading-relaxed mb-4 ${isMobile ? 'text-sm' : 'text-sm'}`}>
                           {formData[`sample${n}Description`] || 'Click to read more about this work...'}
                         </p>
                         <button 
-                          className="text-sm font-bold px-4 py-2 rounded-lg transition hover:scale-105"
+                          className={`font-bold rounded-lg transition hover:scale-105 ${isMobile ? 'px-3 py-2 text-xs' : 'px-4 py-2 text-sm'}`}
                           style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`, color: 'white' }}
                         >
                           Read Sample
@@ -782,25 +749,25 @@ function PreviewCanvas({ formData, previewMode }: any) {
 
         {/* Testimonials Section */}
         {[1,2,3].some(n => formData[`testimonial${n}`]) && (
-          <section className="py-20 px-8 bg-slate-50">
+          <section className={`bg-slate-50 ${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
-                <h2 className="text-3xl lg:text-5xl font-black text-slate-900 mb-4">Client Testimonials</h2>
-                <p className="text-lg lg:text-xl text-slate-600">What clients say about working with me</p>
+                <h2 className={`font-black text-slate-900 mb-4 ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'}`}>Client Testimonials</h2>
+                <p className={`text-slate-600 ${isMobile ? 'text-lg' : 'text-xl'}`}>What clients say about working with me</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className={`grid gap-8 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
                 {[1,2,3].map(n => {
                   if (!formData[`testimonial${n}`]) return null;
                   const author = formData[`testimonial${n}Author`] || 'Anonymous';
                   return (
-                    <div key={n} className="bg-white border-2 border-slate-200 rounded-3xl p-8 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1 transition-all">
-                      <div className="text-yellow-400 text-2xl mb-4">★★★★★</div>
-                      <p className="text-slate-900 text-lg italic mb-6 leading-relaxed">
+                    <div key={n} className={`bg-white border-2 border-slate-200 rounded-3xl hover:border-blue-500 hover:shadow-xl hover:-translate-y-1 transition-all ${isMobile ? 'p-6' : 'p-8'}`}>
+                      <div className={`text-yellow-400 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}>★★★★★</div>
+                      <p className={`text-slate-900 italic mb-6 leading-relaxed ${isMobile ? 'text-base' : 'text-lg'}`}>
                         "{formData[`testimonial${n}`]}"
                       </p>
                       <div className="flex items-center gap-4">
                         <div 
-                          className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl border-3"
+                          className={`rounded-full flex items-center justify-center text-white font-bold border-3 ${isMobile ? 'w-10 h-10 text-sm' : 'w-14 h-14 text-xl'}`}
                           style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
                         >
                           {author.charAt(0).toUpperCase()}
@@ -819,17 +786,17 @@ function PreviewCanvas({ formData, previewMode }: any) {
         )}
 
         {/* Contact CTA Section */}
-        <section className="py-20 px-8">
+        <section className={`${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
           <div className="max-w-5xl mx-auto">
             <div 
-              className="rounded-3xl p-8 lg:p-16 text-center text-white relative overflow-hidden"
+              className={`rounded-3xl text-center text-white relative overflow-hidden ${isMobile ? 'p-8' : isTablet ? 'p-12' : 'p-16'}`}
               style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
             >
               <div className="absolute top-0 right-0 w-96 h-96 bg-white opacity-10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
               <div className="relative z-10">
-                <h2 className="text-2xl lg:text-5xl font-black mb-4">Let's Create Something Amazing</h2>
-                <p className="text-xl lg:text-2xl mb-8 opacity-95">Ready to elevate your content? Let's discuss your project.</p>
-                <button className="px-8 py-2 lg:px-10 lg:py-4 bg-white rounded-full font-bold text-xl hover:scale-105 transition shadow-2xl inline-flex items-center gap-3" style={{ color: formData.primaryColor }}>
+                <h2 className={`font-black mb-4 ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'}`}>Let's Create Something Amazing</h2>
+                <p className={`mb-8 opacity-95 ${isMobile ? 'text-lg' : 'text-2xl'}`}>Ready to elevate your content? Let's discuss your project.</p>
+                <button className={`${isMobile ? 'px-4 py-3 text-base' : isTablet ? 'px-8 py-3 text-lg' : 'px-10 py-4 text-lg'} bg-white rounded-full font-bold hover:scale-105 transition shadow-2xl inline-flex items-center gap-2`} style={{ color: formData.primaryColor }}>
                   Start a Conversation
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                     <path d="M7 13L13 7M13 7H7M13 7V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
