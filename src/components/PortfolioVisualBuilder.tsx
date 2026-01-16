@@ -4,12 +4,8 @@ import {
   Eye, Save, Undo, Redo, Settings, Palette, Type,
   Layout, Trash2, Plus, GripVertical, X, Check, Link,
   FileText, ChevronDown, ChevronUp, Monitor, Smartphone, Tablet, Sparkles,
-  Rocket, Globe, ExternalLink
+  Rocket, Globe, ExternalLink, Footprints
 } from 'lucide-react';
-
-// ============================================================================
-// TYPES & CONSTANTS
-// ============================================================================
 
 const COLOR_PRESETS = [
   { name: 'Blue', primary: '#2563eb', accent: '#0ea5e9' },
@@ -26,11 +22,9 @@ const INITIAL_SECTIONS = [
   { id: 'samples', name: 'Writing Samples', visible: true, order: 2, icon: <FileText className="w-4 h-4" /> },
   { id: 'testimonials', name: 'Testimonials', visible: true, order: 3, icon: <Type className="w-4 h-4" /> },
   { id: 'contact', name: 'Contact', visible: true, order: 4, icon: <Link className="w-4 h-4" /> },
+  { id: 'footer', name: 'Footer', visible: true, order: 5, icon: <Footprints className="w-4 h-4" /> },
 ];
 
-// ============================================================================
-// MAIN COMPONENT
-// ============================================================================
 
 export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
   const [sections, setSections] = useState(INITIAL_SECTIONS);
@@ -85,10 +79,6 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
-
-  // ============================================================================
-  // FIXED HANDLERS
-  // ============================================================================
 
   const handleInputChange = (field: string, value: any) => {
     const newData = { ...formData, [field]: value };
@@ -149,7 +139,6 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
     setSections(newSections);
   };
 
-  // FIX: Proper delete handlers
   const handleDeleteSample = (num: number) => {
     const updates: any = {};
     updates[`sample${num}Title`] = '';
@@ -161,7 +150,6 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
     const newData = { ...formData, ...updates };
     setFormData(newData);
     
-    // Add to history
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(newData);
     setHistory(newHistory);
@@ -177,23 +165,19 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
     const newData = { ...formData, ...updates };
     setFormData(newData);
     
-    // Add to history
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(newData);
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
   };
 
-  // FIX: Proper save handler
   const handleSubmit = () => {
     setSaving(true);
     
-    // Simulate save process
     setTimeout(() => {
       setSaving(false);
       setSuccessModalOpen(true);
       
-      // Log the data for debugging
       console.log('Portfolio Data Saved:', {
         formData,
         sections,
@@ -214,7 +198,6 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
     });
   };
 
-  // Mobile warning
   if (isMobile) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
@@ -349,10 +332,9 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
           </div>
         </div>
 
-        <PreviewCanvas formData={formData} previewMode={previewMode} />
+        <PreviewCanvas formData={formData} previewMode={previewMode} sections={sections}/>
       </div>
 
-      {/* Modals */}
       <SampleModal isOpen={sampleModalOpen} currentSample={currentSample} formData={formData} onChange={handleInputChange} onClose={() => setSampleModalOpen(false)} />
       <TestimonialModal isOpen={testimonialModalOpen} currentTestimonial={currentTestimonial} formData={formData} onChange={handleInputChange} onClose={() => setTestimonialModalOpen(false)} />
       <SuccessModal isOpen={successModalOpen} onClose={() => setSuccessModalOpen(false)} onDeploy={handleDeploy} onLater={() => { setSuccessModalOpen(false); onCancel(); }} />
@@ -473,7 +455,7 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
         <div className="space-y-3">
           <input type="url" value={formData.linkedin || ''} onChange={(e) => onChange('linkedin', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="LinkedIn URL" />
           <input type="url" value={formData.twitter || ''} onChange={(e) => onChange('twitter', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="Twitter/X URL" />
-          <input type="url" value={formData.website || ''} onChange={(e) => onChange('website', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="Personal Website" />
+          <input type="url" value={formData.website || ''} onChange={(e) => onChange('website', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="Other Links" />
         </div>
       </div>
 
@@ -509,7 +491,7 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
                   <p className="font-bold truncate group-hover:text-yellow-400">{formData[`sample${num}Title`]}</p>
                   <p className="text-xs text-slate-500 truncate mt-1">{formData[`sample${num}Type`] || 'No type'}</p>
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); onDeleteSample(num); }} className="p-2 hover:bg-red-500/20 rounded-lg transition"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                <button onClick={(e) => { e.stopPropagation(); onDeleteSample(num); }} className="p-2 h-fit hover:bg-red-500/20 rounded-lg transition"><Trash2 className="w-4 h-4 text-red-400" /></button>
               </div>
             </div>
           ) : null)}
@@ -535,7 +517,7 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
                   <p className="text-sm text-slate-300 line-clamp-2 mb-2">&ldquo;{formData[`testimonial${num}`]}&rdquo;</p>
                   <p className="text-xs font-bold text-slate-500">{formData[`testimonial${num}Author`] || 'No author'}</p>
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); onDeleteTestimonial(num); }} className="p-2 hover:bg-red-500/20 rounded-lg transition"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                <button onClick={(e) => { e.stopPropagation(); onDeleteTestimonial(num); }} className="p-2 h-fit hover:bg-red-500/20 rounded-lg transition"><Trash2 className="w-4 h-4 text-red-400" /></button>
               </div>
             </div>
           ) : null)}
@@ -562,7 +544,7 @@ function LayoutTab({ sections, onToggle, onMoveUp, onMoveDown }: any) {
             <div className="flex items-center gap-3">
               <GripVertical className="w-5 h-5 text-slate-500 cursor-grab" />
               <div className="flex-1 flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${section.visible ? 'bg-yellow-400/20 text-yellow-400' : 'bg-slate-700/50 text-slate-600'}`}>
+                <div className={`w-8 h-8 p-2 rounded-lg flex items-center justify-center ${section.visible ? 'bg-yellow-400/20 text-yellow-400' : 'bg-slate-700/50 text-slate-600'}`}>
                   {section.icon}
                 </div>
                 <span className="font-bold text-sm">{section.name}</span>
@@ -606,81 +588,100 @@ function SettingsTab({ autoSave, onToggleAutoSave }: any) {
   );
 }
 
-function PreviewCanvas({ formData, previewMode }: any) {
+function PreviewCanvas({ formData, previewMode, sections }: any) {
   const isMobile = previewMode === 'mobile';
   const isTablet = previewMode === 'tablet';
   const isDesktop = previewMode === 'desktop';
 
-  return (
-    <div className="flex-1 overflow-auto p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <div className={`bg-white transition-all duration-500 ${isDesktop ? 'w-full max-w-7xl mx-auto' : isTablet ? 'w-[768px] mx-auto' : 'w-[375px] mx-auto'}`}>
-        
-        {/* Hero Section */}
-        <section className={`min-h-screen flex items-center justify-center text-center relative overflow-hidden ${isMobile ? 'px-4 py-8' : 'px-8 py-16'}`}>
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent pointer-events-none"></div>
-          <div className={`relative z-10 max-w-4xl mx-auto ${isMobile ? 'max-w-sm' : isTablet ? 'max-w-2xl' : 'max-w-4xl'}`}>
-            {formData.profileImage ? (
-              <img 
-                src={formData.profileImage} 
-                alt={formData.fullName || 'Profile'} 
-                className={`rounded-full mx-auto mb-6 object-cover border-4 shadow-xl ${isMobile ? 'w-24 h-24' : isTablet ? 'w-32 h-32' : 'w-40 h-40'}`}
-                style={{ borderColor: formData.primaryColor, boxShadow: `0 8px 24px rgba(37, 99, 235, 0.15)` }}
-              />
-            ) : (
-              <div 
-                className={`rounded-full mx-auto mb-6 flex items-center justify-center text-white font-bold shadow-xl ${isMobile ? 'w-24 h-24 text-2xl' : isTablet ? 'w-32 h-32 text-4xl' : 'w-40 h-40 text-5xl'}`}
-                style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
-              >
-                {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : '?'}
-              </div>
-            )}
-            
-            <h1 className={`font-black mb-4 text-slate-900 leading-tight ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-6xl'}`} style={{ letterSpacing: '-0.03em' }}>
-              {formData.fullName || 'Your Name'}
-            </h1>
-            <p className={`font-semibold mb-6 ${isMobile ? 'text-lg' : isTablet ? 'text-xl' : 'text-2xl'}`} style={{ color: formData.primaryColor }}>
-              {formData.headline || 'Your Professional Title'}
-            </p>
-            <p className={`text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed ${isMobile ? 'text-base' : isTablet ? 'text-lg' : 'text-xl'}`}>
-              {formData.bio || 'Your bio will appear here. Click "Content" tab to add your information...'}
-            </p>
-            
-            {(formData.linkedin || formData.twitter || formData.website) && (
-              <div className={`flex gap-4 justify-center mb-8 ${isMobile ? 'gap-2' : 'gap-4'}`}>
-                {formData.linkedin && (
-                  <div className={`rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-white transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
-                    <span className={`font-bold ${isMobile ? 'text-xs' : 'text-xs'}`}>IN</span>
-                  </div>
-                )}
-                {formData.twitter && (
-                  <div className={`rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-slate-900 hover:border-slate-900 hover:text-white transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
-                    <span className={`font-bold ${isMobile ? 'text-xs' : 'text-xs'}`}>X</span>
-                  </div>
-                )}
-                {formData.website && (
-                  <div className={`rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-slate-700 hover:border-slate-700 hover:text-white transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
-                    <Globe className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                  </div>
-                )}
-              </div>
-            )}
-            
-            <button 
-              className={`rounded-full text-white font-bold shadow-2xl hover:scale-105 transition inline-flex items-center gap-3 ${isMobile ? 'px-6 py-3 text-base' : isTablet ? 'px-8 py-3 text-lg' : 'px-10 py-4 text-lg'}`}
-              style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M3 4L10 11L17 4M3 4H17V14H3V4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Get In Touch
-            </button>
-            
-          </div>
-        </section>
+  const visibleSections = sections
+    .filter((s: any) => s.visible)
+    .sort((a: any, b: any) => a.order - b.order);
 
-        {/* Specialties Section */}
-        {[1,2,3,4].some(n => formData[`specialty${n}`]) && (
-          <section className={`bg-slate-50 ${isMobile ? 'py-8' : 'py-16'}`}>
+  const renderSection = (sectionId: string) => {
+    switch(sectionId) {
+      case 'hero':
+        return (
+          <section key="hero" className={`min-h-screen flex items-center justify-center text-center relative overflow-hidden ${isMobile ? 'px-4 py-8' : 'px-8 py-16'}`}>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent pointer-events-none"></div>
+            <div className={`relative z-10 max-w-4xl mx-auto ${isMobile ? 'max-w-sm' : isTablet ? 'max-w-2xl' : 'max-w-4xl'}`}>
+              {formData.profileImage ? (
+                <img 
+                  src={formData.profileImage} 
+                  alt={formData.fullName || 'Profile'} 
+                  className={`rounded-full mx-auto mb-6 object-cover border-4 shadow-xl ${isMobile ? 'w-24 h-24' : isTablet ? 'w-32 h-32' : 'w-40 h-40'}`}
+                  style={{ borderColor: formData.primaryColor }}
+                />
+              ) : (
+                <div 
+                  className={`rounded-full mx-auto mb-6 flex items-center justify-center text-white font-bold shadow-xl ${isMobile ? 'w-24 h-24 text-2xl' : isTablet ? 'w-32 h-32 text-4xl' : 'w-40 h-40 text-5xl'}`}
+                  style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
+                >
+                  {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : '?'}
+                </div>
+              )}
+              
+              <h1 className={`font-bold mb-4 text-slate-900 leading-tight ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-6xl'}`} style={{ letterSpacing: '-0.03em' }}>
+                {formData.fullName || 'Your Name'}
+              </h1>
+              <p className={`font-semibold mb-6 ${isMobile ? 'text-lg' : isTablet ? 'text-xl' : 'text-2xl'}`} style={{ color: formData.primaryColor }}>
+                {formData.headline || 'Your Professional Title'}
+              </p>
+              <p className={`text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed ${isMobile ? 'text-base' : isTablet ? 'text-lg' : 'text-xl'}`}>
+                {formData.bio || 'Your bio will appear here...'}
+              </p>
+              
+              {(formData.linkedin || formData.twitter || formData.website) && (
+                <div className={`flex gap-4 justify-center mb-8 ${isMobile ? 'gap-2' : 'gap-4'}`}>
+                  {formData.linkedin && (
+                    <a 
+                      href={formData.linkedin} 
+                      className={`rounded-full text-slate-900 bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-slate-100 transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                      </svg>
+                    </a>
+                  )}
+                  {formData.twitter && (
+                    <a
+                      href={formData.twitter}  
+                      className={`rounded-full text-slate-900 bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-slate-100 transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                      </svg>
+                    </a>
+                  )}
+                  {formData.website && (
+                    <a 
+                      href={formData.website}
+                      className={`rounded-full text-slate-900 bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-slate-100 transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}
+                    >
+                      <Globe className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {formData.email && (
+                <a 
+                  href={`mailto:${formData.email}`}
+                  className={`rounded-full text-white font-bold shadow-2xl hover:scale-105 transition inline-flex items-center no-underline gap-3 ${isMobile ? 'px-6 py-3 text-base' : isTablet ? 'px-8 py-3 text-lg' : 'px-10 py-4 text-lg'}`}
+                  style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 4L10 11L17 4M3 4H17V14H3V4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Get In Touch
+                </a>
+              )}
+            </div>
+          </section>
+        );
+
+      case 'specialties':
+        return [1,2,3,4].some(n => formData[`specialty${n}`]) ? (
+          <section key="specialties" className={`bg-slate-50 ${isMobile ? 'py-8' : 'py-16'}`}>
             <div className={`max-w-5xl mx-auto ${isMobile ? 'px-4' : 'px-8'}`}>
               <div className={`flex justify-center flex-wrap ${isMobile ? 'gap-2' : 'gap-4'}`}>
                 {[1,2,3,4].map(n => formData[`specialty${n}`] ? (
@@ -698,11 +699,11 @@ function PreviewCanvas({ formData, previewMode }: any) {
               </div>
             </div>
           </section>
-        )}
+        ) : null;
 
-        {/* Writing Samples Section */}
-        {[1,2,3,4].some(n => formData[`sample${n}Title`]) && (
-          <section className={`py-20 px-8 ${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
+      case 'samples':
+        return [1,2,3,4].some(n => formData[`sample${n}Title`]) ? (
+          <section key="samples" className={`${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
                 <h2 className={`font-black text-slate-900 mb-4 ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'}`}>Featured Work</h2>
@@ -721,7 +722,7 @@ function PreviewCanvas({ formData, previewMode }: any) {
                       </div>
                       <div className={`${isMobile ? 'p-4' : 'p-6'}`}>
                         <span 
-                          className={`inline-block rounded-full text-xs font-bold uppercase tracking-wide mb-3 ${isMobile ? 'px-3 py-1 text-xs' : 'px-4 py-1'}`}
+                          className={`inline-block rounded-full text-xs font-bold uppercase tracking-wide mb-3 ${isMobile ? 'px-3 py-1' : 'px-4 py-1'}`}
                           style={{ background: `${formData.primaryColor}15`, color: formData.primaryColor }}
                         >
                           {formData[`sample${n}Type`] || 'Article'}
@@ -730,7 +731,7 @@ function PreviewCanvas({ formData, previewMode }: any) {
                           {formData[`sample${n}Title`]}
                         </h3>
                         <p className={`text-slate-600 leading-relaxed mb-4 ${isMobile ? 'text-sm' : 'text-sm'}`}>
-                          {formData[`sample${n}Description`] || 'Click to read more about this work...'}
+                          {formData[`sample${n}Description`] || 'Click to read more...'}
                         </p>
                         <button 
                           className={`font-bold rounded-lg transition hover:scale-105 ${isMobile ? 'px-3 py-2 text-xs' : 'px-4 py-2 text-sm'}`}
@@ -745,11 +746,11 @@ function PreviewCanvas({ formData, previewMode }: any) {
               </div>
             </div>
           </section>
-        )}
+        ) : null;
 
-        {/* Testimonials Section */}
-        {[1,2,3].some(n => formData[`testimonial${n}`]) && (
-          <section className={`bg-slate-50 ${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
+      case 'testimonials':
+        return [1,2,3].some(n => formData[`testimonial${n}`]) ? (
+          <section key="testimonials" className={`bg-slate-50 ${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
                 <h2 className={`font-black text-slate-900 mb-4 ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'}`}>Client Testimonials</h2>
@@ -767,7 +768,7 @@ function PreviewCanvas({ formData, previewMode }: any) {
                       </p>
                       <div className="flex items-center gap-4">
                         <div 
-                          className={`rounded-full flex items-center justify-center text-white font-bold border-3 ${isMobile ? 'w-10 h-10 text-sm' : 'w-14 h-14 text-xl'}`}
+                          className={`rounded-full flex items-center justify-center text-white font-bold ${isMobile ? 'w-10 h-10 text-sm' : 'w-14 h-14 text-xl'}`}
                           style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
                         >
                           {author.charAt(0).toUpperCase()}
@@ -783,34 +784,54 @@ function PreviewCanvas({ formData, previewMode }: any) {
               </div>
             </div>
           </section>
-        )}
+        ) : null;
 
-        {/* Contact CTA Section */}
-        <section className={`${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
-          <div className="max-w-5xl mx-auto">
-            <div 
-              className={`rounded-3xl text-center text-white relative overflow-hidden ${isMobile ? 'p-8' : isTablet ? 'p-12' : 'p-16'}`}
-              style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
-            >
-              <div className="absolute top-0 right-0 w-96 h-96 bg-white opacity-10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-              <div className="relative z-10">
-                <h2 className={`font-black mb-4 ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'}`}>Let's Create Something Amazing</h2>
-                <p className={`mb-8 opacity-95 ${isMobile ? 'text-lg' : 'text-2xl'}`}>Ready to elevate your content? Let's discuss your project.</p>
-                <button className={`${isMobile ? 'px-4 py-3 text-base' : isTablet ? 'px-8 py-3 text-lg' : 'px-10 py-4 text-lg'} bg-white rounded-full font-bold hover:scale-105 transition shadow-2xl inline-flex items-center gap-2`} style={{ color: formData.primaryColor }}>
-                  Start a Conversation
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M7 13L13 7M13 7H7M13 7V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
+      case 'contact':
+        return (
+          <section key="contact" className={`${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
+            <div className="max-w-5xl mx-auto">
+              <div 
+                className={`rounded-3xl text-center text-white relative overflow-hidden ${isMobile ? 'p-8' : isTablet ? 'p-12' : 'p-16'}`}
+                style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
+              >
+                <div className="absolute top-0 right-0 w-96 h-96 bg-white opacity-10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div className="relative z-10">
+                  <h2 className={`font-black mb-4 ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'}`}>Let's Create Something Amazing</h2>
+                  <p className={`mb-8 opacity-95 ${isMobile ? 'text-lg' : 'text-2xl'}`}>Ready to elevate your content? Let's discuss your project.</p>
+                  <a 
+                    href={`mailto:${formData.email}`}
+                    className={`bg-white rounded-full font-bold hover:scale-105 transition shadow-2xl inline-flex items-center gap-2 ${isMobile ? 'px-6 py-3 text-base' : isTablet ? 'px-8 py-3 text-lg' : 'px-10 py-4 text-xl'}`}
+                    style={{ color: formData.primaryColor }}
+                  >
+                    Start a Conversation
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M7 13L13 7M13 7H7M13 7V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        );
 
-        {/* Footer */}
-        <footer className="py-12 text-center bg-slate-50">
-          <p className="text-slate-500">Built with <span className="text-blue-600 font-semibold">Foliobase</span> ✨</p>
-        </footer>
+      case 'footer':
+        return (
+          <footer className="py-12 text-center bg-slate-50">
+            <p className="text-slate-500">Built with <span className="text-blue-600 font-semibold">Foliobase</span> ✨</p>
+          </footer>
+        )
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="flex-1 overflow-auto p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <div className={`bg-white transition-all duration-500 ${isDesktop ? 'w-full max-w-7xl mx-auto' : isTablet ? 'w-[768px] mx-auto' : 'w-[375px] mx-auto'}`}>
+        
+        {/* Render sections in order set by Layout Tab */}
+        {visibleSections.map((section: { id: string; }) => renderSection(section.id))}
       </div>
     </div>
   );

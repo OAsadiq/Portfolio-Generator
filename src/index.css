@@ -17,21 +17,30 @@
 }
 
 body {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
 }
 
 body::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari, Opera */
+  display: none;  
 }
 
-/* Ensure ALL background effects never block pointer events */
+button,
+a,
+input,
+textarea,
+select,
+.interactive,
+[role="button"],
+.hover\:* {
+  pointer-events: auto !important;
+}
+
 .fixed.inset-0.pointer-events-none *,
 .fixed.pointer-events-none * {
   pointer-events: none !important;
 }
 
-/* Alternative: Use a custom class */
 .background-layer,
 .background-layer * {
   pointer-events: none !important;

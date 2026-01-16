@@ -71,7 +71,7 @@ const professionalWriterTemplate = {
     { name: "linkedin", label: "LinkedIn URL", type: "text", section: "contact" },
     { name: "twitter", label: "Twitter/X URL", type: "text", section: "contact" },
     { name: "instagram", label: "Instagram URL", type: "text", section: "contact" },
-    { name: "website", label: "Personal Website", type: "text", section: "contact" },
+    { name: "website", label: "Other Links", type: "text", section: "contact" },
   ],
   
   generateHTML: (data) => {
