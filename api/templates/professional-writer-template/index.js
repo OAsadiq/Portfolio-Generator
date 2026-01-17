@@ -74,7 +74,7 @@ const professionalWriterTemplate = {
     { name: "website", label: "Other Links", type: "text", section: "contact" },
   ],
   
-  generateHTML: (data) => {
+  generateHTML: (data, sections = []) => {
     const name = data.fullName || "Your Name";
     const headline = data.headline || "Freelance Writer";
     const bio = data.bio || "Crafting compelling content for brands and businesses.";

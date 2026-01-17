@@ -43,7 +43,8 @@ export default async function handler(req, res) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        const { templateId, formData } = req.body;
+        // GET SECTIONS FROM REQUEST BODY
+        const { templateId, formData, sections } = req.body;
 
         if (!templateId || !formData) {
             return res.status(400).json({ error: 'Missing required fields' });
@@ -114,7 +115,8 @@ export default async function handler(req, res) {
         const timestamp = Date.now();
         const slug = `${baseSlug}-${timestamp}`;
 
-        const finalHTML = template.generateHTML(formData);
+        // Pass sections to generateHTML if your template supports it
+        const finalHTML = template.generateHTML(formData, sections);
 
         const filePath = `portfolios/${slug}.html`;
 
@@ -137,6 +139,7 @@ export default async function handler(req, res) {
             .from('portfolios')
             .getPublicUrl(filePath);
 
+        // USE SECTIONS FROM REQ.BODY OR DEFAULT TO EMPTY ARRAY
         const { data: portfolio, error: insertError } = await supabase
             .from('portfolios')
             .insert({
@@ -148,6 +151,7 @@ export default async function handler(req, res) {
                 template_fields: template.fields,
                 file_path: filePath,
                 form_data: formData,
+                sections: sections || [], // Use sections from request or empty array
                 status: 'active',
             })
             .select()

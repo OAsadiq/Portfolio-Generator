@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { 
   Eye, AlertCircle, Undo, Redo, Settings, Palette, Type,
@@ -32,6 +32,7 @@ const INITIAL_SECTIONS = [
 export default function PortfolioVisualBuilder({ onCancel }: any) {
   const { slug } = useParams();
   const isEditing = !!slug;
+  const navigate = useNavigate();
   const [sections, setSections] = useState(INITIAL_SECTIONS);
   const [activeTab, setActiveTab] = useState('design');
   const [previewMode, setPreviewMode] = useState('desktop');
@@ -48,6 +49,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
   const [portfolioSlug, setPortfolioSlug] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(isEditing);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: 'Jane Smith',
@@ -200,36 +202,52 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         return;
       }
 
-      // Fetch portfolio from database
+      console.log('Loading portfolio with slug:', slug, 'for user:', session.user.id);
+
       const { data: portfolio, error: portfolioError } = await supabase
         .from('portfolios')
         .select('*')
         .eq('slug', slug)
-        .eq('user_id', session.user.id)
         .single();
 
+      console.log('Portfolio query result:', { portfolio, portfolioError });
+
       if (portfolioError) {
-        throw new Error('Portfolio not found or you do not have permission to edit it');
+        if (portfolioError.code === 'PGRST116') {
+          throw new Error(`Portfolio with slug "${slug}" not found. Please check the URL.`);
+        }
+        throw new Error('Portfolio not found: ' + portfolioError.message);
       }
 
-      // Load data from database
+      if (portfolio.user_id !== session.user.id) {
+        throw new Error('You do not have permission to edit this portfolio');
+      }
+
+      setPortfolioSlug(portfolio.slug);
+
       if (portfolio.form_data) {
         setFormData(portfolio.form_data);
+      } else {
+        console.warn('No form_data found in portfolio');
       }
       
       if (portfolio.sections) {
         setSections(portfolio.sections);
+      } else {
+        console.warn('No sections found in portfolio');
       }
 
-      console.log('Portfolio loaded:', {
+      console.log('Portfolio loaded successfully:', {
         slug: portfolio.slug,
-        formData: portfolio.form_data,
-        sections: portfolio.sections
+        hasFormData: !!portfolio.form_data,
+        hasSections: !!portfolio.sections,
+        formDataKeys: portfolio.form_data ? Object.keys(portfolio.form_data) : [],
+        sectionsCount: portfolio.sections ? portfolio.sections.length : 0
       });
 
     } catch (err) {
       console.error('Error loading portfolio:', err);
-      setError((err as Error).message || 'Failed to load portfolio');
+      setError((err instanceof Error ? err.message : 'Failed to load portfolio'));
     } finally {
       setLoading(false);
     }
@@ -248,7 +266,6 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         return;
       }
 
-      // Choose endpoint based on whether we're editing or creating
       const endpoint = isEditing 
         ? `${import.meta.env.VITE_API_URL}/api/templates/update-portfolio`
         : `${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`;
@@ -266,6 +283,15 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
             sections,
           };
 
+      console.log('Submitting portfolio:', {
+        isEditing,
+        endpoint,
+        slug: portfolioSlug,
+        hasFormData: !!formData,
+        hasSections: !!sections,
+        body
+      });
+
       const res = await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -280,6 +306,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
       }
 
       const data = await res.json();
+      console.log('Response from API:', data);
 
       if (!res.ok) {
         if (data.code === 'FREE_TEMPLATE_LIMIT_REACHED') {
@@ -288,10 +315,15 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         if (data.code === 'PRO_TEMPLATE_REQUIRED') {
           throw new Error("This template requires a Pro subscription. Upgrade to unlock all templates!");
         }
+        if (data.code === 'PORTFOLIO_NOT_FOUND') {
+          throw new Error(`Portfolio not found. The slug "${portfolioSlug}" does not exist in the database.`);
+        }
+        if (data.code === 'PERMISSION_DENIED') {
+          throw new Error("You do not have permission to edit this portfolio.");
+        }
         throw new Error(data.error || `Failed to ${isEditing ? 'update' : 'save'} portfolio`);
       }
       
-      // Set slug if creating new portfolio
       if (!isEditing && data.portfolioSlug) {
         setPortfolioSlug(data.portfolioSlug);
       }
@@ -305,7 +337,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         timestamp: new Date().toISOString()
       });
     } catch (err) {
-      setError((err as Error).message || 'An error occurred');
+      setError(err instanceof Error ? err.message : 'An error occurred');
       console.error('Save error:', err);
     } finally {
       setSaving(false);
@@ -361,6 +393,20 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
 
   const handleCloseError = () => {
     setError('');
+  };
+
+  const handleCancel = () => {
+    // Show confirmation dialog
+    setShowCancelConfirm(true);
+  };
+
+  const confirmCancel = () => {
+    if (onCancel) {
+      onCancel();
+    } else if (isEditing) {
+      navigate('/dashboard');
+      navigate('/templates');
+    }
   };
 
   if (loading) {
@@ -485,6 +531,10 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
           </div>
 
           <div className="flex items-center gap-3">
+            <button onClick={handleCancel} className="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-xl font-semibold transition">
+              Cancel
+            </button>
+            
             <button
               onClick={handleSubmit}
               disabled={saving}
@@ -503,6 +553,43 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
 
           <ErrorPopup error={error} onClose={handleCloseError} />
         </div>
+
+        {showCancelConfirm && (
+          <div className="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-50">Discard Changes?</h3>
+                  <p className="text-sm text-slate-400">Your unsaved changes will be lost</p>
+                </div>
+              </div>
+              
+              <p className="text-slate-300 mb-6">
+                Are you sure you want to cancel? Any unsaved changes will be lost.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowCancelConfirm(false)}
+                  className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 px-4 rounded-xl font-semibold transition"
+                >
+                  Keep Editing
+                </button>
+                <button
+                  onClick={confirmCancel}
+                  className="flex-1 bg-red-500 hover:bg-red-400 text-white py-3 px-4 rounded-xl font-semibold transition"
+                >
+                  Discard Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <PreviewCanvas formData={formData} previewMode={previewMode} sections={sections}/>
       </div>
