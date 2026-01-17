@@ -12,6 +12,7 @@ import Home from './pages/Home';
 import Success from './pages/Success';
 import ProDashboard from './pages/ProDashboard';
 import EditPortfolio from './pages/EditPortfolio';
+import PortfolioVisualBuilder from './components/PortfolioVisualBuilder';
 
 function App() {
   return (
@@ -51,6 +52,11 @@ function App() {
             <Route path="/edit/:slug" element={
               <ProtectedRoute>
                 <EditPortfolio />
+              </ProtectedRoute>
+            } />
+            <Route path="/builder/:slug" element={
+              <ProtectedRoute>
+                <PortfolioVisualBuilder />
               </ProtectedRoute>
             } />
 

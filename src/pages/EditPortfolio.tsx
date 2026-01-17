@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Eye, Save, Rocket } from 'lucide-react';
@@ -13,6 +13,10 @@ interface TemplateField {
   required?: boolean;
   placeholder?: string;
 }
+
+const PROFESSIONAL_TEMPLATES = [
+  'professional-writer-template',
+];
 
 const EditPortfolio = () => {
   const { slug } = useParams();
@@ -26,6 +30,7 @@ const EditPortfolio = () => {
   const [deploying, setDeploying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -34,6 +39,35 @@ const EditPortfolio = () => {
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = reject;
     });
+  };
+  
+  useEffect(() => {
+    checkTemplateType();
+  }, [slug]);
+
+  const checkTemplateType = async () => {
+    try {
+      const { data: portfolio, error } = await supabase
+        .from('portfolios')
+        .select('template_id, slug')
+        .eq('slug', slug)
+        .single();
+
+      if (error) {
+        console.error('Error fetching portfolio:', error);
+        setLoading(false);
+        return;
+      }
+
+      if (PROFESSIONAL_TEMPLATES.includes(portfolio.template_id)) {
+        navigate(`/builder/${slug}`, { replace: true });
+      } else {
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

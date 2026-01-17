@@ -41,6 +41,10 @@ interface CustomDomain {
   created_at: string;
 }
 
+const PROFESSIONAL_TEMPLATES = [
+  'professional-writer-template',
+];
+
 const ProDashboard = () => {
   const { user, isPro, signOut } = useAuth();
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
@@ -240,6 +244,13 @@ const ProDashboard = () => {
       showToast(err.message || 'Failed to delete portfolio', 'error');
       setDeleteConfirm(null);
     }
+  };
+
+  const getEditRoute = (portfolio: Portfolio) => {
+    if (PROFESSIONAL_TEMPLATES.includes(portfolio.template_id)) {
+      return `/builder/${portfolio.slug}`;
+    }
+    return `/edit/${portfolio.slug}`;
   };
 
   if (!user) {
@@ -612,7 +623,7 @@ const ProDashboard = () => {
                             >
                               Preview
                             </a>
-                            <Link to={`/edit/${portfolio.slug}`} className="flex-1">
+                            <Link to={getEditRoute(portfolio)} className="flex-1">
                               <button className="w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 py-2 px-4 rounded-lg text-sm font-semibold transition">
                                 Edit
                               </button>

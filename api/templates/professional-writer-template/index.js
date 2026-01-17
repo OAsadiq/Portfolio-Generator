@@ -135,8 +135,8 @@ const professionalWriterTemplate = {
                 ${hasLink ? `
                   <a href="${link}" target="_blank" class="sample-btn sample-btn-secondary">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M12 4L14 6L8 12L2 6L4 4L8 8L12 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M2 14H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
                     View Article
                   </a>

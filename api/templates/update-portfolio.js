@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { slug, templateId, formData } = req.body;
+    const { slug, templateId, formData, sections } = req.body;
 
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -52,7 +52,8 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Template not found" });
     }
 
-    const generatedHtml = template.generateHTML(formData);
+    // Generate HTML with both formData and sections
+    const generatedHtml = template.generateHTML(formData, sections);
 
     const filePath = `portfolios/${slug}.html`;
     
@@ -79,10 +80,12 @@ export default async function handler(req, res) {
       });
     }
 
+    // Update database with formData AND sections
     const { error: updateError } = await supabase
       .from('portfolios')
       .update({
         form_data: formData,
+        sections: sections, // Add sections to database
         user_name: formData.fullName || portfolio.user_name,
         user_email: formData.email || portfolio.user_email,
         updated_at: new Date().toISOString()

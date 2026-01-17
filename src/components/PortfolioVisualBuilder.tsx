@@ -1,7 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import { 
-  Eye, Save, Undo, Redo, Settings, Palette, Type,
+  Eye, AlertCircle, Undo, Redo, Settings, Palette, Type,
   Layout, Trash2, Plus, GripVertical, X, Check, Link,
   FileText, ChevronDown, ChevronUp, Monitor, Smartphone, Tablet, Sparkles,
   Rocket, Globe, ExternalLink, Footprints
@@ -26,7 +29,9 @@ const INITIAL_SECTIONS = [
 ];
 
 
-export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
+export default function PortfolioVisualBuilder({ onCancel }: any) {
+  const { slug } = useParams();
+  const isEditing = !!slug;
   const [sections, setSections] = useState(INITIAL_SECTIONS);
   const [activeTab, setActiveTab] = useState('design');
   const [previewMode, setPreviewMode] = useState('desktop');
@@ -38,6 +43,11 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
   const [isMobile, setIsMobile] = useState(false);
   const [saving, setSaving] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
+  const [deploying, setDeploying] = useState(false);
+  const [deployUrl, setDeployUrl] = useState('');
+  const [portfolioSlug, setPortfolioSlug] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(isEditing);
 
   const [formData, setFormData] = useState({
     fullName: 'Jane Smith',
@@ -171,32 +181,198 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
     setHistoryIndex(newHistory.length - 1);
   };
 
-  const handleSubmit = () => {
-    setSaving(true);
-    
-    setTimeout(() => {
-      setSaving(false);
-      setSuccessModalOpen(true);
+  useEffect(() => {
+    if (isEditing && slug) {
+      loadPortfolioData();
+    }
+  }, [slug, isEditing]);
+
+  const loadPortfolioData = async () => {
+    try {
+      setLoading(true);
+      setError('');
+
+      const { data: { session } } = await supabase.auth.getSession();
       
-      console.log('Portfolio Data Saved:', {
-        formData,
-        sections,
-        timestamp: new Date().toISOString()
+      if (!session) {
+        setError("Please log in to edit your portfolio");
+        setLoading(false);
+        return;
+      }
+
+      // Fetch portfolio from database
+      const { data: portfolio, error: portfolioError } = await supabase
+        .from('portfolios')
+        .select('*')
+        .eq('slug', slug)
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (portfolioError) {
+        throw new Error('Portfolio not found or you do not have permission to edit it');
+      }
+
+      // Load data from database
+      if (portfolio.form_data) {
+        setFormData(portfolio.form_data);
+      }
+      
+      if (portfolio.sections) {
+        setSections(portfolio.sections);
+      }
+
+      console.log('Portfolio loaded:', {
+        slug: portfolio.slug,
+        formData: portfolio.form_data,
+        sections: portfolio.sections
       });
-    }, 1500);
+
+    } catch (err) {
+      console.error('Error loading portfolio:', err);
+      setError((err as Error).message || 'Failed to load portfolio');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeploy = () => {
-    console.log('Deploying portfolio with data:', formData);
-    onSave({
-      formData,
-      sections,
-      metadata: {
-        createdAt: new Date().toISOString(),
-        version: '1.0'
+  const handleSubmit = async () => {
+    setSaving(true);
+    setError('');
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        setError("Please log in to save your portfolio");
+        setSaving(false);
+        return;
       }
-    });
+
+      // Choose endpoint based on whether we're editing or creating
+      const endpoint = isEditing 
+        ? `${import.meta.env.VITE_API_URL}/api/templates/update-portfolio`
+        : `${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`;
+
+      const body = isEditing
+        ? {
+            slug: portfolioSlug,
+            templateId: 'professional-writer-template',
+            formData,
+            sections,
+          }
+        : {
+            templateId: 'professional-writer-template',
+            formData,
+            sections,
+          };
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.status === 413) {
+        throw new Error('Content is too large. Please reduce the amount of content and try again.');
+      }
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.code === 'FREE_TEMPLATE_LIMIT_REACHED') {
+          throw new Error("You've already used your free template. Upgrade to Pro for unlimited portfolios!");
+        }
+        if (data.code === 'PRO_TEMPLATE_REQUIRED') {
+          throw new Error("This template requires a Pro subscription. Upgrade to unlock all templates!");
+        }
+        throw new Error(data.error || `Failed to ${isEditing ? 'update' : 'save'} portfolio`);
+      }
+      
+      // Set slug if creating new portfolio
+      if (!isEditing && data.portfolioSlug) {
+        setPortfolioSlug(data.portfolioSlug);
+      }
+      
+      setSuccessModalOpen(true);
+      
+      console.log(`Portfolio ${isEditing ? 'Updated' : 'Created'}:`, {
+        formData,
+        sections,
+        portfolioSlug: portfolioSlug || data.portfolioSlug,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      setError((err as Error).message || 'An error occurred');
+      console.error('Save error:', err);
+    } finally {
+      setSaving(false);
+    }
   };
+
+  const handleDeploy = async () => {
+    if (!portfolioSlug) {
+      setError('Please save your portfolio first');
+      return;
+    }
+
+    setDeploying(true);
+    setError('');
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/vercel/deploy`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ portfolioId: portfolioSlug }),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to deploy portfolio");
+      }
+
+      const data = await res.json();
+      setDeployUrl(data.url);
+      
+      console.log('Portfolio deployed:', {
+        portfolioSlug,
+        deployUrl: data.url,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      setError((err as Error).message || 'An error occurred');
+      console.error('Deploy error:', err);
+    } finally {
+      setDeploying(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setSuccessModalOpen(false);
+  };
+
+  const handleLater = () => {
+    setSuccessModalOpen(false);
+  };
+
+  const handleCloseError = () => {
+    setError('');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-slate-700 border-t-yellow-400 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-400 text-lg">Loading your portfolio...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isMobile) {
     return (
@@ -308,28 +484,24 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <button onClick={onCancel} className="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-xl font-semibold transition">
-              Cancel
-            </button>
-            <button 
-              onClick={handleSubmit} 
-              disabled={saving} 
-              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 rounded-xl font-bold hover:shadow-lg transition disabled:opacity-50"
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleSubmit}
+              disabled={saving}
+              className="px-6 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 rounded-lg font-bold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {saving ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-                  Saving...
-                </>
+                <span className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                  {isEditing ? 'Updating...' : 'Saving...'}
+                </span>
               ) : (
-                <>
-                  <Save className="w-5 h-5" />
-                  Save & Publish
-                </>
+                isEditing ? 'Update Portfolio' : 'Save Portfolio'
               )}
             </button>
           </div>
+
+          <ErrorPopup error={error} onClose={handleCloseError} />
         </div>
 
         <PreviewCanvas formData={formData} previewMode={previewMode} sections={sections}/>
@@ -337,8 +509,7 @@ export default function PortfolioVisualBuilder({ onSave, onCancel }: any) {
 
       <SampleModal isOpen={sampleModalOpen} currentSample={currentSample} formData={formData} onChange={handleInputChange} onClose={() => setSampleModalOpen(false)} />
       <TestimonialModal isOpen={testimonialModalOpen} currentTestimonial={currentTestimonial} formData={formData} onChange={handleInputChange} onClose={() => setTestimonialModalOpen(false)} />
-      <SuccessModal isOpen={successModalOpen} onClose={() => setSuccessModalOpen(false)} onDeploy={handleDeploy} onLater={() => { setSuccessModalOpen(false); onCancel(); }} />
-
+      <SuccessModal isOpen={successModalOpen} onClose={handleCloseModal} onDeploy={handleDeploy} onLater={handleLater} deploying={deploying} deployUrl={deployUrl} portfolioSlug={portfolioSlug}/>          
       <Styles />
     </div>
   );
@@ -885,28 +1056,118 @@ function TestimonialModal({ isOpen, currentTestimonial, formData, onChange, onCl
   );
 }
 
-function SuccessModal({ isOpen, onClose, onDeploy, onLater }: any) {
+function SuccessModal({ isOpen, onClose, onDeploy, onLater, deploying, deployUrl, portfolioSlug }: any) {
   if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
       <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-8 max-w-lg w-full animate-slideUp">
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6"><Check className="w-10 h-10 text-green-400" /></div>
-          <h2 className="text-3xl font-bold mb-3">Portfolio Saved!</h2>
-          <p className="text-slate-400 text-lg">What would you like to do next?</p>
-          <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-lg"><X className="w-5 h-5" /></button>
+        <div className="relative mb-8">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Check className="w-10 h-10 text-green-400" />
+            </div>
+            <h2 className="text-3xl font-bold mb-3 text-slate-50">Portfolio Saved!</h2>
+            <p className="text-slate-400 text-lg">What would you like to do next?</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="absolute top-0 right-0 p-2 hover:bg-slate-700 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-slate-400" />
+          </button>
         </div>
+
+        {/* Action Buttons */}
         <div className="space-y-4">
-          <button onClick={onDeploy} className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 rounded-xl font-bold hover:shadow-lg group"><Rocket className="w-5 h-5 group-hover:translate-x-1 transition-transform" />Deploy to Vercel</button>
-          <button onClick={onDeploy} className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-slate-700/50 hover:bg-slate-700 border-2 border-slate-600/50 hover:border-yellow-400 text-slate-200 rounded-xl font-bold group"><Globe className="w-5 h-5 group-hover:rotate-12 transition-transform" />Deploy with Custom Domain</button>
-          <button onClick={onLater} className="w-full px-6 py-3 text-slate-400 hover:text-slate-200 font-semibold">I'll do this later</button>
+          {portfolioSlug && (
+            <a
+              href={`${import.meta.env.VITE_API_URL}/api/templates/preview?slug=${portfolioSlug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-slate-700/50 hover:bg-slate-700 border-2 border-slate-600/50 hover:border-blue-400 text-slate-200 rounded-xl font-bold group transition-all"
+            >
+              <Globe className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              Preview Portfolio
+            </a>
+          )}
+
+          <button
+            onClick={onDeploy}
+            disabled={deploying}
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 rounded-xl font-bold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed group transition-all"
+          >
+            {deploying ? (
+              <>
+                <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                Deploying...
+              </>
+            ) : (
+              <>
+                <Rocket className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                Deploy to Vercel
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={onLater}
+            className="w-full px-6 py-3 text-slate-400 hover:text-slate-200 font-semibold transition-colors"
+          >
+            I'll do this later
+          </button>
         </div>
+
+        {/* Deployed URL */}
+        {deployUrl && (
+          <div className="mt-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl">
+            <p className="text-green-400 font-semibold mb-2">✅ Successfully Deployed!</p>
+            <a
+              href={deployUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-green-300 hover:text-green-200 break-all underline text-sm"
+            >
+              {deployUrl}
+            </a>
+          </div>
+        )}
+
+        {/* Info Box */}
         <div className="mt-8 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
           <div className="flex items-start gap-3">
             <ExternalLink className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-blue-300">You can deploy or add a custom domain anytime from your dashboard.</p>
+            <p className="text-sm text-blue-300">
+              You can deploy or add a custom domain anytime from your dashboard.
+            </p>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ErrorPopup({ error, onClose }: { error: string; onClose: () => void }) {
+  if (!error) return null;
+
+  return (
+    <div className="fixed top-16 right-6 z-50 animate-slideIn">
+      <div className="bg-red-500/20 border-red-500/30  rounded-xl p-4 pr-12 backdrop-blur-sm shadow-2xl max-w-md">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+            <AlertCircle className="w-5 h-5 text-red-400" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-red-500 font-semibold mb-1">Error</h3>
+            <p className="text-red-400 text-sm">{error}</p>
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 p-1.5 hover:bg-red-500/20 rounded-lg transition-colors"
+        >
+          <X className="w-4 h-4 text-red-400" />
+        </button>
       </div>
     </div>
   );
