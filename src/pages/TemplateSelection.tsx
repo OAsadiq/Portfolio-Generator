@@ -52,13 +52,6 @@ const TemplateSelection = () => {
           const errorData = await res.json();
           throw new Error(errorData.error || `Failed to load templates (Status: ${res.status})`);
         }
-
-        const contentType = res.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          const text = await res.text();
-          console.error('Non-JSON response:', text.substring(0, 200));
-          throw new Error('Server error: Invalid response format');
-        }
         
         const data = await res.json();
 

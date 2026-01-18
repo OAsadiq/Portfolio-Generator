@@ -7,7 +7,11 @@ import {
   Eye, AlertCircle, Undo, Redo, Settings, Palette, Type,
   Layout, Trash2, Plus, GripVertical, X, Check, Link,
   FileText, ChevronDown, ChevronUp, Monitor, Smartphone, Tablet, Sparkles,
-  Rocket, Globe, ExternalLink, Footprints
+  Rocket, Globe, ExternalLink, Footprints,
+  User,
+  BookOpen,
+  MessageSquare,
+  Mail
 } from 'lucide-react';
 
 const COLOR_PRESETS = [
@@ -20,13 +24,22 @@ const COLOR_PRESETS = [
 ];
 
 const INITIAL_SECTIONS = [
-  { id: 'hero', name: 'Hero Section', visible: true, order: 0, icon: <Layout className="w-4 h-4" /> },
-  { id: 'specialties', name: 'Specialties', visible: true, order: 1, icon: <Sparkles className="w-4 h-4" /> },
-  { id: 'samples', name: 'Writing Samples', visible: true, order: 2, icon: <FileText className="w-4 h-4" /> },
-  { id: 'testimonials', name: 'Testimonials', visible: true, order: 3, icon: <Type className="w-4 h-4" /> },
-  { id: 'contact', name: 'Contact', visible: true, order: 4, icon: <Link className="w-4 h-4" /> },
+  { id: 'hero', name: 'Hero', visible: true, order: 0, icon: <User className="w-4 h-4" /> },
+  { id: 'specialties', name: 'Specialties', visible: true, order: 1, icon: <FileText className="w-4 h-4" /> },
+  { id: 'samples', name: 'Samples', visible: true, order: 2, icon: <BookOpen className="w-4 h-4" /> },
+  { id: 'testimonials', name: 'Testimonials', visible: true, order: 3, icon: <MessageSquare className="w-4 h-4" /> },
+  { id: 'contact', name: 'Contact', visible: true, order: 4, icon: <Mail className="w-4 h-4" /> },
   { id: 'footer', name: 'Footer', visible: true, order: 5, icon: <Footprints className="w-4 h-4" /> },
 ];
+
+const SECTION_METADATA = {
+  'hero': { name: 'Hero', icon: <User className="w-4 h-4" /> },
+  'specialties': { name: 'Specialties', icon: <FileText className="w-4 h-4" /> },
+  'samples': { name: 'Samples', icon: <BookOpen className="w-4 h-4" /> },
+  'testimonials': { name: 'Testimonials', icon: <MessageSquare className="w-4 h-4" /> },
+  'contact': { name: 'Contact', icon: <Mail className="w-4 h-4" /> },
+  'footer': { name: 'Footer', icon: <Footprints className="w-4 h-4" /> },
+};
 
 
 export default function PortfolioVisualBuilder({ onCancel }: any) {
@@ -132,7 +145,11 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
   };
 
   const toggleSection = (id: string) => {
-    setSections(sections.map(s => s.id === id ? { ...s, visible: !s.visible } : s));
+    setSections(prev => prev.map(section => 
+      section.id === id 
+        ? { ...section, visible: !section.visible }
+        : section
+    ));
   };
 
   const moveSectionUp = (index: number) => {
@@ -189,6 +206,27 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
     }
   }, [slug, isEditing]);
 
+  const normalizeSections = (dbSections: any[]) => {
+    if (!dbSections || dbSections.length === 0) {
+      return INITIAL_SECTIONS;
+    }
+
+    return dbSections.map(section => {
+      const metadata = SECTION_METADATA[section.id as keyof typeof SECTION_METADATA] || { 
+        name: section.id, 
+        icon: <FileText className="w-4 h-4" /> 
+      };
+      
+      return {
+        id: section.id,
+        name: section.name || metadata.name,
+        icon: metadata.icon, 
+        visible: section.enabled !== undefined ? section.enabled : (section.visible !== undefined ? section.visible : true),
+        order: section.order !== undefined ? section.order : 0,
+      };
+    }).sort((a, b) => a.order - b.order);
+  };
+
   const loadPortfolioData = async () => {
     try {
       setLoading(true);
@@ -231,19 +269,16 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         console.warn('No form_data found in portfolio');
       }
       
-      if (portfolio.sections) {
-        setSections(portfolio.sections);
+      if (portfolio.sections && portfolio.sections.length > 0) {
+        const normalized = normalizeSections(portfolio.sections);
+        console.log('Setting normalized sections:', normalized);
+        setSections(normalized);
       } else {
-        console.warn('No sections found in portfolio');
+        console.log('No sections in DB, using defaults');
+        setSections(INITIAL_SECTIONS);
       }
 
-      console.log('Portfolio loaded successfully:', {
-        slug: portfolio.slug,
-        hasFormData: !!portfolio.form_data,
-        hasSections: !!portfolio.sections,
-        formDataKeys: portfolio.form_data ? Object.keys(portfolio.form_data) : [],
-        sectionsCount: portfolio.sections ? portfolio.sections.length : 0
-      });
+      console.log('Portfolio loaded successfully');
 
     } catch (err) {
       console.error('Error loading portfolio:', err);
@@ -251,6 +286,14 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const convertSectionsForSave = (sections: any[]) => {
+    return sections.map(section => ({
+      id: section.id,
+      enabled: section.visible,
+      order: section.order,
+    }));
   };
 
   const handleSubmit = async () => {
@@ -270,27 +313,14 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         ? `${import.meta.env.VITE_API_URL}/api/templates/update-portfolio`
         : `${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`;
 
-      const body = isEditing
-        ? {
-            slug: portfolioSlug,
-            templateId: 'professional-writer-template',
-            formData,
-            sections,
-          }
-        : {
-            templateId: 'professional-writer-template',
-            formData,
-            sections,
-          };
+      const sectionsForSave = convertSectionsForSave(sections);
 
-      console.log('Submitting portfolio:', {
-        isEditing,
-        endpoint,
+      const body = {
         slug: portfolioSlug,
-        hasFormData: !!formData,
-        hasSections: !!sections,
-        body
-      });
+        templateId: 'professional-writer-template',
+        formData,
+        sections: sectionsForSave,
+      };
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -396,7 +426,6 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
   };
 
   const handleCancel = () => {
-    // Show confirmation dialog
     setShowCancelConfirm(true);
   };
 
@@ -405,7 +434,6 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
       onCancel();
     } else if (isEditing) {
       navigate('/dashboard');
-      navigate('/templates');
     }
   };
 
@@ -451,7 +479,9 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         <div className="p-6 border-b border-slate-700/50">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-slate-900" />
+              <svg className="w-6 h-6 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
             </div>
             <div>
               <h2 className="text-lg font-bold">Foliobase</h2>
@@ -792,27 +822,81 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
 }
 
 function LayoutTab({ sections, onToggle, onMoveUp, onMoveDown }: any) {
+  if (!sections || sections.length === 0) {
+    return (
+      <div>
+        <h3 className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+          <Layout className="w-4 h-4" />
+          Section Order
+        </h3>
+        <div className="p-8 text-center bg-slate-800/30 rounded-xl border-2 border-dashed border-slate-700">
+          <p className="text-slate-400 mb-2">No sections available</p>
+          <p className="text-xs text-slate-500">Sections will appear here once loaded</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <h3 className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2"><Layout className="w-4 h-4" />Section Order</h3>
+      <h3 className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+        <Layout className="w-4 h-4" />
+        Section Order
+      </h3>
       <p className="text-xs text-slate-400 mb-4">Reorder sections or toggle visibility</p>
       <div className="space-y-2">
-        {sections.map((section: any, i: number) => (
-          <div key={section.id} className={`p-4 rounded-xl border-2 transition ${section.visible ? 'bg-slate-900/50 border-slate-700' : 'bg-slate-800/30 border-slate-700/50 opacity-50'}`}>
-            <div className="flex items-center gap-3">
-              <GripVertical className="w-5 h-5 text-slate-500 cursor-grab" />
-              <div className="flex-1 flex items-center gap-3">
-                <div className={`w-8 h-8 p-2 rounded-lg flex items-center justify-center ${section.visible ? 'bg-yellow-400/20 text-yellow-400' : 'bg-slate-700/50 text-slate-600'}`}>
-                  {section.icon}
+        {sections.map((section: any, i: number) => {
+          const isVisible = section.visible !== undefined ? section.visible : true;
+          const sectionName = section.name || section.id || 'Unknown Section';
+          const sectionIcon = section.icon || <FileText className="w-4 h-4" />;
+
+          return (
+            <div 
+              key={section.id || i} 
+              className={`p-4 rounded-xl border-2 transition ${
+                isVisible 
+                  ? 'bg-slate-900/50 border-slate-700' 
+                  : 'bg-slate-800/30 border-slate-700/50 opacity-50'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <GripVertical className="w-5 h-5 text-slate-500 cursor-grab" />
+                <div className="flex-1 flex items-center gap-3">
+                  <div className={`w-8 h-8 p-2 rounded-lg flex items-center justify-center ${
+                    isVisible 
+                      ? 'bg-yellow-400/20 text-yellow-400' 
+                      : 'bg-slate-700/50 text-slate-600'
+                  }`}>
+                    {sectionIcon}
+                  </div>
+                  <span className="font-bold text-sm">{sectionName}</span>
                 </div>
-                <span className="font-bold text-sm">{section.name}</span>
+                <button 
+                  onClick={() => onMoveUp(i)} 
+                  disabled={i === 0} 
+                  className="p-2 hover:bg-slate-700 rounded-lg disabled:opacity-30 transition"
+                >
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => onMoveDown(i)} 
+                  disabled={i === sections.length - 1} 
+                  className="p-2 hover:bg-slate-700 rounded-lg disabled:opacity-30 transition"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => onToggle(section.id)} 
+                  className="p-2 hover:bg-slate-700 rounded-lg transition"
+                >
+                  <Eye className={`w-4 h-4 ${
+                    isVisible ? 'text-green-400' : 'text-slate-600'
+                  }`} />
+                </button>
               </div>
-              <button onClick={() => onMoveUp(i)} disabled={i === 0} className="p-2 hover:bg-slate-700 rounded-lg disabled:opacity-30 transition"><ChevronUp className="w-4 h-4" /></button>
-              <button onClick={() => onMoveDown(i)} disabled={i === sections.length - 1} className="p-2 hover:bg-slate-700 rounded-lg disabled:opacity-30 transition"><ChevronDown className="w-4 h-4" /></button>
-              <button onClick={() => onToggle(section.id)} className="p-2 hover:bg-slate-700 rounded-lg transition"><Eye className={`w-4 h-4 ${section.visible ? 'text-green-400' : 'text-slate-600'}`} /></button>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
