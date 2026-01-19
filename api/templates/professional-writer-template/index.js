@@ -8,6 +8,32 @@ function getSocialIcon(type) {
   return icons[type] || icons.globe;
 }
 
+function getSampleIcon(type) {
+  const typeIcons = {
+    'blog post': '📝',
+    'case study': '📊',
+    'white paper': '📄',
+    'article': '✍️',
+    'email campaign': '📧',
+    'social media': '📱',
+    'newsletter': '📮',
+    'press release': '📰',
+    'ebook': '📚',
+    'guide': '🗺️',
+    'tutorial': '💡',
+    'research': '🔬',
+    'report': '📈',
+    'landing page': '🎯',
+    'product description': '🏷️',
+    'script': '🎬',
+    'technical documentation': '⚙️',
+    'user manual': '📖'
+  };
+  
+  const normalizedType = type?.toLowerCase().trim() || '';
+  return typeIcons[normalizedType] || '📄';
+}
+
 function buildSamples(data) {
   let samplesHTML = "";
   let modalsHTML = "";
@@ -24,9 +50,15 @@ function buildSamples(data) {
       const hasContent = content && content.trim();
       const hasLink = link && link.trim();
       
+      // Get icon based on type or use custom image
+      const displayIcon = image ? `<img src="${image}" alt="${title}" class="sample-card-image" />` : 
+                         `<div class="sample-emoji-icon">${getSampleIcon(type)}</div>`;
+      
       samplesHTML += `
         <article class="sample-card">
-          ${image ? `<div class="sample-image" style="background-image: url('${image}');"></div>` : ''}
+          <div class="sample-image-container">
+            ${displayIcon}
+          </div>
           <div class="sample-content">
             ${type ? `<span class="sample-type">${type}</span>` : ""}
             <h3 class="sample-title">${title}</h3>
@@ -347,6 +379,8 @@ function getStyles(primaryColor, accentColor) {
       overflow: hidden;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
     }
 
     .sample-card:hover {
@@ -355,29 +389,53 @@ function getStyles(primaryColor, accentColor) {
       box-shadow: var(--shadow-xl);
     }
 
-    .sample-image {
+    /* Image/Icon Container */
+    .sample-image-container {
       width: 100%;
       height: 200px;
-      background-size: cover;
-      background-position: center;
-      background-color: var(--bg-tertiary);
+      background: linear-gradient(135deg, ${primaryColor}15, ${accentColor}15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* For uploaded images */
+    .sample-card-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* For emoji/icon fallback */
+    .sample-emoji-icon {
+      font-size: 5rem;
+      line-height: 1;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
     }
 
     .sample-content {
       padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
     }
 
+    /* Fixed Sample Type Badge */
     .sample-type {
       display: inline-block;
-      padding: 0.375rem 1rem;
-      background: linear-gradient(135deg, var(--primary)15, var(--accent)15);
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, ${primaryColor}20, ${accentColor}20);
       color: var(--primary);
       border-radius: 100px;
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       font-weight: 700;
       margin-bottom: 1rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      align-self: flex-start;
+      border: 1px solid ${primaryColor}30;
     }
 
     .sample-title {
@@ -392,12 +450,14 @@ function getStyles(primaryColor, accentColor) {
       color: var(--text-secondary);
       margin-bottom: 1.5rem;
       line-height: 1.7;
+      flex: 1;
     }
 
     .sample-actions {
       display: flex;
       gap: 0.75rem;
       flex-wrap: wrap;
+      margin-top: auto;
     }
 
     .sample-btn {
@@ -523,7 +583,7 @@ function getStyles(primaryColor, accentColor) {
     .modal-type {
       display: inline-block;
       padding: 0.5rem 1.25rem;
-      background: linear-gradient(135deg, var(--primary)15, var(--accent)15);
+      background: linear-gradient(135deg, ${primaryColor}20, ${accentColor}20);
       color: var(--primary);
       border-radius: 100px;
       font-size: 0.875rem;
@@ -531,6 +591,7 @@ function getStyles(primaryColor, accentColor) {
       margin-bottom: 1.5rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      border: 1px solid ${primaryColor}30;
     }
 
     .modal-title {
@@ -755,6 +816,14 @@ function getStyles(primaryColor, accentColor) {
         grid-template-columns: 1fr;
       }
 
+      .sample-image-container {
+        height: 180px;
+      }
+
+      .sample-emoji-icon {
+        font-size: 4rem;
+      }
+
       .modal-content {
         padding: 2rem 1.5rem;
       }
@@ -805,35 +874,6 @@ const professionalWriterTemplate = {
     { name: "specialty2", label: "Specialty 2", type: "text", placeholder: "e.g., Email Campaigns", section: "specialties" },
     { name: "specialty3", label: "Specialty 3", type: "text", placeholder: "e.g., Case Studies", section: "specialties" },
     { name: "specialty4", label: "Specialty 4", type: "text", placeholder: "e.g., White Papers", section: "specialties" },
-    
-    // Writing Samples (with modal support)
-    { name: "sample1Title", label: "Sample 1 - Title", type: "text", required: true, section: "samples" },
-    { name: "sample1Type", label: "Sample 1 - Type", type: "text", placeholder: "Blog Post, Article, etc.", section: "samples" },
-    { name: "sample1Description", label: "Sample 1 - Short Description", type: "textarea", section: "samples" },
-    { name: "sample1Content", label: "Sample 1 - Full Content (or leave empty for link)", type: "textarea", section: "samples" },
-    { name: "sample1Link", label: "Sample 1 - External Link", type: "text", section: "samples" },
-    { name: "sample1Image", label: "Sample 1 - Cover Image", type: "file", section: "samples" },
-    
-    { name: "sample2Title", label: "Sample 2 - Title", type: "text", section: "samples" },
-    { name: "sample2Type", label: "Sample 2 - Type", type: "text", section: "samples" },
-    { name: "sample2Description", label: "Sample 2 - Short Description", type: "textarea", section: "samples" },
-    { name: "sample2Content", label: "Sample 2 - Full Content", type: "textarea", section: "samples" },
-    { name: "sample2Link", label: "Sample 2 - External Link", type: "text", section: "samples" },
-    { name: "sample2Image", label: "Sample 2 - Cover Image", type: "file", section: "samples" },
-    
-    { name: "sample3Title", label: "Sample 3 - Title", type: "text", section: "samples" },
-    { name: "sample3Type", label: "Sample 3 - Type", type: "text", section: "samples" },
-    { name: "sample3Description", label: "Sample 3 - Short Description", type: "textarea", section: "samples" },
-    { name: "sample3Content", label: "Sample 3 - Full Content", type: "textarea", section: "samples" },
-    { name: "sample3Link", label: "Sample 3 - External Link", type: "text", section: "samples" },
-    { name: "sample3Image", label: "Sample 3 - Cover Image", type: "file", section: "samples" },
-    
-    { name: "sample4Title", label: "Sample 4 - Title", type: "text", section: "samples" },
-    { name: "sample4Type", label: "Sample 4 - Type", type: "text", section: "samples" },
-    { name: "sample4Description", label: "Sample 4 - Short Description", type: "textarea", section: "samples" },
-    { name: "sample4Content", label: "Sample 4 - Full Content", type: "textarea", section: "samples" },
-    { name: "sample4Link", label: "Sample 4 - External Link", type: "text", section: "samples" },
-    { name: "sample4Image", label: "Sample 4 - Cover Image", type: "file", section: "samples" },
     
     // Testimonials
     { name: "testimonial1", label: "Testimonial 1", type: "textarea", section: "testimonials" },
@@ -939,7 +979,100 @@ const professionalWriterTemplate = {
       },
       
       samples: () => {
-        const { samplesHTML, modalsHTML } = buildSamples(data);
+        const samples = data.samples || [];
+        
+        if (samples.length === 0) {
+          return `
+            <section class="section">
+              <div class="container">
+                <div class="section-header">
+                  <h2 class="section-title">Featured Work</h2>
+                  <p class="section-subtitle">A curated selection of my best writing samples and published articles</p>
+                </div>
+                <div class="samples-grid">
+                  <p style="text-align:center;color:var(--text-tertiary);font-size:1.125rem;">No samples added yet.</p>
+                </div>
+              </div>
+            </section>
+          `;
+        }
+        
+        let samplesHTML = "";
+        let modalsHTML = "";
+        
+        samples.forEach((sample, index) => {
+          const hasContent = sample.content && sample.content.trim();
+          const hasLink = sample.link && sample.link.trim();
+          
+          const displayIcon = sample.image ? 
+            `<img src="${sample.image}" alt="${sample.title}" class="sample-card-image" />` : 
+            `<div class="sample-emoji-icon">${getSampleIcon(sample.type)}</div>`;
+          
+          samplesHTML += `
+            <article class="sample-card">
+              <div class="sample-image-container">
+                ${displayIcon}
+              </div>
+              <div class="sample-content">
+                ${sample.type ? `<span class="sample-type">${sample.type}</span>` : ""}
+                <h3 class="sample-title">${sample.title}</h3>
+                ${sample.description ? `<p class="sample-description">${sample.description}</p>` : ""}
+                
+                <div class="sample-actions">
+                  ${hasContent ? `
+                    <button class="sample-btn sample-btn-primary" onclick="openModal('modal-${index}')">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M2 8C2 8 4.5 3 8 3C11.5 3 14 8 14 8C14 8 11.5 13 8 13C4.5 13 2 8 2 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                      Read Sample
+                    </button>
+                  ` : ''}
+                  ${hasLink ? `
+                    <a href="${sample.link}" target="_blank" class="sample-btn sample-btn-secondary">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                      View Article
+                    </a>
+                  ` : ''}
+                </div>
+              </div>
+            </article>
+          `;
+          
+          if (hasContent) {
+            modalsHTML += `
+              <div id="modal-${index}" class="modal">
+                <div class="modal-overlay" onclick="closeModal('modal-${index}')"></div>
+                <div class="modal-container">
+                  <button class="modal-close" onclick="closeModal('modal-${index}')">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                  <div class="modal-content">
+                    ${sample.type ? `<span class="modal-type">${sample.type}</span>` : ""}
+                    <h2 class="modal-title">${sample.title}</h2>
+                    <div class="modal-body">
+                      ${sample.content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
+                    </div>
+                    ${hasLink ? `
+                      <a href="${sample.link}" target="_blank" class="modal-cta">
+                        View Original Article
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                      </a>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        });
         
         return `
           <section class="section">
@@ -949,7 +1082,7 @@ const professionalWriterTemplate = {
                 <p class="section-subtitle">A curated selection of my best writing samples and published articles</p>
               </div>
               <div class="samples-grid">
-                ${samplesHTML || '<p style="text-align:center;color:var(--text-tertiary);font-size:1.125rem;">No samples added yet.</p>'}
+                ${samplesHTML}
               </div>
             </div>
           </section>

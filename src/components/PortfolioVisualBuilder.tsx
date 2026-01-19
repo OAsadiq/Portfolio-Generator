@@ -11,7 +11,9 @@ import {
   User,
   BookOpen,
   MessageSquare,
-  Mail
+  Mail,
+  Upload,
+  Edit2
 } from 'lucide-react';
 
 const COLOR_PRESETS = [
@@ -315,20 +317,18 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
 
       const sectionsForSave = convertSectionsForSave(sections);
 
-      const body = {
-        slug: portfolioSlug,
-        templateId: 'professional-writer-template',
-        formData,
-        sections: sectionsForSave,
-      };
-
       const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${session.access_token}`
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          slug: portfolioSlug,
+          templateId: 'professional-writer-template',
+          formData,
+          sections: sectionsForSave,
+        }),
       });
 
       if (res.status === 413) {
@@ -336,7 +336,6 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
       }
 
       const data = await res.json();
-      console.log('Response from API:', data);
 
       if (!res.ok) {
         if (data.code === 'FREE_TEMPLATE_LIMIT_REACHED') {
@@ -359,16 +358,9 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
       }
       
       setSuccessModalOpen(true);
-      
-      console.log(`Portfolio ${isEditing ? 'Updated' : 'Created'}:`, {
-        formData,
-        sections,
-        portfolioSlug: portfolioSlug || data.portfolioSlug,
-        timestamp: new Date().toISOString()
-      });
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Save error:', err);
     } finally {
       setSaving(false);
     }
@@ -672,12 +664,79 @@ function DesignTab({ formData, onChange }: any) {
 }
 
 function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpenTestimonialModal, onDeleteSample, onDeleteTestimonial }: any) {
+  const getSampleCount = () => {
+    let count = 0;
+    for (let i = 1; i <= 100; i++) { 
+      if (formData[`sample${i}Title`]) {
+        count = i;
+      }
+    }
+    return count;
+  };
+
+  const [totalSamples, setTotalSamples] = useState(getSampleCount() || 0);
+
+  const addNewSample = () => {
+    const newSampleNumber = totalSamples + 1;
+    setTotalSamples(newSampleNumber);
+    onOpenSampleModal(newSampleNumber);
+  };
+
+  const handleDeleteSample = (sampleNum: number) => {
+    for (let i = sampleNum; i < totalSamples; i++) {
+      const nextNum = i + 1;
+      onChange(`sample${i}Title`, formData[`sample${nextNum}Title`] || '');
+      onChange(`sample${i}Type`, formData[`sample${nextNum}Type`] || '');
+      onChange(`sample${i}Description`, formData[`sample${nextNum}Description`] || '');
+      onChange(`sample${i}Content`, formData[`sample${nextNum}Content`] || '');
+      onChange(`sample${i}Link`, formData[`sample${nextNum}Link`] || '');
+      onChange(`sample${i}Image`, formData[`sample${nextNum}Image`] || '');
+    }
+    
+    onChange(`sample${totalSamples}Title`, '');
+    onChange(`sample${totalSamples}Type`, '');
+    onChange(`sample${totalSamples}Description`, '');
+    onChange(`sample${totalSamples}Content`, '');
+    onChange(`sample${totalSamples}Link`, '');
+    onChange(`sample${totalSamples}Image`, '');
+    
+    setTotalSamples(totalSamples - 1);
+    
+    if (onDeleteSample) {
+      onDeleteSample(sampleNum);
+    }
+  };
+
+  const getSampleIcon = (type: string) => {
+    const icons: { [key: string]: string } = {
+      'blog post': '📝',
+      'case study': '📊',
+      'white paper': '📄',
+      'article': '✍️',
+      'email campaign': '📧',
+      'social media': '📱',
+      'newsletter': '📮',
+      'press release': '📰',
+      'ebook': '📚',
+      'guide': '🗺️',
+      'tutorial': '💡',
+      'research': '🔬',
+      'report': '📈',
+      'landing page': '🎯',
+      'product description': '🏷️',
+      'script': '🎬',
+      'technical documentation': '⚙️',
+      'user manual': '📖'
+    };
+    
+    return icons[type?.toLowerCase()] || '📄';
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2"><Layout className="w-4 h-4" />Hero Section</h3>
+        <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2"><User className="w-4 h-4" />Hero Section</h3>
         <div className="space-y-4">
-          {/* Profile Image Input */}
           <div>
             <label className="block text-sm font-bold text-slate-300 mb-2">Profile Image</label>
             <div className="space-y-3">
@@ -767,29 +826,114 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
       </div>
 
       <div className="pt-6 border-t border-slate-700/50">
-        <div className="flex justify-between mb-4">
-          <h3 className="text-sm font-bold text-slate-300 flex items-center gap-2"><FileText className="w-4 h-4" />Writing Samples</h3>
-          <button onClick={() => { const slot = [1,2,3,4].find(n => !formData[`sample${n}Title`]); onOpenSampleModal(slot || 1); }} className="px-3 py-1.5 bg-yellow-400 text-slate-900 rounded-lg text-xs font-bold hover:bg-yellow-300 flex items-center gap-1.5"><Plus className="w-3.5 h-3.5" />Add</button>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-sm font-bold text-slate-300 flex items-center gap-2"><BookOpen className="w-4 h-4" />Writing Samples</h3>
+          </div>
+          <button
+            onClick={addNewSample}
+            className="px-3 py-1.5 bg-yellow-400 text-slate-900 rounded-lg text-xs font-bold hover:bg-yellow-300 flex items-center gap-1.5"
+          >
+            <Plus className="w-4 h-4" />
+            Add
+          </button>
         </div>
-        <div className="space-y-2">
-          {[1,2,3,4].map(num => formData[`sample${num}Title`] ? (
-            <div key={num} onClick={() => onOpenSampleModal(num)} className="p-4 bg-slate-900/50 border border-slate-700 rounded-xl hover:border-yellow-400/50 transition cursor-pointer group">
-              <div className="flex justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold truncate group-hover:text-yellow-400">{formData[`sample${num}Title`]}</p>
-                  <p className="text-xs text-slate-500 truncate mt-1">{formData[`sample${num}Type`] || 'No type'}</p>
+
+        {totalSamples === 0 ? (
+          <div className="text-center py-8 bg-slate-900/30 rounded-xl border-2 border-dashed border-slate-700">
+            <p className="text-slate-400 text-sm mb-3">No samples added yet</p>
+            <button
+              onClick={addNewSample}
+              className="px-4 py-2 bg-yellow-400 hover:bg-yellow-300 text-slate-900 rounded-lg text-sm font-bold transition"
+            >
+              Add Your First Sample
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {Array.from({ length: totalSamples }, (_, i) => i + 1).map((num) => {
+              const title = formData[`sample${num}Title`];
+              const type = formData[`sample${num}Type`];
+              const image = formData[`sample${num}Image`];
+              
+              if (!title) return null;
+
+              return (
+                <div
+                  key={num}
+                  className="bg-slate-900/50 border border-slate-700 rounded-xl p-4 hover:border-yellow-400/30 transition group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      {image ? (
+                        <img
+                          src={image}
+                          alt={title}
+                          className="w-16 h-16 rounded-lg object-cover border-2 border-slate-600"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-yellow-400/20 to-yellow-500/20 border-2 border-slate-600 flex items-center justify-center text-3xl">
+                          {getSampleIcon(type)}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 overflow-hidden">
+                          <h4 className="font-bold text-slate-200 mb-1 truncate">
+                            {title}
+                          </h4>
+                          {type && (
+                            <span className="inline-block px-2 py-1 bg-yellow-400/20 text-yellow-400 rounded text-xs font-semibold">
+                              {type}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => onOpenSampleModal(num)}
+                            className="p-2 hover:bg-slate-700 rounded-lg transition"
+                            title="Edit sample"
+                          >
+                            <Edit2 className="w-4 h-4 text-slate-400" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSample(num)}
+                            className="p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition"
+                            title="Delete sample"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {formData[`sample${num}Description`] && (
+                        <p className="text-xs text-slate-400 mt-2 line-clamp-2">
+                          {formData[`sample${num}Description`]}
+                        </p>
+                      )}
+
+                      <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                        {formData[`sample${num}Content`] && (
+                          <span className="flex items-center gap-1">
+                            ✓ Has content
+                          </span>
+                        )}
+                        {formData[`sample${num}Link`] && (
+                          <span className="flex items-center gap-1">
+                            🔗 Has link
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); onDeleteSample(num); }} className="p-2 h-fit hover:bg-red-500/20 rounded-lg transition"><Trash2 className="w-4 h-4 text-red-400" /></button>
-              </div>
-            </div>
-          ) : null)}
-          {![1,2,3,4].some(n => formData[`sample${n}Title`]) && (
-            <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center">
-              <FileText className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-              <p className="text-sm text-slate-500">No samples added yet</p>
-            </div>
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="pt-6 border-t border-slate-700/50">
@@ -799,13 +943,28 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
         </div>
         <div className="space-y-2">
           {[1,2,3].map(num => formData[`testimonial${num}`] ? (
-            <div key={num} onClick={() => onOpenTestimonialModal(num)} className="p-4 bg-slate-900/50 border border-slate-700 rounded-xl hover:border-yellow-400/50 transition cursor-pointer group">
+            <div key={num}  className="p-4 bg-slate-900/50 border border-slate-700 rounded-xl hover:border-yellow-400/50 transition cursor-pointer group">
               <div className="flex justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-slate-300 line-clamp-2 mb-2">&ldquo;{formData[`testimonial${num}`]}&rdquo;</p>
                   <p className="text-xs font-bold text-slate-500">{formData[`testimonial${num}Author`] || 'No author'}</p>
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); onDeleteTestimonial(num); }} className="p-2 h-fit hover:bg-red-500/20 rounded-lg transition"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => onOpenTestimonialModal(num)}
+                    className="p-2 hover:bg-slate-700 rounded-lg transition"
+                    title="Edit Testimonial"
+                  >
+                    <Edit2 className="w-4 h-4 text-slate-400" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDeleteTestimonial(num); }}
+                    className="p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition"
+                    title="Delete Testimonial"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ) : null)}
@@ -1171,32 +1330,190 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
   return (
     <div className="flex-1 overflow-auto p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       <div className={`bg-white transition-all duration-500 ${isDesktop ? 'w-full max-w-7xl mx-auto' : isTablet ? 'w-[768px] mx-auto' : 'w-[375px] mx-auto'}`}>
-        
-        {/* Render sections in order set by Layout Tab */}
         {visibleSections.map((section: { id: string; }) => renderSection(section.id))}
       </div>
     </div>
   );
 }
 
-function SampleModal({ isOpen, currentSample, formData, onChange, onClose }: any) {
+function SampleModal({ isOpen, currentSample, formData, onChange, onClose, onFileChange }: any) {
   if (!isOpen) return null;
+
+  const sampleTypes = [
+    { value: "", label: "Select type...", emoji: "" },
+    { value: "Blog Post", emoji: "📝" },
+    { value: "Case Study", emoji: "📊" },
+    { value: "White Paper", emoji: "📄" },
+    { value: "Article", emoji: "✍️" },
+    { value: "Email Campaign", emoji: "📧" },
+    { value: "Social Media", emoji: "📱" },
+    { value: "Newsletter", emoji: "📮" },
+    { value: "Press Release", emoji: "📰" },
+    { value: "eBook", emoji: "📚" },
+    { value: "Guide", emoji: "🗺️" },
+    { value: "Tutorial", emoji: "💡" },
+    { value: "Research", emoji: "🔬" },
+    { value: "Report", emoji: "📈" },
+    { value: "Landing Page", emoji: "🎯" },
+    { value: "Product Description", emoji: "🏷️" },
+    { value: "Script", emoji: "🎬" },
+    { value: "Technical Documentation", emoji: "⚙️" },
+    { value: "User Manual", emoji: "📖" }
+  ];
+
+  const currentImage = formData[`sample${currentSample}Image`];
+
+  const handleImageRemove = () => {
+    onChange(`sample${currentSample}Image`, '');
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
       <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar animate-slideUp">
+        {/* Header */}
         <div className="flex justify-between mb-6 pb-6 border-b border-slate-700/50">
-          <div><h3 className="text-xl font-bold">Edit Sample #{currentSample}</h3><p className="text-sm text-slate-400 mt-1">Add content or link</p></div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-lg"><X className="w-5 h-5" /></button>
+          <div>
+            <h3 className="text-xl font-bold">Edit Sample #{currentSample}</h3>
+            <p className="text-sm text-slate-400 mt-1">Add your writing sample details</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-lg transition">
+            <X className="w-5 h-5" />
+          </button>
         </div>
+
+        {/* Form Fields */}
         <div className="space-y-5">
-          <div><label className="block text-sm font-bold text-slate-300 mb-2">Title *</label><input type="text" value={formData[`sample${currentSample}Title`] || ''} onChange={(e) => onChange(`sample${currentSample}Title`, e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="e.g., How AI is Transforming Marketing" /></div>
-          <div><label className="block text-sm font-bold text-slate-300 mb-2">Type</label><input type="text" value={formData[`sample${currentSample}Type`] || ''} onChange={(e) => onChange(`sample${currentSample}Type`, e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="Blog Post, Case Study..." /></div>
-          <div><label className="block text-sm font-bold text-slate-300 mb-2">Description</label><textarea value={formData[`sample${currentSample}Description`] || ''} onChange={(e) => onChange(`sample${currentSample}Description`, e.target.value)} rows={3} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 resize-none focus:outline-none focus:border-yellow-400 custom-scrollbar" placeholder="Brief summary..." /></div>
-          <div><label className="block text-sm font-bold text-slate-300 mb-2">Content</label><textarea value={formData[`sample${currentSample}Content`] || ''} onChange={(e) => onChange(`sample${currentSample}Content`, e.target.value)} rows={6} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 resize-none focus:outline-none focus:border-yellow-400 custom-scrollbar" placeholder="Full content..." /></div>
-          <div><label className="block text-sm font-bold text-slate-300 mb-2">Link</label><input type="url" value={formData[`sample${currentSample}Link`] || ''} onChange={(e) => onChange(`sample${currentSample}Link`, e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="https://..." /></div>
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-bold text-slate-300 mb-2">
+              Title <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="text"
+              value={formData[`sample${currentSample}Title`] || ''}
+              onChange={(e) => onChange(`sample${currentSample}Title`, e.target.value)}
+              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400 transition"
+              placeholder="e.g., How AI is Transforming Marketing"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-300 mb-2">
+              Type
+            </label>
+            <select
+              value={formData[`sample${currentSample}Type`] || ''}
+              onChange={(e) => onChange(`sample${currentSample}Type`, e.target.value)}
+              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400 transition cursor-pointer"
+            >
+              {sampleTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.emoji} {type.label || type.value}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-slate-500 mt-1">
+              An icon will be shown based on the type (if no image is uploaded)
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-300 mb-2">
+              Cover Image (Optional)
+            </label>
+            
+            {currentImage ? (
+              <div className="relative">
+                <img 
+                  src={currentImage} 
+                  alt="Sample cover" 
+                  className="w-full h-48 object-cover rounded-xl border-2 border-slate-700"
+                />
+                <button
+                  onClick={handleImageRemove}
+                  className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition shadow-lg"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 rounded-xl cursor-pointer hover:border-yellow-400 transition bg-slate-900/30">
+                <Upload className="w-8 h-8 text-slate-500 mb-2" />
+                <span className="text-sm text-slate-400">Click to upload image</span>
+                <span className="text-xs text-slate-500 mt-1">PNG, JPG up to 5MB</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => onFileChange && onFileChange(`sample${currentSample}Image`, e)}
+                  className="hidden"
+                />
+              </label>
+            )}
+            <p className="text-xs text-slate-500 mt-1">
+              If no image is uploaded, an emoji icon will be shown based on the type
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-300 mb-2">
+              Short Description
+            </label>
+            <textarea
+              value={formData[`sample${currentSample}Description`] || ''}
+              onChange={(e) => onChange(`sample${currentSample}Description`, e.target.value)}
+              rows={3}
+              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 resize-none focus:outline-none focus:border-yellow-400 custom-scrollbar transition"
+              placeholder="A brief summary that appears on the card..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-300 mb-2">
+              Full Content (Optional)
+            </label>
+            <textarea
+              value={formData[`sample${currentSample}Content`] || ''}
+              onChange={(e) => onChange(`sample${currentSample}Content`, e.target.value)}
+              rows={6}
+              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 resize-none focus:outline-none focus:border-yellow-400 custom-scrollbar transition"
+              placeholder="Full article content that will appear in a modal..."
+            />
+            <p className="text-xs text-slate-500 mt-1">
+              If provided, a "Read Sample" button will be shown
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-300 mb-2">
+              External Link (Optional)
+            </label>
+            <input
+              type="url"
+              value={formData[`sample${currentSample}Link`] || ''}
+              onChange={(e) => onChange(`sample${currentSample}Link`, e.target.value)}
+              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400 transition"
+              placeholder="https://example.com/your-article"
+            />
+            <p className="text-xs text-slate-500 mt-1">
+              Link to the published article or external source
+            </p>
+          </div>
+
+          {/* Action Buttons */}
           <div className="flex gap-3 pt-6 border-t border-slate-700/50">
-            <button onClick={onClose} className="flex-1 px-4 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 rounded-xl font-bold hover:shadow-lg flex items-center justify-center gap-2"><Check className="w-5 h-5" />Done</button>
-            <button onClick={onClose} className="px-4 py-3 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-xl font-semibold">Cancel</button>
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 rounded-xl font-bold hover:shadow-lg flex items-center justify-center gap-2 transition"
+            >
+              <Check className="w-5 h-5" />
+              Done
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-3 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-xl font-semibold transition"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       </div>
