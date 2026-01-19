@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { 
+import {
   Eye, AlertCircle, Undo, Redo, Settings, Palette, Type,
   Layout, Trash2, Plus, GripVertical, X, Check, Link,
   FileText, ChevronDown, ChevronUp, Monitor, Smartphone, Tablet, Sparkles,
@@ -118,7 +118,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
 
   const handleFileChange = async (field: string, file: File | null) => {
     if (!file) return;
-    
+
     try {
       const base64 = await fileToBase64(file);
       const newData = { ...formData, [field]: base64 };
@@ -147,8 +147,8 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
   };
 
   const toggleSection = (id: string) => {
-    setSections(prev => prev.map(section => 
-      section.id === id 
+    setSections(prev => prev.map(section =>
+      section.id === id
         ? { ...section, visible: !section.visible }
         : section
     ));
@@ -177,10 +177,10 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
     updates[`sample${num}Description`] = '';
     updates[`sample${num}Content`] = '';
     updates[`sample${num}Link`] = '';
-    
+
     const newData = { ...formData, ...updates };
     setFormData(newData);
-    
+
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(newData);
     setHistory(newHistory);
@@ -192,10 +192,10 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
     updates[`testimonial${num}`] = '';
     updates[`testimonial${num}Author`] = '';
     updates[`testimonial${num}Role`] = '';
-    
+
     const newData = { ...formData, ...updates };
     setFormData(newData);
-    
+
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(newData);
     setHistory(newHistory);
@@ -214,15 +214,15 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
     }
 
     return dbSections.map(section => {
-      const metadata = SECTION_METADATA[section.id as keyof typeof SECTION_METADATA] || { 
-        name: section.id, 
-        icon: <FileText className="w-4 h-4" /> 
+      const metadata = SECTION_METADATA[section.id as keyof typeof SECTION_METADATA] || {
+        name: section.id,
+        icon: <FileText className="w-4 h-4" />
       };
-      
+
       return {
         id: section.id,
         name: section.name || metadata.name,
-        icon: metadata.icon, 
+        icon: metadata.icon,
         visible: section.enabled !== undefined ? section.enabled : (section.visible !== undefined ? section.visible : true),
         order: section.order !== undefined ? section.order : 0,
       };
@@ -235,7 +235,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
       setError('');
 
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         setError("Please log in to edit your portfolio");
         setLoading(false);
@@ -270,7 +270,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
       } else {
         console.warn('No form_data found in portfolio');
       }
-      
+
       if (portfolio.sections && portfolio.sections.length > 0) {
         const normalized = normalizeSections(portfolio.sections);
         console.log('Setting normalized sections:', normalized);
@@ -311,7 +311,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         return;
       }
 
-      const endpoint = isEditing 
+      const endpoint = isEditing
         ? `${import.meta.env.VITE_API_URL}/api/templates/update-portfolio`
         : `${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`;
 
@@ -352,11 +352,11 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         }
         throw new Error(data.error || `Failed to ${isEditing ? 'update' : 'save'} portfolio`);
       }
-      
+
       if (!isEditing && data.portfolioSlug) {
         setPortfolioSlug(data.portfolioSlug);
       }
-      
+
       setSuccessModalOpen(true);
 
     } catch (err) {
@@ -391,7 +391,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
 
       const data = await res.json();
       setDeployUrl(data.url);
-      
+
       console.log('Portfolio deployed:', {
         portfolioSlug,
         deployUrl: data.url,
@@ -480,15 +480,14 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
               <p className="text-xs text-slate-400">Pro Visual Editor</p>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-4 gap-2 bg-slate-900/50 p-1 rounded-xl border border-slate-700/50">
             {TABS.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex flex-col items-center gap-1.5 py-2.5 px-2 rounded-lg transition ${
-                  activeTab === tab.id ? 'bg-yellow-400 text-slate-900' : 'text-slate-400 hover:text-slate-200'
-                }`}
+                className={`flex flex-col items-center gap-1.5 py-2.5 px-2 rounded-lg transition ${activeTab === tab.id ? 'bg-yellow-400 text-slate-900' : 'text-slate-400 hover:text-slate-200'
+                  }`}
               >
                 {tab.icon}
                 <span className="text-xs font-bold">{tab.label}</span>
@@ -499,8 +498,8 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
           {activeTab === 'content' && (
-            <ContentTab 
-              formData={formData} 
+            <ContentTab
+              formData={formData}
               onChange={handleInputChange}
               onFileChange={handleFileChange}
               onOpenSampleModal={(num: React.SetStateAction<number>) => { setCurrentSample(num); setSampleModalOpen(true); }}
@@ -510,11 +509,11 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
             />
           )}
           {activeTab === 'layout' && (
-            <LayoutTab 
-              sections={sections} 
-              onToggle={toggleSection} 
-              onMoveUp={moveSectionUp} 
-              onMoveDown={moveSectionDown} 
+            <LayoutTab
+              sections={sections}
+              onToggle={toggleSection}
+              onMoveUp={moveSectionUp}
+              onMoveDown={moveSectionDown}
             />
           )}
           {activeTab === 'design' && <DesignTab formData={formData} onChange={handleInputChange} />}
@@ -532,9 +531,9 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
             <button onClick={redo} disabled={historyIndex === history.length - 1} className="p-2 hover:bg-slate-700/50 rounded-lg disabled:opacity-30 transition">
               <Redo className="w-5 h-5" />
             </button>
-            
+
             <div className="h-6 w-px bg-slate-700/50"></div>
-            
+
             <div className="flex gap-2 bg-slate-900/50 p-1 rounded-xl">
               {[
                 { mode: 'desktop', icon: Monitor },
@@ -556,7 +555,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
             <button onClick={handleCancel} className="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-xl font-semibold transition">
               Cancel
             </button>
-            
+
             <button
               onClick={handleSubmit}
               disabled={saving}
@@ -590,7 +589,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
                   <p className="text-sm text-slate-400">Your unsaved changes will be lost</p>
                 </div>
               </div>
-              
+
               <p className="text-slate-300 mb-6">
                 Are you sure you want to cancel? Any unsaved changes will be lost.
               </p>
@@ -613,12 +612,12 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
           </div>
         )}
 
-        <PreviewCanvas formData={formData} previewMode={previewMode} sections={sections}/>
+        <PreviewCanvas formData={formData} previewMode={previewMode} sections={sections} />
       </div>
 
       <SampleModal isOpen={sampleModalOpen} currentSample={currentSample} formData={formData} onChange={handleInputChange} onClose={() => setSampleModalOpen(false)} />
       <TestimonialModal isOpen={testimonialModalOpen} currentTestimonial={currentTestimonial} formData={formData} onChange={handleInputChange} onClose={() => setTestimonialModalOpen(false)} />
-      <SuccessModal isOpen={successModalOpen} onClose={handleCloseModal} onDeploy={handleDeploy} onLater={handleLater} deploying={deploying} deployUrl={deployUrl} portfolioSlug={portfolioSlug}/>          
+      <SuccessModal isOpen={successModalOpen} onClose={handleCloseModal} onDeploy={handleDeploy} onLater={handleLater} deploying={deploying} deployUrl={deployUrl} portfolioSlug={portfolioSlug} />
       <Styles />
     </div>
   );
@@ -666,7 +665,7 @@ function DesignTab({ formData, onChange }: any) {
 function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpenTestimonialModal, onDeleteSample, onDeleteTestimonial }: any) {
   const getSampleCount = () => {
     let count = 0;
-    for (let i = 1; i <= 100; i++) { 
+    for (let i = 1; i <= 100; i++) {
       if (formData[`sample${i}Title`]) {
         count = i;
       }
@@ -692,16 +691,16 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
       onChange(`sample${i}Link`, formData[`sample${nextNum}Link`] || '');
       onChange(`sample${i}Image`, formData[`sample${nextNum}Image`] || '');
     }
-    
+
     onChange(`sample${totalSamples}Title`, '');
     onChange(`sample${totalSamples}Type`, '');
     onChange(`sample${totalSamples}Description`, '');
     onChange(`sample${totalSamples}Content`, '');
     onChange(`sample${totalSamples}Link`, '');
     onChange(`sample${totalSamples}Image`, '');
-    
+
     setTotalSamples(totalSamples - 1);
-    
+
     if (onDeleteSample) {
       onDeleteSample(sampleNum);
     }
@@ -728,7 +727,7 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
       'technical documentation': '⚙️',
       'user manual': '📖'
     };
-    
+
     return icons[type?.toLowerCase()] || '📄';
   };
 
@@ -747,8 +746,8 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
                     <p className="text-sm text-slate-300 font-semibold">Image uploaded</p>
                     <p className="text-xs text-slate-500">Click below to change</p>
                   </div>
-                  <button 
-                    onClick={() => onChange('profileImage', '')} 
+                  <button
+                    onClick={() => onChange('profileImage', '')}
                     className="p-2 hover:bg-red-500/20 rounded-lg transition"
                   >
                     <Trash2 className="w-4 h-4 text-red-400" />
@@ -767,10 +766,10 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
                     <p className="text-xs text-slate-500">PNG, JPG up to 5MB</p>
                   </div>
                 </div>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  className="hidden" 
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) onFileChange('profileImage', file);
@@ -779,17 +778,17 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
               </label>
             </div>
           </div>
-          
+
           <div>
             <label className="block text-sm font-bold text-slate-300 mb-2">Full Name</label>
             <input type="text" value={formData.fullName} onChange={(e) => onChange('fullName', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="Your Name" />
           </div>
-          
+
           <div>
             <label className="block text-sm font-bold text-slate-300 mb-2">Headline</label>
             <input type="text" value={formData.headline} onChange={(e) => onChange('headline', e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="Your Professional Title" />
           </div>
-          
+
           <div>
             <label className="block text-sm font-bold text-slate-300 mb-2">Bio</label>
             <textarea value={formData.bio} onChange={(e) => onChange('bio', e.target.value)} rows={4} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 resize-none focus:outline-none focus:border-yellow-400 custom-scrollbar" placeholder="Tell visitors about yourself..." />
@@ -855,7 +854,7 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
               const title = formData[`sample${num}Title`];
               const type = formData[`sample${num}Type`];
               const image = formData[`sample${num}Image`];
-              
+
               if (!title) return null;
 
               return (
@@ -939,11 +938,11 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
       <div className="pt-6 border-t border-slate-700/50">
         <div className="flex justify-between mb-4">
           <h3 className="text-sm font-bold text-slate-300 flex items-center gap-2"><Type className="w-4 h-4" />Testimonials</h3>
-          <button onClick={() => { const slot = [1,2,3].find(n => !formData[`testimonial${n}`]); onOpenTestimonialModal(slot || 1); }} className="px-3 py-1.5 bg-yellow-400 text-slate-900 rounded-lg text-xs font-bold hover:bg-yellow-300 flex items-center gap-1.5"><Plus className="w-3.5 h-3.5" />Add</button>
+          <button onClick={() => { const slot = [1, 2, 3].find(n => !formData[`testimonial${n}`]); onOpenTestimonialModal(slot || 1); }} className="px-3 py-1.5 bg-yellow-400 text-slate-900 rounded-lg text-xs font-bold hover:bg-yellow-300 flex items-center gap-1.5"><Plus className="w-3.5 h-3.5" />Add</button>
         </div>
         <div className="space-y-2">
-          {[1,2,3].map(num => formData[`testimonial${num}`] ? (
-            <div key={num}  className="p-4 bg-slate-900/50 border border-slate-700 rounded-xl hover:border-yellow-400/50 transition cursor-pointer group">
+          {[1, 2, 3].map(num => formData[`testimonial${num}`] ? (
+            <div key={num} className="p-4 bg-slate-900/50 border border-slate-700 rounded-xl hover:border-yellow-400/50 transition cursor-pointer group">
               <div className="flex justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-slate-300 line-clamp-2 mb-2">&ldquo;{formData[`testimonial${num}`]}&rdquo;</p>
@@ -968,7 +967,7 @@ function ContentTab({ formData, onChange, onFileChange, onOpenSampleModal, onOpe
               </div>
             </div>
           ) : null)}
-          {![1,2,3].some(n => formData[`testimonial${n}`]) && (
+          {![1, 2, 3].some(n => formData[`testimonial${n}`]) && (
             <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center">
               <Type className="w-8 h-8 text-slate-600 mx-auto mb-2" />
               <p className="text-sm text-slate-500">No testimonials added yet</p>
@@ -1010,47 +1009,44 @@ function LayoutTab({ sections, onToggle, onMoveUp, onMoveDown }: any) {
           const sectionIcon = section.icon || <FileText className="w-4 h-4" />;
 
           return (
-            <div 
-              key={section.id || i} 
-              className={`p-4 rounded-xl border-2 transition ${
-                isVisible 
-                  ? 'bg-slate-900/50 border-slate-700' 
-                  : 'bg-slate-800/30 border-slate-700/50 opacity-50'
-              }`}
+            <div
+              key={section.id || i}
+              className={`p-4 rounded-xl border-2 transition ${isVisible
+                ? 'bg-slate-900/50 border-slate-700'
+                : 'bg-slate-800/30 border-slate-700/50 opacity-50'
+                }`}
             >
               <div className="flex items-center gap-3">
                 <GripVertical className="w-5 h-5 text-slate-500 cursor-grab" />
                 <div className="flex-1 flex items-center gap-3">
-                  <div className={`w-8 h-8 p-2 rounded-lg flex items-center justify-center ${
-                    isVisible 
-                      ? 'bg-yellow-400/20 text-yellow-400' 
-                      : 'bg-slate-700/50 text-slate-600'
-                  }`}>
+                  <div className={`w-8 h-8 p-2 rounded-lg flex items-center justify-center ${isVisible
+                    ? 'bg-yellow-400/20 text-yellow-400'
+                    : 'bg-slate-700/50 text-slate-600'
+                    }`}>
                     {sectionIcon}
                   </div>
                   <span className="font-bold text-sm">{sectionName}</span>
                 </div>
-                <button 
-                  onClick={() => onMoveUp(i)} 
-                  disabled={i === 0} 
+                <button
+                  onClick={() => onMoveUp(i)}
+                  disabled={i === 0}
                   className="p-2 hover:bg-slate-700 rounded-lg disabled:opacity-30 transition"
                 >
                   <ChevronUp className="w-4 h-4" />
                 </button>
-                <button 
-                  onClick={() => onMoveDown(i)} 
-                  disabled={i === sections.length - 1} 
+                <button
+                  onClick={() => onMoveDown(i)}
+                  disabled={i === sections.length - 1}
                   className="p-2 hover:bg-slate-700 rounded-lg disabled:opacity-30 transition"
                 >
                   <ChevronDown className="w-4 h-4" />
                 </button>
-                <button 
-                  onClick={() => onToggle(section.id)} 
+                <button
+                  onClick={() => onToggle(section.id)}
                   className="p-2 hover:bg-slate-700 rounded-lg transition"
                 >
-                  <Eye className={`w-4 h-4 ${
-                    isVisible ? 'text-green-400' : 'text-slate-600'
-                  }`} />
+                  <Eye className={`w-4 h-4 ${isVisible ? 'text-green-400' : 'text-slate-600'
+                    }`} />
                 </button>
               </div>
             </div>
@@ -1099,28 +1095,28 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
     .sort((a: any, b: any) => a.order - b.order);
 
   const renderSection = (sectionId: string) => {
-    switch(sectionId) {
+    switch (sectionId) {
       case 'hero':
         return (
           <section key="hero" className={`min-h-screen flex items-center justify-center text-center relative overflow-hidden ${isMobile ? 'px-4 py-8' : 'px-8 py-16'}`}>
             <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent pointer-events-none"></div>
             <div className={`relative z-10 max-w-4xl mx-auto ${isMobile ? 'max-w-sm' : isTablet ? 'max-w-2xl' : 'max-w-4xl'}`}>
               {formData.profileImage ? (
-                <img 
-                  src={formData.profileImage} 
-                  alt={formData.fullName || 'Profile'} 
+                <img
+                  src={formData.profileImage}
+                  alt={formData.fullName || 'Profile'}
                   className={`rounded-full mx-auto mb-6 object-cover border-4 shadow-xl ${isMobile ? 'w-24 h-24' : isTablet ? 'w-32 h-32' : 'w-40 h-40'}`}
                   style={{ borderColor: formData.primaryColor }}
                 />
               ) : (
-                <div 
+                <div
                   className={`rounded-full mx-auto mb-6 flex items-center justify-center text-white font-bold shadow-xl ${isMobile ? 'w-24 h-24 text-2xl' : isTablet ? 'w-32 h-32 text-4xl' : 'w-40 h-40 text-5xl'}`}
                   style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
                 >
                   {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : '?'}
                 </div>
               )}
-              
+
               <h1 className={`font-bold mb-4 text-slate-900 leading-tight ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-6xl'}`} style={{ letterSpacing: '-0.03em' }}>
                 {formData.fullName || 'Your Name'}
               </h1>
@@ -1130,31 +1126,31 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
               <p className={`text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed ${isMobile ? 'text-base' : isTablet ? 'text-lg' : 'text-xl'}`}>
                 {formData.bio || 'Your bio will appear here...'}
               </p>
-              
+
               {(formData.linkedin || formData.twitter || formData.website) && (
                 <div className={`flex gap-4 justify-center mb-8 ${isMobile ? 'gap-2' : 'gap-4'}`}>
                   {formData.linkedin && (
-                    <a 
-                      href={formData.linkedin} 
+                    <a
+                      href={formData.linkedin}
                       className={`rounded-full text-slate-900 bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-slate-100 transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}
                     >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                       </svg>
                     </a>
                   )}
                   {formData.twitter && (
                     <a
-                      href={formData.twitter}  
+                      href={formData.twitter}
                       className={`rounded-full text-slate-900 bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-slate-100 transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}
                     >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                       </svg>
                     </a>
                   )}
                   {formData.website && (
-                    <a 
+                    <a
                       href={formData.website}
                       className={`rounded-full text-slate-900 bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-slate-100 transition cursor-pointer ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}
                     >
@@ -1165,13 +1161,13 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
               )}
 
               {formData.email && (
-                <a 
+                <a
                   href={`mailto:${formData.email}`}
                   className={`rounded-full text-white font-bold shadow-2xl hover:scale-105 transition inline-flex items-center no-underline gap-3 ${isMobile ? 'px-6 py-3 text-base' : isTablet ? 'px-8 py-3 text-lg' : 'px-10 py-4 text-lg'}`}
                   style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
                 >
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M3 4L10 11L17 4M3 4H17V14H3V4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M3 4L10 11L17 4M3 4H17V14H3V4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   Get In Touch
                 </a>
@@ -1181,18 +1177,18 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
         );
 
       case 'specialties':
-        return [1,2,3,4].some(n => formData[`specialty${n}`]) ? (
+        return [1, 2, 3, 4].some(n => formData[`specialty${n}`]) ? (
           <section key="specialties" className={`bg-slate-50 ${isMobile ? 'py-8' : 'py-16'}`}>
             <div className={`max-w-5xl mx-auto ${isMobile ? 'px-4' : 'px-8'}`}>
               <div className={`flex justify-center flex-wrap ${isMobile ? 'gap-2' : 'gap-4'}`}>
-                {[1,2,3,4].map(n => formData[`specialty${n}`] ? (
-                  <div 
-                    key={n} 
+                {[1, 2, 3, 4].map(n => formData[`specialty${n}`] ? (
+                  <div
+                    key={n}
                     className={`bg-white rounded-full border-2 font-semibold flex items-center gap-3 hover:scale-105 transition shadow-sm ${isMobile ? 'px-4 py-2 text-sm' : 'px-6 py-3'}`}
                     style={{ borderColor: formData.primaryColor, color: formData.primaryColor }}
                   >
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9 2L11.5 7.5L17 8L13 12L14 17.5L9 15L4 17.5L5 12L1 8L6.5 7.5L9 2Z"/>
+                      <path d="M9 2L11.5 7.5L17 8L13 12L14 17.5L9 15L4 17.5L5 12L1 8L6.5 7.5L9 2Z" />
                     </svg>
                     {formData[`specialty${n}`]}
                   </div>
@@ -1203,7 +1199,7 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
         ) : null;
 
       case 'samples':
-        return [1,2,3,4].some(n => formData[`sample${n}Title`]) ? (
+        return [1, 2, 3, 4].some(n => formData[`sample${n}Title`]) ? (
           <section key="samples" className={`${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
@@ -1211,18 +1207,18 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
                 <p className={`text-slate-600 ${isMobile ? 'text-lg' : 'text-xl'}`}>A curated selection of my best writing samples</p>
               </div>
               <div className={`grid gap-8 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
-                {[1,2,3,4].map(n => {
+                {[1, 2, 3, 4].map(n => {
                   if (!formData[`sample${n}Title`]) return null;
                   return (
                     <article key={n} className="bg-white border-2 border-slate-200 rounded-3xl overflow-hidden hover:border-blue-500 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                      <div 
+                      <div
                         className={`flex items-center justify-center text-6xl ${isMobile ? 'h-32 text-4xl' : isTablet ? 'h-40 text-5xl' : 'h-48'}`}
                         style={{ background: `linear-gradient(135deg, ${formData.primaryColor}20, ${formData.accentColor}20)` }}
                       >
                         📄
                       </div>
                       <div className={`${isMobile ? 'p-4' : 'p-6'}`}>
-                        <span 
+                        <span
                           className={`inline-block rounded-full text-xs font-bold uppercase tracking-wide mb-3 ${isMobile ? 'px-3 py-1' : 'px-4 py-1'}`}
                           style={{ background: `${formData.primaryColor}15`, color: formData.primaryColor }}
                         >
@@ -1234,7 +1230,7 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
                         <p className={`text-slate-600 leading-relaxed mb-4 ${isMobile ? 'text-sm' : 'text-sm'}`}>
                           {formData[`sample${n}Description`] || 'Click to read more...'}
                         </p>
-                        <button 
+                        <button
                           className={`font-bold rounded-lg transition hover:scale-105 ${isMobile ? 'px-3 py-2 text-xs' : 'px-4 py-2 text-sm'}`}
                           style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`, color: 'white' }}
                         >
@@ -1250,7 +1246,7 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
         ) : null;
 
       case 'testimonials':
-        return [1,2,3].some(n => formData[`testimonial${n}`]) ? (
+        return [1, 2, 3].some(n => formData[`testimonial${n}`]) ? (
           <section key="testimonials" className={`bg-slate-50 ${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
@@ -1258,7 +1254,7 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
                 <p className={`text-slate-600 ${isMobile ? 'text-lg' : 'text-xl'}`}>What clients say about working with me</p>
               </div>
               <div className={`grid gap-8 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
-                {[1,2,3].map(n => {
+                {[1, 2, 3].map(n => {
                   if (!formData[`testimonial${n}`]) return null;
                   const author = formData[`testimonial${n}Author`] || 'Anonymous';
                   return (
@@ -1268,7 +1264,7 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
                         "{formData[`testimonial${n}`]}"
                       </p>
                       <div className="flex items-center gap-4">
-                        <div 
+                        <div
                           className={`rounded-full flex items-center justify-center text-white font-bold ${isMobile ? 'w-10 h-10 text-sm' : 'w-14 h-14 text-xl'}`}
                           style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
                         >
@@ -1291,7 +1287,7 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
         return (
           <section key="contact" className={`${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
             <div className="max-w-5xl mx-auto">
-              <div 
+              <div
                 className={`rounded-3xl text-center text-white relative overflow-hidden ${isMobile ? 'p-8' : isTablet ? 'p-12' : 'p-16'}`}
                 style={{ background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})` }}
               >
@@ -1299,14 +1295,14 @@ function PreviewCanvas({ formData, previewMode, sections }: any) {
                 <div className="relative z-10">
                   <h2 className={`font-black mb-4 ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'}`}>Let's Create Something Amazing</h2>
                   <p className={`mb-8 opacity-95 ${isMobile ? 'text-lg' : 'text-2xl'}`}>Ready to elevate your content? Let's discuss your project.</p>
-                  <a 
+                  <a
                     href={`mailto:${formData.email}`}
                     className={`bg-white rounded-full font-bold hover:scale-105 transition shadow-2xl inline-flex items-center gap-2 ${isMobile ? 'px-6 py-3 text-base' : isTablet ? 'px-8 py-3 text-lg' : 'px-10 py-4 text-xl'}`}
                     style={{ color: formData.primaryColor }}
                   >
                     Start a Conversation
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <path d="M7 13L13 7M13 7H7M13 7V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M7 13L13 7M13 7H7M13 7V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </a>
                 </div>
@@ -1421,12 +1417,12 @@ function SampleModal({ isOpen, currentSample, formData, onChange, onClose, onFil
             <label className="block text-sm font-bold text-slate-300 mb-2">
               Cover Image (Optional)
             </label>
-            
+
             {currentImage ? (
               <div className="relative">
-                <img 
-                  src={currentImage} 
-                  alt="Sample cover" 
+                <img
+                  src={currentImage}
+                  alt="Sample cover"
                   className="w-full h-48 object-cover rounded-xl border-2 border-slate-700"
                 />
                 <button
