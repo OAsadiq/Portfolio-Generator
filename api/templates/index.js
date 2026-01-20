@@ -3,7 +3,7 @@ import { templates } from "./templateConfig.js";
 function enableCORS(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
 
 export default function handler(req, res) {
@@ -18,9 +18,14 @@ export default function handler(req, res) {
         name: t.name,
         description: t.description,
         thumbnail: t.thumbnail,
+        isPro: t.isPro || false,
         fields: t.fields
       }));
-      return res.status(200).json(list);
+      
+      return res.status(200).json({ 
+        templates: list,
+        count: list.length 
+      });
     }
 
     if (req.method === "POST") {

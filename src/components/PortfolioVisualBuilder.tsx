@@ -311,11 +311,26 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         return;
       }
 
-      const endpoint = isEditing
+      const shouldUpdate = isEditing || !!portfolioSlug;
+
+      const endpoint = shouldUpdate
         ? `${import.meta.env.VITE_API_URL}/api/templates/update-portfolio`
         : `${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`;
 
       const sectionsForSave = convertSectionsForSave(sections);
+
+      const body = shouldUpdate
+        ? {
+            slug: portfolioSlug,
+            templateId: 'professional-writer-template',
+            formData,
+            sections: sectionsForSave,
+          }
+        : {
+            templateId: 'professional-writer-template',
+            formData,
+            sections: sectionsForSave,
+          };
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -323,12 +338,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${session.access_token}`
         },
-        body: JSON.stringify({
-          slug: portfolioSlug,
-          templateId: 'professional-writer-template',
-          formData,
-          sections: sectionsForSave,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (res.status === 413) {
@@ -350,11 +360,12 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         if (data.code === 'PERMISSION_DENIED') {
           throw new Error("You do not have permission to edit this portfolio.");
         }
-        throw new Error(data.error || `Failed to ${isEditing ? 'update' : 'save'} portfolio`);
+        throw new Error(data.error || `Failed to ${shouldUpdate ? 'update' : 'save'} portfolio`);
       }
 
-      if (!isEditing && data.portfolioSlug) {
+      if (!shouldUpdate && data.portfolioSlug) {
         setPortfolioSlug(data.portfolioSlug);
+        window.history.replaceState({}, '', `/builder/${data.portfolioSlug}`);
       }
 
       setSuccessModalOpen(true);
@@ -466,7 +477,6 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
 
   return (
     <div className="flex h-screen bg-slate-900 text-slate-50 overflow-hidden">
-      {/* Left Sidebar */}
       <div className="w-96 bg-slate-800/50 backdrop-blur-sm border-r border-slate-700/50 flex flex-col">
         <div className="p-6 border-b border-slate-700/50">
           <div className="flex items-center gap-3 mb-6">
@@ -521,7 +531,6 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
         </div>
       </div>
 
-      {/* Main Canvas */}
       <div className="flex-1 flex flex-col bg-slate-950">
         <div className="h-16 bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/50 flex items-center justify-between px-6">
           <div className="flex items-center gap-4">

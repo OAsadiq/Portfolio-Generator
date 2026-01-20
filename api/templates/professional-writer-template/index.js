@@ -38,86 +38,87 @@ function buildSamples(data) {
   let samplesHTML = "";
   let modalsHTML = "";
   
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= 100; i++) {
     const title = data[`sample${i}Title`];
+    
+    if (!title) break;
+    
     const type = data[`sample${i}Type`];
     const desc = data[`sample${i}Description`];
     const content = data[`sample${i}Content`];
     const link = data[`sample${i}Link`];
     const image = data[`sample${i}Image`];
     
-    if (title) {
-      const hasContent = content && content.trim();
-      const hasLink = link && link.trim();
-      
-      // Get icon based on type or use custom image
-      const displayIcon = image ? `<img src="${image}" alt="${title}" class="sample-card-image" />` : 
-                         `<div class="sample-emoji-icon">${getSampleIcon(type)}</div>`;
-      
-      samplesHTML += `
-        <article class="sample-card">
-          <div class="sample-image-container">
-            ${displayIcon}
+    const hasContent = content && content.trim();
+    const hasLink = link && link.trim();
+    
+    const displayIcon = image ? 
+      `<img src="${image}" alt="${title}" class="sample-card-image" />` : 
+      `<div class="sample-emoji-icon">${getSampleIcon(type)}</div>`;
+    
+    samplesHTML += `
+      <article class="sample-card">
+        <div class="sample-image-container">
+          ${displayIcon}
+        </div>
+        <div class="sample-content">
+          ${type ? `<span class="sample-type">${type}</span>` : ""}
+          <h3 class="sample-title">${title}</h3>
+          ${desc ? `<p class="sample-description">${desc}</p>` : ""}
+          
+          <div class="sample-actions">
+            ${hasContent ? `
+              <button class="sample-btn sample-btn-primary" onclick="openModal('modal-${i}')">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 8C2 8 4.5 3 8 3C11.5 3 14 8 14 8C14 8 11.5 13 8 13C4.5 13 2 8 2 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                Read Sample
+              </button>
+            ` : ''}
+            ${hasLink ? `
+              <a href="${link}" target="_blank" class="sample-btn sample-btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                View Article
+              </a>
+            ` : ''}
           </div>
-          <div class="sample-content">
-            ${type ? `<span class="sample-type">${type}</span>` : ""}
-            <h3 class="sample-title">${title}</h3>
-            ${desc ? `<p class="sample-description">${desc}</p>` : ""}
-            
-            <div class="sample-actions">
-              ${hasContent ? `
-                <button class="sample-btn sample-btn-primary" onclick="openModal('modal-${i}')">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M2 8C2 8 4.5 3 8 3C11.5 3 14 8 14 8C14 8 11.5 13 8 13C4.5 13 2 8 2 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="2"/>
-                  </svg>
-                  Read Sample
-                </button>
-              ` : ''}
+        </div>
+      </article>
+    `;
+    
+    if (hasContent) {
+      modalsHTML += `
+        <div id="modal-${i}" class="modal">
+          <div class="modal-overlay" onclick="closeModal('modal-${i}')"></div>
+          <div class="modal-container">
+            <button class="modal-close" onclick="closeModal('modal-${i}')">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <div class="modal-content">
+              ${type ? `<span class="modal-type">${type}</span>` : ""}
+              <h2 class="modal-title">${title}</h2>
+              <div class="modal-body">
+                ${content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
+              </div>
               ${hasLink ? `
-                <a href="${link}" target="_blank" class="sample-btn sample-btn-secondary">
+                <a href="${link}" target="_blank" class="modal-cta">
+                  View Original Article
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                   </svg>
-                  View Article
                 </a>
               ` : ''}
             </div>
           </div>
-        </article>
+        </div>
       `;
-      
-      if (hasContent) {
-        modalsHTML += `
-          <div id="modal-${i}" class="modal">
-            <div class="modal-overlay" onclick="closeModal('modal-${i}')"></div>
-            <div class="modal-container">
-              <button class="modal-close" onclick="closeModal('modal-${i}')">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </button>
-              <div class="modal-content">
-                ${type ? `<span class="modal-type">${type}</span>` : ""}
-                <h2 class="modal-title">${title}</h2>
-                <div class="modal-body">
-                  ${content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
-                </div>
-                ${hasLink ? `
-                  <a href="${link}" target="_blank" class="modal-cta">
-                    View Original Article
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                      <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                  </a>
-                ` : ''}
-              </div>
-            </div>
-          </div>
-        `;
-      }
     }
   }
   
@@ -222,6 +223,21 @@ function getStyles(primaryColor, accentColor) {
       border: 5px solid var(--primary);
       box-shadow: var(--shadow-xl), 0 0 0 8px var(--primary)20;
       animation: float 6s ease-in-out infinite;
+    }
+
+    .profile-letter-avatar {
+      display: flex; 
+      align-items: center;
+      justify-content: center;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      margin: 0 auto 2rem;
+      text-align: center; 
+      font-size: 4rem; 
+      font-weight: bold; 
+      color: white;
+      background: linear-gradient(135deg, ${primaryColor}, ${accentColor}); 
     }
 
     @keyframes float {
@@ -802,9 +818,10 @@ function getStyles(primaryColor, accentColor) {
         padding: 4rem 0;
       }
 
-      .profile-image {
+      .profile-image, .profile-letter-avatar {
         width: 140px;
         height: 140px;
+        font-size: 2rem;
       }
 
       .section {
@@ -927,27 +944,35 @@ const professionalWriterTemplate = {
     const sortedSections = [...activeSections].sort((a, b) => a.order - b.order);
     
     const sectionContent = {
-      hero: () => `
-        <section class="hero">
-          <div class="container">
-            <div class="hero-content">
-              <img src="${profile}" alt="${name}" class="profile-image" />
-              <h1>${name}</h1>
-              <p class="headline">${headline}</p>
-              <p class="bio">${bio}</p>
-              
-              ${buildSocialLinks(data)}
-              
-              <a href="mailto:${email}" class="cta-button">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M3 4L10 11L17 4M3 4H17V14H3V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Get In Touch
-              </a>
+      hero: () => {
+        const profileHTML = profile && profile !== '/images/default-avatar.png' 
+          ? `<img src="${profile}" alt="${name}" class="profile-image" />`
+          : `<div class="profile-letter-avatar">
+              <span>${name.charAt(0).toUpperCase()}</span>
+            </div>`;
+
+        return `
+          <section class="hero">
+            <div class="container">
+              <div class="hero-content">
+                ${profileHTML}
+                <h1>${name}</h1>
+                <p class="headline">${headline}</p>
+                <p class="bio">${bio}</p>
+                
+                ${buildSocialLinks(data)}
+                
+                <a href="mailto:${email}" class="cta-button">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 4L10 11L17 4M3 4H17V14H3V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Get In Touch
+                </a>
+              </div>
             </div>
-          </div>
-        </section>
-      `,
+          </section>
+        `;
+      },
       
       specialties: () => {
         let specialtiesHTML = "";
@@ -979,9 +1004,9 @@ const professionalWriterTemplate = {
       },
       
       samples: () => {
-        const samples = data.samples || [];
+        const { samplesHTML, modalsHTML } = buildSamples(data);
         
-        if (samples.length === 0) {
+        if (!samplesHTML) {
           return `
             <section class="section">
               <div class="container">
@@ -996,83 +1021,6 @@ const professionalWriterTemplate = {
             </section>
           `;
         }
-        
-        let samplesHTML = "";
-        let modalsHTML = "";
-        
-        samples.forEach((sample, index) => {
-          const hasContent = sample.content && sample.content.trim();
-          const hasLink = sample.link && sample.link.trim();
-          
-          const displayIcon = sample.image ? 
-            `<img src="${sample.image}" alt="${sample.title}" class="sample-card-image" />` : 
-            `<div class="sample-emoji-icon">${getSampleIcon(sample.type)}</div>`;
-          
-          samplesHTML += `
-            <article class="sample-card">
-              <div class="sample-image-container">
-                ${displayIcon}
-              </div>
-              <div class="sample-content">
-                ${sample.type ? `<span class="sample-type">${sample.type}</span>` : ""}
-                <h3 class="sample-title">${sample.title}</h3>
-                ${sample.description ? `<p class="sample-description">${sample.description}</p>` : ""}
-                
-                <div class="sample-actions">
-                  ${hasContent ? `
-                    <button class="sample-btn sample-btn-primary" onclick="openModal('modal-${index}')">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M2 8C2 8 4.5 3 8 3C11.5 3 14 8 14 8C14 8 11.5 13 8 13C4.5 13 2 8 2 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="2"/>
-                      </svg>
-                      Read Sample
-                    </button>
-                  ` : ''}
-                  ${hasLink ? `
-                    <a href="${sample.link}" target="_blank" class="sample-btn sample-btn-secondary">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                      </svg>
-                      View Article
-                    </a>
-                  ` : ''}
-                </div>
-              </div>
-            </article>
-          `;
-          
-          if (hasContent) {
-            modalsHTML += `
-              <div id="modal-${index}" class="modal">
-                <div class="modal-overlay" onclick="closeModal('modal-${index}')"></div>
-                <div class="modal-container">
-                  <button class="modal-close" onclick="closeModal('modal-${index}')">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                  </button>
-                  <div class="modal-content">
-                    ${sample.type ? `<span class="modal-type">${sample.type}</span>` : ""}
-                    <h2 class="modal-title">${sample.title}</h2>
-                    <div class="modal-body">
-                      ${sample.content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
-                    </div>
-                    ${hasLink ? `
-                      <a href="${sample.link}" target="_blank" class="modal-cta">
-                        View Original Article
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                          <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                      </a>
-                    ` : ''}
-                  </div>
-                </div>
-              </div>
-            `;
-          }
-        });
         
         return `
           <section class="section">
