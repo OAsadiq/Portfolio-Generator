@@ -787,7 +787,7 @@ function getStyles(primaryColor, accentColor) {
 
     /* Footer */
     footer {
-      padding: 4rem 0;
+      padding: 2rem 0;
       text-align: center;
       background: var(--bg-secondary);
     }
