@@ -46,7 +46,7 @@ const Navbar = () => {
           </Link>
 
           <span className="text-slate-600 font-semibold cursor-not-allowed">
-            Pricing (Coming soon)
+            Pricing
           </span>
 
           <Link to="/contact" className="text-slate-300 font-semibold hover:text-yellow-400 transition">
