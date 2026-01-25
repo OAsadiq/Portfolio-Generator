@@ -1,7 +1,9 @@
 import minimalTemplate from "./minimal-template/index.js";
 import professionalWriterTemplate from "./professional-writer-template/index.js";
+import modernTemplate from "./modern-template/index.js";
 
 export const templates = {
   [minimalTemplate.id]: minimalTemplate,
-  [professionalWriterTemplate.id]: professionalWriterTemplate
+  [professionalWriterTemplate.id]: professionalWriterTemplate,
+  [modernTemplate.id]: modernTemplate,
 };
