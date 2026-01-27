@@ -58,15 +58,10 @@ const TemplateSelection = () => {
         const templateList = data.templates || data;
 
         if (!Array.isArray(templateList)) {
-          console.error('Invalid response:', data);
           throw new Error('Invalid response format from API');
         }
-
-        console.log('✅ Loaded templates:', templateList.length);
-        console.log('Templates:', templateList.map(t => ({ id: t.id, name: t.name })));
         setTemplates(templateList);
       } catch (err: any) {
-        console.error("Error fetching templates:", err);
         setError(err.message || "Failed to load templates");
       } finally {
         setLoading(false);

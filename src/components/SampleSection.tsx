@@ -28,7 +28,7 @@ const SampleSection = () => {
                 <div className="iframe-wrapper">
                     <div className="iframe-mask">
                         <iframe
-                            src="/templates/minimal-template/preview.html"
+                            src="/templates/professional-writer-template/preview.html"
                             title="Writer Portfolio Preview"
                             className="preview-iframe"
                         />

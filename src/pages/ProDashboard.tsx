@@ -43,6 +43,7 @@ interface CustomDomain {
 
 const PROFESSIONAL_TEMPLATES = [
   'professional-writer-template',
+  'modern-writer-template',
 ];
 
 const ProDashboard = () => {
@@ -92,8 +93,6 @@ const ProDashboard = () => {
     if (!user?.id) return;
     
     try {
-      // In a real implementation, you'd fetch from a custom_domains table
-      // For now, we'll extract from portfolios
       const domains = portfolios
         .filter(p => p.custom_domain)
         .map(p => ({
@@ -117,7 +116,6 @@ const ProDashboard = () => {
       return;
     }
 
-    // Validate domain format
     const domainRegex = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i;
     if (!domainRegex.test(newDomain)) {
       showToast('Please enter a valid domain (e.g., myportfolio.com)', 'error');

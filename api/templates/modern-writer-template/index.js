@@ -11,6 +11,27 @@ function getSocialIcon(type) {
   return icons[type] || icons.website;
 }
 
+function getSkillIcon(skillName) {
+  const skillIcons = {
+    'Long-Form Content': '✍️',
+    'Editorial Strategy': '📖',
+    'SEO Copywriting': '🎯',
+    'Brand Storytelling': '📝',
+    'Journalism': '📰',
+    'Research & Interviews': '🔍',
+    'Technical Writing': '⚙️',
+    'Content Strategy': '📊',
+    'Social Media Content': '📱',
+    'Email Marketing': '📧',
+    'Creative Writing': '🎨',
+    'Copyediting': '✏️',
+    'Blog Writing': '💭',
+    'White Papers': '📄',
+    'Case Studies': '📚',
+  };
+  return skillIcons[skillName] || '💎';
+}
+
 function buildSocialLinks(data) {
   const socialLinks = [];
   if (data.linkedin) socialLinks.push({ name: 'LinkedIn', url: data.linkedin, icon: 'linkedin' });
@@ -30,6 +51,11 @@ function buildSocialLinks(data) {
   `).join('');
 }
 
+function getCaseStudyEmoji(index) {
+  const emojis = ['📚', '🌱', '📖', '💼', '🎯', '🚀', '💡', '📊', '✨', '🎨'];
+  return emojis[index - 1] || '📚';
+}
+
 function buildCaseStudies(data) {
   let caseStudiesHTML = "";
   
@@ -45,17 +71,16 @@ function buildCaseStudies(data) {
     const results = data[`case${i}Results`];
     const image = data[`case${i}Image`];
     const tags = data[`case${i}Tags`];
+    const emoji = getCaseStudyEmoji(i);
+    
+    // Determine if we show the modal link based on whether we have extended content
+    const hasExtendedContent = challenge || solution || results;
     
     caseStudiesHTML += `
-      <article class="case-study" data-aos="fade-up">
-        ${image ? `
-          <div class="case-image">
-            <img src="${image}" alt="${title}" />
-            <div class="case-overlay">
-              <button class="view-case" onclick="openCaseModal(${i})">View Case Study</button>
-            </div>
-          </div>
-        ` : ''}
+      <article class="case-study" data-aos="fade-up" data-aos-delay="${(i-1) * 100}">
+        <div class="case-image">
+          ${image ? `<img src="${image}" alt="${title}" />` : `<span class="case-emoji">${emoji}</span>`}
+        </div>
         <div class="case-content">
           <div class="case-meta">
             <span class="case-client">${client || 'Client Project'}</span>
@@ -68,45 +93,49 @@ function buildCaseStudies(data) {
               ${tags.split(',').map(tag => `<span class="tag">${tag.trim()}</span>`).join('')}
             </div>
           ` : ''}
-          <button class="read-more" onclick="openCaseModal(${i})">Read Full Case Study →</button>
+          ${hasExtendedContent ? `
+            <button class="read-more" onclick="openCaseModal(${i})">Read Full Case Study →</button>
+          ` : ''}
         </div>
       </article>
       
-      <!-- Case Study Modal -->
-      <div id="case-modal-${i}" class="case-modal">
-        <div class="modal-overlay" onclick="closeCaseModal(${i})"></div>
-        <div class="modal-content">
-          <button class="modal-close" onclick="closeCaseModal(${i})">×</button>
-          <div class="modal-header">
-            ${image ? `<img src="${image}" alt="${title}" class="modal-hero-image" />` : ''}
-            <h2>${title}</h2>
-            <div class="modal-meta">
-              <span><strong>Client:</strong> ${client}</span>
-              ${role ? `<span><strong>Role:</strong> ${role}</span>` : ''}
+      ${hasExtendedContent ? `
+        <!-- Case Study Modal -->
+        <div id="case-modal-${i}" class="case-modal">
+          <div class="modal-overlay" onclick="closeCaseModal(${i})"></div>
+          <div class="modal-content">
+            <button class="modal-close" onclick="closeCaseModal(${i})">×</button>
+            <div class="modal-header">
+              ${image ? `<img src="${image}" alt="${title}" class="modal-hero-image" />` : ''}
+              <h2>${title}</h2>
+              <div class="modal-meta">
+                <span><strong>Client:</strong> ${client}</span>
+                ${role ? `<span><strong>Role:</strong> ${role}</span>` : ''}
+              </div>
+            </div>
+            <div class="modal-body">
+              ${challenge ? `
+                <section class="modal-section">
+                  <h3>🎯 Challenge</h3>
+                  <p>${challenge}</p>
+                </section>
+              ` : ''}
+              ${solution ? `
+                <section class="modal-section">
+                  <h3>💡 Solution</h3>
+                  <p>${solution}</p>
+                </section>
+              ` : ''}
+              ${results ? `
+                <section class="modal-section">
+                  <h3>📊 Results</h3>
+                  <p>${results}</p>
+                </section>
+              ` : ''}
             </div>
           </div>
-          <div class="modal-body">
-            ${challenge ? `
-              <section class="modal-section">
-                <h3>🎯 Challenge</h3>
-                <p>${challenge}</p>
-              </section>
-            ` : ''}
-            ${solution ? `
-              <section class="modal-section">
-                <h3>💡 Solution</h3>
-                <p>${solution}</p>
-              </section>
-            ` : ''}
-            ${results ? `
-              <section class="modal-section">
-                <h3>📊 Results</h3>
-                <p>${results}</p>
-              </section>
-            ` : ''}
-          </div>
         </div>
-      </div>
+      ` : ''}
     `;
   }
   
@@ -125,25 +154,21 @@ function buildBlogPosts(data) {
     const category = data[`blog${i}Category`];
     const readTime = data[`blog${i}ReadTime`];
     const link = data[`blog${i}Link`];
-    const image = data[`blog${i}Image`];
     
     blogHTML += `
       <article class="blog-card" data-aos="fade-up" data-aos-delay="${(i-1) * 100}">
-        ${image ? `
-          <div class="blog-image">
-            <img src="${image}" alt="${title}" />
-            ${category ? `<span class="blog-category">${category}</span>` : ''}
-          </div>
-        ` : ''}
+        <div class="blog-image">
+          ${category ? `<span class="blog-category">${category}</span>` : ''}
+        </div>
         <div class="blog-content">
           <div class="blog-meta">
-            ${date ? `<time>${date}</time>` : ''}
-            ${readTime ? `<span>${readTime} min read</span>` : ''}
+            ${date ? `<time>${date}</time>` : 'Recent'}
+            ${readTime ? `<span> • ${readTime} min read</span>` : ''}
           </div>
           <h3 class="blog-title">${title}</h3>
           ${excerpt ? `<p class="blog-excerpt">${excerpt}</p>` : ''}
           ${link ? `
-            <a href="${link}" target="_blank" class="blog-link">
+            <a href="${link}" target="_blank" rel="noopener noreferrer" class="blog-link">
               Read More <span>→</span>
             </a>
           ` : ''}
@@ -156,9 +181,9 @@ function buildBlogPosts(data) {
 }
 
 const modernTemplate = {
-  id: "modern-portfolio-template",
-  name: "Modern Portfolio",
-  description: "Premium template with animations, video backgrounds, dark mode, and interactive elements",
+  id: "modern-writer-template",
+  name: "Modern Writer Portfolio",
+  description: "Premium template with animations, dark mode, and interactive elements",
   thumbnail: "/images/professional-template.jpg",
   isPro: true,
   
@@ -262,9 +287,10 @@ const modernTemplate = {
         for (let i = 1; i <= 6; i++) {
           const skill = data[`skill${i}`];
           if (skill) {
+            const icon = getSkillIcon(skill);
             skillsHTML += `
               <div class="skill-card" data-aos="flip-left" data-aos-delay="${i * 50}">
-                <div class="skill-icon">💎</div>
+                <div class="skill-icon">${icon}</div>
                 <h3>${skill}</h3>
               </div>
             `;
@@ -510,6 +536,10 @@ function getModernStyles(primaryColor, accentColor) {
     [data-theme="light"] .moon-icon,
     [data-theme="dark"] .sun-icon {
       display: none;
+    }
+    
+    [data-theme="dark"] .blog-image {
+      background: linear-gradient(135deg, #1e293b, #334155);
     }
     
     /* Hero Section */
@@ -788,13 +818,25 @@ function getModernStyles(primaryColor, accentColor) {
       border-color: var(--primary);
     }
     
+    .case-emoji {
+      font-size: 7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      filter: none;
+    }
+
     .case-image {
       position: relative;
       height: 250px;
       overflow: hidden;
-      background: var(--bg-alt);
+      background: linear-gradient(135deg, ${primaryColor}30, ${accentColor}20);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    
+
     .case-image img {
       width: 100%;
       height: 100%;
@@ -1072,11 +1114,15 @@ function getModernStyles(primaryColor, accentColor) {
     
     .blog-image {
       position: relative;
-      height: 200px;
+      height: 160px;
       overflow: hidden;
-      background: var(--bg);
+      background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 1rem;
     }
-    
+
     .blog-image img {
       width: 100%;
       height: 100%;

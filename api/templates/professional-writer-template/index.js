@@ -1162,12 +1162,6 @@ const professionalWriterTemplate = {
       </html>
     `;
   },
-
-  getStyles: function(primaryColor, accentColor) {
-    return `
-      
-    `;
-  }
 };
 
 export default professionalWriterTemplate;

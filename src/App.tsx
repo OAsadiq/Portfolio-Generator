@@ -39,6 +39,11 @@ function App() {
                 <CreatePortfolio />
               </ProtectedRoute>
             } />
+            <Route path="/create/:templateId" element={
+              <ProtectedRoute>
+                <PortfolioVisualBuilder />
+              </ProtectedRoute>
+            } />
             <Route path="/success" element={
               <ProtectedRoute>
                 <Success />
