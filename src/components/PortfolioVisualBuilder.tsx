@@ -8,17 +8,104 @@ import {
   Layout, Trash2, Plus, GripVertical, X, Check,
   FileText, ChevronDown, ChevronUp, Monitor, Smartphone, Tablet, Sparkles,
   Rocket, Globe, ExternalLink, Footprints,
-  User, BookOpen, MessageSquare, Mail, Upload, Edit2
+  User, BookOpen, MessageSquare, Mail, Upload, Edit2,
+  Moon
 } from 'lucide-react';
 
 const COLOR_PRESETS = [
-  { name: 'Blue', primary: '#2563eb', accent: '#0ea5e9' },
-  { name: 'Purple', primary: '#7c3aed', accent: '#a855f7' },
-  { name: 'Green', primary: '#059669', accent: '#10b981' },
-  { name: 'Orange', primary: '#ea580c', accent: '#f97316' },
-  { name: 'Pink', primary: '#db2777', accent: '#ec4899' },
-  { name: 'Teal', primary: '#0d9488', accent: '#14b8a6' },
+  { name: 'Ocean', primary: '#0ea5e9', accent: '#06b6d4' },
+  { name: 'Purple', primary: '#a855f7', accent: '#ec4899' },
+  { name: 'Sunset', primary: '#f97316', accent: '#ef4444' },
+  { name: 'Forest', primary: '#10b981', accent: '#14b8a6' },
+  { name: 'Royal', primary: '#6366f1', accent: '#8b5cf6' },
+  { name: 'Rose', primary: '#f43f5e', accent: '#ec4899' },
+  { name: 'Cyber', primary: '#06b6d4', accent: '#8b5cf6' },
+  { name: 'Mint', primary: '#14b8a6', accent: '#10b981' },
+  { name: 'Peach', primary: '#fb923c', accent: '#f97316' },
 ];
+
+// const THEME_PRESETS = [
+//   {
+//     name: 'Midnight Pro',
+//     description: 'Deep blues with vibrant accents, perfect for tech portfolios',
+//     primary: '#3b82f6',
+//     accent: '#60a5fa',
+//     defaultMode: 'dark',
+//     bgPreview: '#0f172a'
+//   },
+//   {
+//     name: 'Creative Studio',
+//     description: 'Bold purple and pink gradients for creative professionals',
+//     primary: '#a855f7',
+//     accent: '#ec4899',
+//     defaultMode: 'light',
+//     bgPreview: '#ffffff'
+//   },
+//   {
+//     name: 'Minimal Elegance',
+//     description: 'Clean slate tones with subtle blue accents',
+//     primary: '#64748b',
+//     accent: '#0ea5e9',
+//     defaultMode: 'light',
+//     bgPreview: '#f8fafc'
+//   },
+//   {
+//     name: 'Vibrant Energy',
+//     description: 'Energetic orange and red for bold personalities',
+//     primary: '#f97316',
+//     accent: '#ef4444',
+//     defaultMode: 'light',
+//     bgPreview: '#ffffff'
+//   },
+//   {
+//     name: 'Nature Green',
+//     description: 'Fresh greens and teals for environmental and wellness brands',
+//     primary: '#10b981',
+//     accent: '#14b8a6',
+//     defaultMode: 'light',
+//     bgPreview: '#f0fdf4'
+//   },
+//   {
+//     name: 'Neon Nights',
+//     description: 'Cyberpunk-inspired with electric cyan and purple',
+//     primary: '#06b6d4',
+//     accent: '#a855f7',
+//     defaultMode: 'dark',
+//     bgPreview: '#0f172a'
+//   },
+//   {
+//     name: 'Warm Sunset',
+//     description: 'Cozy amber and orange tones',
+//     primary: '#f59e0b',
+//     accent: '#f97316',
+//     defaultMode: 'light',
+//     bgPreview: '#fffbeb'
+//   },
+//   {
+//     name: 'Ocean Deep',
+//     description: 'Professional blues perfect for corporate portfolios',
+//     primary: '#0284c7',
+//     accent: '#0ea5e9',
+//     defaultMode: 'dark',
+//     bgPreview: '#1e293b'
+//   },
+//   {
+//     name: 'Rose Garden',
+//     description: 'Elegant rose and pink for sophisticated branding',
+//     primary: '#f43f5e',
+//     accent: '#ec4899',
+//     defaultMode: 'light',
+//     bgPreview: '#fff1f2'
+//   },
+//   {
+//     name: 'Monochrome',
+//     description: 'Timeless black and white aesthetic',
+//     primary: '#000000',
+//     accent: '#404040',
+//     defaultMode: 'light',
+//     bgPreview: '#ffffff'
+//   },
+// ];
 
 const INITIAL_SECTIONS = [
   { id: 'hero', name: 'Hero', visible: true, order: 0, icon: <User className="w-4 h-4" /> },
@@ -78,19 +165,15 @@ const TEMPLATE_CONFIGS: { [key: string]: any } = {
       linkedin: 'https://linkedin.com',
       twitter: 'https://twitter.com',
       github: 'https://github.com',
-      website: 'https://example.com',
+      website: ' ',
       primaryColor: '#6366f1',
       accentColor: '#ec4899',
-      
-      // Skills - Now using predefined options
+
       skill1: 'Long-Form Content',
       skill2: 'Editorial Strategy',
       skill3: 'SEO Copywriting',
       skill4: 'Brand Storytelling',
-      skill5: 'Journalism',
-      skill6: 'Research & Interviews',
-      
-      // Case Study 1
+
       case1Title: 'Feature Series: The Future of Work',
       case1Client: 'TechVenture Magazine',
       case1Role: 'Contributing Writer',
@@ -99,48 +182,13 @@ const TEMPLATE_CONFIGS: { [key: string]: any } = {
       case1Solution: 'Developed a multi-faceted approach combining quantitative research, expert interviews, and real-world case studies. Each article focused on a specific industry vertical with actionable insights.',
       case1Results: 'The series generated over 2 million reads, became the magazine\'s most-shared content of the year, and led to speaking invitations at three major industry conferences.',
       case1Tags: 'Journalism, Research, Interview',
-      
-      // Case Study 2
-      case2Title: 'Complete Content Overhaul',
-      case2Client: 'GreenLife Co.',
-      case2Role: 'Content Strategist',
-      case2Description: 'Developed comprehensive content strategy and wrote 50+ pieces that increased organic traffic by 300% and boosted conversions by 85%.',
-      case2Challenge: 'The company\'s existing content was outdated, unfocused, and failing to rank in search results or convert visitors into customers.',
-      case2Solution: 'Conducted comprehensive content audit, keyword research, and competitor analysis. Created new content pillars, established brand voice guidelines, and implemented SEO best practices across all new content.',
-      case2Results: '300% increase in organic traffic within 6 months, 85% boost in conversion rates, and #1 Google rankings for 15 target keywords.',
-      case2Tags: 'SEO, Strategy, Brand Voice',
-      
-      // Case Study 3
-      case3Title: 'Business Leadership Book',
-      case3Client: 'Harper Publishing',
-      case3Role: 'Ghostwriter',
-      case3Description: 'Ghostwrote 80,000-word business book for Fortune 500 executive. Project included 20+ interviews and became Wall Street Journal bestseller.',
-      case3Challenge: 'Capture the authentic voice and leadership philosophy of a busy C-suite executive while creating an engaging, actionable narrative for aspiring leaders.',
-      case3Solution: 'Conducted extensive interviews, reviewed internal communications and presentations, and developed a framework that balanced personal anecdotes with practical business advice.',
-      case3Results: 'Published book became a Wall Street Journal bestseller within two weeks of launch, received endorsements from five industry leaders, and led to a multi-city book tour.',
-      case3Tags: 'Ghostwriting, Long-form, Business',
-      
-      // Blog Articles
+
       blog1Title: 'The Future of Web Design',
       blog1Excerpt: 'Exploring emerging trends and technologies shaping how we build digital experiences in 2026.',
       blog1Date: 'Jan 15, 2026',
       blog1ReadTime: '8',
       blog1Category: 'Design',
       blog1Link: 'https://example.com/future-of-web-design',
-      
-      blog2Title: 'Content Strategy in the AI Era',
-      blog2Excerpt: 'How artificial intelligence is transforming content creation while keeping human creativity at the center.',
-      blog2Date: 'Dec 28, 2025',
-      blog2ReadTime: '6',
-      blog2Category: 'Strategy',
-      blog2Link: 'https://example.com/content-strategy-ai',
-      
-      blog3Title: 'Writing for Impact: A Guide',
-      blog3Excerpt: 'Practical techniques for creating content that resonates with your audience and drives meaningful action.',
-      blog3Date: 'Dec 10, 2025',
-      blog3ReadTime: '10',
-      blog3Category: 'Writing',
-      blog3Link: 'https://example.com/writing-for-impact',
     }
   },
 };
@@ -179,7 +227,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
   const [currentBlog, setCurrentBlog] = useState(1);
   const [sampleModalOpen, setSampleModalOpen] = useState(false);
   const [testimonialModalOpen, setTestimonialModalOpen] = useState(false);
-  const [caseModalOpen, setCaseModalOpen] = useState(false); 
+  const [caseModalOpen, setCaseModalOpen] = useState(false);
   const [blogModalOpen, setBlogModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -353,7 +401,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
     setHistoryIndex(newHistory.length - 1);
   };
 
-    const handleReorder = (reorderedSections: any[]) => {
+  const handleReorder = (reorderedSections: any[]) => {
     setSections(reorderedSections);
   };
 
@@ -437,7 +485,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
 
       if (portfolio.template_id) {
         setSelectedTemplate(portfolio.template_id);
-        
+
         const config = getTemplateConfig(portfolio.template_id);
         if (!portfolio.sections || portfolio.sections.length === 0) {
           setSections(config.sections);
@@ -483,16 +531,16 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
 
       const body = shouldUpdate
         ? {
-            slug: portfolioSlug,
-            templateId: selectedTemplate, 
-            formData,
-            sections: sectionsForSave,
-          }
+          slug: portfolioSlug,
+          templateId: selectedTemplate,
+          formData,
+          sections: sectionsForSave,
+        }
         : {
-            templateId: selectedTemplate, 
-            formData,
-            sections: sectionsForSave,
-          };
+          templateId: selectedTemplate,
+          formData,
+          sections: sectionsForSave,
+        };
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -677,7 +725,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
               onOpenSampleModal={(num: React.SetStateAction<number>) => { setCurrentSample(num); setSampleModalOpen(true); }}
               onOpenTestimonialModal={(num: React.SetStateAction<number>) => { setCurrentTestimonial(num); setTestimonialModalOpen(true); }}
               onOpenCaseModal={(num: React.SetStateAction<number>) => { setCurrentCase(num); setCaseModalOpen(true); }}
-              onOpenBlogModal={(num: React.SetStateAction<number>) => {setCurrentBlog(num); setBlogModalOpen(true); }}
+              onOpenBlogModal={(num: React.SetStateAction<number>) => { setCurrentBlog(num); setBlogModalOpen(true); }}
               onDeleteSample={handleDeleteSample}
               onDeleteTestimonial={handleDeleteTestimonial}
               onDeleteCase={handleDeleteCase}
@@ -694,7 +742,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
               onReorder={handleReorder}
             />
           )}
-          {activeTab === 'design' && <DesignTab formData={formData} onChange={handleInputChange} />}
+          {activeTab === 'design' && <DesignTab formData={formData} onChange={handleInputChange} templateId={selectedTemplate} />}
           {activeTab === 'settings' && <SettingsTab autoSave={autoSave} onToggleAutoSave={() => setAutoSave(!autoSave)} />}
         </div>
       </div>
@@ -806,22 +854,82 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
 // HELPER COMPONENTS  
 // ============================================================================
 
-function DesignTab({ formData, onChange }: any) {
+function DesignTab({ formData, onChange, templateId }: any) {
+  const isModernTemplate = templateId === 'modern-writer-template';
+
   return (
     <div className="space-y-6">
+      {isModernTemplate && (
+        <div className="p-4 bg-slate-900/50 border border-slate-700 rounded-xl">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-bold text-slate-300 flex items-center gap-2">
+                <Moon className="w-4 h-4" />
+                Default Theme
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">Choose the initial theme when page loads</p>
+            </div>
+            <div className="flex gap-2 p-1 bg-slate-800 rounded-lg">
+              <button
+                onClick={() => onChange('defaultTheme', 'light')}
+                className={`px-4 py-2 rounded-md text-xs font-bold transition ${formData.defaultTheme === 'light' || !formData.defaultTheme
+                    ? 'bg-yellow-400 text-slate-900'
+                    : 'text-slate-400 hover:text-slate-200'
+                  }`}
+              >
+                <span className="flex items-center gap-1.5">
+                  ☀️ Light
+                </span>
+              </button>
+              <button
+                onClick={() => onChange('defaultTheme', 'dark')}
+                className={`px-4 py-2 rounded-md text-xs font-bold transition ${formData.defaultTheme === 'dark'
+                    ? 'bg-slate-700 text-white'
+                    : 'text-slate-400 hover:text-slate-200'
+                  }`}
+              >
+                <span className="flex items-center gap-1.5">
+                  🌙 Dark
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div>
         <label className="block text-sm font-bold text-slate-300 mb-3">Primary Color</label>
         <div className="flex gap-3">
-          <input type="color" value={formData.primaryColor} onChange={(e) => onChange('primaryColor', e.target.value)} className="w-14 h-14 rounded-xl border-2 border-slate-700 cursor-pointer" />
-          <input type="text" value={formData.primaryColor} onChange={(e) => onChange('primaryColor', e.target.value)} className="flex-1 bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 font-mono text-sm focus:outline-none focus:border-yellow-400" />
+          <input
+            type="color"
+            value={formData.primaryColor || '#6366f1'}
+            onChange={(e) => onChange('primaryColor', e.target.value)}
+            className="w-14 h-14 rounded-xl border-2 border-slate-700 cursor-pointer"
+          />
+          <input
+            type="text"
+            value={formData.primaryColor || '#6366f1'}
+            onChange={(e) => onChange('primaryColor', e.target.value)}
+            className="flex-1 bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 font-mono text-sm focus:outline-none focus:border-yellow-400"
+          />
         </div>
       </div>
 
       <div>
         <label className="block text-sm font-bold text-slate-300 mb-3">Accent Color</label>
         <div className="flex gap-3">
-          <input type="color" value={formData.accentColor} onChange={(e) => onChange('accentColor', e.target.value)} className="w-14 h-14 rounded-xl border-2 border-slate-700 cursor-pointer" />
-          <input type="text" value={formData.accentColor} onChange={(e) => onChange('accentColor', e.target.value)} className="flex-1 bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 font-mono text-sm focus:outline-none focus:border-yellow-400" />
+          <input
+            type="color"
+            value={formData.accentColor || '#ec4899'}
+            onChange={(e) => onChange('accentColor', e.target.value)}
+            className="w-14 h-14 rounded-xl border-2 border-slate-700 cursor-pointer"
+          />
+          <input
+            type="text"
+            value={formData.accentColor || '#ec4899'}
+            onChange={(e) => onChange('accentColor', e.target.value)}
+            className="flex-1 bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 font-mono text-sm focus:outline-none focus:border-yellow-400"
+          />
         </div>
       </div>
 
@@ -831,8 +939,17 @@ function DesignTab({ formData, onChange }: any) {
         </h3>
         <div className="grid grid-cols-3 gap-3">
           {COLOR_PRESETS.map(preset => (
-            <button key={preset.name} onClick={() => { onChange('primaryColor', preset.primary); onChange('accentColor', preset.accent); }} className="relative p-4 rounded-xl border-2 border-slate-700 hover:border-yellow-400 transition overflow-hidden" style={{ background: `linear-gradient(135deg, ${preset.primary}, ${preset.accent})` }}>
+            <button
+              key={preset.name}
+              onClick={() => {
+                onChange('primaryColor', preset.primary);
+                onChange('accentColor', preset.accent);
+              }}
+              className="relative p-4 rounded-xl border-2 border-slate-700 hover:border-yellow-400 transition overflow-hidden group"
+              style={{ background: `linear-gradient(135deg, ${preset.primary}, ${preset.accent})` }}
+            >
               <span className="relative z-10 text-white text-xs font-bold drop-shadow-lg">{preset.name}</span>
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition"></div>
             </button>
           ))}
         </div>
@@ -841,19 +958,19 @@ function DesignTab({ formData, onChange }: any) {
   );
 }
 
-function ContentTab({ 
-  formData, 
-  onChange, 
-  onFileChange, 
-  onOpenSampleModal, 
+function ContentTab({
+  formData,
+  onChange,
+  onFileChange,
+  onOpenSampleModal,
   onOpenTestimonialModal,
-  onOpenCaseModal, 
-  onOpenBlogModal, 
-  onDeleteSample, 
+  onOpenCaseModal,
+  onOpenBlogModal,
+  onDeleteSample,
   onDeleteTestimonial,
   onDeleteCase,
   onDeleteBlog,
-  templateId 
+  templateId
 }: any) {
   const getActualSampleCount = () => {
     let count = 0;
@@ -1061,12 +1178,12 @@ function ContentTab({
 
           <div>
             <label className="block text-sm font-bold text-slate-300 mb-2">Full Name</label>
-            <input 
-              type="text" 
-              value={formData.fullName || ''} 
-              onChange={(e) => onChange('fullName', e.target.value)} 
-              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" 
-              placeholder="Your Name" 
+            <input
+              type="text"
+              value={formData.fullName || ''}
+              onChange={(e) => onChange('fullName', e.target.value)}
+              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400"
+              placeholder="Your Name"
             />
           </div>
 
@@ -1075,23 +1192,23 @@ function ContentTab({
             <label className="block text-sm font-bold text-slate-300 mb-2">
               {isModernTemplate ? 'Tagline' : 'Headline'}
             </label>
-            <input 
-              type="text" 
-              value={isModernTemplate ? (formData.tagline || '') : (formData.headline || '')} 
-              onChange={(e) => onChange(isModernTemplate ? 'tagline' : 'headline', e.target.value)} 
-              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" 
-              placeholder={isModernTemplate ? 'Creative Professional' : 'Your Professional Title'} 
+            <input
+              type="text"
+              value={isModernTemplate ? (formData.tagline || '') : (formData.headline || '')}
+              onChange={(e) => onChange(isModernTemplate ? 'tagline' : 'headline', e.target.value)}
+              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400"
+              placeholder={isModernTemplate ? 'Creative Professional' : 'Your Professional Title'}
             />
           </div>
 
           <div>
             <label className="block text-sm font-bold text-slate-300 mb-2">Bio</label>
-            <textarea 
-              value={formData.bio || ''} 
-              onChange={(e) => onChange('bio', e.target.value)} 
-              rows={4} 
-              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 resize-none focus:outline-none focus:border-yellow-400 custom-scrollbar" 
-              placeholder="Tell visitors about yourself..." 
+            <textarea
+              value={formData.bio || ''}
+              onChange={(e) => onChange('bio', e.target.value)}
+              rows={4}
+              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 resize-none focus:outline-none focus:border-yellow-400 custom-scrollbar"
+              placeholder="Tell visitors about yourself..."
             />
           </div>
         </div>
@@ -1103,35 +1220,35 @@ function ContentTab({
           <Globe className="w-4 h-4" />Social Links
         </h3>
         <div className="space-y-3">
-          <input 
-            type="url" 
-            value={formData.linkedin || ''} 
-            onChange={(e) => onChange('linkedin', e.target.value)} 
-            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" 
-            placeholder="LinkedIn URL" 
+          <input
+            type="url"
+            value={formData.linkedin || ''}
+            onChange={(e) => onChange('linkedin', e.target.value)}
+            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400"
+            placeholder="LinkedIn URL"
           />
-          <input 
-            type="url" 
-            value={formData.twitter || ''} 
-            onChange={(e) => onChange('twitter', e.target.value)} 
-            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" 
-            placeholder="Twitter/X URL" 
+          <input
+            type="url"
+            value={formData.twitter || ''}
+            onChange={(e) => onChange('twitter', e.target.value)}
+            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400"
+            placeholder="Twitter/X URL"
           />
           {isModernTemplate && (
-            <input 
-              type="url" 
-              value={formData.github || ''} 
-              onChange={(e) => onChange('github', e.target.value)} 
-              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" 
-              placeholder="GitHub URL" 
+            <input
+              type="url"
+              value={formData.github || ''}
+              onChange={(e) => onChange('github', e.target.value)}
+              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400"
+              placeholder="GitHub URL"
             />
           )}
-          <input 
-            type="url" 
-            value={formData.website || ''} 
-            onChange={(e) => onChange('website', e.target.value)} 
-            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" 
-            placeholder="Website URL" 
+          <input
+            type="url"
+            value={formData.website || ''}
+            onChange={(e) => onChange('website', e.target.value)}
+            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400"
+            placeholder="Website URL"
           />
         </div>
       </div>
@@ -1144,12 +1261,12 @@ function ContentTab({
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-bold text-slate-300 mb-2">Email Address</label>
-            <input 
-              type="email" 
-              value={formData.email || ''} 
-              onChange={(e) => onChange('email', e.target.value)} 
-              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" 
-              placeholder="your@email.com" 
+            <input
+              type="email"
+              value={formData.email || ''}
+              onChange={(e) => onChange('email', e.target.value)}
+              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400"
+              placeholder="your@email.com"
             />
           </div>
         </div>
@@ -1163,7 +1280,7 @@ function ContentTab({
             <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
               <Sparkles className="w-4 h-4" />Skills
             </h3>
-            
+
             {/* Skill Selection Grid */}
             <div className="grid grid-cols-2 gap-3">
               {SKILL_OPTIONS.map((skill) => {
@@ -1172,7 +1289,7 @@ function ContentTab({
                   .map(num => formData[`skill${num}`])
                   .filter(Boolean);
                 const canSelect = selectedSkills.length < 6;
-                
+
                 return (
                   <button
                     key={skill.name}
@@ -1196,13 +1313,12 @@ function ContentTab({
                       }
                     }}
                     disabled={!isSelected && !canSelect}
-                    className={`p-4 rounded-xl border-2 transition-all text-left ${
-                      isSelected
+                    className={`p-4 rounded-xl border-2 transition-all text-left ${isSelected
                         ? 'bg-yellow-400/20 border-yellow-400 text-yellow-400'
                         : canSelect
-                        ? 'bg-slate-900/50 border-slate-700 hover:border-yellow-400/50'
-                        : 'bg-slate-900/30 border-slate-700/50 opacity-50 cursor-not-allowed'
-                    }`}
+                          ? 'bg-slate-900/50 border-slate-700 hover:border-yellow-400/50'
+                          : 'bg-slate-900/30 border-slate-700/50 opacity-50 cursor-not-allowed'
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{skill.icon}</span>
@@ -1217,7 +1333,7 @@ function ContentTab({
                 );
               })}
             </div>
-            
+
             {/* Selected Skills Count */}
             <div className="mt-3 text-xs text-slate-400 text-center">
               {[1, 2, 3, 4, 5, 6].filter(num => formData[`skill${num}`]).length} / 6 skills selected
@@ -1379,13 +1495,13 @@ function ContentTab({
             </h3>
             <div className="space-y-3">
               {[1, 2, 3, 4].map(num => (
-                <input 
-                  key={num} 
-                  type="text" 
-                  value={formData[`specialty${num}`] || ''} 
-                  onChange={(e) => onChange(`specialty${num}`, e.target.value)} 
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" 
-                  placeholder={`Specialty ${num}`} 
+                <input
+                  key={num}
+                  type="text"
+                  value={formData[`specialty${num}`] || ''}
+                  onChange={(e) => onChange(`specialty${num}`, e.target.value)}
+                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400"
+                  placeholder={`Specialty ${num}`}
                 />
               ))}
             </div>
@@ -1511,11 +1627,11 @@ function ContentTab({
               <h3 className="text-sm font-bold text-slate-300 flex items-center gap-2">
                 <MessageSquare className="w-4 h-4" />Testimonials
               </h3>
-              <button 
-                onClick={() => { 
-                  const slot = [1, 2, 3].find(n => !formData[`testimonial${n}`]); 
-                  onOpenTestimonialModal(slot || 1); 
-                }} 
+              <button
+                onClick={() => {
+                  const slot = [1, 2, 3].find(n => !formData[`testimonial${n}`]);
+                  onOpenTestimonialModal(slot || 1);
+                }}
                 className="px-3 py-1.5 bg-yellow-400 text-slate-900 rounded-lg text-xs font-bold hover:bg-yellow-300 flex items-center gap-1.5"
               >
                 <Plus className="w-3.5 h-3.5" />Add
@@ -1583,22 +1699,22 @@ function LayoutTab({ sections, onToggle, onMoveUp, onMoveDown, onReorder }: any)
 
   const scrollToSection = (sectionId: string) => {
     const preview = document.querySelector('iframe') || document.querySelector('[data-preview-container]');
-    
+
     if (preview && preview instanceof HTMLIFrameElement) {
       const iframeDoc = preview.contentDocument || preview.contentWindow?.document;
       if (iframeDoc) {
-        const section = iframeDoc.querySelector(`[data-section="${sectionId}"]`) || 
-                       iframeDoc.querySelector(`#${sectionId}`) ||
-                       iframeDoc.querySelector(`section:nth-of-type(${sections.findIndex((s: any) => s.id === sectionId) + 1})`);
-        
+        const section = iframeDoc.querySelector(`[data-section="${sectionId}"]`) ||
+          iframeDoc.querySelector(`#${sectionId}`) ||
+          iframeDoc.querySelector(`section:nth-of-type(${sections.findIndex((s: any) => s.id === sectionId) + 1})`);
+
         if (section) {
           section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }
     } else {
-      const section = document.querySelector(`[data-section="${sectionId}"]`) || 
-                     document.querySelector(`#${sectionId}`);
-      
+      const section = document.querySelector(`[data-section="${sectionId}"]`) ||
+        document.querySelector(`#${sectionId}`);
+
       if (section) {
         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
@@ -1609,7 +1725,7 @@ function LayoutTab({ sections, onToggle, onMoveUp, onMoveDown, onReorder }: any)
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', e.currentTarget.innerHTML);
-    
+
     if (e.currentTarget instanceof HTMLElement) {
       e.currentTarget.style.opacity = '0.4';
     }
@@ -1626,7 +1742,7 @@ function LayoutTab({ sections, onToggle, onMoveUp, onMoveDown, onReorder }: any)
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    
+
     if (draggedIndex !== null && draggedIndex !== index) {
       setDragOverIndex(index);
     }
@@ -1638,22 +1754,22 @@ function LayoutTab({ sections, onToggle, onMoveUp, onMoveDown, onReorder }: any)
 
   const handleDrop = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
-    
+
     if (draggedIndex !== null && draggedIndex !== dropIndex) {
       const newSections = [...sections];
       const [draggedSection] = newSections.splice(draggedIndex, 1);
       newSections.splice(dropIndex, 0, draggedSection);
-      
+
       const reorderedSections = newSections.map((section, index) => ({
         ...section,
         order: index
       }));
-      
+
       if (onReorder) {
         onReorder(reorderedSections);
       }
     }
-    
+
     setDraggedIndex(null);
     setDragOverIndex(null);
   };
@@ -1685,31 +1801,27 @@ function LayoutTab({ sections, onToggle, onMoveUp, onMoveDown, onReorder }: any)
               onDragOver={(e) => handleDragOver(e, i)}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, i)}
-              className={`p-4 rounded-xl border-2 transition-all cursor-move group ${
-                isVisible
+              className={`p-4 rounded-xl border-2 transition-all cursor-move group ${isVisible
                   ? 'bg-slate-900/50 border-slate-700'
                   : 'bg-slate-800/30 border-slate-700/50 opacity-50'
-              } ${
-                isDragging ? 'opacity-40 scale-95' : ''
-              } ${
-                isDragOver ? 'border-yellow-400 scale-105 shadow-lg' : ''
-              } hover:border-yellow-400/50 hover:shadow-md`}
+                } ${isDragging ? 'opacity-40 scale-95' : ''
+                } ${isDragOver ? 'border-yellow-400 scale-105 shadow-lg' : ''
+                } hover:border-yellow-400/50 hover:shadow-md`}
             >
               <div className="flex items-center gap-3">
                 {/* Drag Handle */}
                 <GripVertical className="w-5 h-5 text-slate-500 group-hover:text-yellow-400 transition cursor-grab active:cursor-grabbing" />
-                
+
                 {/* Section Info */}
-                <div 
+                <div
                   className="flex-1 flex items-center gap-3 cursor-pointer"
                   onClick={() => scrollToSection(section.id)}
                   title="Click to scroll to section"
                 >
-                  <div className={`w-8 h-8 p-2 rounded-lg flex items-center justify-center transition ${
-                    isVisible
+                  <div className={`w-8 h-8 p-2 rounded-lg flex items-center justify-center transition ${isVisible
                       ? 'bg-yellow-400/20 text-yellow-400 group-hover:bg-yellow-400/30'
                       : 'bg-slate-700/50 text-slate-600'
-                  }`}>
+                    }`}>
                     {sectionIcon}
                   </div>
                   <div className="flex-1">
@@ -1749,9 +1861,8 @@ function LayoutTab({ sections, onToggle, onMoveUp, onMoveDown, onReorder }: any)
                     className="p-2 hover:bg-slate-700 rounded-lg transition"
                     title={isVisible ? 'Hide section' : 'Show section'}
                   >
-                    <Eye className={`w-4 h-4 ${
-                      isVisible ? 'text-green-400' : 'text-slate-600'
-                    }`} />
+                    <Eye className={`w-4 h-4 ${isVisible ? 'text-green-400' : 'text-slate-600'
+                      }`} />
                   </button>
                 </div>
               </div>
@@ -1805,6 +1916,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
   const isMobile = previewMode === 'mobile';
   const isTablet = previewMode === 'tablet';
   const isDesktop = previewMode === 'desktop';
+  const isModernTemplate = templateId === 'modern-writer-template';
 
   const visibleSections = sections
     .filter((s: any) => s.visible)
@@ -1983,27 +2095,27 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
     switch (sectionId) {
       case 'hero':
         return (
-          <section 
-            key="hero" 
-            data-section="hero" 
-            className={`min-h-screen flex items-center justify-center text-center relative overflow-hidden ${isMobile ? 'px-6 py-16' : 'px-8 py-16'}`} 
+          <section
+            key="hero"
+            data-section="hero"
+            className={`min-h-screen flex items-center justify-center text-center relative overflow-hidden ${isMobile ? 'px-6 py-16' : 'px-8 py-16'}`}
             style={{ background: `linear-gradient(135deg, ${formData.primaryColor}20, ${formData.accentColor}10)` }}
           >
             <div className={`relative z-10 max-w-3xl mx-auto ${isMobile ? 'max-w-sm' : isTablet ? 'max-w-2xl' : 'max-w-3xl'}`}>
               {/* Avatar - Letter or Image */}
               {formData.profileImage ? (
-                <img 
-                  src={formData.profileImage} 
-                  alt={formData.fullName || 'Profile'} 
-                  className={`rounded-full mx-auto mb-8 object-cover ${isMobile ? 'w-36 h-36' : isTablet ? 'w-40 h-40' : 'w-38 h-38'}`} 
-                  style={{ 
+                <img
+                  src={formData.profileImage}
+                  alt={formData.fullName || 'Profile'}
+                  className={`rounded-full mx-auto mb-8 object-cover ${isMobile ? 'w-36 h-36' : isTablet ? 'w-40 h-40' : 'w-38 h-38'}`}
+                  style={{
                     boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)'
-                  }} 
+                  }}
                 />
               ) : (
-                <div 
-                  className={`rounded-full mx-auto mb-8 flex items-center justify-center text-white font-black ${isMobile ? 'w-36 h-36 text-5xl' : isTablet ? 'w-40 h-40 text-6xl' : 'w-38 h-38 text-6xl'}`} 
-                  style={{ 
+                <div
+                  className={`rounded-full mx-auto mb-8 flex items-center justify-center text-white font-black ${isMobile ? 'w-36 h-36 text-5xl' : isTablet ? 'w-40 h-40 text-6xl' : 'w-38 h-38 text-6xl'}`}
+                  style={{
                     background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
                     boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
                     fontFamily: "'Space Grotesk', sans-serif",
@@ -2015,12 +2127,12 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
               )}
 
               {/* Title with Space Grotesk font */}
-              <h1 
-                className={`font-bold mb-4 leading-tight ${isMobile ? 'text-5xl' : isTablet ? 'text-6xl' : 'text-7xl'}`} 
-                style={{ 
-                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`, 
-                  WebkitBackgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent', 
+              <h1
+                className={`font-bold mb-4 leading-tight ${isMobile ? 'text-5xl' : isTablet ? 'text-6xl' : 'text-7xl'}`}
+                style={{
+                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontWeight: 700
@@ -2030,9 +2142,9 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
               </h1>
 
               {/* Tagline with Space Grotesk */}
-              <p 
+              <p
                 className={`font-medium mb-6 ${isMobile ? 'text-xl' : isTablet ? 'text-2xl' : 'text-3xl'}`}
-                style={{ 
+                style={{
                   color: 'var(--text, #0f172a)',
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontWeight: 500
@@ -2042,9 +2154,9 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
               </p>
 
               {/* Bio with Inter font */}
-              <p 
+              <p
                 className={`text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed ${isMobile ? 'text-base' : isTablet ? 'text-lg' : 'text-xl'}`}
-                style={{ 
+                style={{
                   fontFamily: "'Inter', sans-serif",
                   lineHeight: 1.8,
                   color: 'var(--text-muted, #64748b)'
@@ -2055,10 +2167,10 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
 
               {/* CTA Buttons */}
               <div className="flex gap-4 justify-center flex-wrap mb-16">
-                <a 
-                  href="#contact" 
-                  className={`rounded-full text-white font-semibold transition-all ${isMobile ? 'px-8 py-3 text-base' : 'px-10 py-4 text-base'}`} 
-                  style={{ 
+                <a
+                  href="#contact"
+                  className={`rounded-full text-white font-semibold transition-all ${isMobile ? 'px-8 py-3 text-base' : 'px-10 py-4 text-base'}`}
+                  style={{
                     background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
                     boxShadow: `0 10px 30px ${formData.primaryColor}40`,
                     fontFamily: "'Inter', sans-serif",
@@ -2075,11 +2187,11 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                 >
                   Get In Touch
                 </a>
-                <a 
-                  href="#case-studies" 
-                  className={`rounded-full bg-transparent border-2 font-semibold transition-all ${isMobile ? 'px-8 py-3 text-base' : 'px-10 py-4 text-base'}`} 
-                  style={{ 
-                    borderColor: 'var(--border, #e2e8f0)', 
+                <a
+                  href="#case-studies"
+                  className={`rounded-full bg-transparent border-2 font-semibold transition-all ${isMobile ? 'px-8 py-3 text-base' : 'px-10 py-4 text-base'}`}
+                  style={{
+                    borderColor: 'var(--border, #e2e8f0)',
                     color: 'var(--text, #0f172a)',
                     fontFamily: "'Inter', sans-serif",
                     fontWeight: 600
@@ -2100,11 +2212,11 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
               {/* Scroll Indicator */}
               <div className="flex flex-col items-center gap-2 text-slate-500 text-sm">
                 <span style={{ fontFamily: "'Inter', sans-serif" }}>Scroll to explore</span>
-                <div 
+                <div
                   className="w-6 h-10 border-2 border-slate-400 rounded-xl relative"
                   style={{ animation: 'scroll 2s infinite' }}
                 >
-                  <div 
+                  <div
                     className="absolute top-2 left-1/2 w-1 h-2 bg-slate-400 rounded-full"
                     style={{
                       transform: 'translateX(-50%)',
@@ -2131,19 +2243,19 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
 
       case 'about':
         return (
-          <section 
-            key="about" 
-            data-section="about" 
+          <section
+            key="about"
+            data-section="about"
             className={`${isMobile ? 'py-16 px-6' : isTablet ? 'py-20 px-8' : 'py-32 px-8'}`}
             style={{ background: 'var(--bg-alt, #f8fafc)' }}
           >
             <div className="max-w-4xl mx-auto text-center">
-              <h2 
-                className={`font-bold mb-6 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`} 
-                style={{ 
-                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`, 
-                  WebkitBackgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent', 
+              <h2
+                className={`font-bold mb-6 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`}
+                style={{
+                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontWeight: 700
@@ -2151,7 +2263,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
               >
                 About Me
               </h2>
-              <p 
+              <p
                 className={`leading-relaxed ${isMobile ? 'text-base' : 'text-xl'}`}
                 style={{
                   color: 'var(--text-muted, #64748b)',
@@ -2167,19 +2279,19 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
 
       case 'skills':
         return [1, 2, 3, 4, 5, 6].some(n => formData[`skill${n}`]) ? (
-          <section 
-            key="skills" 
-            data-section="skills" 
+          <section
+            key="skills"
+            data-section="skills"
             className={`${isMobile ? 'py-16 px-6' : isTablet ? 'py-20 px-8' : 'py-32 px-8'}`}
             style={{ background: 'var(--bg-alt, #f8fafc)' }}
           >
             <div className="max-w-6xl mx-auto">
-              <h2 
-                className={`font-bold text-center mb-16 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`} 
-                style={{ 
-                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`, 
-                  WebkitBackgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent', 
+              <h2
+                className={`font-bold text-center mb-16 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`}
+                style={{
+                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontWeight: 700,
@@ -2188,8 +2300,8 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
               >
                 Skills & Expertise
               </h2>
-              <div 
-                className={`grid gap-8 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-3'}`}
+              <div
+                className={`grid gap-8 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-4'}`}
                 style={{ marginTop: '4rem' }}
               >
                 {[
@@ -2200,10 +2312,10 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                   { num: 5, emoji: '📰' },
                   { num: 6, emoji: '🔍' }
                 ].map(({ num, emoji }) => formData[`skill${num}`] ? (
-                  <div 
-                    key={num} 
+                  <div
+                    key={num}
                     className="bg-white border-2 rounded-2xl p-10 text-center transition-all cursor-pointer"
-                    style={{ 
+                    style={{
                       borderColor: 'var(--border, #e2e8f0)',
                       background: 'var(--bg, #ffffff)'
                     }}
@@ -2219,9 +2331,9 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                     }}
                   >
                     <div className="text-5xl mb-4">{emoji}</div>
-                    <h3 
+                    <h3
                       className="font-semibold text-xl"
-                      style={{ 
+                      style={{
                         fontFamily: "'Inter', sans-serif",
                         fontWeight: 600,
                         color: 'var(--text, #0f172a)',
@@ -2239,18 +2351,18 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
 
       case 'case-studies':
         return [1, 2, 3].some(n => formData[`case${n}Title`]) ? (
-          <section 
-            key="case-studies" 
-            data-section="case-studies" 
+          <section
+            key="case-studies"
+            data-section="case-studies"
             className={`${isMobile ? 'py-16 px-6' : isTablet ? 'py-20 px-8' : 'py-32 px-8'}`}
           >
             <div className="max-w-6xl mx-auto">
-              <h2 
-                className={`font-bold text-center mb-16 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`} 
-                style={{ 
-                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`, 
-                  WebkitBackgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent', 
+              <h2
+                className={`font-bold text-center mb-16 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`}
+                style={{
+                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontWeight: 700,
@@ -2259,7 +2371,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
               >
                 Featured Work
               </h2>
-              <div 
+              <div
                 className={`grid gap-12 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-3'}`}
                 style={{ marginTop: '4rem' }}
               >
@@ -2270,10 +2382,10 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                 ].map(({ num, emoji }) => {
                   if (!formData[`case${num}Title`]) return null;
                   return (
-                    <article 
-                      key={num} 
+                    <article
+                      key={num}
                       className="border-2 rounded-2xl overflow-hidden transition-all"
-                      style={{ 
+                      style={{
                         borderColor: 'var(--border, #e2e8f0)',
                         background: 'var(--bg-alt, #f8fafc)'
                       }}
@@ -2289,10 +2401,10 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                       }}
                     >
                       {/* Case Image */}
-                      <div 
+                      <div
                         className="h-64 flex items-center justify-center text-7xl relative overflow-hidden"
-                        style={{ 
-                          background: `linear-gradient(135deg, ${formData.primaryColor}30, ${formData.accentColor}20)` 
+                        style={{
+                          background: `linear-gradient(135deg, ${formData.primaryColor}30, ${formData.accentColor}20)`
                         }}
                       >
                         {emoji}
@@ -2302,9 +2414,9 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                       <div className="p-8">
                         {/* Meta */}
                         <div className="flex gap-4 mb-4 text-sm flex-wrap">
-                          <span 
+                          <span
                             className="font-semibold"
-                            style={{ 
+                            style={{
                               color: formData.primaryColor,
                               fontFamily: "'Inter', sans-serif",
                               fontWeight: 600
@@ -2312,8 +2424,8 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                           >
                             {formData[`case${num}Client`] || 'Client Name'}
                           </span>
-                          <span 
-                            style={{ 
+                          <span
+                            style={{
                               color: 'var(--text-muted, #64748b)',
                               fontFamily: "'Inter', sans-serif"
                             }}
@@ -2323,9 +2435,9 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                         </div>
 
                         {/* Title */}
-                        <h3 
+                        <h3
                           className="font-bold text-2xl mb-4 leading-tight"
-                          style={{ 
+                          style={{
                             fontFamily: "'Inter', sans-serif",
                             fontWeight: 700,
                             color: 'var(--text, #0f172a)',
@@ -2337,9 +2449,9 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                         </h3>
 
                         {/* Description */}
-                        <p 
+                        <p
                           className="mb-6 leading-relaxed"
-                          style={{ 
+                          style={{
                             fontFamily: "'Inter', sans-serif",
                             lineHeight: 1.7,
                             color: 'var(--text-muted, #64748b)'
@@ -2352,7 +2464,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                         {formData[`case${num}Tags`] && (
                           <div className="flex flex-wrap gap-2 mb-6">
                             {formData[`case${num}Tags`].split(',').map((tag: string, idx: number) => (
-                              <span 
+                              <span
                                 key={idx}
                                 className="px-3 py-1 rounded-full text-xs font-medium"
                                 style={{
@@ -2373,7 +2485,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                         )}
 
                         {/* Read More Button */}
-                        <button 
+                        <button
                           className="bg-transparent border-none font-semibold cursor-pointer transition-all"
                           style={{
                             color: formData.primaryColor,
@@ -2402,19 +2514,19 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
 
       case 'blog':
         return [1, 2, 3].some(n => formData[`blog${n}Title`]) ? (
-          <section 
-            key="blog" 
-            data-section="blog" 
+          <section
+            key="blog"
+            data-section="blog"
             className={`${isMobile ? 'py-16 px-6' : isTablet ? 'py-20 px-8' : 'py-32 px-8'}`}
             style={{ background: 'var(--bg-alt, #f8fafc)' }}
           >
             <div className="max-w-6xl mx-auto">
-              <h2 
-                className={`font-bold text-center mb-16 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`} 
-                style={{ 
-                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`, 
-                  WebkitBackgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent', 
+              <h2
+                className={`font-bold text-center mb-16 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`}
+                style={{
+                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontWeight: 700,
@@ -2423,18 +2535,19 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
               >
                 Latest Articles
               </h2>
-              <div 
+              <div
                 className={`grid gap-8 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-3'}`}
                 style={{ marginTop: '4rem' }}
               >
                 {[1, 2, 3].map(n => {
                   if (!formData[`blog${n}Title`]) return null;
                   return (
-                    <article 
-                      key={n} 
-                      className="bg-white border-2 rounded-2xl overflow-hidden transition-all"
-                      style={{ 
-                        borderColor: 'var(--border, #e2e8f0)'
+                    <article
+                      key={n}
+                      className="border-2 rounded-2xl overflow-hidden transition-all"
+                      style={{
+                        borderColor: 'var(--border, #e2e8f0)',
+                        background: 'var(--bg, #ffffff)'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'translateY(-10px)';
@@ -2448,16 +2561,16 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                       }}
                     >
                       {/* Blog Header Image */}
-                      <div 
+                      <div
                         className="h-40 relative overflow-hidden"
                         style={{
                           background: 'linear-gradient(135deg, #f1f5f9, #e2e8f0)'
                         }}
                       >
                         {formData[`blog${n}Category`] && (
-                          <span 
+                          <span
                             className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold text-white"
-                            style={{ 
+                            style={{
                               background: formData.primaryColor,
                               fontFamily: "'Inter', sans-serif"
                             }}
@@ -2470,7 +2583,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                       {/* Blog Content */}
                       <div className="p-6">
                         {/* Meta Info */}
-                        <div 
+                        <div
                           className="text-xs mb-2"
                           style={{
                             color: 'var(--text-muted, #64748b)',
@@ -2481,7 +2594,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                         </div>
 
                         {/* Title */}
-                        <h3 
+                        <h3
                           className="font-bold text-lg mb-2"
                           style={{
                             fontFamily: "'Inter', sans-serif",
@@ -2493,7 +2606,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                         </h3>
 
                         {/* Excerpt */}
-                        <p 
+                        <p
                           className="text-sm mb-4"
                           style={{
                             color: 'var(--text-muted, #64748b)',
@@ -2504,10 +2617,10 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                         </p>
 
                         {/* Read More Link */}
-                        <a 
-                          href={formData[`blog${n}Link`] || '#'} 
+                        <a
+                          href={formData[`blog${n}Link`] || '#'}
                           className="font-bold text-sm inline-flex items-center gap-2 transition-all"
-                          style={{ 
+                          style={{
                             color: formData.primaryColor,
                             fontFamily: "'Inter', sans-serif",
                             fontWeight: 600,
@@ -2533,19 +2646,19 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
 
       case 'contact':
         return (
-          <section 
-            key="contact" 
-            data-section="contact" 
+          <section
+            key="contact"
+            data-section="contact"
             className={`${isMobile ? 'py-16 px-6' : isTablet ? 'py-20 px-8' : 'py-32 px-8'}`}
             style={{ background: 'var(--bg-alt, #f8fafc)' }}
           >
             <div className="max-w-4xl mx-auto">
-              <h2 
-                className={`font-bold text-center mb-8 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`} 
-                style={{ 
-                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`, 
-                  WebkitBackgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent', 
+              <h2
+                className={`font-bold text-center mb-8 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`}
+                style={{
+                  background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontWeight: 700,
@@ -2557,7 +2670,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
 
               <div className="text-center max-w-2xl mx-auto">
                 {/* Contact Text */}
-                <p 
+                <p
                   className={`mb-8 ${isMobile ? 'text-lg' : 'text-xl'}`}
                   style={{
                     color: 'var(--text-muted, #64748b)',
@@ -2571,7 +2684,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                 </p>
 
                 {/* Email Link */}
-                <a 
+                <a
                   href={`mailto:${formData.email}`}
                   className="inline-block text-2xl font-bold mb-12 relative"
                   style={{
@@ -2595,7 +2708,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                   }}
                 >
                   {formData.email || 'sarah@example.com'}
-                  <span 
+                  <span
                     className="email-underline"
                     style={{
                       position: 'absolute',
@@ -2612,11 +2725,12 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                 {/* Social Links */}
                 <div className="flex justify-center gap-6 flex-wrap mt-12">
                   {formData.linkedin && (
-                    <a 
+                    <a
                       href={formData.linkedin}
-                      className="flex items-center gap-3 px-7 py-3 bg-white border-2 rounded-full transition-all"
+                      className="flex items-center gap-3 px-7 py-3  border-2 rounded-full transition-all"
                       style={{
                         borderColor: 'var(--border, #e2e8f0)',
+                        background: 'var(--bg, #ffffff)',
                         color: 'var(--text, #0f172a)',
                         fontFamily: "'Inter', sans-serif",
                         fontWeight: 500,
@@ -2633,23 +2747,24 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                         e.currentTarget.style.borderColor = 'var(--border, #e2e8f0)';
                         e.currentTarget.style.transform = 'translateY(0)';
                         e.currentTarget.style.boxShadow = 'none';
-                        e.currentTarget.style.background = 'white';
+                        e.currentTarget.style.background = 'var(--bg, #ffffff)';
                         e.currentTarget.style.color = 'var(--text, #0f172a)';
                       }}
                     >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                       </svg>
                       <span>LinkedIn</span>
                     </a>
                   )}
-                  
+
                   {formData.github && (
-                    <a 
+                    <a
                       href={formData.github}
-                      className="flex items-center gap-3 px-7 py-3 bg-white border-2 rounded-full transition-all"
+                      className="flex items-center gap-3 px-7 py-3 border-2 rounded-full transition-all"
                       style={{
                         borderColor: 'var(--border, #e2e8f0)',
+                        background: 'var(--bg, #ffffff)',
                         color: 'var(--text, #0f172a)',
                         fontFamily: "'Inter', sans-serif",
                         fontWeight: 500,
@@ -2666,23 +2781,24 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                         e.currentTarget.style.borderColor = 'var(--border, #e2e8f0)';
                         e.currentTarget.style.transform = 'translateY(0)';
                         e.currentTarget.style.boxShadow = 'none';
-                        e.currentTarget.style.background = 'white';
+                        e.currentTarget.style.background = 'var(--bg, #ffffff)';
                         e.currentTarget.style.color = 'var(--text, #0f172a)';
                       }}
                     >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                       </svg>
                       <span>GitHub</span>
                     </a>
                   )}
-                  
+
                   {formData.twitter && (
-                    <a 
+                    <a
                       href={formData.twitter}
-                      className="flex items-center gap-3 px-7 py-3 bg-white border-2 rounded-full transition-all"
+                      className="flex items-center gap-3 px-7 py-3 border-2 rounded-full transition-all"
                       style={{
                         borderColor: 'var(--border, #e2e8f0)',
+                        background: 'var(--bg, #ffffff)',
                         color: 'var(--text, #0f172a)',
                         fontFamily: "'Inter', sans-serif",
                         fontWeight: 500,
@@ -2699,12 +2815,12 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                         e.currentTarget.style.borderColor = 'var(--border, #e2e8f0)';
                         e.currentTarget.style.transform = 'translateY(0)';
                         e.currentTarget.style.boxShadow = 'none';
-                        e.currentTarget.style.background = 'white';
+                        e.currentTarget.style.background = 'var(--bg, #ffffff)';
                         e.currentTarget.style.color = 'var(--text, #0f172a)';
                       }}
                     >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                       </svg>
                       <span>Twitter</span>
                     </a>
@@ -2714,12 +2830,12 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
             </div>
           </section>
         );
-      
+
       case 'footer':
         return (
-          <footer 
-            key="footer" 
-            data-section="footer" 
+          <footer
+            key="footer"
+            data-section="footer"
             className="py-12 border-t"
             style={{
               background: 'var(--bg, #ffffff)',
@@ -2728,7 +2844,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
             }}
           >
             <div className="container mx-auto px-8 flex justify-between items-center">
-              <p 
+              <p
                 style={{
                   color: 'var(--text-muted, #64748b)',
                   fontFamily: "'Inter', sans-serif",
@@ -2736,9 +2852,9 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                 }}
               >
                 © 2026 {formData.fullName || 'Sarah Mitchell'}. Built with{' '}
-                <a 
-                  href="https://foliobase.vercel.app" 
-                  target="_blank" 
+                <a
+                  href="https://foliobase.vercel.app"
+                  target="_blank"
                   rel="noopener noreferrer"
                   style={{
                     color: formData.primaryColor,
@@ -2764,7 +2880,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
         return null;
     }
   };
-  
+
   const renderSection = (sectionId: string) => {
     if (templateId === 'modern-writer-template') {
       return renderModernSection(sectionId);
@@ -2774,7 +2890,37 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
 
   return (
     <div className="flex-1 overflow-auto p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <div className={`bg-white transition-all duration-500 ${isDesktop ? 'w-full max-w-7xl mx-auto' : isTablet ? 'w-[768px] mx-auto' : 'w-[375px] mx-auto'}`}>
+      <div
+        className={`transition-all duration-500 ${isDesktop ? 'w-full max-w-7xl mx-auto' : isTablet ? 'w-[768px] mx-auto' : 'w-[375px] mx-auto'}`}
+        {...(isModernTemplate && { 'data-theme': formData.defaultTheme || 'light' })}
+        style={isModernTemplate ? {
+          background: formData.defaultTheme === 'dark' ? '#0f172a' : '#ffffff'
+        } : { background: '#ffffff' }}
+      >
+        {isModernTemplate && (
+          <style>{`
+            [data-theme="light"] {
+              --primary: ${formData.primaryColor || '#6366f1'};
+              --accent: ${formData.accentColor || '#ec4899'};
+              --bg: #ffffff;
+              --bg-alt: #f8fafc;
+              --text: #0f172a;
+              --text-muted: #64748b;
+              --border: #e2e8f0;
+            }
+            
+            [data-theme="dark"] {
+              --primary: ${formData.primaryColor || '#6366f1'};
+              --accent: ${formData.accentColor || '#ec4899'};
+              --bg: #0f172a;
+              --bg-alt: #1e293b;
+              --text: #f1f5f9;
+              --text-muted: #94a3b8;
+              --border: #334155;
+            }
+          `}</style>
+        )}
+
         {visibleSections.map((section: { id: string; }) => renderSection(section.id))}
       </div>
     </div>

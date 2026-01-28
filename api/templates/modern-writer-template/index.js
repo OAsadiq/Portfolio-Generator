@@ -752,7 +752,7 @@ function getModernStyles(primaryColor, accentColor) {
     
     .skills-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 2rem;
       margin-top: 4rem;
     }
@@ -799,7 +799,7 @@ function getModernStyles(primaryColor, accentColor) {
     
     .case-studies-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 3rem;
       margin-top: 4rem;
     }
@@ -1091,7 +1091,7 @@ function getModernStyles(primaryColor, accentColor) {
     
     .blog-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(3, 1fr)
       gap: 2.5rem;
       margin-top: 4rem;
     }
@@ -1338,6 +1338,15 @@ function getModernStyles(primaryColor, accentColor) {
     }
     
     /* Responsive */
+    @media (max-width: 1024px) {
+      .skills-grid, 
+      .case-studies-grid,
+      .blog-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+      }
+    }
+
     @media (max-width: 768px) {
       .hero {
         padding: 3rem 1.5rem;

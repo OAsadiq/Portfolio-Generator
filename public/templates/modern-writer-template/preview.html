@@ -123,6 +123,7 @@
         color: white;
         margin: 0 auto 2rem;
         box-shadow: 0 20px 40px var(--shadow);
+        font-family: 'Space Grotesk', sans-serif;
       }
       
       .hero-title {
@@ -137,6 +138,7 @@
       }
       
       .hero-tagline {
+        font-family: 'Space Grotesk', sans-serif;
         font-size: clamp(1.5rem, 3vw, 2rem);
         color: var(--text);
         margin-bottom: 1.5rem;
@@ -144,6 +146,7 @@
       }
       
       .hero-bio {
+        font-family: 'Inter', sans-serif;
         font-size: 1.25rem;
         color: var(--text-muted);
         max-width: 600px;
@@ -169,6 +172,7 @@
         border: none;
         cursor: pointer;
         font-size: 1rem;
+        font-family: 'Inter', sans-serif;
       }
       
       .btn-primary {
@@ -200,6 +204,7 @@
         gap: 0.5rem;
         color: var(--text-muted);
         font-size: 0.875rem;
+        font-family: 'Inter', sans-serif;
       }
       
       .scroll-arrow {
@@ -248,21 +253,39 @@
         background-clip: text;
       }
       
-      /* Skills Section */
-      .skills-section {
+      /* About Section */
+      .about-section {
         padding: 8rem 0;
         background: var(--bg-alt);
       }
       
+      .about-content {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      
+      .about-content p {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        line-height: 1.8;
+      }
+      
+      /* Skills Section */
+      .skills-section {
+        padding: 8rem 0;
+      }
+      
       .skills-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 2rem;
         margin-top: 4rem;
       }
       
       .skill-card {
-        background: var(--bg);
+        background: var(--bg-alt);
         border: 2px solid var(--border);
         border-radius: 20px;
         padding: 2.5rem 2rem;
@@ -284,6 +307,7 @@
       }
       
       .skill-card h3 {
+        font-family: 'Inter', sans-serif;
         font-size: 1.25rem;
         font-weight: 600;
         color: var(--text);
@@ -292,17 +316,18 @@
       /* Case Studies Section */
       .case-studies-section {
         padding: 8rem 0;
+        background: var(--bg-alt);
       }
       
       .case-studies-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 3rem;
         margin-top: 4rem;
       }
       
       .case-study {
-        background: var(--bg-alt);
+        background: var(--bg);
         border-radius: 20px;
         overflow: hidden;
         border: 2px solid var(--border);
@@ -323,7 +348,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 4rem;
+        font-size: 7rem;
       }
       
       .case-content {
@@ -336,6 +361,7 @@
         margin-bottom: 1rem;
         font-size: 0.875rem;
         flex-wrap: wrap;
+        font-family: 'Inter', sans-serif;
       }
       
       .case-client {
@@ -348,6 +374,7 @@
       }
       
       .case-title {
+        font-family: 'Inter', sans-serif;
         font-size: 1.5rem;
         font-weight: 700;
         margin-bottom: 1rem;
@@ -356,6 +383,7 @@
       }
       
       .case-description {
+        font-family: 'Inter', sans-serif;
         color: var(--text-muted);
         line-height: 1.7;
         margin-bottom: 1.5rem;
@@ -370,12 +398,13 @@
       
       .tag {
         padding: 0.375rem 0.875rem;
-        background: var(--bg);
+        background: var(--bg-alt);
         border: 1px solid var(--border);
         border-radius: 20px;
         font-size: 0.75rem;
         color: var(--text-muted);
         font-weight: 500;
+        font-family: 'Inter', sans-serif;
       }
       
       .read-more {
@@ -387,10 +416,108 @@
         transition: all 0.2s;
         font-size: 0.9375rem;
         padding: 0;
+        font-family: 'Inter', sans-serif;
       }
       
       .read-more:hover {
         transform: translateX(5px);
+      }
+      
+      /* Blog Section */
+      .blog-section {
+        padding: 8rem 0;
+      }
+      
+      .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2.5rem;
+        margin-top: 4rem;
+      }
+      
+      .blog-card {
+        background: var(--bg-alt);
+        border-radius: 20px;
+        overflow: hidden;
+        border: 2px solid var(--border);
+        transition: all 0.3s;
+      }
+      
+      .blog-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px var(--shadow);
+        border-color: var(--primary);
+      }
+      
+      .blog-image {
+        position: relative;
+        height: 160px;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: 1rem;
+      }
+      
+      [data-theme="dark"] .blog-image {
+        background: linear-gradient(135deg, #1e293b, #334155);
+      }
+      
+      .blog-category {
+        padding: 0.5rem 1rem;
+        background: var(--primary);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-family: 'Inter', sans-serif;
+      }
+      
+      .blog-content {
+        padding: 2rem;
+      }
+      
+      .blog-meta {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        font-family: 'Inter', sans-serif;
+      }
+      
+      .blog-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text);
+        line-height: 1.4;
+      }
+      
+      .blog-excerpt {
+        font-family: 'Inter', sans-serif;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        font-size: 0.9375rem;
+      }
+      
+      .blog-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9375rem;
+      }
+      
+      .blog-link:hover {
+        gap: 1rem;
       }
       
       /* Contact Section */
@@ -406,6 +533,7 @@
       }
       
       .contact-text {
+        font-family: 'Inter', sans-serif;
         font-size: 1.375rem;
         color: var(--text-muted);
         margin-bottom: 2rem;
@@ -414,6 +542,7 @@
       
       .contact-email {
         display: inline-block;
+        font-family: 'Inter', sans-serif;
         font-size: 2rem;
         font-weight: 700;
         color: var(--text);
@@ -461,6 +590,7 @@
         text-decoration: none;
         transition: all 0.3s;
         font-weight: 500;
+        font-family: 'Inter', sans-serif;
       }
       
       .social-link:hover {
@@ -490,6 +620,7 @@
       }
       
       .footer p {
+        font-family: 'Inter', sans-serif;
         color: var(--text-muted);
         font-size: 0.9375rem;
       }
@@ -505,13 +636,29 @@
       }
       
       /* Responsive */
-      @media (max-width: 768px) {
+      @media (max-width: 1024px) {
+        .skills-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1.5rem;
+        }
+        
+        .case-studies-grid,
+        .blog-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 2rem;
+        }
+      }
+      
+      @media (max-width: 640px) {
         .hero {
           padding: 3rem 1.5rem;
         }
         
-        .case-studies-grid {
+        .skills-grid,
+        .case-studies-grid,
+        .blog-grid {
           grid-template-columns: 1fr;
+          gap: 1.5rem;
         }
         
         .footer .container {
@@ -523,6 +670,14 @@
         .theme-toggle-fixed {
           top: 1rem;
           right: 1rem;
+        }
+        
+        .about-section,
+        .skills-section,
+        .case-studies-section,
+        .blog-section,
+        .contact-section {
+          padding: 5rem 0;
         }
       }
     </style>
@@ -548,6 +703,16 @@
         <div class="scroll-indicator" data-aos="fade-up" data-aos-delay="500">
           <span>Scroll to explore</span>
           <div class="scroll-arrow"></div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- About Section -->
+    <section class="about-section">
+      <div class="container">
+        <h2 class="section-title" data-aos="fade-up">About Me</h2>
+        <div class="about-content" data-aos="fade-up" data-aos-delay="100">
+          <p>Crafting compelling narratives that engage audiences and drive results. Specializing in long-form content, brand storytelling, and editorial strategy across digital platforms.</p>
         </div>
       </div>
     </section>
@@ -647,6 +812,65 @@
       </div>
     </section>
     
+    <!-- Blog Section -->
+    <section class="blog-section">
+      <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Latest Articles</h2>
+        <div class="blog-grid">
+          <article class="blog-card" data-aos="fade-up">
+            <div class="blog-image">
+              <span class="blog-category">Design</span>
+            </div>
+            <div class="blog-content">
+              <div class="blog-meta">
+                <time>Jan 15, 2026</time>
+                <span> • 8 min read</span>
+              </div>
+              <h3 class="blog-title">The Future of Web Design</h3>
+              <p class="blog-excerpt">Exploring emerging trends and technologies shaping how we build digital experiences in 2026.</p>
+              <a href="#" class="blog-link">
+                Read More <span>→</span>
+              </a>
+            </div>
+          </article>
+          
+          <article class="blog-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="blog-image">
+              <span class="blog-category">Strategy</span>
+            </div>
+            <div class="blog-content">
+              <div class="blog-meta">
+                <time>Dec 28, 2025</time>
+                <span> • 6 min read</span>
+              </div>
+              <h3 class="blog-title">Content Strategy in the AI Era</h3>
+              <p class="blog-excerpt">How artificial intelligence is transforming content creation while keeping human creativity at the center.</p>
+              <a href="#" class="blog-link">
+                Read More <span>→</span>
+              </a>
+            </div>
+          </article>
+          
+          <article class="blog-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="blog-image">
+              <span class="blog-category">Writing</span>
+            </div>
+            <div class="blog-content">
+              <div class="blog-meta">
+                <time>Dec 10, 2025</time>
+                <span> • 10 min read</span>
+              </div>
+              <h3 class="blog-title">Writing for Impact: A Guide</h3>
+              <p class="blog-excerpt">Practical techniques for creating content that resonates with your audience and drives meaningful action.</p>
+              <a href="#" class="blog-link">
+                Read More <span>→</span>
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+    
     <!-- Contact Section -->
     <section class="contact-section">
       <div class="container">
@@ -676,10 +900,6 @@
     <footer class="footer">
       <div class="container">
         <p>© 2026 Sarah Mitchell. Built with <a href="https://foliobase.vercel.app" target="_blank">Foliobase</a></p>
-        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
-          <span class="sun-icon">☀️</span>
-          <span class="moon-icon">🌙</span>
-        </button>
       </div>
     </footer>
     

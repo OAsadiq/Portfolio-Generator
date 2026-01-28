@@ -21,7 +21,7 @@ const SampleSection = () => {
                 </h3>
                 
                 <p className="text-center text-gray-600 mt-2 px-4 mb-4">
-                    This is a real example using our Minimal Writer template
+                    This is a real example using our Professional Writer template
                 </p>
 
                 {/* Iframe container with scrollbar mask */}
