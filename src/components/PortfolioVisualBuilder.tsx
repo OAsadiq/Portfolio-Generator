@@ -2840,7 +2840,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
             style={{
               background: 'var(--bg, #ffffff)',
               borderColor: 'var(--border, #e2e8f0)',
-              borderTopWidth: '1px'
+              borderTopWidth: '2px'
             }}
           >
             <div className="container mx-auto px-8 flex justify-between items-center">
