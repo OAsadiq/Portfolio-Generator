@@ -159,6 +159,7 @@ function buildBlogPosts(data) {
       <article class="blog-card" data-aos="fade-up" data-aos-delay="${(i-1) * 100}">
         <div class="blog-image">
           ${category ? `<span class="blog-category">${category}</span>` : ''}
+          <div class="blog-icon">📄</div>
         </div>
         <div class="blog-content">
           <div class="blog-meta">
@@ -800,7 +801,7 @@ function getModernStyles(primaryColor, accentColor) {
     .case-studies-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 3rem;
+      gap: 2.5rem;
       margin-top: 4rem;
     }
     
@@ -1086,6 +1087,7 @@ function getModernStyles(primaryColor, accentColor) {
     
     /* Blog Section */
     .blog-section {
+      background: var(--bg);
       padding: 8rem 0;
     }
     
@@ -1118,20 +1120,13 @@ function getModernStyles(primaryColor, accentColor) {
       overflow: hidden;
       background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
       display: flex;
-      align-items: flex-start;
-      justify-content: flex-start;
+      align-items: center;
+      justify-content: center;
       padding: 1rem;
     }
 
-    .blog-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-    }
-    
-    .blog-card:hover .blog-image img {
-      transform: scale(1.1);
+    [data-theme="dark"] .blog-image {
+      background: linear-gradient(135deg, #1e293b, #334155);
     }
     
     .blog-category {
@@ -1146,6 +1141,14 @@ function getModernStyles(primaryColor, accentColor) {
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+    }
+
+    .blog-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      height: 48px;
     }
     
     .blog-content {
@@ -1345,6 +1348,11 @@ function getModernStyles(primaryColor, accentColor) {
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
       }
+
+      .blog-icon {
+        font-size: 2rem;
+        height: 40px;
+      }
     }
 
     @media (max-width: 768px) {
@@ -1382,6 +1390,11 @@ function getModernStyles(primaryColor, accentColor) {
       .blog-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
+      }
+
+      .blog-icon {
+        font-size: 2rem;
+        height: 40px;
       }
       
       .footer .container {
@@ -1434,6 +1447,11 @@ function getModernStyles(primaryColor, accentColor) {
       .case-image,
       .blog-image {
         height: 180px;
+      }
+
+      .blog-icon {
+        font-size: 2rem;
+        height: 32px;
       }
     }
   `;

@@ -142,6 +142,11 @@ const TEMPLATE_CONFIGS: { [key: string]: any } = {
       specialty2: 'Email Campaigns',
       specialty3: 'Case Studies',
       specialty4: 'White Papers',
+      sample1Title: 'Boosting SaaS Conversions with Targeted Content',
+      sample1Type: 'Case Study',
+      sample1Description: 'A deep dive into how tailored content strategies increased conversions for a leading SaaS provider.',
+      sample1Content: 'In this case study, we explore the challenges faced by SaaS companies in converting leads into customers. By implementing a targeted content strategy that focused on addressing customer pain points and showcasing product value, we were able to increase conversion rates significantly. Key tactics included personalized email campaigns, SEO-optimized blog posts, and compelling case studies that highlighted real-world success stories.',
+      sample1Link: 'https://example.com/case-study-saas-conversions',
       testimonial1: 'Jane transformed our content strategy and boosted our traffic by 50%!',
       testimonial1Author: 'John Doe',
       testimonial1Role: 'CEO, TechCorp',
@@ -2128,7 +2133,6 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                 </div>
               )}
 
-              {/* Title with Space Grotesk font */}
               <h1
                 key={`hero-title-${colorKey}`} 
                 className={`font-bold mb-4 leading-tight ${isMobile ? 'text-5xl' : isTablet ? 'text-6xl' : 'text-7xl'}`}
@@ -2144,7 +2148,6 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                 {formData.fullName || 'Sarah Mitchell'}
               </h1>
 
-              {/* Tagline with Space Grotesk */}
               <p
                 className={`font-medium mb-6 ${isMobile ? 'text-xl' : isTablet ? 'text-2xl' : 'text-3xl'}`}
                 style={{
@@ -2156,7 +2159,6 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                 {formData.tagline || 'Freelance Writer & Content Strategist'}
               </p>
 
-              {/* Bio with Inter font */}
               <p
                 className={`text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed ${isMobile ? 'text-base' : isTablet ? 'text-lg' : 'text-xl'}`}
                 style={{
@@ -2168,7 +2170,6 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                 {formData.bio || 'Crafting compelling narratives that engage audiences and drive results. Specializing in long-form content, brand storytelling, and editorial strategy across digital platforms.'}
               </p>
 
-              {/* CTA Buttons */}
               <div className="flex gap-4 justify-center flex-wrap mb-16">
                 <a
                   href="#contact"
@@ -2212,7 +2213,6 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                 </a>
               </div>
 
-              {/* Scroll Indicator */}
               <div className="flex flex-col items-center gap-2 text-slate-500 text-sm">
                 <span style={{ fontFamily: "'Inter', sans-serif" }}>Scroll to explore</span>
                 <div
@@ -2287,7 +2287,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
             key="skills"
             data-section="skills"
             className={`${isMobile ? 'py-16 px-6' : isTablet ? 'py-20 px-8' : 'py-32 px-8'}`}
-            style={{ background: 'var(--bg-alt, #f8fafc)' }}
+            style={{ background: 'var(--bg, #f8fafc)' }}
           >
             <div className="max-w-6xl mx-auto">
               <h2
@@ -2360,6 +2360,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
             key="case-studies"
             data-section="case-studies"
             className={`${isMobile ? 'py-16 px-6' : isTablet ? 'py-20 px-8' : 'py-32 px-8'}`}
+            style={{ background: 'var(--bg-alt, #f8fafc)' }}
           >
             <div className="max-w-6xl mx-auto">
               <h2
@@ -2417,7 +2418,10 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                       </div>
 
                       {/* Case Content */}
-                      <div className="p-8">
+                      <div 
+                        className="p-8"
+                        style={{ background: 'var(--bg, #ffffff)' }}
+                      >
                         {/* Meta */}
                         <div className="flex gap-4 mb-4 text-sm flex-wrap">
                           <span
@@ -2524,7 +2528,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
             key="blog"
             data-section="blog"
             className={`${isMobile ? 'py-16 px-6' : isTablet ? 'py-20 px-8' : 'py-32 px-8'}`}
-            style={{ background: 'var(--bg-alt, #f8fafc)' }}
+            style={{ background: 'var(--bg, #f8fafc)' }}
           >
             <div className="max-w-6xl mx-auto">
               <h2
@@ -2554,7 +2558,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                       className="border-2 rounded-2xl overflow-hidden transition-all"
                       style={{
                         borderColor: 'var(--border, #e2e8f0)',
-                        background: 'var(--bg, #ffffff)'
+                        background: 'var(--bg-alt, #ffffff)'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'translateY(-10px)';
@@ -2571,7 +2575,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                       <div
                         className="h-40 relative overflow-hidden"
                         style={{
-                          background: 'linear-gradient(135deg, #f1f5f9, #e2e8f0)'
+                          background: 'var(--background, linear-gradient(135deg, #f1f5f9, #e2e8f0))'
                         }}
                       >
                         {formData[`blog${n}Category`] && (
@@ -2585,6 +2589,8 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                             {formData[`blog${n}Category`]}
                           </span>
                         )}
+
+                        <div className={`flex items-center justify-center text-6xl ${isMobile ? 'h-32 text-4xl' : isTablet ? 'h-40 text-5xl' : 'h-48'}`}>📄</div>
                       </div>
 
                       {/* Blog Content */}
@@ -2915,6 +2921,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
               --text: #0f172a;
               --text-muted: #64748b;
               --border: #e2e8f0;
+              --background: linear-gradient(135deg, #f1f5f9, #e2e8f0)
             }
             
             [data-theme="dark"] {
@@ -2925,6 +2932,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
               --text: #f1f5f9;
               --text-muted: #94a3b8;
               --border: #334155;
+              --background: linear-gradient(135deg, #1e293b, #334155);
             }
           `}</style>
         )}
@@ -3130,8 +3138,8 @@ function TestimonialModal({ isOpen, currentTestimonial, formData, onChange, onCl
           <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-lg"><X className="w-5 h-5" /></button>
         </div>
         <div className="space-y-5">
-          <div><label className="block text-sm font-bold text-slate-300 mb-2">Testimonial *</label><textarea value={formData[`testimonial${currentTestimonial}`] || ''} onChange={(e) => onChange(`testimonial${currentTestimonial}`, e.target.value)} rows={5} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 resize-none focus:outline-none focus:border-yellow-400 custom-scrollbar" placeholder="What did the client say?" /></div>
-          <div><label className="block text-sm font-bold text-slate-300 mb-2">Name *</label><input type="text" value={formData[`testimonial${currentTestimonial}Author`] || ''} onChange={(e) => onChange(`testimonial${currentTestimonial}Author`, e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="Michael Chen" /></div>
+          <div><label className="block text-sm font-bold text-slate-300 mb-2">Testimonial <span className="text-red-400">*</span></label><textarea value={formData[`testimonial${currentTestimonial}`] || ''} onChange={(e) => onChange(`testimonial${currentTestimonial}`, e.target.value)} rows={5} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 resize-none focus:outline-none focus:border-yellow-400 custom-scrollbar" placeholder="What did the client say?" /></div>
+          <div><label className="block text-sm font-bold text-slate-300 mb-2">Name <span className="text-red-400">*</span></label><input type="text" value={formData[`testimonial${currentTestimonial}Author`] || ''} onChange={(e) => onChange(`testimonial${currentTestimonial}Author`, e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="Michael Chen" /></div>
           <div><label className="block text-sm font-bold text-slate-300 mb-2">Role/Company</label><input type="text" value={formData[`testimonial${currentTestimonial}Role`] || ''} onChange={(e) => onChange(`testimonial${currentTestimonial}Role`, e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400" placeholder="Marketing Director, TechCorp" /></div>
           <div className="flex gap-3 pt-6 border-t border-slate-700/50">
             <button onClick={onClose} className="flex-1 px-4 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 rounded-xl font-bold hover:shadow-lg flex items-center justify-center gap-2"><Check className="w-5 h-5" />Done</button>
