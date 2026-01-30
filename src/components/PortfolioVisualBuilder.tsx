@@ -2092,6 +2092,8 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
   };
 
   const renderModernSection = (sectionId: string) => {
+    const colorKey = `${formData.primaryColor}-${formData.accentColor}`;
+    
     switch (sectionId) {
       case 'hero':
         return (
@@ -2128,6 +2130,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
 
               {/* Title with Space Grotesk font */}
               <h1
+                key={`hero-title-${colorKey}`} 
                 className={`font-bold mb-4 leading-tight ${isMobile ? 'text-5xl' : isTablet ? 'text-6xl' : 'text-7xl'}`}
                 style={{
                   background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
@@ -2251,6 +2254,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
           >
             <div className="max-w-4xl mx-auto text-center">
               <h2
+                key={`about-title-${colorKey}`}
                 className={`font-bold mb-6 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`}
                 style={{
                   background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
@@ -2287,6 +2291,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
           >
             <div className="max-w-6xl mx-auto">
               <h2
+                key={`skills-title-${colorKey}`}
                 className={`font-bold text-center mb-16 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`}
                 style={{
                   background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
@@ -2358,6 +2363,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
           >
             <div className="max-w-6xl mx-auto">
               <h2
+                key={`cases-title-${colorKey}`}
                 className={`font-bold text-center mb-16 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`}
                 style={{
                   background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
@@ -2522,6 +2528,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
           >
             <div className="max-w-6xl mx-auto">
               <h2
+                key={`blog-title-${colorKey}`}
                 className={`font-bold text-center mb-16 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`}
                 style={{
                   background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
@@ -2654,6 +2661,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
           >
             <div className="max-w-4xl mx-auto">
               <h2
+                key={`contact-title-${colorKey}`}
                 className={`font-bold text-center mb-8 ${isMobile ? 'text-4xl' : isTablet ? 'text-5xl' : 'text-6xl'}`}
                 style={{
                   background: `linear-gradient(135deg, ${formData.primaryColor}, ${formData.accentColor})`,
