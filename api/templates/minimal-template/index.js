@@ -1,6 +1,6 @@
 const minimalTemplate = {
   id: "minimal-template",
-  name: "Minimal Writer",
+  name: "Minimal Writer Portfolio",
   description: "Clean, professional portfolio perfect for freelance writers and copywriters.",
   thumbnail: "/images/minimal-template.jpg",
   fields: [

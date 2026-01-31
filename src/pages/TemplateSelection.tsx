@@ -230,7 +230,7 @@ const TemplateSelection = () => {
             <p className="text-slate-400">No templates available</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {templates.map((template) => {
               const isHovered = hoveredTemplate === template.id;
               const isLoading = selectedLoading === template.id;

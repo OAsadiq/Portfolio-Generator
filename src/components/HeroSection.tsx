@@ -1,35 +1,35 @@
 // import { Link } from "react-router-dom";
-// import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const Hero = () => {
-    // const [userCount, setUserCount] = useState<number | null>(null);
+    const [userCount, setUserCount] = useState<number | null>(null);
 
-    // useEffect(() => {
-    //     fetch("/api/stats/portfolio-count")
-    //         .then(res => res.json())
-    //         .then(data => setUserCount(data.count));
-    // }, []);
+    useEffect(() => {
+        fetch("/api/stats/portfolio-count")
+            .then(res => res.json())
+            .then(data => setUserCount(data.count));
+    }, []);
 
-    // const [animatedCount, setAnimatedCount] = useState(0);
+    const [animatedCount, setAnimatedCount] = useState(0);
 
-    // useEffect(() => {
-    //     if (userCount === null) return;
+    useEffect(() => {
+        if (userCount === null) return;
 
-    //     const duration = 1200;
-    //     const startTime = performance.now();
+        const duration = 1200;
+        const startTime = performance.now();
 
-    //     const animate = (time: number) => {
-    //         const progress = Math.min((time - startTime) / duration, 1);
-    //         const value = Math.floor(progress * userCount);
-    //         setAnimatedCount(value);
+        const animate = (time: number) => {
+            const progress = Math.min((time - startTime) / duration, 1);
+            const value = Math.floor(progress * userCount);
+            setAnimatedCount(value);
 
-    //         if (progress < 1) {
-    //             requestAnimationFrame(animate);
-    //         }
-    //     };
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
 
-    //     requestAnimationFrame(animate);
-    // }, [userCount]);
+        requestAnimationFrame(animate);
+    }, [userCount]);
 
     const scrollToWaitlist = () => {
         const waitlistSection = document.getElementById('waitlist');
@@ -102,7 +102,7 @@ const Hero = () => {
                 </div>
 
                 <p className="text-sm sm:text-base md:text-lg ">
-                    Join <span className="font-bold text-yellow-400">100+</span> Writers Who Signed Up
+                    Join <span className="font-bold text-yellow-400">{animatedCount}+</span> Writers Who Signed Up
                 </p>
             </div>
         </div>
