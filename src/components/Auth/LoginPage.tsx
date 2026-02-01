@@ -163,9 +163,9 @@ const LoginPage = () => {
           {/* Terms */}
           <p className="mt-6 text-xs text-slate-500 text-center">
             By continuing, you agree to our{' '}
-            <a href="#" className="text-yellow-400 hover:underline">Terms of Service</a>
+            <a href="/privacy-policy" className="text-yellow-400 hover:underline">Terms of Service</a>
             {' '}and{' '}
-            <a href="#" className="text-yellow-400 hover:underline">Privacy Policy</a>
+            <a href="/privacy-policy" className="text-yellow-400 hover:underline">Privacy Policy</a>
           </p>
         </div>
       </div>

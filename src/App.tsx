@@ -13,6 +13,7 @@ import Success from './pages/Success';
 import ProDashboard from './pages/ProDashboard';
 import EditPortfolio from './pages/EditPortfolio';
 import PortfolioVisualBuilder from './components/PortfolioVisualBuilder';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             
             {/* Auth callback route - handles OAuth redirect */}
             <Route path="/auth/callback" element={<AuthCallback />} />
