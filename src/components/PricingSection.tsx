@@ -143,7 +143,7 @@ const PricingSection = () => {
             </ul>
 
             <Link to="/templates">
-              <button className="mt-8 w-full bg-slate-700 hover:bg-slate-600 text-slate-50 py-3 rounded-lg transition font-semibold">
+              <button className="mt-8 w-full bg-slate-700 hover:bg-slate-600 text-slate-50 py-3 rounded-lg transition font-semibold hidden">
                 Start Free
               </button>
             </Link>

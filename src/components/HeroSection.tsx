@@ -1,13 +1,26 @@
 // import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 const Hero = () => {
     const [userCount, setUserCount] = useState<number | null>(null);
 
     useEffect(() => {
-        fetch("/api/stats/portfolio-count")
-            .then(res => res.json())
-            .then(data => setUserCount(data.count));
+        // fetch("/api/stats/portfolio-count")
+        //     .then(res => res.json())
+        //     .then(data => setUserCount(data.count));
+
+        const fetchWaitlistCount = async () => {
+            const { count, error } = await supabase
+                .from("waitlist")
+                .select("*", { count: "exact", head: true });
+
+            if (!error && count !== null) {
+                setUserCount(count);
+            }
+        };
+
+        fetchWaitlistCount();
     }, []);
 
     const [animatedCount, setAnimatedCount] = useState(0);
