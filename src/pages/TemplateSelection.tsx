@@ -1,4 +1,4 @@
-// src/components/TemplateSelection.tsx - Complete with Pro Support
+// src/components/TemplateSelection.tsx 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
