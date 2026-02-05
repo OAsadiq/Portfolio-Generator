@@ -274,7 +274,6 @@ const TemplateSelection = () => {
                     </div>
                   )}
 
-                  {/* Locked Overlay - ONLY for minimal-template if already used */}
                   {isLocked && (
                     <div className="absolute inset-0 bg-slate-900/85 backdrop-blur-sm z-20 flex items-center justify-center">
                       <div className="text-center p-4">
