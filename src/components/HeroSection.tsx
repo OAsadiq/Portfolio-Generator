@@ -73,7 +73,7 @@ const Hero = () => {
                 text-3xl sm:text-4xl md:text-5xl lg:text-6xl 
                 font-extrabold mb-4 leading-tight text-slate-50
             ">
-                Professional Writing Portfolios in 10 Minutes
+                Stop Losing Clients to Writers With Better Portfolios
             </h1>
 
             {/* Subheading - WRITER FOCUSED */}
@@ -81,7 +81,9 @@ const Hero = () => {
                 text-sm sm:text-base md:text-lg 
                 text-slate-400 mx-auto mb-8 max-w-2xl
             ">
-                Land more freelance clients with a portfolio that showcases your best work. No coding, no design skills—just your writing.
+                You're a great writer. But without a portfolio, clients 
+                can't see it. Build yours in 10 minutes—no code, no 
+                design skills, no $300/year fees.
             </p>
 
             {/* CTA Button */}
@@ -100,7 +102,7 @@ const Hero = () => {
                     transform hover:scale-105 
                     cursor-pointer
                 ">
-                    Join Waitlist
+                    Join Waitlist 
                 </button>
                 {/* <Link to="/templates">
                     
