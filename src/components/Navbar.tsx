@@ -112,7 +112,7 @@ const Navbar = () => {
             </div>
           ) : (
             <Link
-              to="#waitlist"
+              to="/"
               className="px-4 py-2 text-slate-900 bg-yellow-400 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
             >
               Get Started
@@ -202,7 +202,7 @@ const Navbar = () => {
             </>
           ) : (
             <Link
-              to="/login"
+              to="/"
               onClick={() => setMobileOpen(false)}
               className="block text-center bg-yellow-400 text-slate-900 py-2 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
             >
