@@ -41,8 +41,8 @@ const SampleSection = () => {
                                     SC
                                 </div>
                                 <div>
-                                    <h3 className="text-slate-50 font-bold text-lg">Sarah Chen</h3>
-                                    <p className="text-slate-400 text-sm">Tech & SaaS Writer</p>
+                                    <h3 className="text-slate-50 font-bold text-lg">Saro Chen</h3>
+                                    <p className="text-slate-400 text-sm">Copywriter</p>
                                 </div>
                             </div>
 
@@ -107,11 +107,11 @@ const SampleSection = () => {
                             {/* Profile Header */}
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-blue-400/50 shadow-lg shadow-blue-500/30">
-                                    MJ
+                                    SM
                                 </div>
                                 <div>
-                                    <h3 className="text-slate-50 font-bold text-lg">Mike Johnson</h3>
-                                    <p className="text-blue-300 text-sm font-semibold">Marketing Writer</p>
+                                    <h3 className="text-slate-50 font-bold text-lg">Sarah Mitchell</h3>
+                                    <p className="text-blue-300 text-sm font-semibold">Freelance Writerr</p>
                                 </div>
                             </div>
 
@@ -186,8 +186,8 @@ const SampleSection = () => {
                                     RP
                                 </div>
                                 <div>
-                                    <h3 className="text-slate-50 font-bold text-lg">Rachel Park</h3>
-                                    <p className="text-slate-400 text-sm">Technical Writer</p>
+                                    <h3 className="text-slate-50 font-bold text-lg">Jane Smith</h3>
+                                    <p className="text-slate-400 text-sm">B2B Content Writer</p>
                                 </div>
                             </div>
 

@@ -55,24 +55,8 @@ const SeeItInAction = () => {
           </div>
         </div>
 
-        {/* Stats Below */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-          <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-6">
-            <div className="text-3xl font-bold text-green-400 mb-2">10 min</div>
-            <div className="text-slate-400 text-sm">To build this exact portfolio</div>
-          </div>
-          <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-6">
-            <div className="text-3xl font-bold text-blue-400 mb-2">$0</div>
-            <div className="text-slate-400 text-sm">Free plan includes this template</div>
-          </div>
-          <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-6">
-            <div className="text-3xl font-bold text-purple-400 mb-2">100%</div>
-            <div className="text-slate-400 text-sm">Mobile responsive & client-ready</div>
-          </div>
-        </div>
-
         {/* CTA */}
-        <div className="text-center mt-12">
+        <div className="text-center mt-10">
           <a href="/templates">
             <button className="bg-gradient-to-r from-green-400 to-blue-400 text-slate-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-400/20 hover:shadow-green-400/40 hover:scale-105 transition-all">
               Build Yours Now (10 Minutes)

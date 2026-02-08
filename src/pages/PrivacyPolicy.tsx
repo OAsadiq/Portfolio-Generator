@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -293,22 +294,39 @@ export default function PrivacyPolicy() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-50">
+    <div className="min-h-screen bg-slate-900 text-slate-50 relative overflow-hidden">
+
+      {/* Animated Background Effects */}  
+      <div className="fixed inset-0 pointer-events-none">
+        {/* 2. Animated Grid Lines */}
+        <div className="absolute inset-0">
+          {/* Horizontal lines */}
+          <div className="absolute inset-0 bg-grid-horizontal"></div>
+          {/* Vertical lines */}
+          <div className="absolute inset-0 bg-grid-vertical"></div>
+          {/* Animated glow on grid */}
+          <div className="absolute inset-0 bg-grid-glow"></div>
+        </div>
+
+        {/* Subtle Vignette */}
+        <div className="absolute inset-0 bg-radial-gradient"></div>
+      </div>
 
       {/* ── Header ── */}
-      <header className="relative z-10 flex items-center justify-between px-6 py-5 border-b border-slate-800 bg-slate-900/70 backdrop-blur-sm">
-        <a href="https://foliobase.vercel.app" className="text-lg font-bold" >
-          Folio<span className="text-yellow-400">base</span>
-        </a>
-        <a
-          href="https://foliobase.vercel.app"
-          className="flex items-center gap-2 text-slate-500 hover:text-slate-300 text-sm font-medium transition-colors duration-200 group"
-        >
-          <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10 3L5 8l5 5" />
-          </svg>
-          Back to Home
-        </a>
+      <header className="bg-slate-800/50 backdrop-blur-md border-b border-slate-700/50 shadow-lg shadow-slate-900/20 z-10 relative">
+        <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between">
+          <Link
+            to="/"
+            className="text-md lg:text-xl font-bold text-slate-50 hover:text-yellow-400 transition"
+            >
+            Folio<span className="text-yellow-400">base</span>
+          </Link>
+          <Link to="/">
+            <button className="text-slate-400 hover:text-slate-300 text-sm">
+              ← Back to Home
+            </button>
+          </Link>
+        </div>
       </header>
 
       {/* ── Hero ── */}
@@ -418,6 +436,74 @@ export default function PrivacyPolicy() {
         <a href="/contact" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Contact Us</a> | 
         <a href="/privacy-policy" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Privacy Policy</a>
       </footer>
+
+       {/* CSS Animations and Styles */}
+      <style>{`
+        /* ===== ANIMATED GRID LINES ===== */
+        .bg-grid-horizontal {
+          background-image: linear-gradient(
+            rgba(148, 163, 184, 0.03) 1px,
+            transparent 1px
+          );
+          background-size: 100% 50px;
+          animation: gridMoveVertical 20s linear infinite;
+        }
+
+        .bg-grid-vertical {
+          background-image: linear-gradient(
+            90deg,
+            rgba(148, 163, 184, 0.03) 1px,
+            transparent 1px
+          );
+          background-size: 50px 100%;
+          animation: gridMoveHorizontal 20s linear infinite;
+        }
+
+        .bg-grid-glow {
+          background: 
+            radial-gradient(
+              circle at 20% 30%,
+              rgba(251, 191, 36, 0.03) 0%,
+              transparent 50%
+            ),
+            radial-gradient(
+              circle at 80% 70%,
+              rgba(59, 130, 246, 0.03) 0%,
+              transparent 50%
+            );
+          animation: glowPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes gridMoveVertical {
+          0% {
+            background-position: 0 0;
+          }
+          100% {
+            background-position: 0 50px;
+          }
+        }
+
+        @keyframes gridMoveHorizontal {
+          0% {
+            background-position: 0 0;
+          }
+          100% {
+            background-position: 50px 0;
+          }
+        }
+
+        /* ===== ACCESSIBILITY ===== */
+        @media (prefers-reduced-motion: reduce) {
+          .animate-blob,
+          .animate-draw,
+          .animate-pulse-slow,
+          .bg-grid-horizontal,
+          .bg-grid-vertical,
+          .bg-grid-glow {
+            animation: none;
+          }
+        }
+      `}</style>
     </div>
   );
 }

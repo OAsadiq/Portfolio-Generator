@@ -221,7 +221,7 @@ const HowItWorks = () => {
                   </div>
 
                   {/* CTA Button */}
-                  <a href="/templates">
+                  <a href="/">
                     <button className="w-full md:w-auto bg-gradient-to-r from-green-400 to-yellow-400 text-slate-900 px-8 py-4 rounded-xl font-bold text-base md:text-lg shadow-lg shadow-green-400/20 hover:shadow-green-400/40 hover:scale-105 transition-all duration-300">
                       Start Building Your Portfolio
                       <svg className="inline-block ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

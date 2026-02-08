@@ -113,58 +113,7 @@ const Home = () => {
             background-position: 50px 0;
           }
         }
-
-        @keyframes glowPulse {
-          0%, 100% {
-            opacity: 0.5;
-          }
-          50% {
-            opacity: 1;
-          }
-        }
-
-        /* ===== 3. CONNECTING LINES ANIMATION ===== */
-        @keyframes draw {
-          0% {
-            stroke-dasharray: 1000;
-            stroke-dashoffset: 1000;
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          50% {
-            stroke-dashoffset: 0;
-            opacity: 1;
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            stroke-dashoffset: -1000;
-            opacity: 0;
-          }
-        }
-
-        .animate-draw {
-          animation: draw 8s ease-in-out infinite;
-        }
-
-        @keyframes pulse-slow {
-          0%, 100% {
-            opacity: 0.3;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.8;
-            transform: scale(1.2);
-          }
-        }
-
-        .animate-pulse-slow {
-          animation: pulse-slow 4s ease-in-out infinite;
-        }
-
+         
         /* ===== ANIMATION DELAYS ===== */
         .animation-delay-500 { animation-delay: 0.5s; }
         .animation-delay-1000 { animation-delay: 1s; }

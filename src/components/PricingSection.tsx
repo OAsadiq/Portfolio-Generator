@@ -213,6 +213,12 @@ const PricingSection = () => {
         <p className="text-slate-500 text-sm mt-8">
           💡 Start with the free plan. Upgrade anytime to unlock pro features.
         </p>
+
+        <div className="text-center mt-5">
+          <a href="/" className="text-yellow-400 hover:text-yellow-300 font-semibold">
+            See full pricing comparison →
+          </a>
+        </div>
       </div>
     </div>
   );

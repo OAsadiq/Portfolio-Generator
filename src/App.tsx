@@ -14,6 +14,7 @@ import ProDashboard from './pages/ProDashboard';
 import EditPortfolio from './pages/EditPortfolio';
 import PortfolioVisualBuilder from './components/PortfolioVisualBuilder';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import PricingPage from './pages/Pricing';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             {/* Public routes */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             
