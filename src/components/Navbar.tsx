@@ -112,7 +112,7 @@ const Navbar = () => {
             </div>
           ) : (
             <Link
-              to="/login"
+              to="#waitlist"
               className="px-4 py-2 text-slate-900 bg-yellow-400 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
             >
               Get Started

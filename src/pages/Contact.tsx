@@ -8,7 +8,7 @@ const Contact = () => {
       {/* Animated Background Effects */}
       <div className="fixed inset-0 pointer-events-none">
       
-        {/* 2. Animated Grid Lines */}
+        {/* Animated Grid Lines */}
         <div className="absolute inset-0">
           {/* Horizontal lines */}
           <div className="absolute inset-0 bg-grid-horizontal"></div>
@@ -18,138 +18,16 @@ const Contact = () => {
           <div className="absolute inset-0 bg-grid-glow"></div>
         </div>
 
-        {/* 3. Connecting Lines Animation - Network Effect */}
-        <svg className="absolute inset-0 w-full h-full">
-          {/* Connection Line 1 */}
-          <line
-            x1="10%"
-            y1="20%"
-            x2="30%"
-            y2="40%"
-            stroke="url(#gradient1)"
-            strokeWidth="1"
-            className="animate-draw"
-          />
-          {/* Connection Line 2 */}
-          <line
-            x1="30%"
-            y1="40%"
-            x2="70%"
-            y2="30%"
-            stroke="url(#gradient2)"
-            strokeWidth="1"
-            className="animate-draw animation-delay-1000"
-          />
-          {/* Connection Line 3 */}
-          <line
-            x1="70%"
-            y1="30%"
-            x2="90%"
-            y2="60%"
-            stroke="url(#gradient3)"
-            strokeWidth="1"
-            className="animate-draw animation-delay-2000"
-          />
-          {/* Connection Line 4 */}
-          <line
-            x1="20%"
-            y1="70%"
-            x2="50%"
-            y2="80%"
-            stroke="url(#gradient4)"
-            strokeWidth="1"
-            className="animate-draw animation-delay-3000"
-          />
-          {/* Connection Line 5 */}
-          <line
-            x1="50%"
-            y1="80%"
-            x2="80%"
-            y2="90%"
-            stroke="url(#gradient5)"
-            strokeWidth="1"
-            className="animate-draw animation-delay-4000"
-          />
-          {/* Connection Line 6 - Vertical */}
-          <line
-            x1="15%"
-            y1="30%"
-            x2="15%"
-            y2="70%"
-            stroke="url(#gradient6)"
-            strokeWidth="1"
-            className="animate-draw animation-delay-1500"
-          />
-          {/* Connection Line 7 */}
-          <line
-            x1="60%"
-            y1="20%"
-            x2="40%"
-            y2="60%"
-            stroke="url(#gradient7)"
-            strokeWidth="1"
-            className="animate-draw animation-delay-2500"
-          />
-
-          {/* Connection Points (Dots) */}
-          <circle cx="10%" cy="20%" r="3" fill="#fbbf24" className="animate-pulse-slow" />
-          <circle cx="30%" cy="40%" r="3" fill="#3b82f6" className="animate-pulse-slow animation-delay-1000" />
-          <circle cx="70%" cy="30%" r="3" fill="#a855f7" className="animate-pulse-slow animation-delay-2000" />
-          <circle cx="90%" cy="60%" r="3" fill="#10b981" className="animate-pulse-slow animation-delay-3000" />
-          <circle cx="20%" cy="70%" r="3" fill="#ec4899" className="animate-pulse-slow animation-delay-4000" />
-          <circle cx="50%" cy="80%" r="3" fill="#06b6d4" className="animate-pulse-slow animation-delay-1500" />
-          <circle cx="80%" cy="90%" r="3" fill="#f59e0b" className="animate-pulse-slow animation-delay-2500" />
-          <circle cx="15%" cy="30%" r="3" fill="#8b5cf6" className="animate-pulse-slow animation-delay-3500" />
-          <circle cx="60%" cy="20%" r="3" fill="#14b8a6" className="animate-pulse-slow animation-delay-500" />
-          <circle cx="40%" cy="60%" r="3" fill="#f97316" className="animate-pulse-slow animation-delay-4500" />
-
-          {/* Gradient Definitions for Lines */}
-          <defs>
-            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#fbbf24" stopOpacity="0" />
-              <stop offset="50%" stopColor="#fbbf24" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-            </linearGradient>
-            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0" />
-              <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
-            </linearGradient>
-            <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#a855f7" stopOpacity="0" />
-              <stop offset="50%" stopColor="#a855f7" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-            </linearGradient>
-            <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#ec4899" stopOpacity="0" />
-              <stop offset="50%" stopColor="#ec4899" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
-            </linearGradient>
-            <linearGradient id="gradient5" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#06b6d4" stopOpacity="0" />
-              <stop offset="50%" stopColor="#06b6d4" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
-            </linearGradient>
-            <linearGradient id="gradient6" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0" />
-              <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#ec4899" stopOpacity="0" />
-            </linearGradient>
-            <linearGradient id="gradient7" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#14b8a6" stopOpacity="0" />
-              <stop offset="50%" stopColor="#14b8a6" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-        </svg>
-
         {/* Subtle Vignette */}
         <div className="absolute inset-0 bg-radial-gradient"></div>
       </div>
 
-      <Navbar />
-      <ContactMain />
-      <Footer />
+      {/* Main Content */}
+      <div className="relative z-10">
+        <Navbar />
+        <ContactMain />
+        <Footer />
+      </div>
 
       {/* CSS Animations and Styles */}
       <style>{`

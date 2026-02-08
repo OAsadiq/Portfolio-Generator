@@ -26,9 +26,9 @@ const CallToActionSection = () => {
     setSubmitMessage('');
 
     try {
-      console.log({ 
-        email: formData.email, 
-        firstName: formData.firstName 
+      console.log({
+        email: formData.email,
+        firstName: formData.firstName
       });
 
       const { data, error } = await supabase
@@ -43,7 +43,7 @@ const CallToActionSection = () => {
       console.log({ data, error });
 
       if (error) {
-        
+
         if (error.code === '23505') {
           setSubmitMessage('✅ You\'re already on the waitlist!');
         } else if (error.message) {
@@ -71,19 +71,19 @@ const CallToActionSection = () => {
   return (
     <div id={sectionId} className="py-20 px-6 md:px-24">
       <div className="max-w-6xl mx-auto bg-gradient-to-br from-yellow-500/10 to-slate-800/50 border border-yellow-500/30 rounded-3xl p-8 md:p-12 backdrop-blur-sm shadow-xl shadow-yellow-500/10 relative overflow-hidden">
-        
+
         {/* Glow effect */}
         <div className="absolute -top-32 -right-32 w-64 h-64 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col gap-4">
-          
+
           <h2 className="text-2xl md:text-4xl font-bold text-slate-50">
-            Ready to land your next writing client?
+            Stop Losing Clients. Build Your Portfolio in 10 Minutes.
           </h2>
 
           <p className="text-slate-300 text-base md:text-lg">
-            Stop losing clients to writers with better portfolios. Create yours in 10 minutes and start pitching with confidence.
+            Don't let another client slip away. Join our waitlist and be the first to try Foliobase.
           </p>
 
         </div>
@@ -116,7 +116,7 @@ const CallToActionSection = () => {
               {isSubmitting ? 'Joining...' : 'Join Waitlist'}
             </button>
           </div>
-          
+
           {submitMessage && (
             <p className={`text-center text-sm ${submitMessage.includes('success') || submitMessage.includes('already') ? 'text-red-400' : 'text-green-400'}`}>
               {submitMessage}

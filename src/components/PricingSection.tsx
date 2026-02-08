@@ -79,15 +79,37 @@ const PricingSection = () => {
   };
 
   return (
-    <div className="py-20 px-6">
+    <div className="py-15 px-6">
+      <div className="text-center mb-8">
+        <p className="text-slate-400 text-sm">
+          ⏰ Average time wasted on WordPress: <span className="text-red-400 font-semibold">20+ hours</span>
+        </p>
+        <p className="text-slate-400 text-sm">
+          ⚡ Average time with Foliobase: <span className="text-green-400 font-semibold">10 minutes</span>
+        </p>
+      </div>
+      <div className="mb-12 bg-slate-800/30 border border-slate-700/50 rounded-2xl p-6 max-w-2xl mx-auto">
+        <p className="text-slate-400 text-sm mb-4">What you'd pay elsewhere:</p>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">Squarespace:</span>
+            <span className="text-slate-300 font-semibold">$300/year</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">Hire designer:</span>
+            <span className="text-slate-300 font-semibold">$500 one-time</span>
+          </div>
+          <div className="h-px bg-slate-700 my-3"></div>
+          <div className="flex justify-between text-sm">
+            <span className="text-green-400 font-semibold">Foliobase:</span>
+            <span className="text-green-400 font-bold">$0-108/year</span>
+          </div>
+        </div>
+      </div>
       <div className="max-w-5xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-50">
-          Simple Pricing for Freelance Writers
+          Start Free. Upgrade When Clients Start Paying You.
         </h2>
-
-        <p className="text-base md:text-lg text-slate-400 mt-2">
-          Start free, upgrade when you need custom domains and advanced features.
-        </p>
 
         {error && (
           <div className="mt-6 mb-8 max-w-lg mx-auto bg-red-500/10 border border-red-500/30 rounded-2xl p-4 flex items-center justify-center gap-3 text-red-400">
@@ -116,7 +138,7 @@ const PricingSection = () => {
             </div>
 
             <p className="text-slate-400 mt-2">
-              Everything you need to start landing writing clients today.
+              Perfect for getting your first 3 clients. Then upgrade with your first paycheck.
             </p>
 
             <ul className="mt-6 space-y-3 text-slate-300">
@@ -130,15 +152,7 @@ const PricingSection = () => {
               </li>
               <li className="flex items-start">
                 <span className="text-yellow-400 mr-2">✓</span>
-                Client testimonials section
-              </li>
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">✓</span>
                 Free hosting with unique URL
-              </li>
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">✓</span>
-                Mobile-optimized design
               </li>
             </ul>
 
@@ -156,7 +170,7 @@ const PricingSection = () => {
 
             <div className="flex justify-between items-center relative z-10">
               <h3 className="text-2xl md:text-4xl font-extrabold text-slate-50">
-                $*<span className="text-lg font-normal text-slate-400">/month</span>
+                $9<span className="text-lg font-normal text-slate-400">/month</span>
               </h3>
               <div className="px-2 py-1 text-xs bg-yellow-400/20 text-yellow-300 border border-yellow-400/40 rounded-2xl font-semibold">
                 Pro Plan
@@ -183,14 +197,6 @@ const PricingSection = () => {
               <li className="flex items-start">
                 <span className="text-yellow-400 mr-2">✓</span>
                 Portfolio analytics
-              </li>
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">✓</span>
-                Remove "Made with" footer
-              </li>
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">✓</span>
-                Priority support
               </li>
             </ul>
 

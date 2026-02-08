@@ -3,6 +3,7 @@ import Hero from "../components/HeroSection";
 import SampleSection from "../components/SampleSection";
 import Feature from "../components/FeatureSection";
 import HowItWorks from "../components/HowItWorksSection";
+import SeeItInAction from "../components/SeeItInActionSection"
 import PricingSection from "../components/PricingSection"
 import UpgradeHandler from "../components/UpgradeHandler";
 import CallToActionSection from "../components/CallToActionSection";
@@ -34,6 +35,7 @@ const Home = () => {
         <SampleSection />
         <Feature />
         <HowItWorks />
+        <SeeItInAction />
         <PricingSection/>
         <UpgradeHandler />
         <CallToActionSection />

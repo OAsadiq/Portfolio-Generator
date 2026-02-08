@@ -90,18 +90,8 @@ const Hero = () => {
             <div className="relative">
                 <button 
                     onClick={scrollToWaitlist}
-                    className="
-                    px-8 sm:px-10 md:px-12 
-                    py-3 
-                    text-base sm:text-lg
-                    font-semibold 
-                    bg-yellow-400 text-slate-900
-                    rounded-xl shadow-lg shadow-yellow-400/20
-                    hover:bg-yellow-300
-                    transition duration-300 
-                    transform hover:scale-105 
-                    cursor-pointer
-                ">
+                    className="bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 transition-all transform hover:scale-105"
+                >
                     Join Waitlist 
                 </button>
                 {/* <Link to="/templates">

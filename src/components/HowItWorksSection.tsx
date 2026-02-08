@@ -1,6 +1,8 @@
 const HowItWorks = () => {
+  const sectionId = "HowItWorks";
+
   return (
-    <div className="py-16 md:py-20 px-4 md:px-8 lg:px-24">
+    <div id={sectionId} className="py-16 md:py-20 px-4 md:px-8 lg:px-24">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
@@ -9,11 +11,11 @@ const HowItWorks = () => {
           </div>
           
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-50 mb-4">
-            From Zero to Portfolio in 3 Easy Steps
+            10 Minutes From Now, You'll Have a Portfolio
           </h2>
           
           <p className="text-slate-400 text-base md:text-lg max-w-2xl mx-auto">
-            No technical skills needed. Your professional writing portfolio is just minutes away.
+            Most writers spend 3 weeks on this. You'll be done by lunch.
           </p>
         </div>
 
@@ -38,7 +40,7 @@ const HowItWorks = () => {
               </div>
 
               <p className="text-slate-400 text-sm md:text-base mb-6 leading-relaxed">
-                Pick from beautifully designed templates built specifically for writers. Minimal or modern—your choice.
+                Pick a template. Takes 30 seconds.
               </p>
 
               {/* Mini Template Preview */}
@@ -51,7 +53,10 @@ const HowItWorks = () => {
                     <div className="h-0.5 bg-slate-700/30 rounded"></div>
                     <div className="h-0.5 bg-slate-700/30 rounded w-3/4"></div>
                   </div>
-                  <div className="mt-2 text-[8px] text-slate-500 font-semibold">Minimal</div>
+                  <div className="mt-2">
+                    <p className="text-[8px] text-slate-500 font-semibold">Minimal Writer</p>
+                    <p className="text-[6px] text-slate-600">Perfect for: Blog writers, journalists</p>
+                  </div>
                 </div>
 
                 <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-3 hover:border-purple-500/30 transition-all group/card">
@@ -109,7 +114,9 @@ const HowItWorks = () => {
                       </svg>
                     </div>
                   </div>
-                  <div className="h-8 bg-slate-700/50 rounded-lg border border-slate-600/30"></div>
+                  <div className="h-8 bg-slate-700/50 rounded-lg border border-slate-600/30 flex items-center px-3">
+                    <span className="text-slate-500 text-[10px] font-mono">Sarah Mitchell</span>
+                  </div>
                 </div>
 
                 {/* Form field 2 */}
@@ -122,7 +129,11 @@ const HowItWorks = () => {
                       </svg>
                     </div>
                   </div>
-                  <div className="h-16 bg-slate-700/50 rounded-lg border border-slate-600/30"></div>
+                  <div className="h-16 bg-slate-700/50 rounded-lg border border-slate-600/30 flex items-start p-2">
+                    <span className="text-slate-500 text-[10px] leading-relaxed">
+                      Freelance writer specializing in tech and SaaS. Published in TechCrunch, Forbes...
+                    </span>
+                  </div>
                 </div>
 
                 {/* Form field 3 - In progress */}
@@ -222,7 +233,7 @@ const HowItWorks = () => {
                   {/* Stat */}
                   <div className="mt-6 flex items-center gap-2 text-sm text-green-300">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="font-semibold">95% deployment success rate</span>
+                    <span className="font-semibold">98% deployment success rate</span>
                   </div>
                 </div>
 
@@ -252,18 +263,17 @@ const HowItWorks = () => {
                     <div className="p-6 md:p-8 bg-gradient-to-b from-slate-800 to-slate-900 space-y-4">
                       {/* Profile */}
                       <div className="text-center">
-                        <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-500 rounded-full mx-auto mb-3 border-2 border-green-400/30"></div>
-                        <div className="h-3 bg-slate-700 rounded w-32 mx-auto mb-2"></div>
-                        <div className="h-2 bg-slate-700/50 rounded w-40 mx-auto mb-1"></div>
-                        <div className="h-2 bg-slate-700/30 rounded w-48 mx-auto"></div>
+                        <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-yellow-500 rounded-full mx-auto mb-2"></div>
+                        <div className="text-slate-300 text-[10px] font-semibold">Sarah Mitchell</div>
+                        <div className="text-slate-500 text-[8px]">Tech & SaaS Writer</div>
                       </div>
 
                       {/* Writing Samples */}
                       <div className="space-y-2 pt-4">
-                        <div className="bg-slate-700/30 rounded-xl p-3 border border-slate-600/20">
-                          <div className="h-2 bg-slate-600 rounded w-3/4 mb-2"></div>
-                          <div className="h-1.5 bg-slate-600/50 rounded w-full mb-1"></div>
-                          <div className="h-1.5 bg-slate-600/50 rounded w-5/6"></div>
+                        <div className="bg-slate-700/20 rounded p-2 space-y-1">
+                          <div className="text-slate-300 text-[8px] font-semibold">Latest Articles</div>
+                          <div className="text-slate-500 text-[6px]">• How AI is Transforming Customer Support</div>
+                          <div className="text-slate-500 text-[6px]">• The Complete Guide to SaaS Marketing</div>
                         </div>
                         <div className="bg-slate-700/30 rounded-xl p-3 border border-slate-600/20">
                           <div className="h-2 bg-slate-600 rounded w-2/3 mb-2"></div>

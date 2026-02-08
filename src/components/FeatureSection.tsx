@@ -7,24 +7,48 @@ const Feature = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <div className="inline-block px-3 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full">
-              <span className="text-yellow-400 text-sm font-semibold">Writing Samples</span>
+              <span className="text-yellow-400 text-sm font-semibold">Proof, Not Promises</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-slate-50">
-              Showcase Your Best Work
+              Turn Writing Samples Into Paying Clients
             </h2>
             <p className="text-slate-400 text-lg leading-relaxed">
-              Display your writing samples with direct links to published articles. Each sample includes a title, description, and call-to-action—making it easy for clients to see your expertise.
+              Clients don't hire writers who say "I'm good." They hire writers who prove it. 
+              Show your published work with direct links—no PDFs, no Google Drive, no excuses.
             </p>
-            <div className="flex flex-wrap gap-3">
-              <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
-                Article Links
+            {/* BEFORE/AFTER comparison instead of badges */}
+            <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-red-500/20 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-slate-300 text-sm font-semibold">Without Portfolio:</p>
+                  <p className="text-slate-500 text-xs">"Here's my LinkedIn... and some Google Docs..."</p>
+                </div>
               </div>
-              <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
-                Case Studies
+              
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-green-500/20 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-slate-300 text-sm font-semibold">With Foliobase:</p>
+                  <p className="text-slate-500 text-xs">"Here's my portfolio with 10 published articles from Forbes, TechCrunch, and HuffPost."</p>
+                </div>
               </div>
-              <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
-                Blog Posts
-              </div>
+            </div>
+            
+            {/* Stat */}
+            <div className="flex items-center gap-2 text-sm text-yellow-400">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              <span className="font-semibold">Writers with portfolios charge 2-3x more per article</span>
             </div>
           </div>
 
@@ -98,7 +122,7 @@ const Feature = () => {
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                 </div>
                 <div className="flex-1 bg-slate-800 rounded px-2 py-0.5 text-slate-500 text-[8px]">
-                  portfolio.com
+                  foliobase.io
                 </div>
               </div>
               {/* Content preview */}
@@ -150,23 +174,53 @@ const Feature = () => {
 
           <div className="space-y-6 order-1 lg:order-2">
             <div className="inline-block px-3 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full">
-              <span className="text-purple-400 text-sm font-semibold">Beautiful Templates</span>
+              <span className="text-purple-400 text-sm font-semibold">No Designer Needed</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-slate-50">
-              Templates Built for Writers
+              Templates That Make Writers Look Professional (Without Trying)
             </h2>
             <p className="text-slate-400 text-lg leading-relaxed">
-              Clean, professional designs that put your writing front and center. Choose from minimalist or modern layouts—all optimized for readability and client conversion.
+              Stop using restaurant templates for your writing portfolio. Our templates 
+              are built specifically for writers—clean layouts that put your words first, 
+              not fancy graphics.
             </p>
-            <div className="flex flex-wrap gap-3">
-              <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
-                Minimal Design
+            {/* Cost comparison */}
+            <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm">Hiring a designer:</p>
+                  <p className="text-slate-300 font-semibold">$500+ • 2-3 weeks</p>
+                </div>
+                <div className="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg text-xs font-bold">
+                  EXPENSIVE
+                </div>
               </div>
-              <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
-                Professional Layout
+              
+              <div className="h-px bg-slate-700"></div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm">Using Foliobase:</p>
+                  <p className="text-slate-300 font-semibold">$0-9/mo • 10 minutes</p>
+                </div>
+                <div className="px-3 py-1 bg-green-500/20 text-green-400 rounded-lg text-xs font-bold">
+                  SMART
+                </div>
               </div>
-              <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
-                Mobile Optimized
+            </div>
+            {/* What you get */}
+            <div className="space-y-2">
+              <p className="text-slate-500 text-md font-semibold">What you get:</p>
+              <div className="flex flex-wrap gap-3">
+                <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
+                  ✓ Mobile-optimized
+                </div>
+                <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
+                  ✓ Professional Layout
+                </div>
+                <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
+                  ✓ Client-ready
+                </div>
               </div>
             </div>
           </div>
@@ -176,38 +230,70 @@ const Feature = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <div className="inline-block px-3 py-1 bg-green-500/10 border border-green-500/30 rounded-full">
-              <span className="text-green-400 text-sm font-semibold">Lightning Fast</span>
+              <span className="text-green-400 text-sm font-semibold">Actually Fast</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-slate-50">
-              Live in Minutes, Not Days
+              Stop Losing Clients While Building Your Portfolio
             </h2>
             <p className="text-slate-400 text-lg leading-relaxed">
-              Stop spending hours wrestling with WordPress or hiring expensive designers. Fill out a simple form and your portfolio is live instantly.
+              Spent 2 weeks learning WordPress? Still not done? Meanwhile, 3 clients 
+              went with someone else. Build your portfolio in 10 minutes and start 
+              pitching today—not next month.
             </p>
+            {/* Time comparison */}
+            <div className="space-y-3">
+              <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-slate-300 font-semibold text-sm">WordPress Route:</p>
+                    <p className="text-slate-500 text-xs">20+ hours learning • Still buggy • Clients waiting</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-slate-300 font-semibold text-sm">Foliobase:</p>
+                    <p className="text-slate-500 text-xs">10 minutes total • Live instantly • Pitching clients today</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-400/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-6 h-6 bg-green-400/20 rounded flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-slate-300">No coding required</span>
+                <span className="text-slate-300 text-sm">No coding (seriously, none)</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-400/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-6 h-6 bg-green-400/20 rounded flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-slate-300">Instant deployment</span>
+                <span className="text-slate-300 text-sm">Live the moment you hit "Publish"</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-400/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-6 h-6 bg-green-400/20 rounded flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-slate-300">Free hosting included</span>
+                <span className="text-slate-300 text-sm">Free hosting forever (no hidden fees)</span>
               </div>
             </div>
           </div>
@@ -342,24 +428,35 @@ const Feature = () => {
 
           <div className="space-y-6 order-1 lg:order-2">
             <div className="inline-block px-3 py-1 bg-pink-500/10 border border-pink-500/30 rounded-full">
-              <span className="text-pink-400 text-sm font-semibold">Social Proof</span>
+              <span className="text-pink-400 text-sm font-semibold">Instant Credibility</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-slate-50">
-              Client Testimonials Built In
+              Let Your Clients Brag About You
             </h2>
             <p className="text-slate-400 text-lg leading-relaxed">
-              Showcase what past clients say about your work. Add testimonials with client names, roles, and companies—building instant credibility with potential clients.
+              "I'm a great writer" means nothing. "Here's what my clients say about my work" 
+              closes deals. Add testimonials from past clients and watch new clients trust you faster.
             </p>
-            <div className="flex flex-wrap gap-3">
-              <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
-                Client Reviews
+            {/* The Psychology */}
+            <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-5">
+              <p className="text-slate-300 text-sm mb-3 font-semibold">What clients think:</p>
+              <div className="space-y-2">
+                <div className="flex items-start gap-2">
+                  <span className="text-slate-600 text-xs mt-0.5">❌</span>
+                  <p className="text-slate-500 text-xs">"They say they're good, but how do I know?"</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-green-400 text-xs mt-0.5">✓</span>
+                  <p className="text-slate-300 text-xs">"3 other companies trust them. Their work must be solid."</p>
+                </div>
               </div>
-              <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
-                Star Ratings
-              </div>
-              <div className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-300 text-sm">
-                Social Proof
-              </div>
+            </div>
+            {/* Stats */}
+            <div className="flex items-center gap-2 text-sm text-pink-400">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="font-semibold">Testimonials increase conversion rates by 34%</span>
             </div>
           </div>
         </div>
