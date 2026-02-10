@@ -112,8 +112,8 @@ const Navbar = () => {
             </div>
           ) : (
             <Link
-              to="/"
-              className="px-4 py-2 text-slate-900 bg-yellow-400 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
+              to="/login"
+              className="cursor-not-allowed px-4 py-2 text-slate-900 bg-yellow-400 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
             >
               Get Started
             </Link>
@@ -202,9 +202,9 @@ const Navbar = () => {
             </>
           ) : (
             <Link
-              to="/"
+              to="/login"
               onClick={() => setMobileOpen(false)}
-              className="block text-center bg-yellow-400 text-slate-900 py-2 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
+              className="cursor-not-allowed block text-center bg-yellow-400 text-slate-900 py-2 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
             >
               Get Started
             </Link>

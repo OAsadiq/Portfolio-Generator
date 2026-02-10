@@ -577,7 +577,7 @@ const PricingPage = () => {
 
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center px-2">
             <Link to="/templates" className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 transition-all transform hover:scale-105">
+              <button className="cursor-not-allowed w-full sm:w-auto bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 transition-all transform hover:scale-105">
                 Start Building Free
                 <svg className="inline-block ml-2 w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
