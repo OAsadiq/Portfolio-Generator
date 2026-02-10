@@ -204,7 +204,7 @@ const Navbar = () => {
             <Link
               to="/login"
               onClick={() => setMobileOpen(false)}
-              className="cursor-not-allowed block text-center bg-yellow-400 text-slate-900 py-2 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
+              className="block text-center bg-yellow-400 text-slate-900 py-2 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
             >
               Get Started
             </Link>

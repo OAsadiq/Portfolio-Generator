@@ -157,7 +157,7 @@ const PricingSection = () => {
             </ul>
 
             <Link to="/templates">
-              <button className="mt-8 w-full bg-slate-700 hover:bg-slate-600 text-slate-50 py-3 rounded-lg transition font-semibold hidden">
+              <button className="mt-8 w-full bg-slate-700 hover:bg-slate-600 text-slate-50 py-3 rounded-lg transition font-semibold pointer-events-none">
                 Start Free
               </button>
             </Link>
@@ -203,7 +203,7 @@ const PricingSection = () => {
             <button
               onClick={handleUpgrade}
               disabled={loading}
-              className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 py-3 rounded-lg cursor-pointer relative z-10 font-bold shadow-lg shadow-yellow-400/20 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed hidden"
+              className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 py-3 rounded-lg cursor-pointer relative z-10 font-bold shadow-lg shadow-yellow-400/20 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 pointer-events-none"
             >
               {loading ? "Loading..." : "Upgrade Now"}
             </button>
@@ -215,7 +215,7 @@ const PricingSection = () => {
         </p>
 
         <div className="text-center mt-5">
-          <a href="/" className="text-yellow-400 hover:text-yellow-300 font-semibold">
+          <a href="/pricing" className="text-yellow-400 hover:text-yellow-300 font-semibold pointer-events-none">
             See full pricing comparison →
           </a>
         </div>
