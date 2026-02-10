@@ -9,11 +9,11 @@ const HowItWorks = () => {
           <div className="inline-block px-3 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full mb-4">
             <span className="text-yellow-400 text-sm font-semibold">How It Works</span>
           </div>
-          
+
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-50 mb-4">
             10 Minutes From Now, You'll Have a Portfolio
           </h2>
-          
+
           <p className="text-slate-400 text-base md:text-lg max-w-2xl mx-auto">
             Most writers spend 3 weeks on this. You'll be done by lunch.
           </p>
@@ -21,12 +21,12 @@ const HowItWorks = () => {
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          
+
           {/* Step 1: Choose Template - Top Left */}
           <div className="group relative bg-gradient-to-br from-purple-500/5 to-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-6 md:p-8 overflow-hidden hover:border-purple-500/30 transition-all duration-300">
             {/* Background glow */}
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-400/10 rounded-full blur-3xl group-hover:bg-purple-400/20 transition-all duration-500"></div>
-            
+
             <div className="relative z-10">
               {/* Step Badge */}
               <div className="flex items-center gap-3 mb-6">
@@ -85,7 +85,7 @@ const HowItWorks = () => {
           <div className="group relative bg-gradient-to-br from-blue-500/5 to-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-6 md:p-8 overflow-hidden hover:border-blue-500/30 transition-all duration-300">
             {/* Background glow */}
             <div className="absolute -top-24 -left-24 w-48 h-48 bg-blue-400/10 rounded-full blur-3xl group-hover:bg-blue-400/20 transition-all duration-500"></div>
-            
+
             <div className="relative z-10">
               {/* Step Badge */}
               <div className="flex items-center gap-3 mb-6">
@@ -172,7 +172,7 @@ const HowItWorks = () => {
             {/* Background glows */}
             <div className="absolute -top-32 -right-32 w-64 h-64 bg-green-400/10 rounded-full blur-3xl group-hover:bg-green-400/20 transition-all duration-500"></div>
             <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl group-hover:bg-yellow-400/20 transition-all duration-500"></div>
-            
+
             <div className="relative z-10">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 {/* Left Content */}
@@ -221,7 +221,7 @@ const HowItWorks = () => {
                   </div>
 
                   {/* CTA Button */}
-                  <a href="/">
+                  <a href="/templates" className="pointer-events-none cursor-not-allowed">
                     <button className="w-full md:w-auto bg-gradient-to-r from-green-400 to-yellow-400 text-slate-900 px-8 py-4 rounded-xl font-bold text-base md:text-lg shadow-lg shadow-green-400/20 hover:shadow-green-400/40 hover:scale-105 transition-all duration-300">
                       Start Building Your Portfolio
                       <svg className="inline-block ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

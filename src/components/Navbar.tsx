@@ -45,9 +45,13 @@ const Navbar = () => {
             Home
           </Link>
 
-          <span className="text-slate-600 font-semibold cursor-not-allowed">
+          <Link
+            to="/pricing"
+            className="block text-slate-600 font-semibold hover:text-yellow-400 transition cursor-not-allowed pointer-events-none"
+            onClick={() => setMobileOpen(false)}
+          >
             Pricing (Coming soon)
-          </span>
+          </Link>
 
           <Link to="/contact" className="text-slate-300 font-semibold hover:text-yellow-400 transition">
             Contact
@@ -113,7 +117,7 @@ const Navbar = () => {
           ) : (
             <Link
               to="/login"
-              className="cursor-not-allowed px-4 py-2 text-slate-900 bg-yellow-400 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
+              className="pointer-events-none px-4 py-2 text-slate-900 bg-yellow-400 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
             >
               Get Started
             </Link>
@@ -141,9 +145,13 @@ const Navbar = () => {
             Home
           </Link>
 
-          <span className="block text-slate-600 font-semibold cursor-not-allowed">
+          <Link
+            to="/pricing"
+            className="block text-slate-600 font-semibold hover:text-yellow-400 transition cursor-not-allowed pointer-events-none"
+            onClick={() => setMobileOpen(false)}
+          >
             Pricing (Coming soon)
-          </span>
+          </Link>
 
           <Link
             to="/contact"
@@ -204,7 +212,7 @@ const Navbar = () => {
             <Link
               to="/login"
               onClick={() => setMobileOpen(false)}
-              className="block text-center bg-yellow-400 text-slate-900 py-2 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
+              className="pointer-events-noneblock text-center bg-yellow-400 text-slate-900 py-2 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
             >
               Get Started
             </Link>

@@ -57,7 +57,7 @@ const SeeItInAction = () => {
 
         {/* CTA */}
         <div className="text-center mt-10">
-          <a href="/templates">
+          <a href="/templates" className="pointer-events-none cursor-not-allowed ">
             <button className="bg-gradient-to-r from-green-400 to-blue-400 text-slate-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-400/20 hover:shadow-green-400/40 hover:scale-105 transition-all">
               Build Yours Now (10 Minutes)
               <svg className="inline-block ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
