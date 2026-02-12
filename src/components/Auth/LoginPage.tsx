@@ -16,6 +16,7 @@ const LoginPage = () => {
   const [resendTimer, setResendTimer] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
+  const [honeypot, setHoneypot] = useState('');
 
   useEffect(() => {
     if (user && !loading) {
@@ -43,8 +44,23 @@ const LoginPage = () => {
     }
   };
 
+  const DISPOSABLE_DOMAINS = [
+    'tempmail.com',
+    'guerrillamail.com',
+    '10minutemail.com',
+    'throwaway.email',
+    'mailinator.com',
+    'yopmail.com',
+  ];
+
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const domain = email.split('@')[1]?.toLowerCase();
+    if (DISPOSABLE_DOMAINS.includes(domain)) {
+      setError('Please use a permanent email address');
+      return;
+    }
 
     // Email validation
     if (!email) {
@@ -278,6 +294,15 @@ const LoginPage = () => {
                   className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition-all"
                   disabled={isLoading}
                   autoComplete="email"
+                />
+                <input
+                  type="text"
+                  name="website"
+                  style={{ position: 'absolute', left: '-9999px' }}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
                 />
                 <p className="mt-2 text-xs text-slate-500">
                   🔒 No password needed. We'll create your account or sign you in automatically.
