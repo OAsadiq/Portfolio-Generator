@@ -12,6 +12,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,7 +45,7 @@ const LoginPage = () => {
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Email validation
     if (!email) {
       setError('Please enter your email');
@@ -62,15 +63,32 @@ const LoginPage = () => {
       setError(null);
       setSuccess(null);
 
-      await signInWithOTP(email);
+      const result = await signInWithOTP(email);
+
+      // Check if this is a new user (Supabase returns this info)
+      if (result?.user && result?.session === null) {
+        setIsNewUser(true);
+        setOtpSent(true);
+        setSuccess('Welcome! Check your email for a verification code to complete signup.');
+      } else {
+        setIsNewUser(false);
+        setOtpSent(true);
+        setSuccess('Check your email! We sent you a 6-digit code.');
+      }
       
-      setOtpSent(true);
-      setSuccess('Check your email! We sent you a 6-digit code.');
-      setResendTimer(60); // 60 second cooldown
+      setResendTimer(60);
       setIsLoading(false);
     } catch (err: any) {
       console.error('OTP send error:', err);
-      setError(err.message || 'Failed to send verification code');
+      
+      // Better error messages
+      if (err.message?.includes('rate limit') || err.message?.includes('Email rate limit exceeded')) {
+        setError('Too many attempts. Please try again in 1 hour or use a different email.');
+      } else if (err.message?.includes('Email not allowed')) {
+        setError('This email domain is not allowed. Please use a different email.');
+      } else {
+        setError(err.message || 'Failed to send verification code');
+      }
       setIsLoading(false);
     }
   };
@@ -88,18 +106,26 @@ const LoginPage = () => {
       setError(null);
 
       await verifyOTP(email, otp);
-      
+
       // Success! Auth context will handle redirect
-      setSuccess('Verified! Signing you in...');
+      if (isNewUser) {
+        setSuccess('Account created! Signing you in...');
+      } else {
+        setSuccess('Verified! Signing you in...');
+      }
     } catch (err: any) {
       console.error('OTP verify error:', err);
-      
+
       if (err.message?.includes('expired')) {
         setError('Code expired. Please request a new one.');
         setOtpSent(false);
         setOtp('');
-      } else if (err.message?.includes('invalid')) {
-        setError('Invalid code. Please check and try again.');
+      } else if (err.message?.includes('invalid') || err.message?.includes('Token has expired or is invalid')) {
+        setError('Invalid code. Please check your email and try again.');
+      } else if (err.message?.includes('Email link is invalid or has expired')) {
+        setError('This code has already been used or expired. Request a new one.');
+        setOtpSent(false);
+        setOtp('');
       } else {
         setError(err.message || 'Verification failed. Please try again.');
       }
@@ -109,19 +135,23 @@ const LoginPage = () => {
 
   const handleResendOTP = async () => {
     if (resendTimer > 0) return;
-    
+
     try {
       setIsLoading(true);
       setError(null);
       setSuccess(null);
 
       await signInWithOTP(email);
-      
+
       setSuccess('New code sent! Check your email.');
       setResendTimer(60);
       setIsLoading(false);
     } catch (err: any) {
-      setError(err.message || 'Failed to resend code');
+      if (err.message?.includes('rate limit')) {
+        setError('Rate limit reached. Please wait before requesting another code.');
+      } else {
+        setError(err.message || 'Failed to resend code');
+      }
       setIsLoading(false);
     }
   };
@@ -131,6 +161,7 @@ const LoginPage = () => {
     setOtp('');
     setError(null);
     setSuccess(null);
+    setIsNewUser(false);
   };
 
   if (loading) {
@@ -143,7 +174,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-50 flex items-center justify-center py-10 px-4 relative overflow-hidden">
-      
+
       {/* Animated Background Effects */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0 pointer-events-none">
@@ -156,7 +187,7 @@ const LoginPage = () => {
       {/* Login Card */}
       <div className="max-w-md w-full relative z-10">
         <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8 md:p-10 shadow-2xl">
-          
+
           {/* Back to Home */}
           <Link
             to="/"
@@ -176,12 +207,18 @@ const LoginPage = () => {
               </svg>
             </div>
             <h1 className="text-3xl font-bold text-slate-50 mb-2">
-              {otpSent ? 'Check Your Email' : 'Welcome to Foliobase'}
+              {otpSent 
+                ? (isNewUser ? 'Create Your Account' : 'Welcome Back')
+                : 'Welcome to Foliobase'
+              }
             </h1>
             <p className="text-slate-400">
-              {otpSent 
-                ? `We sent a code to ${email}`
-                : 'Sign in to create your free writing portfolio'
+              {otpSent
+                ? (isNewUser 
+                    ? `Verify your email to complete signup`
+                    : `We sent a code to ${email}`
+                  )
+                : 'Sign in or create an account'
               }
             </p>
           </div>
@@ -243,7 +280,7 @@ const LoginPage = () => {
                   autoComplete="email"
                 />
                 <p className="mt-2 text-xs text-slate-500">
-                  🔒 Passwordless & secure. We'll send you a verification code.
+                  🔒 No password needed. We'll create your account or sign you in automatically.
                 </p>
               </div>
 
@@ -258,7 +295,7 @@ const LoginPage = () => {
                     <span>Sending code...</span>
                   </div>
                 ) : (
-                  'Send Verification Code'
+                  'Continue with Email'
                 )}
               </button>
             </form>
@@ -271,16 +308,24 @@ const LoginPage = () => {
                   <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span className="text-slate-300 text-sm">{email}</span>
+                  <span className="text-slate-300 text-sm truncate">{email}</span>
                 </div>
                 <button
                   type="button"
                   onClick={handleChangeEmail}
-                  className="text-xs text-yellow-400 hover:text-yellow-300 transition-colors"
+                  className="text-xs text-yellow-400 hover:text-yellow-300 transition-colors whitespace-nowrap ml-2"
                 >
                   Change
                 </button>
               </div>
+
+              {/* New User Notice */}
+              {isNewUser && (
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-sm text-blue-400">
+                  <p className="font-semibold mb-1">Creating your account</p>
+                  <p className="text-blue-300 text-xs">Enter the code from your email to complete signup and access your free portfolio.</p>
+                </div>
+              )}
 
               {/* OTP Input */}
               <div>
@@ -334,7 +379,7 @@ const LoginPage = () => {
                     <span>Verifying...</span>
                   </div>
                 ) : (
-                  'Verify & Sign In'
+                  isNewUser ? 'Create Account' : 'Sign In'
                 )}
               </button>
             </form>

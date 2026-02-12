@@ -10,7 +10,7 @@ interface AuthContextType {
   hasUsedFreeTemplate: boolean;
   isPro: boolean;
   signInWithGoogle: () => Promise<void>;
-  signInWithOTP: (email: string) => Promise<void>;
+  signInWithOTP: (email: string) => Promise<any>;
   verifyOTP: (email: string, token: string) => Promise<any>;
   signOut: () => Promise<void>;
   checkTemplateUsage: () => Promise<void>;
@@ -100,17 +100,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signInWithOTP = async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({
+    const { data, error } = await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
-        shouldCreateUser: true, 
+        shouldCreateUser: true, // Auto-create account if doesn't exist
       },
     });
 
     if (error) {
       throw error;
     }
+
+    // Return data so LoginPage can detect new vs existing user
+    return data;
   };
 
   const verifyOTP = async (email: string, token: string) => {
@@ -128,6 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error('Verification failed. Please try again.');
     }
 
+    // Session will be automatically set by onAuthStateChange
     return data;
   };
 
