@@ -10,6 +10,8 @@ interface AuthContextType {
   hasUsedFreeTemplate: boolean;
   isPro: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithOTP: (email: string) => Promise<void>;
+  verifyOTP: (email: string, token: string) => Promise<any>;
   signOut: () => Promise<void>;
   checkTemplateUsage: () => Promise<void>;
   checkSubscription: () => Promise<void>;
@@ -31,7 +33,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     try {
-
       const { data, error } = await supabase
         .from('subscriptions')
         .select('status, plan, created_at')
@@ -98,6 +99,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (error) throw error;
   };
 
+  const signInWithOTP = async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        shouldCreateUser: true, 
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+  };
+
+  const verifyOTP = async (email: string, token: string) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email',
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data.session) {
+      throw new Error('Verification failed. Please try again.');
+    }
+
+    return data;
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -152,6 +185,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         hasUsedFreeTemplate,
         isPro,
         signInWithGoogle,
+        signInWithOTP,
+        verifyOTP,
         signOut,
         checkTemplateUsage,
         checkSubscription,
