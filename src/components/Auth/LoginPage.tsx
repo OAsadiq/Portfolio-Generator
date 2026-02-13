@@ -433,7 +433,7 @@ const LoginPage = () => {
           {/* Security Notice */}
           {!otpSent && (
             <>
-              <div className="relative mt-4 mb-6">
+              <div className="relative mt-4 mb-8">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-slate-700"></div>
                 </div>
