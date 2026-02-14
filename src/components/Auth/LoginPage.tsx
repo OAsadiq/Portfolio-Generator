@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/components/Auth/LoginPage.tsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 const LoginPage = () => {
   const { signInWithGoogle, signInWithOTP, verifyOTP, user, loading } = useAuth();
@@ -16,7 +16,6 @@ const LoginPage = () => {
   const [resendTimer, setResendTimer] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const [honeypot, setHoneypot] = useState('');
 
   useEffect(() => {
     if (user && !loading) {
@@ -25,7 +24,6 @@ const LoginPage = () => {
     }
   }, [user, loading, navigate, location]);
 
-  // Resend timer countdown
   useEffect(() => {
     if (resendTimer > 0) {
       const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
@@ -44,25 +42,9 @@ const LoginPage = () => {
     }
   };
 
-  const DISPOSABLE_DOMAINS = [
-    'tempmail.com',
-    'guerrillamail.com',
-    '10minutemail.com',
-    'throwaway.email',
-    'mailinator.com',
-    'yopmail.com',
-  ];
-
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const domain = email.split('@')[1]?.toLowerCase();
-    if (DISPOSABLE_DOMAINS.includes(domain)) {
-      setError('Please use a permanent email address');
-      return;
-    }
-
-    // Email validation
     if (!email) {
       setError('Please enter your email');
       return;
@@ -79,17 +61,42 @@ const LoginPage = () => {
       setError(null);
       setSuccess(null);
 
-      const result = await signInWithOTP(email);
+      const { data: userCheck, error: checkError } = await supabase.rpc('check_user_verified', {
+        user_email: email
+      });
 
-      // Check if this is a new user (Supabase returns this info)
-      if (result?.user && result?.session === null) {
+      console.log('User check result:', { userCheck, checkError });
+
+      let userExists = false;
+      let emailVerified = false;
+
+      if (checkError) {
+        console.log('RPC error, using signInWithOtp response fallback');
+        const result = await signInWithOTP(email);
+        console.log('SignInWithOTP result:', result);
+        
+        userExists = !!result?.user;
+        emailVerified = !!result?.session;
+      } else {
+        const checkResult = Array.isArray(userCheck) && userCheck.length > 0 ? userCheck[0] : null;
+        console.log('Parsed check result:', checkResult);
+        
+        userExists = checkResult?.user_exists || false;
+        emailVerified = checkResult?.email_verified || false;
+        
+        await signInWithOTP(email);
+      }
+
+      console.log('Final state:', { userExists, emailVerified });
+
+      if (!emailVerified) {
         setIsNewUser(true);
         setOtpSent(true);
-        setSuccess('Welcome! Check your email for a verification code to complete signup.');
+        setSuccess('📧 Check your email for a confirmation link. Click the link to verify your account and sign in.');
       } else {
         setIsNewUser(false);
         setOtpSent(true);
-        setSuccess('Check your email! We sent you a 6-digit code.');
+        setSuccess('✨ Welcome back! Check your email for a 6-digit code.');
       }
       
       setResendTimer(60);
@@ -97,7 +104,6 @@ const LoginPage = () => {
     } catch (err: any) {
       console.error('OTP send error:', err);
       
-      // Better error messages
       if (err.message?.includes('rate limit') || err.message?.includes('Email rate limit exceeded')) {
         setError('Too many attempts. Please try again in 1 hour or use a different email.');
       } else if (err.message?.includes('Email not allowed')) {
@@ -123,7 +129,6 @@ const LoginPage = () => {
 
       await verifyOTP(email, otp);
 
-      // Success! Auth context will handle redirect
       if (isNewUser) {
         setSuccess('Account created! Signing you in...');
       } else {
@@ -159,7 +164,10 @@ const LoginPage = () => {
 
       await signInWithOTP(email);
 
-      setSuccess('New code sent! Check your email.');
+      setSuccess(isNewUser 
+        ? 'New confirmation link sent! Check your email.'
+        : 'New code sent! Check your email.'
+      );
       setResendTimer(60);
       setIsLoading(false);
     } catch (err: any) {
@@ -224,7 +232,7 @@ const LoginPage = () => {
             </div>
             <h1 className="text-3xl font-bold text-slate-50 mb-2">
               {otpSent 
-                ? (isNewUser ? 'Create Your Account' : 'Welcome Back')
+                ? (isNewUser ? 'Check Your Email' : 'Welcome Back')
                 : 'Welcome to Foliobase'
               }
             </h1>
@@ -279,7 +287,6 @@ const LoginPage = () => {
 
           {/* Email OTP Flow */}
           {!otpSent ? (
-            // Step 1: Enter Email
             <form onSubmit={handleSendOTP} className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
@@ -295,15 +302,6 @@ const LoginPage = () => {
                   disabled={isLoading}
                   autoComplete="email"
                 />
-                <input
-                  type="text"
-                  name="website"
-                  style={{ position: 'absolute', left: '-9999px' }}
-                  tabIndex={-1}
-                  autoComplete="off"
-                  value={honeypot}
-                  onChange={(e) => setHoneypot(e.target.value)}
-                />
                 <p className="mt-2 text-xs text-slate-500">
                   🔒 No password needed. We'll create your account or sign you in automatically.
                 </p>
@@ -317,7 +315,7 @@ const LoginPage = () => {
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-                    <span>Sending code...</span>
+                    <span>Sending...</span>
                   </div>
                 ) : (
                   'Continue with Email'
@@ -325,9 +323,7 @@ const LoginPage = () => {
               </button>
             </form>
           ) : (
-            // Step 2: Enter OTP
             <form onSubmit={handleVerifyOTP} className="space-y-4">
-              {/* Email Display with Change Option */}
               <div className="bg-slate-900/30 border border-slate-700/50 rounded-xl p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -344,73 +340,101 @@ const LoginPage = () => {
                 </button>
               </div>
 
-              {/* New User Notice */}
-              {isNewUser && (
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-sm text-blue-400">
-                  <p className="font-semibold mb-1">Creating your account</p>
-                  <p className="text-blue-300 text-xs">Enter the code from your email to complete signup and access your free portfolio.</p>
-                </div>
-              )}
-
-              {/* OTP Input */}
-              <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-slate-300 mb-2">
-                  Verification Code
-                </label>
-                <input
-                  type="text"
-                  id="otp"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="000000"
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition-all text-center text-2xl tracking-widest font-mono"
-                  disabled={isLoading}
-                  maxLength={6}
-                  autoComplete="one-time-code"
-                  autoFocus
-                />
-                <p className="mt-2 text-xs text-slate-500 text-center">
-                  Enter the 6-digit code from your email
-                </p>
-              </div>
-
-              {/* Resend Code */}
-              <div className="text-center">
-                {resendTimer > 0 ? (
-                  <p className="text-sm text-slate-500">
-                    Resend code in {resendTimer}s
-                  </p>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleResendOTP}
-                    disabled={isLoading}
-                    className="text-sm text-yellow-400 hover:text-yellow-300 transition-colors disabled:opacity-50"
-                  >
-                    Didn't receive code? Resend
-                  </button>
-                )}
-              </div>
-
-              {/* Verify Button */}
-              <button
-                type="submit"
-                disabled={isLoading || otp.length !== 6}
-                className="w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-                    <span>Verifying...</span>
+              {isNewUser ? (
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6 text-center">
+                  <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+                    </svg>
                   </div>
-                ) : (
-                  isNewUser ? 'Create Account' : 'Sign In'
-                )}
-              </button>
+                  <p className="font-semibold text-blue-400 mb-2">Check Your Email</p>
+                  <p className="text-blue-300 text-sm leading-relaxed">
+                    We sent a <strong>confirmation link</strong> to <strong>{email}</strong>
+                  </p>
+                  <p className="text-blue-300/80 text-xs mt-3">
+                    Click the link in your email to verify your account and sign in.
+                  </p>
+                  <p className="text-blue-400/60 text-xs mt-4">
+                    Link expires in 24 hours
+                  </p>
+                  
+                  {/* Resend for new users */}
+                  <div className="mt-6">
+                    {resendTimer > 0 ? (
+                      <p className="text-sm text-slate-500">
+                        Resend link in {resendTimer}s
+                      </p>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleResendOTP}
+                        disabled={isLoading}
+                        className="text-sm text-yellow-400 hover:text-yellow-300 transition-colors disabled:opacity-50"
+                      >
+                        Didn't receive email? Resend
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label htmlFor="otp" className="block text-sm font-medium text-slate-300 mb-2">
+                      Verification Code
+                    </label>
+                    <input
+                      type="text"
+                      id="otp"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="000000"
+                      className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition-all text-center text-2xl tracking-widest font-mono"
+                      disabled={isLoading}
+                      maxLength={6}
+                      autoComplete="one-time-code"
+                      autoFocus
+                    />
+                    <p className="mt-2 text-xs text-slate-500 text-center">
+                      Enter the 6-digit code from your email
+                    </p>
+                  </div>
+
+                  <div className="text-center">
+                    {resendTimer > 0 ? (
+                      <p className="text-sm text-slate-500">
+                        Resend code in {resendTimer}s
+                      </p>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleResendOTP}
+                        disabled={isLoading}
+                        className="text-sm text-yellow-400 hover:text-yellow-300 transition-colors disabled:opacity-50"
+                      >
+                        Didn't receive code? Resend
+                      </button>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading || otp.length !== 6}
+                    className="w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                        <span>Verifying...</span>
+                      </div>
+                    ) : (
+                      'Sign In'
+                    )}
+                  </button>
+                </>
+              )}
             </form>
           )}
 
-          {/* Success Message */}
           {success && (
             <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-sm flex items-start gap-3">
               <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -420,7 +444,6 @@ const LoginPage = () => {
             </div>
           )}
 
-          {/* Error Message */}
           {error && (
             <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm flex items-start gap-3">
               <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -430,16 +453,14 @@ const LoginPage = () => {
             </div>
           )}
 
-          {/* Security Notice */}
           {!otpSent && (
             <>
-              <div className="relative mt-4 mb-8">
+              <div className="relative mt-4 mb-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-slate-700"></div>
                 </div>
               </div>
 
-              {/* Features List */}
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-sm text-slate-300">
                   <div className="w-5 h-5 bg-green-400/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -469,7 +490,6 @@ const LoginPage = () => {
             </>
           )}
 
-          {/* Terms */}
           <p className="mt-6 text-xs text-slate-500 text-center">
             By continuing, you agree to our{' '}
             <a href="/privacy-policy" className="text-yellow-400 hover:underline">Terms of Service</a>
