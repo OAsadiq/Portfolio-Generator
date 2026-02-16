@@ -65,21 +65,17 @@ const LoginPage = () => {
         user_email: email
       });
 
-      console.log('User check result:', { userCheck, checkError });
-
       let userExists = false;
       let emailVerified = false;
 
       if (checkError) {
         console.log('RPC error, using signInWithOtp response fallback');
         const result = await signInWithOTP(email);
-        console.log('SignInWithOTP result:', result);
         
         userExists = !!result?.user;
         emailVerified = !!result?.session;
       } else {
         const checkResult = Array.isArray(userCheck) && userCheck.length > 0 ? userCheck[0] : null;
-        console.log('Parsed check result:', checkResult);
         
         userExists = checkResult?.user_exists || false;
         emailVerified = checkResult?.email_verified || false;

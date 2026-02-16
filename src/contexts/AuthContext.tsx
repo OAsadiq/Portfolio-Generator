@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
-        shouldCreateUser: true, // Auto-create account if doesn't exist
+        shouldCreateUser: true,
       },
     });
 
@@ -112,7 +112,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw error;
     }
 
-    // Return data so LoginPage can detect new vs existing user
     return data;
   };
 
@@ -131,7 +130,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error('Verification failed. Please try again.');
     }
 
-    // Session will be automatically set by onAuthStateChange
     return data;
   };
 
