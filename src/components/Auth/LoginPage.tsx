@@ -195,7 +195,6 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-50 flex items-center justify-center py-10 px-4 relative overflow-hidden">
 
-      {/* Animated Background Effects */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-grid-horizontal pointer-events-none"></div>
