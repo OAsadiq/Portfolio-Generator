@@ -1,13 +1,63 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 
 const CallToActionSection = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
   const [formData, setFormData] = useState({ firstName: '', email: '' });
+  const [honeypot, setHoneypot] = useState(''); // Bot trap
+  const lastSubmitTime = useRef<number>(0);
 
   const sectionId = "waitlist";
+
+  const DISPOSABLE_DOMAINS = [
+    'tempmail.com',
+    'guerrillamail.com',
+    '10minutemail.com',
+    'throwaway.email',
+    'mailinator.com',
+    'yopmail.com',
+    'temp-mail.org',
+    'getnada.com',
+    'maildrop.cc',
+    'trashmail.com'
+  ];
+
+  const validateEmail = (email: string): { valid: boolean; error?: string } => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return { valid: false, error: 'Please enter a valid email address' };
+    }
+
+    const domain = email.split('@')[1]?.toLowerCase();
+    if (DISPOSABLE_DOMAINS.includes(domain)) {
+      return { valid: false, error: 'Please use a permanent email address' };
+    }
+
+    if (email.includes('test') || email.includes('spam')) {
+      return { valid: false, error: 'Please use a real email address' };
+    }
+
+    return { valid: true };
+  };
+
+  const validateName = (name: string): { valid: boolean; error?: string } => {
+    if (name.trim().length < 2) {
+      return { valid: false, error: 'Name must be at least 2 characters' };
+    }
+
+    if (/^\d+$/.test(name)) {
+      return { valid: false, error: 'Please enter a valid name' };
+    }
+
+    const specialCharCount = (name.match(/[^a-zA-Z\s-']/g) || []).length;
+    if (specialCharCount > 2) {
+      return { valid: false, error: 'Name contains invalid characters' };
+    }
+
+    return { valid: true };
+  };
 
   const handleInputChange = (e: { target: { name: any; value: any; }; }) => {
     setFormData({
@@ -17,13 +67,40 @@ const CallToActionSection = () => {
   };
 
   const handleWaitlistSubmit = async () => {
+    if (honeypot) {
+      console.log('Bot detected via honeypot');
+      setSubmitMessage('🎉 Successfully joined the waitlist!');
+      setFormData({ firstName: '', email: '' });
+      return;
+    }
+
+    const now = Date.now();
+    const timeSinceLastSubmit = now - lastSubmitTime.current;
+    if (timeSinceLastSubmit < 3000) {
+      setSubmitMessage('Please wait a moment before submitting again.');
+      return;
+    }
+
     if (!formData.firstName || !formData.email) {
       setSubmitMessage('Please fill in all fields.');
       return;
     }
 
+    const nameValidation = validateName(formData.firstName);
+    if (!nameValidation.valid) {
+      setSubmitMessage(nameValidation.error || 'Invalid name');
+      return;
+    }
+
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.valid) {
+      setSubmitMessage(emailValidation.error || 'Invalid email');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitMessage('');
+    lastSubmitTime.current = now;
 
     try {
       console.log({
@@ -34,16 +111,16 @@ const CallToActionSection = () => {
       const { data, error } = await supabase
         .from('waitlist')
         .insert({
-          email: formData.email,
-          first_name: formData.firstName,
-          source: 'website'
+          email: formData.email.toLowerCase().trim(), // Normalize email
+          first_name: formData.firstName.trim(),
+          source: 'website',
+          created_at: new Date().toISOString()
         })
         .select();
 
       console.log({ data, error });
 
       if (error) {
-
         if (error.code === '23505') {
           setSubmitMessage('✅ You\'re already on the waitlist!');
         } else if (error.message) {
@@ -56,6 +133,7 @@ const CallToActionSection = () => {
         setFormData({ firstName: '', email: '' });
       }
     } catch (error: any) {
+      console.error('Waitlist submission error:', error);
       setSubmitMessage(`Unable to join: ${error.message || 'Please try again later.'}`);
     } finally {
       setIsSubmitting(false);
@@ -77,7 +155,6 @@ const CallToActionSection = () => {
         <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col gap-4">
-
           <h2 className="text-2xl md:text-4xl font-bold text-slate-50">
             Stop Losing Clients. Build Your Portfolio in 10 Minutes.
           </h2>
@@ -85,10 +162,21 @@ const CallToActionSection = () => {
           <p className="text-slate-300 text-base md:text-lg">
             Don't let another client slip away. Join our waitlist and be the first to try Foliobase.
           </p>
-
         </div>
 
         <div className="flex flex-col gap-4 mt-8">
+          {/* Honeypot field - hidden from humans, visible to bots */}
+          <input
+            type="text"
+            name="website"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            className="absolute left-[-9999px]"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+          />
+
           <div className="flex flex-col lg:flex-row space-y-3 lg:space-y-0 lg:space-x-3 md:w-full">
             <input
               type="text"
@@ -97,7 +185,9 @@ const CallToActionSection = () => {
               value={formData.firstName}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
+              maxLength={50}
               className="w-full px-6 py-3 bg-slate-900/50 backdrop-blur-sm text-slate-100 placeholder-slate-400 rounded-lg border-2 border-slate-700/50 focus:border-yellow-400/60 focus:outline-none transition-all duration-300"
+              disabled={isSubmitting}
             />
             <input
               type="email"
@@ -106,7 +196,9 @@ const CallToActionSection = () => {
               value={formData.email}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
+              maxLength={100}
               className="w-full px-6 py-3 bg-slate-900/50 backdrop-blur-sm text-slate-100 placeholder-slate-400 rounded-lg border-2 border-slate-700/50 focus:border-yellow-400/60 focus:outline-none transition-all duration-300"
+              disabled={isSubmitting}
             />
             <button
               onClick={handleWaitlistSubmit}
@@ -118,7 +210,11 @@ const CallToActionSection = () => {
           </div>
 
           {submitMessage && (
-            <p className={`text-center text-sm ${submitMessage.includes('success') || submitMessage.includes('already') ? 'text-red-400' : 'text-green-400'}`}>
+            <p className={`text-center text-sm ${
+              submitMessage.includes('🎉') || submitMessage.includes('✅') 
+                ? 'text-green-400' 
+                : 'text-red-400'
+            }`}>
               {submitMessage}
             </p>
           )}
