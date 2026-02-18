@@ -52,7 +52,6 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Template not found" });
     }
 
-    // Generate HTML with both formData and sections
     const generatedHtml = template.generateHTML(formData, sections);
 
     const filePath = `portfolios/${slug}.html`;
@@ -80,12 +79,11 @@ export default async function handler(req, res) {
       });
     }
 
-    // Update database with formData AND sections
     const { error: updateError } = await supabase
       .from('portfolios')
       .update({
         form_data: formData,
-        sections: sections, // Add sections to database
+        sections: sections, 
         user_name: formData.fullName || portfolio.user_name,
         user_email: formData.email || portfolio.user_email,
         updated_at: new Date().toISOString()

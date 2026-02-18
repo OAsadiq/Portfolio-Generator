@@ -29,7 +29,7 @@ function getSampleIcon(type) {
     'technical documentation': '⚙️',
     'user manual': '📖'
   };
-  
+
   const normalizedType = type?.toLowerCase().trim() || '';
   return typeIcons[normalizedType] || '📄';
 }
@@ -37,25 +37,25 @@ function getSampleIcon(type) {
 function buildSamples(data) {
   let samplesHTML = "";
   let modalsHTML = "";
-  
+
   for (let i = 1; i <= 100; i++) {
     const title = data[`sample${i}Title`];
-    
+
     if (!title) break;
-    
+
     const type = data[`sample${i}Type`];
     const desc = data[`sample${i}Description`];
     const content = data[`sample${i}Content`];
     const link = data[`sample${i}Link`];
     const image = data[`sample${i}Image`];
-    
+
     const hasContent = content && content.trim();
     const hasLink = link && link.trim();
-    
-    const displayIcon = image ? 
-      `<img src="${image}" alt="${title}" class="sample-card-image" />` : 
+
+    const displayIcon = image ?
+      `<img src="${image}" alt="${title}" class="sample-card-image" />` :
       `<div class="sample-emoji-icon">${getSampleIcon(type)}</div>`;
-    
+
     samplesHTML += `
       <article class="sample-card">
         <div class="sample-image-container">
@@ -89,7 +89,7 @@ function buildSamples(data) {
         </div>
       </article>
     `;
-    
+
     if (hasContent) {
       modalsHTML += `
         <div id="modal-${i}" class="modal">
@@ -121,7 +121,7 @@ function buildSamples(data) {
       `;
     }
   }
-  
+
   return { samplesHTML, modalsHTML };
 }
 
@@ -131,15 +131,15 @@ function buildSocialLinks(data) {
   if (data.twitter) socialLinks.push({ name: 'Twitter', url: data.twitter, icon: 'twitter' });
   if (data.instagram) socialLinks.push({ name: 'Instagram', url: data.instagram, icon: 'instagram' });
   if (data.website) socialLinks.push({ name: 'Website', url: data.website, icon: 'globe' });
-  
+
   if (socialLinks.length === 0) return '';
-  
+
   const socialHTML = socialLinks.map(social => `
     <a href="${social.url}" target="_blank" class="social-link" title="${social.name}">
       ${getSocialIcon(social.icon)}
     </a>
   `).join('');
-  
+
   return `
     <div class="social-links">
       ${socialHTML}
@@ -881,33 +881,33 @@ const professionalWriterTemplate = {
     { name: "headline", label: "Professional Headline", type: "text", placeholder: "e.g., B2B Content Writer | SaaS Specialist", required: true, section: "hero" },
     { name: "bio", label: "About You", type: "textarea", required: true, section: "hero" },
     { name: "profileImage", label: "Profile Image", type: "file", section: "hero" },
-    
+
     // Theme Customization
     { name: "primaryColor", label: "Primary Color", type: "color", default: "#2563eb", section: "theme" },
     { name: "accentColor", label: "Accent Color", type: "color", default: "#0ea5e9", section: "theme" },
-    
+
     // Specialties
     { name: "specialty1", label: "Specialty 1", type: "text", placeholder: "e.g., SEO Blog Posts", section: "specialties" },
     { name: "specialty2", label: "Specialty 2", type: "text", placeholder: "e.g., Email Campaigns", section: "specialties" },
     { name: "specialty3", label: "Specialty 3", type: "text", placeholder: "e.g., Case Studies", section: "specialties" },
     { name: "specialty4", label: "Specialty 4", type: "text", placeholder: "e.g., White Papers", section: "specialties" },
-    
+
     // Testimonials
     { name: "testimonial1", label: "Testimonial 1", type: "textarea", section: "testimonials" },
     { name: "testimonial1Author", label: "Client 1 Name", type: "text", section: "testimonials" },
     { name: "testimonial1Role", label: "Client 1 Role/Company", type: "text", section: "testimonials" },
     { name: "testimonial1Image", label: "Client 1 Photo", type: "file", section: "testimonials" },
-    
+
     { name: "testimonial2", label: "Testimonial 2", type: "textarea", section: "testimonials" },
     { name: "testimonial2Author", label: "Client 2 Name", type: "text", section: "testimonials" },
     { name: "testimonial2Role", label: "Client 2 Role/Company", type: "text", section: "testimonials" },
     { name: "testimonial2Image", label: "Client 2 Photo", type: "file", section: "testimonials" },
-    
+
     { name: "testimonial3", label: "Testimonial 3", type: "textarea", section: "testimonials" },
     { name: "testimonial3Author", label: "Client 3 Name", type: "text", section: "testimonials" },
     { name: "testimonial3Role", label: "Client 3 Role/Company", type: "text", section: "testimonials" },
     { name: "testimonial3Image", label: "Client 3 Photo", type: "file", section: "testimonials" },
-    
+
     // Contact
     { name: "email", label: "Email Address", type: "email", required: true, section: "contact" },
     { name: "linkedin", label: "LinkedIn URL", type: "text", section: "contact" },
@@ -915,7 +915,7 @@ const professionalWriterTemplate = {
     { name: "instagram", label: "Instagram URL", type: "text", section: "contact" },
     { name: "website", label: "Other Links", type: "text", section: "contact" },
   ],
-  
+
   generateHTML: (data, sections = []) => {
     const name = data.fullName || "Your Name";
     const headline = data.headline || "Freelance Writer";
@@ -924,7 +924,7 @@ const professionalWriterTemplate = {
     const email = data.email || "";
     const primaryColor = data.primaryColor || "#2563eb";
     const accentColor = data.accentColor || "#0ea5e9";
-    
+
     const defaultSections = [
       { id: 'hero', enabled: true, order: 0 },
       { id: 'specialties', enabled: true, order: 1 },
@@ -933,19 +933,19 @@ const professionalWriterTemplate = {
       { id: 'contact', enabled: true, order: 4 },
       { id: 'footer', enabled: true, order: 5 },
     ];
-    
+
     const activeSections = sections.length > 0 ? sections : defaultSections;
-    
+
     const sectionMap = {};
     activeSections.forEach(section => {
       sectionMap[section.id] = section.enabled !== undefined ? section.enabled : true;
     });
-    
+
     const sortedSections = [...activeSections].sort((a, b) => a.order - b.order);
-    
+
     const sectionContent = {
       hero: () => {
-        const profileHTML = profile && profile !== '/images/default-avatar.png' 
+        const profileHTML = profile && profile !== '/images/default-avatar.png'
           ? `<img src="${profile}" alt="${name}" class="profile-image" />`
           : `<div class="profile-letter-avatar">
               <span>${name.charAt(0).toUpperCase()}</span>
@@ -973,7 +973,7 @@ const professionalWriterTemplate = {
           </section>
         `;
       },
-      
+
       specialties: () => {
         let specialtiesHTML = "";
         for (let i = 1; i <= 4; i++) {
@@ -989,9 +989,9 @@ const professionalWriterTemplate = {
             `;
           }
         }
-        
+
         if (!specialtiesHTML) return '';
-        
+
         return `
           <section class="specialties">
             <div class="container">
@@ -1002,10 +1002,10 @@ const professionalWriterTemplate = {
           </section>
         `;
       },
-      
+
       samples: () => {
         const { samplesHTML, modalsHTML } = buildSamples(data);
-        
+
         if (!samplesHTML) {
           return `
             <section class="section">
@@ -1021,7 +1021,7 @@ const professionalWriterTemplate = {
             </section>
           `;
         }
-        
+
         return `
           <section class="section">
             <div class="container">
@@ -1037,7 +1037,7 @@ const professionalWriterTemplate = {
           ${modalsHTML}
         `;
       },
-      
+
       testimonials: () => {
         let testimonialsHTML = "";
         for (let i = 1; i <= 3; i++) {
@@ -1045,7 +1045,7 @@ const professionalWriterTemplate = {
           const author = data[`testimonial${i}Author`];
           const role = data[`testimonial${i}Role`];
           const image = data[`testimonial${i}Image`];
-          
+
           if (testimonial && author) {
             testimonialsHTML += `
               <div class="testimonial-card">
@@ -1062,9 +1062,9 @@ const professionalWriterTemplate = {
             `;
           }
         }
-        
+
         if (!testimonialsHTML) return '';
-        
+
         return `
           <section class="section" style="background: var(--bg-secondary);">
             <div class="container">
@@ -1079,7 +1079,7 @@ const professionalWriterTemplate = {
           </section>
         `;
       },
-      
+
       contact: () => `
         <section class="section">
           <div class="container">
@@ -1096,7 +1096,7 @@ const professionalWriterTemplate = {
           </div>
         </section>
       `,
-      
+
       footer: () => `
         <footer>
           <div class="container">
@@ -1105,7 +1105,7 @@ const professionalWriterTemplate = {
         </footer>
       `
     };
-    
+
     // Build the main content by iterating through sorted sections
     let mainContent = '';
     sortedSections.forEach(section => {
@@ -1113,13 +1113,14 @@ const professionalWriterTemplate = {
         mainContent += sectionContent[section.id]();
       }
     });
-    
+
     return `
       <!DOCTYPE html>
       <html lang="en">
         <head>
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <link rel="icon" type="image/svg+xml" href="${profile}" />
           <link rel="preconnect" href="https://fonts.googleapis.com">
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1153,10 +1154,10 @@ const professionalWriterTemplate = {
           
           <!-- Embed portfolio data for future editing -->
           <script type="application/json" id="portfolio-data">
-            ${JSON.stringify({ 
-              formData: data, 
-              sections: activeSections 
-            })}
+            ${JSON.stringify({
+      formData: data,
+      sections: activeSections
+    })}
           </script>
         </body>
       </html>

@@ -39,7 +39,6 @@ export default async function handler(req, res) {
         const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
         if (authError || !user) {
-            console.error('Auth error:', authError);
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
@@ -110,12 +109,49 @@ export default async function handler(req, res) {
 
         const userName = formData.fullName || 'writer';
         const userEmail = formData.email || '';
-        const baseSlug = createSlug(userName);
 
-        const timestamp = Date.now();
-        const slug = `${baseSlug}-${timestamp}`;
+        const generateUniqueSlug = async (baseName, userId) => {
+        const baseSlug = createSlug(baseName);
+        
+        const { data: existing } = await supabase
+            .from('portfolios')
+            .select('slug')
+            .eq('user_id', userId)
+            .ilike('slug', `${baseSlug}%`)
+            .order('slug', { ascending: false })
+            .limit(1);
+        
+        if (!existing || existing.length === 0) {
+            return baseSlug;
+        }
+        
+        const existingSlugs = await supabase
+            .from('portfolios')
+            .select('slug')
+            .eq('user_id', userId)
+            .ilike('slug', `${baseSlug}%`);
+        
+        if (!existingSlugs.data || existingSlugs.data.length === 0) {
+            return baseSlug;
+        }
+        
+        const numbers = existingSlugs.data
+            .map(item => {
+            const match = item.slug.match(new RegExp(`^${baseSlug}-(\\d+)$`));
+            return match ? parseInt(match[1]) : 0;
+            })
+            .filter(num => num > 0);
+        
+        if (numbers.length === 0) {
+            return `${baseSlug}-2`;
+        }
+        
+        const maxNumber = Math.max(...numbers);
+        return `${baseSlug}-${maxNumber + 1}`;
+        };
 
-        // Pass sections to generateHTML if your template supports it
+        const slug = await generateUniqueSlug(userName, user.id);
+
         const finalHTML = template.generateHTML(formData, sections);
 
         const filePath = `portfolios/${slug}.html`;
@@ -139,7 +175,6 @@ export default async function handler(req, res) {
             .from('portfolios')
             .getPublicUrl(filePath);
 
-        // USE SECTIONS FROM REQ.BODY OR DEFAULT TO EMPTY ARRAY
         const { data: portfolio, error: insertError } = await supabase
             .from('portfolios')
             .insert({
@@ -151,7 +186,7 @@ export default async function handler(req, res) {
                 template_fields: template.fields,
                 file_path: filePath,
                 form_data: formData,
-                sections: sections || [], // Use sections from request or empty array
+                sections: sections || [], 
                 status: 'active',
             })
             .select()

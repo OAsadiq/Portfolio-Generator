@@ -40,9 +40,9 @@ function buildSocialLinks(data) {
   if (data.dribbble) socialLinks.push({ name: 'Dribbble', url: data.dribbble, icon: 'dribbble' });
   if (data.behance) socialLinks.push({ name: 'Behance', url: data.behance, icon: 'behance' });
   if (data.website) socialLinks.push({ name: 'Website', url: data.website, icon: 'website' });
-  
+
   if (socialLinks.length === 0) return '';
-  
+
   return socialLinks.map(social => `
     <a href="${social.url}" target="_blank" class="social-link" data-social="${social.name.toLowerCase()}">
       ${getSocialIcon(social.icon)}
@@ -58,11 +58,11 @@ function getCaseStudyEmoji(index) {
 
 function buildCaseStudies(data) {
   let caseStudiesHTML = "";
-  
+
   for (let i = 1; i <= 100; i++) {
     const title = data[`case${i}Title`];
     if (!title) break;
-    
+
     const client = data[`case${i}Client`];
     const role = data[`case${i}Role`];
     const description = data[`case${i}Description`];
@@ -72,12 +72,12 @@ function buildCaseStudies(data) {
     const image = data[`case${i}Image`];
     const tags = data[`case${i}Tags`];
     const emoji = getCaseStudyEmoji(i);
-    
+
     // Determine if we show the modal link based on whether we have extended content
     const hasExtendedContent = challenge || solution || results;
-    
+
     caseStudiesHTML += `
-      <article class="case-study" data-aos="fade-up" data-aos-delay="${(i-1) * 100}">
+      <article class="case-study" data-aos="fade-up" data-aos-delay="${(i - 1) * 100}">
         <div class="case-image">
           ${image ? `<img src="${image}" alt="${title}" />` : `<span class="case-emoji">${emoji}</span>`}
         </div>
@@ -138,25 +138,25 @@ function buildCaseStudies(data) {
       ` : ''}
     `;
   }
-  
+
   return caseStudiesHTML;
 }
 
 function buildBlogPosts(data) {
   let blogHTML = "";
-  
+
   for (let i = 1; i <= 100; i++) {
     const title = data[`blog${i}Title`];
     if (!title) break;
-    
+
     const excerpt = data[`blog${i}Excerpt`];
     const date = data[`blog${i}Date`];
     const category = data[`blog${i}Category`];
     const readTime = data[`blog${i}ReadTime`];
     const link = data[`blog${i}Link`];
-    
+
     blogHTML += `
-      <article class="blog-card" data-aos="fade-up" data-aos-delay="${(i-1) * 100}">
+      <article class="blog-card" data-aos="fade-up" data-aos-delay="${(i - 1) * 100}">
         <div class="blog-image">
           ${category ? `<span class="blog-category">${category}</span>` : ''}
           <div class="blog-icon">📄</div>
@@ -177,7 +177,7 @@ function buildBlogPosts(data) {
       </article>
     `;
   }
-  
+
   return blogHTML;
 }
 
@@ -187,7 +187,7 @@ const modernTemplate = {
   description: "Premium template with animations, dark mode, and interactive elements",
   thumbnail: "/images/professional-template.jpg",
   isPro: true,
-  
+
   fields: [
     // Hero Section
     { name: "fullName", label: "Full Name", type: "text", required: true, section: "hero" },
@@ -195,11 +195,11 @@ const modernTemplate = {
     { name: "bio", label: "Bio", type: "textarea", required: true, section: "hero" },
     { name: "profileImage", label: "Profile Image", type: "file", section: "hero" },
     { name: "heroVideoUrl", label: "Hero Background Video URL (optional)", type: "text", placeholder: "https://example.com/video.mp4", section: "hero" },
-    
+
     // Theme
     { name: "primaryColor", label: "Primary Color", type: "color", default: "#6366f1", section: "theme" },
     { name: "accentColor", label: "Accent Color", type: "color", default: "#ec4899", section: "theme" },
-    
+
     // Skills/Expertise
     { name: "skill1", label: "Skill 1", type: "text", section: "skills" },
     { name: "skill2", label: "Skill 2", type: "text", section: "skills" },
@@ -207,7 +207,7 @@ const modernTemplate = {
     { name: "skill4", label: "Skill 4", type: "text", section: "skills" },
     { name: "skill5", label: "Skill 5", type: "text", section: "skills" },
     { name: "skill6", label: "Skill 6", type: "text", section: "skills" },
-    
+
     // Contact
     { name: "email", label: "Email", type: "email", required: true, section: "contact" },
     { name: "linkedin", label: "LinkedIn", type: "text", section: "contact" },
@@ -217,7 +217,7 @@ const modernTemplate = {
     { name: "behance", label: "Behance", type: "text", section: "contact" },
     { name: "website", label: "Website", type: "text", section: "contact" },
   ],
-  
+
   generateHTML: (data, sections = []) => {
     const name = data.fullName || "Your Name";
     const tagline = data.tagline || "Creative Professional";
@@ -227,7 +227,7 @@ const modernTemplate = {
     const email = data.email || "";
     const primaryColor = data.primaryColor || "#6366f1";
     const accentColor = data.accentColor || "#ec4899";
-    
+
     // Default sections
     const defaultSections = [
       { id: 'hero', enabled: true, order: 0 },
@@ -238,10 +238,10 @@ const modernTemplate = {
       { id: 'contact', enabled: true, order: 5 },
       { id: 'footer', enabled: true, order: 6 },
     ];
-    
+
     const activeSections = sections.length > 0 ? sections : defaultSections;
     const sortedSections = [...activeSections].sort((a, b) => a.order - b.order);
-    
+
     const sectionContent = {
       hero: () => `
         <section class="hero" data-section="hero">
@@ -271,7 +271,7 @@ const modernTemplate = {
           </div>
         </section>
       `,
-      
+
       about: () => `
         <section class="about-section" data-section="about">
           <div class="container">
@@ -282,7 +282,7 @@ const modernTemplate = {
           </div>
         </section>
       `,
-      
+
       skills: () => {
         let skillsHTML = "";
         for (let i = 1; i <= 6; i++) {
@@ -297,9 +297,9 @@ const modernTemplate = {
             `;
           }
         }
-        
+
         if (!skillsHTML) return '';
-        
+
         return `
           <section class="skills-section" data-section="skills">
             <div class="container">
@@ -311,11 +311,11 @@ const modernTemplate = {
           </section>
         `;
       },
-      
+
       'case-studies': () => {
         const caseStudies = buildCaseStudies(data);
         if (!caseStudies) return '';
-        
+
         return `
           <section class="case-studies-section" data-section="case-studies">
             <div class="container">
@@ -327,11 +327,11 @@ const modernTemplate = {
           </section>
         `;
       },
-      
+
       blog: () => {
         const blogPosts = buildBlogPosts(data);
         if (!blogPosts) return '';
-        
+
         return `
           <section class="blog-section" data-section="blog">
             <div class="container">
@@ -343,7 +343,7 @@ const modernTemplate = {
           </section>
         `;
       },
-      
+
       contact: () => `
         <section class="contact-section" data-section="contact">
           <div class="container">
@@ -358,7 +358,7 @@ const modernTemplate = {
           </div>
         </section>
       `,
-      
+
       footer: () => `
         <footer class="footer" data-section="footer">
           <div class="container">
@@ -371,14 +371,14 @@ const modernTemplate = {
         </footer>
       `
     };
-    
+
     let mainContent = '';
     sortedSections.forEach(section => {
       if (section.enabled && sectionContent[section.id]) {
         mainContent += sectionContent[section.id]();
       }
     });
-    
+
     return `
     <!DOCTYPE html>
     <html lang="en" data-theme="light">
@@ -386,6 +386,7 @@ const modernTemplate = {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>${name} - ${tagline}</title>
+        <link rel="icon" type="image/svg+xml" href="${profile}" />
         
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
