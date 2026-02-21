@@ -135,7 +135,7 @@ const ContactMain = () => {
     lastSubmitTime.current = now;
 
     try {
-      const response = await fetch('https://formsubmit.co/ajax/sadiqolayinka17@gmail.com', {
+      const response = await fetch('https://formsubmit.co/ajax/hello.foliobase@gmail.com', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
