@@ -557,8 +557,8 @@ const PricingPage = () => {
 
           <div className="text-center mt-8 md:mt-12 p-4 md:p-6 bg-slate-800/30 border border-slate-700/50 rounded-xl">
             <p className="text-slate-300 text-sm md:text-base mb-2 md:mb-3">Still have questions?</p>
-            <a href="mailto:support@foliobase.com" className="text-yellow-400 hover:text-yellow-300 font-semibold transition text-sm md:text-base break-all">
-              support@foliobase.io
+            <a href="mailto:hello.foliobase@gmail.com" className="text-yellow-400 hover:text-yellow-300 font-semibold transition text-sm md:text-base break-all">
+              hello.foliobase@gmail.com
             </a>
           </div>
         </div>

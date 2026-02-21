@@ -159,8 +159,7 @@ const ContactMain = () => {
       } else {
         setStatus('❌ Failed to send message. Please try again or email us directly.');
       }
-    } catch (error) {
-      console.error('Contact form error:', error);
+    } catch {
       setStatus('❌ Error sending message. Please email us directly at Foliobase Support Team.');
     } finally {
       setIsSubmitting(false);
@@ -231,7 +230,7 @@ const ContactMain = () => {
             <div className="mt-8 border-t border-slate-700 pt-6">
               <h3 className="text-lg font-bold mb-3 text-slate-50">Direct Contact</h3>
               <p className="text-slate-400 text-sm">
-                Email: <a href="mailto:sadiqolayinka17@gmail.com" className="text-yellow-400 hover:underline">sadiqolayinka17@gmail.com</a>
+                Email: <a href="mailto:sadiqolayinka17@gmail.com" className="text-yellow-400 hover:underline">hello.foliobase@gmail.com</a>
               </p>
               <p className="text-slate-400 text-xs mt-2">
                 We typically respond within 24 hours

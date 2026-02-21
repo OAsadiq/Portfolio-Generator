@@ -231,8 +231,8 @@ const SECTIONS: PolicySection[] = [
       {
         type: "list",
         items: [
-          "Email: privacy@foliobase.com",
-          "General support: support@foliobase.com",
+          "Email: hello.foliobase@gmail.com",
+          "General support: hello.foliobase@gmail.com",
           "Website: https://foliobase.vercel.app",
         ],
       },

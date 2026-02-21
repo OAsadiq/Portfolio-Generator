@@ -111,7 +111,7 @@ const CallToActionSection = () => {
       const { data, error } = await supabase
         .from('waitlist')
         .insert({
-          email: formData.email.toLowerCase().trim(), // Normalize email
+          email: formData.email.toLowerCase().trim(), 
           first_name: formData.firstName.trim(),
           source: 'website',
           created_at: new Date().toISOString()
@@ -133,7 +133,6 @@ const CallToActionSection = () => {
         setFormData({ firstName: '', email: '' });
       }
     } catch (error: any) {
-      console.error('Waitlist submission error:', error);
       setSubmitMessage(`Unable to join: ${error.message || 'Please try again later.'}`);
     } finally {
       setIsSubmitting(false);
