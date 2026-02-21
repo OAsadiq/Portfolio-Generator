@@ -316,7 +316,7 @@ const PricingPage = () => {
             </div>
           </div>
 
-          <p className="text-slate-500 text-sm mt-8">
+          <p className="text-slate-500 text-sm text-center mt-8">
             💡 Start with the free plan. Upgrade anytime to unlock pro features.
           </p>
         </div>
