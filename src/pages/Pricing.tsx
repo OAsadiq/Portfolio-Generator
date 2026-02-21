@@ -584,12 +584,6 @@ const PricingPage = () => {
                 </svg>
               </button>
             </Link>
-            
-            <Link to="/" className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto bg-slate-700 hover:bg-slate-600 text-slate-200 px-6 md:px-8 py-3 md:py-4 rounded-xl font-semibold text-base md:text-lg transition-all">
-                View Examples
-              </button>
-            </Link>
           </div>
 
           <p className="text-slate-500 text-xs md:text-sm mt-4 md:mt-6 px-2">
