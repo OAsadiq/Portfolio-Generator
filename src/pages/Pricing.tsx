@@ -212,7 +212,7 @@ const PricingPage = () => {
                   <svg className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-slate-300">Free hosting (yourname.foliobase.com)</span>
+                  <span className="text-slate-300">Free hosting with unique URL</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,8 +316,8 @@ const PricingPage = () => {
             </div>
           </div>
 
-          <p className="text-slate-500 text-sm text-center mt-8">
-            💡 Start with Free. Upgrade when you land your first client.
+          <p className="text-slate-500 text-sm mt-8">
+            💡 Start with the free plan. Upgrade anytime to unlock pro features.
           </p>
         </div>
       </div>
