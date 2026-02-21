@@ -6,7 +6,7 @@ import HowItWorks from "../components/HowItWorksSection";
 import SeeItInAction from "../components/SeeItInActionSection"
 import PricingSection from "../components/PricingSection"
 import UpgradeHandler from "../components/UpgradeHandler";
-import CallToActionSection from "../components/CallToActionSection";
+import NewsletterSection from "../components/NewsletterSection";
 import Footer from "../components/Footer";
 
 const Home = () => {
@@ -38,7 +38,7 @@ const Home = () => {
         <SeeItInAction />
         <PricingSection/>
         <UpgradeHandler />
-        <CallToActionSection />
+        <NewsletterSection />
         <Footer />
       </div>
 
