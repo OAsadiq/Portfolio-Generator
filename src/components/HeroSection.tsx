@@ -93,7 +93,7 @@ const Hero = () => {
                     <button 
                         className="bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 transition-all transform hover:scale-105"
                     >
-                        Get Started for free 
+                        Start Building Free 
                     </button>
                 </Link>
             </div>
