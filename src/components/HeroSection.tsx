@@ -1,4 +1,4 @@
-// import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
@@ -44,12 +44,12 @@ const Hero = () => {
         requestAnimationFrame(animate);
     }, [userCount]);
 
-    const scrollToWaitlist = () => {
-        const waitlistSection = document.getElementById('waitlist');
-        if (waitlistSection) {
-            waitlistSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    };
+    // const scrollToWaitlist = () => {
+    //     const waitlistSection = document.getElementById('waitlist');
+    //     if (waitlistSection) {
+    //         waitlistSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    //     }
+    // };
 
     return (
         <div className="max-w-4xl mx-auto text-center mt-10 px-4">
@@ -88,15 +88,14 @@ const Hero = () => {
 
             {/* CTA Button */}
             <div className="relative">
-                <button 
-                    onClick={scrollToWaitlist}
-                    className="bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 transition-all transform hover:scale-105"
-                >
-                    Join Waitlist 
-                </button>
-                {/* <Link to="/templates">
-                    
-                </Link> */}
+                
+                <Link to="/templates" target="_blank" rel="noopener noreferrer">
+                    <button 
+                        className="bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 transition-all transform hover:scale-105"
+                    >
+                        Get Started for free 
+                    </button>
+                </Link>
             </div>
             <div className="flex items-center justify-center gap-3 mt-8 text-slate-300">
                 <div className="flex -space-x-2">

@@ -48,7 +48,6 @@ const PricingSection = () => {
 
       console.log(res.status);
 
-      // Check response status BEFORE parsing JSON
       if (!res.ok) {
         const errorText = await res.text();
         let errorMessage = "Failed to start checkout";
@@ -57,7 +56,6 @@ const PricingSection = () => {
           const errorData = JSON.parse(errorText);
           errorMessage = errorData.error || errorMessage;
         } catch {
-          // If not JSON, use the text or default message
           errorMessage = errorText || errorMessage;
         }
         
@@ -157,7 +155,7 @@ const PricingSection = () => {
             </ul>
 
             <Link to="/templates">
-              <button className="mt-8 w-full bg-slate-700 hover:bg-slate-600 text-slate-50 py-3 rounded-lg transition font-semibold hidden">
+              <button className="mt-8 w-full bg-slate-700 hover:bg-slate-600 text-slate-50 py-3 rounded-lg transition font-semibold">
                 Start Free
               </button>
             </Link>
@@ -203,7 +201,7 @@ const PricingSection = () => {
             <button
               onClick={handleUpgrade}
               disabled={loading}
-              className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 py-3 rounded-lg cursor-pointer relative z-10 font-bold shadow-lg shadow-yellow-400/20 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 hidden"
+              className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 py-3 rounded-lg cursor-pointer relative z-10 font-bold shadow-lg shadow-yellow-400/20 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
             >
               {loading ? "Loading..." : "Upgrade Now"}
             </button>

@@ -1,19 +1,17 @@
-// Updated SampleSection.tsx - Bento Card Style (Based on Reference)
-
 const SampleSection = () => {
-    const scrollToWaitlist = () => {
-        const waitlistSection = document.getElementById('waitlist');
-        if (waitlistSection) {
-            waitlistSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    };
-
-    // const scrollToLiveDemo = () => {
-    //     const liveDemoSection = document.getElementById('LiveDemo');
-    //     if (liveDemoSection) {
-    //         liveDemoSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // const scrollToWaitlist = () => {
+    //     const waitlistSection = document.getElementById('waitlist');
+    //     if (waitlistSection) {
+    //         waitlistSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     //     }
     // };
+
+    const scrollToLiveDemo = () => {
+        const liveDemoSection = document.getElementById('LiveDemo');
+        if (liveDemoSection) {
+            liveDemoSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
 
     const scrollToHowItWorks = () => {
         const howItWorksSection = document.getElementById('HowItWorks');
@@ -261,8 +259,8 @@ const SampleSection = () => {
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <a>
-                            <button onClick={scrollToWaitlist} className="bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 transition-all transform hover:scale-105">
-                                Build Yours Now (Free)
+                            <button onClick={scrollToLiveDemo} className="bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 transition-all transform hover:scale-105">
+                                Live Demo
                                 <svg className="inline-block ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>

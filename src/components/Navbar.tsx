@@ -47,10 +47,9 @@ const Navbar = () => {
 
           <Link
             to="/pricing"
-            className="block text-slate-600 font-semibold hover:text-yellow-400 transition cursor-not-allowed pointer-events-none"
-            onClick={() => setMobileOpen(false)}
+            className="text-slate-300 font-semibold hover:text-yellow-400 transition"
           >
-            Pricing (Coming soon)
+            Pricing
           </Link>
 
           <Link to="/contact" className="text-slate-300 font-semibold hover:text-yellow-400 transition">
@@ -93,6 +92,7 @@ const Navbar = () => {
                   </div>
                   <Link
                     to="/templates"
+                    target="_blank" rel="noopener noreferrer"
                     className="block px-4 py-2 text-slate-300 hover:bg-slate-700 hover:text-yellow-400 transition text-sm"
                     onClick={() => setShowUserMenu(false)}
                   >
@@ -100,6 +100,7 @@ const Navbar = () => {
                   </Link>
                   <Link
                     to="/dashboard"
+                    target="_blank" rel="noopener noreferrer"
                     className="block px-4 py-2 text-slate-300 hover:bg-slate-700 hover:text-yellow-400 transition text-sm"
                     onClick={() => setShowUserMenu(false)}
                   >
@@ -117,7 +118,7 @@ const Navbar = () => {
           ) : (
             <Link
               to="/login"
-              className="pointer-events-none px-4 py-2 text-slate-900 bg-yellow-400 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
+              className="px-4 py-2 text-slate-900 bg-yellow-400 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
             >
               Get Started
             </Link>
@@ -147,10 +148,10 @@ const Navbar = () => {
 
           <Link
             to="/pricing"
-            className="block text-slate-600 font-semibold hover:text-yellow-400 transition cursor-not-allowed pointer-events-none"
+            className="block text-slate-300 font-semibold hover:text-yellow-400 transition"
             onClick={() => setMobileOpen(false)}
           >
-            Pricing (Coming soon)
+            Pricing
           </Link>
 
           <Link
@@ -186,12 +187,14 @@ const Navbar = () => {
                 <Link
                   to="/templates"
                   onClick={() => setMobileOpen(false)}
+                  target="_blank" rel="noopener noreferrer"
                   className="block text-center bg-slate-700/50 border border-slate-600/50 py-2 rounded-lg text-slate-300 hover:text-yellow-400 hover:bg-slate-700 transition mb-2"
                 >
                   My Templates
                 </Link>
                 <Link
                   to="/dashboard"
+                  target="_blank" rel="noopener noreferrer"
                   className="block text-center bg-slate-700/50 border border-slate-600/50 py-2 rounded-lg text-slate-300 hover:text-yellow-400 hover:bg-slate-700 transition mb-2"
                   onClick={() => setMobileOpen(false)}
                 >
@@ -212,7 +215,7 @@ const Navbar = () => {
             <Link
               to="/login"
               onClick={() => setMobileOpen(false)}
-              className="pointer-events-noneblock text-center bg-yellow-400 text-slate-900 py-2 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
+              className="block text-center bg-yellow-400 text-slate-900 py-2 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
             >
               Get Started
             </Link>
