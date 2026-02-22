@@ -67,15 +67,12 @@ const NewsletterSection = () => {
   };
 
   const handleNewsletterSubmit = async () => {
-    // Bot detection
     if (honeypot) {
-      console.log('Bot detected via honeypot');
       setSubmitMessage('🎉 Successfully subscribed to our newsletter!');
       setFormData({ firstName: '', email: '' });
       return;
     }
 
-    // Rate limiting
     const now = Date.now();
     const timeSinceLastSubmit = now - lastSubmitTime.current;
     if (timeSinceLastSubmit < 3000) {
@@ -83,7 +80,6 @@ const NewsletterSection = () => {
       return;
     }
 
-    // Validation
     if (!formData.firstName || !formData.email) {
       setSubmitMessage('Please fill in all fields.');
       return;
@@ -106,12 +102,8 @@ const NewsletterSection = () => {
     lastSubmitTime.current = now;
 
     try {
-      console.log({
-        email: formData.email,
-        firstName: formData.firstName
-      });
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('newsletter_subscribers')
         .insert({
           email: formData.email.toLowerCase().trim(), 
@@ -122,11 +114,8 @@ const NewsletterSection = () => {
         })
         .select();
 
-      console.log({ data, error });
-
       if (error) {
         if (error.code === '23505') {
-          // Duplicate email
           setSubmitMessage('✅ You\'re already subscribed!');
         } else if (error.message) {
           setSubmitMessage(`Error: ${error.message}`);
@@ -138,7 +127,6 @@ const NewsletterSection = () => {
         setFormData({ firstName: '', email: '' });
       }
     } catch (error: any) {
-      console.error('Newsletter subscription error:', error);
       setSubmitMessage(`Unable to subscribe: ${error.message || 'Please try again later.'}`);
     } finally {
       setIsSubmitting(false);
@@ -165,7 +153,7 @@ const NewsletterSection = () => {
           </h2>
 
           <p className="text-slate-300 text-base md:text-lg">
-            Join 500+ freelance writers getting weekly tips on building better portfolios, winning clients, and growing their business.
+            Join other freelance writers getting weekly tips on building better portfolios, winning clients, and growing their business.
           </p>
 
           {/* Benefits List */}
@@ -192,7 +180,6 @@ const NewsletterSection = () => {
         </div>
 
         <div className="flex flex-col gap-4 mt-8">
-          {/* Honeypot field - hidden from humans, visible to bots */}
           <input
             type="text"
             name="website"
@@ -246,7 +233,6 @@ const NewsletterSection = () => {
             </p>
           )}
 
-          {/* Privacy notice */}
           <p className="text-xs text-slate-500 text-center">
             We respect your privacy. Unsubscribe at any time.
           </p>
