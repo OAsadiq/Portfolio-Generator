@@ -7,7 +7,7 @@ const minimalTemplate = {
     { name: "fullName", label: "Full Name", type: "text", required: true },
     { name: "writerType", label: "What type of writer are you?", type: "text", placeholder: "e.g., Copywriter, Content Writer, Technical Writer" },
     { name: "bio", label: "Professional Bio (2-3 sentences)", type: "textarea", required: true },
-    { name: "profilePicture", label: "Profile Picture", type: "file" },
+    { name: "profilePicture", label: "Profile Picture (PNG, JPG up to 5MB)", type: "file"},
     
     // Writing Samples
     { name: "sample1Title", label: "Writing Sample 1 - Title", type: "text", required: true },
