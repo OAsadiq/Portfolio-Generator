@@ -58,7 +58,7 @@ const SeeItInAction = () => {
         {/* CTA */}
         <div className="text-center mt-10">
           <a href="/templates" target="_blank" rel="noopener noreferrer">
-            <button className="bg-gradient-to-r from-green-400 to-blue-400 text-slate-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-400/20 hover:shadow-green-400/40 hover:scale-105 transition-all">
+            <button className="bg-gradient-to-r from-green-400 to-blue-400 text-slate-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-400/20 hover:shadow-green-400/40 hover:scale-105 transition-all cursor-pointer">
               Build Yours Now (10 Minutes)
               <svg className="inline-block ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />

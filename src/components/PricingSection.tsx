@@ -146,7 +146,7 @@ const PricingSection = () => {
               </li>
               <li className="flex items-start">
                 <span className="text-yellow-400 mr-2">✓</span>
-                One writing samples
+                3 writing samples
               </li>
               <li className="flex items-start">
                 <span className="text-yellow-400 mr-2">✓</span>
@@ -155,7 +155,7 @@ const PricingSection = () => {
             </ul>
 
             <Link to="/templates">
-              <button className="mt-8 w-full bg-slate-700 hover:bg-slate-600 text-slate-50 py-3 rounded-lg transition font-semibold">
+              <button className="mt-8 w-full bg-slate-700 hover:bg-slate-600 text-slate-50 py-3 rounded-lg transition font-semibold cursor-pointer">
                 Start Free
               </button>
             </Link>
@@ -213,7 +213,7 @@ const PricingSection = () => {
         </p>
 
         <div className="text-center mt-5">
-          <a href="/pricing" className="text-yellow-400 hover:text-yellow-300 font-semibold pointer-events-none">
+          <a href="/pricing" className="text-yellow-400 hover:text-yellow-300 font-semibold cursor-pointer">
             See full pricing comparison →
           </a>
         </div>
