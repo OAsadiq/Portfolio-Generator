@@ -202,8 +202,7 @@ const LoginPage = () => {
         </div>
         <div className="absolute inset-0 bg-radial-gradient pointer-events-none"></div>
       </div>
-
-      {/* Login Card */}
+      
       <div className="max-w-md w-full relative z-10">
         <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8 md:p-10 shadow-2xl">
 
