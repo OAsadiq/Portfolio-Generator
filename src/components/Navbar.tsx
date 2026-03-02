@@ -67,7 +67,6 @@ const Navbar = () => {
           </button>
 
           {user ? (
-            /* Logged In - Show User Menu */
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
