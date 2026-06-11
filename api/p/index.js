@@ -14,17 +14,17 @@ export default async function handler(req, res) {
 
   try {
     // Try exact slug match first
-    let { data: portfolio, error: dbError } = await supabase
+    let { data: portfolio } = await supabase
       .from('portfolios')
-      .select('file_path, slug')
+      .select('file_path, slug, views')
       .eq('slug', slug)
       .maybeSingle();
 
-    // If not found, try fuzzy match (slug may include timestamp or differ slightly)
+    // Fuzzy fallback for old timestamped slugs
     if (!portfolio) {
       const { data: fuzzy } = await supabase
         .from('portfolios')
-        .select('file_path, slug')
+        .select('file_path, slug, views')
         .ilike('slug', `${slug.split('-').slice(0, 3).join('-')}%`)
         .limit(1);
       if (fuzzy && fuzzy.length > 0) portfolio = fuzzy[0];
@@ -34,7 +34,6 @@ export default async function handler(req, res) {
       return res.status(404).send('<h1>Portfolio not found</h1>');
     }
 
-    // Resolve file path — fall back to constructing from slug if column is null
     const filePath = portfolio.file_path || `portfolios/${portfolio.slug}.html`;
 
     const { data, error } = await supabase.storage
@@ -42,7 +41,6 @@ export default async function handler(req, res) {
       .download(filePath);
 
     if (error || !data) {
-      // Last resort: try the slug as passed in the URL
       const { data: data2, error: error2 } = await supabase.storage
         .from('portfolios')
         .download(`portfolios/${slug}.html`);
@@ -53,13 +51,28 @@ export default async function handler(req, res) {
 
       const html2 = await data2.text();
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      return res.status(200).send(html2);
+      res.status(200).send(html2);
+
+      // Increment view count after sending response
+      await supabase
+        .from('portfolios')
+        .update({ views: (portfolio.views || 0) + 1 })
+        .eq('slug', portfolio.slug);
+
+      return;
     }
 
     const html = await data.text();
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
-    return res.status(200).send(html);
+    res.status(200).send(html);
+
+    // Increment view count after sending response
+    await supabase
+      .from('portfolios')
+      .update({ views: (portfolio.views || 0) + 1 })
+      .eq('slug', portfolio.slug);
+
   } catch (err) {
     return res.status(500).send(`<h1>Error loading portfolio</h1><pre>${err.message}</pre>`);
   }
