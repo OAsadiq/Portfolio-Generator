@@ -46,7 +46,7 @@ export default async function handler(req, res) {
         <div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:24px;">
           <p style="margin:0;color:#0f172a;line-height:1.7;white-space:pre-wrap;">${escapeHtml(message)}</p>
         </div>
-        <a href="mailto:${escapeHtml(senderEmail)}?subject=Re: Your message&body=Hi ${escapeHtml(senderName)}," style="display:inline-block;background:#2563eb;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">Reply to ${escapeHtml(senderName)}</a>
+        <a href="https://porfilr.com" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">View your Porfilr portfolio</a>
       </div>
       <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;">Sent via <a href="https://porfilr.com" style="color:#2563eb;">Porfilr</a></p>
     </div>
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Porfilr Contact <noreply@porfilr.com>',
+        from: 'Porfilr <sadiq@porfilr.com>',
         to: ownerEmail,
         reply_to: senderEmail,
         subject: `New message from ${senderName} via your Porfilr portfolio`,
