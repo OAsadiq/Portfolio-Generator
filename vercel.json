@@ -3,6 +3,11 @@
   
   "rewrites": [
     { "source": "/p/:slug", "destination": "/api/p/index?slug=:slug" },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "(?<domain>(?!porfilr\\.com|.*\\.vercel\\.app|localhost).+)" }],
+      "destination": "/api/p/index?domain=:domain"
+    },
     { "source": "/(.*)", "destination": "/" }
   ],
 

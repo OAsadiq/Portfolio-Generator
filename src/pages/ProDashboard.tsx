@@ -123,31 +123,59 @@ const ProDashboard = () => {
     }
 
     try {
-      // In a real implementation, you'd save to a custom_domains table
-      const portfolio = portfolios.find(p => p.slug === selectedPortfolio);
-      
-      const newCustomDomain: CustomDomain = {
-        id: Date.now().toString(),
-        domain: newDomain,
-        portfolio_slug: selectedPortfolio,
-        portfolio_name: portfolio?.user_name || 'Portfolio',
-        verified: false,
-        created_at: new Date().toISOString()
-      };
+      const { error } = await supabase
+        .from('portfolios')
+        .update({ custom_domain: newDomain.toLowerCase(), domain_verified: false })
+        .eq('slug', selectedPortfolio)
+        .eq('user_id', user?.id);
 
-      setCustomDomains(prev => [...prev, newCustomDomain]);
-      showToast('Domain added! Please configure your DNS settings.', 'success');
+      if (error) throw error;
+
+      showToast('Domain saved! Configure your DNS then click Verify.', 'success');
       setShowDomainForm(false);
       setNewDomain('');
       setSelectedPortfolio('');
+      await fetchDashboardData();
     } catch (err: any) {
       showToast(err.message || 'Failed to add domain', 'error');
     }
   };
 
-  const handleRemoveDomain = (domainId: string) => {
-    setCustomDomains(prev => prev.filter(d => d.id !== domainId));
-    showToast('Domain removed successfully', 'success');
+  const handleRemoveDomain = async (domainId: string) => {
+    try {
+      const { error } = await supabase
+        .from('portfolios')
+        .update({ custom_domain: null, domain_verified: false })
+        .eq('id', domainId)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      showToast('Domain removed successfully', 'success');
+      await fetchDashboardData();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to remove domain', 'error');
+    }
+  };
+
+  const handleVerifyDomain = async (domain: string, portfolioSlug: string, portfolioId: string) => {
+    showToast('Checking DNS...', 'info');
+    try {
+      const res = await fetch('/api/domains/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain, portfolioSlug, portfolioId }),
+      });
+      const data = await res.json();
+      if (data.verified) {
+        showToast('Domain verified! Your portfolio is live.', 'success');
+        await fetchDashboardData();
+      } else {
+        showToast('DNS not detected yet. Changes can take up to 48 hours.', 'error');
+      }
+    } catch {
+      showToast('Verification check failed. Try again.', 'error');
+    }
   };
 
   const fetchDashboardData = async () => {
@@ -159,7 +187,7 @@ const ProDashboard = () => {
 
       const { data: portfolioData, error: portfolioError } = await supabase
         .from('portfolios')
-        .select('id, slug, template_id, user_name, status, deployed_url, created_at, views')
+        .select('id, slug, template_id, user_name, status, deployed_url, created_at, views, custom_domain, domain_verified')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -921,9 +949,15 @@ const ProDashboard = () => {
                                 <div className="mt-4 flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                                   <AlertCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
                                   <p className="text-xs text-blue-400">
-                                    DNS changes can take up to 48 hours to propagate. Check back later to verify your domain.
+                                    DNS changes can take up to 48 hours to propagate.
                                   </p>
                                 </div>
+                                <button
+                                  onClick={() => handleVerifyDomain(domain.domain, domain.portfolio_slug, domain.id)}
+                                  className="mt-4 w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 py-2.5 px-4 rounded-xl font-bold transition text-sm"
+                                >
+                                  Check Verification
+                                </button>
                               </div>
                             )}
 

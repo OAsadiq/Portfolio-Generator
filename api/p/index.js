@@ -6,28 +6,46 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  const { slug } = req.query;
+  const { slug, domain } = req.query;
 
-  if (!slug) {
-    return res.status(400).send('<h1>Missing portfolio slug</h1>');
+  if (!slug && !domain) {
+    return res.status(400).send('<h1>Missing portfolio identifier</h1>');
   }
 
   try {
-    // Try exact slug match first
-    let { data: portfolio } = await supabase
-      .from('portfolios')
-      .select('file_path, slug, views')
-      .eq('slug', slug)
-      .maybeSingle();
+    let portfolio = null;
 
-    // Fuzzy fallback for old timestamped slugs
-    if (!portfolio) {
-      const { data: fuzzy } = await supabase
+    // Custom domain lookup
+    if (domain) {
+      const { data } = await supabase
         .from('portfolios')
         .select('file_path, slug, views')
-        .ilike('slug', `${slug.split('-').slice(0, 3).join('-')}%`)
-        .limit(1);
-      if (fuzzy && fuzzy.length > 0) portfolio = fuzzy[0];
+        .eq('custom_domain', domain)
+        .eq('domain_verified', true)
+        .maybeSingle();
+      portfolio = data;
+
+      if (!portfolio) {
+        return res.status(404).send('<h1>Portfolio not found for this domain</h1>');
+      }
+    } else {
+      // Try exact slug match first
+      const { data } = await supabase
+        .from('portfolios')
+        .select('file_path, slug, views')
+        .eq('slug', slug)
+        .maybeSingle();
+      portfolio = data;
+
+      // Fuzzy fallback for old timestamped slugs
+      if (!portfolio) {
+        const { data: fuzzy } = await supabase
+          .from('portfolios')
+          .select('file_path, slug, views')
+          .ilike('slug', `${slug.split('-').slice(0, 3).join('-')}%`)
+          .limit(1);
+        if (fuzzy && fuzzy.length > 0) portfolio = fuzzy[0];
+      }
     }
 
     if (!portfolio) {
