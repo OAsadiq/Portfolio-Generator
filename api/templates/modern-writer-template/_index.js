@@ -345,13 +345,19 @@ const modernTemplate = {
       },
 
       contact: () => `
-        <section class="contact-section" data-section="contact">
+        <section class="contact-section" data-section="contact" id="contact">
           <div class="container">
             <h2 class="section-title" data-aos="fade-up">Let's Work Together</h2>
             <div class="contact-content" data-aos="fade-up" data-aos-delay="100">
-              <p class="contact-text">Have a project in mind? Let's create something amazing together.</p>
-              <a href="mailto:${email}" class="contact-email">${email}</a>
-              <div class="social-links">
+              <p class="contact-text">Have a project in mind? Send me a message below.</p>
+              <form class="contact-form" id="contactForm">
+                <input type="text" name="senderName" placeholder="Your name" required />
+                <input type="email" name="senderEmail" placeholder="Your email" required />
+                <textarea name="message" placeholder="Tell me about your project..." required></textarea>
+                <button type="submit" id="submitBtn">Send Message</button>
+                <div class="form-msg" id="formMsg"></div>
+              </form>
+              <div class="social-links" style="margin-top:2.5rem;">
                 ${buildSocialLinks(data)}
               </div>
             </div>
@@ -465,6 +471,45 @@ const modernTemplate = {
                 target.scrollIntoView({ behavior: 'smooth' });
               }
             });
+          });
+
+          // Contact form
+          document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const msg = document.getElementById('formMsg');
+            const fd = new FormData(this);
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            msg.className = 'form-msg';
+            try {
+              const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  ownerEmail: '${email}',
+                  portfolioName: '${name}',
+                  senderName: fd.get('senderName'),
+                  senderEmail: fd.get('senderEmail'),
+                  message: fd.get('message'),
+                })
+              });
+              const data = await res.json();
+              if (data.success) {
+                msg.textContent = '✓ Message sent! I\\'ll be in touch soon.';
+                msg.className = 'form-msg success';
+                this.reset();
+              } else {
+                msg.textContent = data.error || 'Something went wrong. Please try again.';
+                msg.className = 'form-msg error';
+              }
+            } catch {
+              msg.textContent = 'Something went wrong. Please try again.';
+              msg.className = 'form-msg error';
+            } finally {
+              btn.disabled = false;
+              btn.textContent = 'Send Message';
+            }
           });
         </script>
       </body>
@@ -1229,40 +1274,100 @@ function getModernStyles(primaryColor, accentColor) {
     }
     
     .contact-text {
-      font-size: 1.375rem;
+      font-size: 1.25rem;
       color: var(--text-muted);
       margin-bottom: 2rem;
       line-height: 1.6;
     }
-    
-    .contact-email {
-      display: inline-block;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--text);
-      text-decoration: none;
-      margin-bottom: 3rem;
-      transition: color 0.3s;
-      position: relative;
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 520px;
+      margin: 0 auto;
     }
-    
-    .contact-email::after {
-      content: '';
-      position: absolute;
-      bottom: -5px;
-      left: 0;
-      width: 0;
-      height: 3px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      transition: width 0.3s;
-    }
-    
-    .contact-email:hover {
-      color: var(--primary);
-    }
-    
-    .contact-email:hover::after {
+
+    .contact-form input,
+    .contact-form textarea {
       width: 100%;
+      padding: 0.9375rem 1.25rem;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .contact-form textarea {
+      resize: vertical;
+      min-height: 130px;
+    }
+
+    .contact-form button {
+      padding: 1.0625rem;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 10px 30px ${primaryColor}40;
+    }
+
+    .contact-form button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px ${primaryColor}60;
+    }
+
+    .contact-form button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .form-msg {
+      text-align: center;
+      padding: 0.875rem;
+      border-radius: 10px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .form-msg.success {
+      background: rgba(34,197,94,0.15);
+      color: #16a34a;
+      display: block;
+    }
+
+    .form-msg.error {
+      background: rgba(239,68,68,0.1);
+      color: #dc2626;
+      display: block;
+    }
+
+    [data-theme="dark"] .form-msg.success {
+      background: rgba(34,197,94,0.2);
+      color: #4ade80;
+    }
+
+    [data-theme="dark"] .form-msg.error {
+      background: rgba(239,68,68,0.2);
+      color: #f87171;
     }
     
     .social-links {

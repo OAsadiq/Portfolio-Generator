@@ -379,7 +379,6 @@ const minimalTemplate = {
 
           /* Contact Section */
           .contact-section {
-            text-align: center;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             padding: 4rem 3rem;
             border-radius: 24px;
@@ -389,35 +388,99 @@ const minimalTemplate = {
 
           .contact-section h2 {
             color: white;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
+            text-align: center;
           }
 
           .contact-section h2::after {
             background: white;
           }
 
-          .contact-section p {
+          .contact-section > p {
             font-size: 1.125rem;
-            margin-bottom: 2.5rem;
-            opacity: 0.95;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            text-align: center;
           }
 
-          .email-button {
-            display: inline-block;
+          .contact-form {
+            max-width: 540px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+          }
+
+          .contact-form input,
+          .contact-form textarea {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+          }
+
+          .contact-form input::placeholder,
+          .contact-form textarea::placeholder {
+            color: rgba(255,255,255,0.6);
+          }
+
+          .contact-form input:focus,
+          .contact-form textarea:focus {
+            border-color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.2);
+          }
+
+          .contact-form textarea {
+            resize: vertical;
+            min-height: 130px;
+          }
+
+          .contact-form button {
+            padding: 1rem;
             background: white;
             color: var(--primary);
-            padding: 1.125rem 3rem;
-            border-radius: 12px;
-            text-decoration: none;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
             font-weight: 700;
-            font-size: 1.125rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: all 0.2s;
           }
 
-          .email-button:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+          .contact-form button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+          }
+
+          .contact-form button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+          }
+
+          .form-msg {
+            text-align: center;
+            padding: 0.875rem;
+            border-radius: 10px;
+            font-weight: 600;
+            display: none;
+          }
+
+          .form-msg.success {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            display: block;
+          }
+
+          .form-msg.error {
+            background: rgba(255,100,100,0.3);
+            color: white;
+            display: block;
           }
 
           /* Footer */
@@ -558,14 +621,60 @@ const minimalTemplate = {
 
           <section class="contact-section">
             <h2>Let's Work Together</h2>
-            <p>Interested in working with me? I'd love to hear about your project.</p>
-            <a href="mailto:${email}" class="email-button">Get in Touch</a>
+            <p>Interested in working with me? Send me a message and I'll get back to you.</p>
+            <form class="contact-form" id="contactForm">
+              <input type="text" name="senderName" placeholder="Your name" required />
+              <input type="email" name="senderEmail" placeholder="Your email" required />
+              <textarea name="message" placeholder="Tell me about your project..." required></textarea>
+              <button type="submit" id="submitBtn">Send Message</button>
+              <div class="form-msg" id="formMsg"></div>
+            </form>
           </section>
         </div>
 
         <footer>
           <p>Built with <a href="https://porfilr.com" target="_blank">Porfilr💙</a></p>
         </footer>
+        <script>
+          document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const msg = document.getElementById('formMsg');
+            const fd = new FormData(this);
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            msg.className = 'form-msg';
+            msg.style.display = 'none';
+            try {
+              const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  ownerEmail: '${email}',
+                  portfolioName: '${name}',
+                  senderName: fd.get('senderName'),
+                  senderEmail: fd.get('senderEmail'),
+                  message: fd.get('message'),
+                })
+              });
+              const data = await res.json();
+              if (data.success) {
+                msg.textContent = '✓ Message sent! I\\'ll be in touch soon.';
+                msg.className = 'form-msg success';
+                this.reset();
+              } else {
+                msg.textContent = data.error || 'Something went wrong. Please try again.';
+                msg.className = 'form-msg error';
+              }
+            } catch {
+              msg.textContent = 'Something went wrong. Please try again.';
+              msg.className = 'form-msg error';
+            } finally {
+              btn.disabled = false;
+              btn.textContent = 'Send Message';
+            }
+          });
+        </script>
       </body>
     </html>
     `;
