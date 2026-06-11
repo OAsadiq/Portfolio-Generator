@@ -327,9 +327,9 @@ const EditPortfolio = () => {
           </div>
           <h2 className="text-2xl font-bold text-slate-50 mb-2">Portfolio Not Found</h2>
           <p className="text-slate-400 mb-6">{error}</p>
-          <Link to="/dashboard">
+          <Link to="/templates">
             <button className="bg-yellow-400 text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-300 transition">
-              Back to Dashboard
+              Back to Templates
             </button>
           </Link>
         </div>
