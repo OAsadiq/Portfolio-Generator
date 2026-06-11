@@ -66,11 +66,11 @@ const PricingPage = () => {
   const faqs = [
     {
       q: "Do I need coding skills?",
-      a: "Nope! Zero coding required. If you can fill out a form, you can build a portfolio with Foliobase."
+      a: "Nope! Zero coding required. If you can fill out a form, you can build a portfolio with Porfilr."
     },
     {
       q: "Can I use my own domain?",
-      a: "Yes! Pro plan includes custom domain support (yourname.com). Free plan gives you yourname.foliobase.com."
+      a: "Yes! Pro plan includes custom domain support (yourname.com). Free plan gives you yourname.Porfilr.com."
     },
     {
       q: "How long does setup take?",
@@ -82,7 +82,7 @@ const PricingPage = () => {
     },
     {
       q: "What's included in the free plan?",
-      a: "One portfolio with our Minimal template, unlimited writing samples, free hosting, and a yourname.foliobase.com URL. Forever free. No credit card required."
+      a: "One portfolio with our Minimal template, unlimited writing samples, free hosting, and a yourname.Porfilr.com URL. Forever free. No credit card required."
     },
     {
       q: "How is this different from Squarespace?",
@@ -294,7 +294,7 @@ const PricingPage = () => {
                   <svg className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-slate-200">Remove "Made with Foliobase" footer</span>
+                  <span className="text-slate-200">Remove "Made with Porfilr" footer</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,7 +325,7 @@ const PricingPage = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8 md:mb-12">
             <div className="inline-block px-3 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full mb-4">
-              <span className="text-yellow-400 text-sm font-semibold">Why Foliobase?</span>
+              <span className="text-yellow-400 text-sm font-semibold">Why Porfilr?</span>
             </div>
             
             <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold text-slate-50 mb-3 md:mb-4 px-4">
@@ -333,7 +333,7 @@ const PricingPage = () => {
             </h2>
             
             <p className="text-slate-400 text-sm md:text-base lg:text-lg max-w-2xl mx-auto px-4">
-              Squarespace and Wix are built for restaurants and photographers. Foliobase is built for writers.
+              Squarespace and Wix are built for restaurants and photographers. Porfilr is built for writers.
             </p>
           </div>
 
@@ -362,7 +362,7 @@ const PricingPage = () => {
                       </th>
                       <th className="text-center py-3 md:py-4 px-3 md:px-4 min-w-[110px]">
                         <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-lg px-2 md:px-4 py-1.5 md:py-2 inline-block">
-                          <span className="text-yellow-400 font-bold text-xs md:text-sm whitespace-nowrap">Foliobase</span>
+                          <span className="text-yellow-400 font-bold text-xs md:text-sm whitespace-nowrap">Porfilr</span>
                         </div>
                       </th>
                       <th className="text-center py-3 md:py-4 px-3 md:px-4 text-slate-400 font-semibold text-xs md:text-sm min-w-[110px] whitespace-nowrap">
@@ -519,7 +519,7 @@ const PricingPage = () => {
             </h2>
             
             <p className="text-slate-400 text-sm md:text-base lg:text-lg px-2">
-              Everything you need to know about Foliobase
+              Everything you need to know about Porfilr
             </p>
           </div>
 
@@ -555,8 +555,8 @@ const PricingPage = () => {
 
           <div className="text-center mt-8 md:mt-12 p-4 md:p-6 bg-slate-800/30 border border-slate-700/50 rounded-xl">
             <p className="text-slate-300 text-sm md:text-base mb-2 md:mb-3">Still have questions?</p>
-            <a href="mailto:hello.foliobase@gmail.com" className="text-yellow-400 hover:text-yellow-300 font-semibold transition text-sm md:text-base break-all">
-              hello.foliobase@gmail.com
+            <a href="mailto:hello@porfilr.com" className="text-yellow-400 hover:text-yellow-300 font-semibold transition text-sm md:text-base break-all">
+              hello@porfilr.com
             </a>
           </div>
         </div>
@@ -592,7 +592,7 @@ const PricingPage = () => {
 
       {/* Footer */}
       <div className="text-center text-sm text-slate-500 bg-slate-900/50 border-t border-slate-800 p-8 backdrop-blur-sm">
-        © 2025 <a href="https://foliobase.vercel.app" className="hover:text-yellow-400 hover:underline transition">Foliobase</a> | 
+        © 2025 <a href="https://porfilr.com" className="hover:text-yellow-400 hover:underline transition">Porfilr</a> | 
         <a href="/contact" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Contact Us</a> | 
         <a href="/privacy-policy" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Privacy Policy</a>
       </div>

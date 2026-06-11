@@ -57,7 +57,7 @@ const SECTIONS: PolicySection[] = [
           "Store and retrieve your portfolio projects so they persist across devices.",
           "Personalise the builder experience based on your saved preferences.",
           "Send you transactional emails only — password resets, signup confirmations, and critical account notices.",
-          "Analyse anonymised, aggregated usage patterns to improve Foliobase.",
+          "Analyse anonymised, aggregated usage patterns to improve Porfilr.",
         ],
       },
       {
@@ -73,7 +73,7 @@ const SECTIONS: PolicySection[] = [
     content: [
       {
         type: "paragraph",
-        text: "Foliobase uses Google OAuth to let you sign in quickly and securely. When you click \"Sign in with Google\", you are redirected to Google's own authentication flow.",
+        text: "Porfilr uses Google OAuth to let you sign in quickly and securely. When you click \"Sign in with Google\", you are redirected to Google's own authentication flow.",
       },
       {
         type: "highlight",
@@ -84,7 +84,7 @@ const SECTIONS: PolicySection[] = [
         items: [
           "Google shares your name, email, and profile picture with us after you grant consent.",
           "We store a secure token — never your Google password or sensitive credentials.",
-          "You can revoke Foliobase's access at any time via your Google Account → Third-party apps & services.",
+          "You can revoke Porfilr's access at any time via your Google Account → Third-party apps & services.",
           "Refer to Google's Privacy Policy for details on how Google handles your data during this flow.",
         ],
       },
@@ -121,7 +121,7 @@ const SECTIONS: PolicySection[] = [
     content: [
       {
         type: "paragraph",
-        text: "We do not sell, trade, or rent your personal information to third parties. The only situations in which data leaves Foliobase are outlined below.",
+        text: "We do not sell, trade, or rent your personal information to third parties. The only situations in which data leaves Porfilr are outlined below.",
       },
       {
         type: "list",
@@ -158,7 +158,7 @@ const SECTIONS: PolicySection[] = [
       },
       {
         type: "paragraph",
-        text: "To exercise any of these rights, simply email us at privacy@foliobase.com. We will respond within 30 days.",
+        text: "To exercise any of these rights, simply email us at privacy@Porfilr.com. We will respond within 30 days.",
       },
     ],
   },
@@ -169,14 +169,14 @@ const SECTIONS: PolicySection[] = [
     content: [
       {
         type: "paragraph",
-        text: "We keep things simple. Foliobase uses minimal cookies and browser storage — only what is technically necessary to run the product.",
+        text: "We keep things simple. Porfilr uses minimal cookies and browser storage — only what is technically necessary to run the product.",
       },
       {
         type: "list",
         items: [
           "Session cookie — Keeps you logged in during an active session. Deleted when you close the browser.",
           "Theme preference — Stored in local storage to remember your light/dark mode choice.",
-          "No third-party tracking cookies are placed on your device by Foliobase.",
+          "No third-party tracking cookies are placed on your device by Porfilr.",
         ],
       },
       {
@@ -192,11 +192,11 @@ const SECTIONS: PolicySection[] = [
     content: [
       {
         type: "paragraph",
-        text: "Foliobase is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13.",
+        text: "Porfilr is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13.",
       },
       {
         type: "paragraph",
-        text: "If you believe a child under 13 has provided us with personal information, please contact us at privacy@foliobase.com so we can promptly delete that information.",
+        text: "If you believe a child under 13 has provided us with personal information, please contact us at privacy@Porfilr.com so we can promptly delete that information.",
       },
     ],
   },
@@ -211,7 +211,7 @@ const SECTIONS: PolicySection[] = [
       },
       {
         type: "paragraph",
-        text: "If the change is material, we will notify you via email or an in-app banner before it takes effect. Continued use of Foliobase after the effective date constitutes acceptance of the updated policy.",
+        text: "If the change is material, we will notify you via email or an in-app banner before it takes effect. Continued use of Porfilr after the effective date constitutes acceptance of the updated policy.",
       },
       {
         type: "highlight",
@@ -231,9 +231,9 @@ const SECTIONS: PolicySection[] = [
       {
         type: "list",
         items: [
-          "Email: hello.foliobase@gmail.com",
-          "General support: hello.foliobase@gmail.com",
-          "Website: https://foliobase.vercel.app",
+          "Email: hello@porfilr.com",
+          "General support: hello@porfilr.com",
+          "Website: https://porfilr.com",
         ],
       },
       {
@@ -432,7 +432,7 @@ export default function PrivacyPolicy() {
 
       {/* ── Footer ── */}
       <footer className="mt-20 text-center text-sm text-slate-500 bg-slate-900/50 border-t border-slate-800 p-8 backdrop-blur-sm">
-        © 2025 <a href="https://foliobase.vercel.app" className="hover:text-yellow-400 hover:underline transition">Foliobase</a> | 
+        © 2025 <a href="https://porfilr.com" className="hover:text-yellow-400 hover:underline transition">Porfilr</a> | 
         <a href="/contact" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Contact Us</a> | 
         <a href="/privacy-policy" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Privacy Policy</a>
       </footer>

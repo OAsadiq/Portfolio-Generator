@@ -368,7 +368,7 @@ const modernTemplate = {
       footer: () => `
         <footer class="footer" data-section="footer">
           <div class="container">
-            <p>© ${new Date().getFullYear()} ${name}. Built with <a href="https://foliobase.vercel.app" target="_blank">Foliobase</a></p>
+            <p>© ${new Date().getFullYear()} ${name}. Built with <a href="https://porfilr.com" target="_blank">Porfilr</a></p>
             <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
               <span class="sun-icon">☀️</span>
               <span class="moon-icon">🌙</span>

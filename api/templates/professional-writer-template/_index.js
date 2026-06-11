@@ -1163,7 +1163,7 @@ const professionalWriterTemplate = {
       footer: () => `
         <footer>
           <div class="container">
-            <p>Built with <a href="https://foliobase.vercel.app" target="_blank">Foliobase</a> ✨</p>
+            <p>Built with <a href="https://porfilr.com" target="_blank">Porfilr</a> ✨</p>
           </div>
         </footer>
       `

@@ -37,7 +37,7 @@ const Feature = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-slate-300 text-sm font-semibold">With Foliobase:</p>
+                  <p className="text-slate-300 text-sm font-semibold">With Porfilr:</p>
                   <p className="text-slate-500 text-xs">"Here's my portfolio with 10 published articles from Forbes, TechCrunch, and HuffPost."</p>
                 </div>
               </div>
@@ -122,7 +122,7 @@ const Feature = () => {
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                 </div>
                 <div className="flex-1 bg-slate-800 rounded px-2 py-0.5 text-slate-500 text-[8px]">
-                  foliobase.io
+                  porfilr.com
                 </div>
               </div>
               {/* Content preview */}
@@ -200,7 +200,7 @@ const Feature = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm">Using Foliobase:</p>
+                  <p className="text-slate-400 text-sm">Using Porfilr:</p>
                   <p className="text-slate-300 font-semibold">$0-9/mo • 10 minutes</p>
                 </div>
                 <div className="px-3 py-1 bg-green-500/20 text-green-400 rounded-lg text-xs font-bold">
@@ -264,7 +264,7 @@ const Feature = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-slate-300 font-semibold text-sm">Foliobase:</p>
+                    <p className="text-slate-300 font-semibold text-sm">Porfilr:</p>
                     <p className="text-slate-500 text-xs">10 minutes total • Live instantly • Pitching clients today</p>
                   </div>
                 </div>

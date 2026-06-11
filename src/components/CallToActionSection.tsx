@@ -152,7 +152,7 @@ const CallToActionSection = () => {
           </h2>
 
           <p className="text-slate-300 text-base md:text-lg">
-            Don't let another client slip away. Join our waitlist and be the first to try Foliobase.
+            Don't let another client slip away. Join our waitlist and be the first to try Porfilr.
           </p>
         </div>
 

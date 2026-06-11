@@ -74,7 +74,7 @@ const PricingSection = () => {
           ⏰ Average time wasted on WordPress: <span className="text-red-400 font-semibold">20+ hours</span>
         </p>
         <p className="text-slate-400 text-sm">
-          ⚡ Average time with Foliobase: <span className="text-green-400 font-semibold">10 minutes</span>
+          ⚡ Average time with Porfilr: <span className="text-green-400 font-semibold">10 minutes</span>
         </p>
       </div>
       <div className="mb-12 bg-slate-800/30 border border-slate-700/50 rounded-2xl p-6 max-w-2xl mx-auto">
@@ -90,7 +90,7 @@ const PricingSection = () => {
           </div>
           <div className="h-px bg-slate-700 my-3"></div>
           <div className="flex justify-between text-sm">
-            <span className="text-green-400 font-semibold">Foliobase:</span>
+            <span className="text-green-400 font-semibold">Porfilr:</span>
             <span className="text-green-400 font-bold">$0-108/year</span>
           </div>
         </div>

@@ -691,7 +691,7 @@ export default function PortfolioVisualBuilder({ onCancel }: any) {
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold">Foliobase</h2>
+              <h2 className="text-lg font-bold">Porfilr</h2>
               <p className="text-xs text-slate-400">Pro Visual Editor</p>
             </div>
           </div>
@@ -2077,7 +2077,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
       case 'footer':
         return (
           <footer key="footer" data-section="footer" className="py-8 text-center bg-slate-50">
-            <p className="text-slate-500">Built with <span className="text-blue-600 font-semibold">Foliobase</span> ✨</p>
+            <p className="text-slate-500">Built with <span className="text-blue-600 font-semibold">Porfilr</span> ✨</p>
           </footer>
         );
 
@@ -2857,7 +2857,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
               >
                 © 2026 {formData.fullName || 'Sarah Mitchell'}. Built with{' '}
                 <a
-                  href="https://foliobase.vercel.app"
+                  href="https://porfilr.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -2873,7 +2873,7 @@ function PreviewCanvas({ formData, previewMode, sections, templateId }: any) {
                     e.currentTarget.style.textDecoration = 'none';
                   }}
                 >
-                  Foliobase
+                  Porfilr
                 </a>
               </p>
             </div>

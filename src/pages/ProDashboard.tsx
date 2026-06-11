@@ -297,7 +297,7 @@ const ProDashboard = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Link to="/" className="text-2xl font-bold text-yellow-400">
-                  Foliobase
+                  Porfilr
                 </Link>
                 <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-yellow-400/20 border border-yellow-400/40 rounded-full">
                   <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">

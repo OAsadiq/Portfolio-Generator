@@ -135,7 +135,7 @@ const ContactMain = () => {
     lastSubmitTime.current = now;
 
     try {
-      const response = await fetch('https://formsubmit.co/ajax/hello.foliobase@gmail.com', {
+      const response = await fetch('https://formsubmit.co/ajax/hello@porfilr.com', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ const ContactMain = () => {
           name: formData.name.trim(),
           email: formData.email.toLowerCase().trim(),
           message: formData.message.trim(),
-          _subject: `Foliobase Contact Form: ${formData.name}`,
+          _subject: `Porfilr Contact Form: ${formData.name}`,
           _captcha: 'false', 
           _template: 'table',
         })
@@ -160,7 +160,7 @@ const ContactMain = () => {
         setStatus('❌ Failed to send message. Please try again or email us directly.');
       }
     } catch {
-      setStatus('❌ Error sending message. Please email us directly at Foliobase Support Team.');
+      setStatus('❌ Error sending message. Please email us directly at Porfilr Support Team.');
     } finally {
       setIsSubmitting(false);
     }
@@ -230,7 +230,7 @@ const ContactMain = () => {
             <div className="mt-8 border-t border-slate-700 pt-6">
               <h3 className="text-lg font-bold mb-3 text-slate-50">Direct Contact</h3>
               <p className="text-slate-400 text-sm">
-                Email: <a href="mailto:sadiqolayinka17@gmail.com" className="text-yellow-400 hover:underline">hello.foliobase@gmail.com</a>
+                Email: <a href="mailto:sadiqolayinka17@gmail.com" className="text-yellow-400 hover:underline">hello@porfilr.com</a>
               </p>
               <p className="text-slate-400 text-xs mt-2">
                 We typically respond within 24 hours
