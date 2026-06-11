@@ -131,6 +131,21 @@ const ProDashboard = () => {
 
       if (error) throw error;
 
+      // Notify admin without blocking the user
+      const portfolio = portfolios.find(p => p.slug === selectedPortfolio);
+      fetch('/api/notify/domain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          record: {
+            custom_domain: newDomain.toLowerCase(),
+            slug: selectedPortfolio,
+            user_name: portfolio?.user_name || '',
+            user_email: user?.email || '',
+          }
+        }),
+      }).catch(() => {});
+
       showToast('Domain saved! Configure your DNS then click Verify.', 'success');
       setShowDomainForm(false);
       setNewDomain('');
