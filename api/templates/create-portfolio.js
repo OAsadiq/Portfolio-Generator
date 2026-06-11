@@ -91,20 +91,20 @@ export default async function handler(req, res) {
 
         const portfolioCount = existingPortfolios?.length || 0;
 
-        if (!isPro) {
-            if (templateId === 'minimal-template' && templateUsageCount > 0) {
-                return res.status(403).json({
-                    error: "You've already used your free template. Upgrade to Pro for unlimited portfolios!",
-                    code: 'FREE_TEMPLATE_LIMIT_REACHED'
-                });
-            }
+        // 1 portfolio per user (free and Pro)
+        if (portfolioCount >= 1) {
+            return res.status(403).json({
+                error: 'You already have a portfolio. Delete it first to create a new one.',
+                code: 'PORTFOLIO_LIMIT_REACHED'
+            });
+        }
 
-            if (templateId !== 'minimal-template') {
-                return res.status(403).json({
-                    error: 'This template requires a Pro subscription. Upgrade to unlock all templates!',
-                    code: 'PRO_TEMPLATE_REQUIRED'
-                });
-            }
+        // Pro templates require Pro subscription
+        if (!isPro && templateId !== 'minimal-template') {
+            return res.status(403).json({
+                error: 'This template requires a Pro subscription.',
+                code: 'PRO_TEMPLATE_REQUIRED'
+            });
         }
 
         const userName = formData.fullName || 'writer';
