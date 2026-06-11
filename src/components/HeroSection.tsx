@@ -104,8 +104,64 @@ const Hero = () => {
         </p>
       </div>
 
+      {/* Product mockup */}
+      <div className="mt-16 relative">
+        <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-md max-w-4xl mx-auto">
+          {/* Browser chrome */}
+          <div className="bg-stone-100 border-b border-stone-200 px-5 py-3 flex items-center gap-3">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+              <div className="w-3 h-3 bg-amber-400 rounded-full"></div>
+              <div className="w-3 h-3 bg-emerald-400 rounded-full"></div>
+            </div>
+            <div className="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-1.5 flex items-center gap-2 max-w-xs mx-auto">
+              <svg className="w-3 h-3 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span className="text-stone-400 text-xs font-mono truncate">porfilr.com/p/your-name</span>
+            </div>
+          </div>
+          {/* Portfolio preview */}
+          <div className="bg-stone-50 p-8 md:p-12 flex flex-col md:flex-row items-start gap-8 text-left">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-12 h-12 bg-stone-900 rounded-full flex items-center justify-center text-white font-bold text-sm">JD</div>
+                <div>
+                  <p className="font-bold text-stone-900 text-sm">Jordan Davis</p>
+                  <p className="text-stone-500 text-xs">Brand Designer · New York</p>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-stone-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                I design brands that people remember.
+              </h3>
+              <p className="text-stone-500 text-sm leading-relaxed mb-5">5 years crafting visual identities for startups and Fortune 500s. Available for new projects.</p>
+              <div className="flex gap-2">
+                <span className="bg-stone-900 text-white text-xs px-3 py-1.5 rounded-lg font-medium">View work</span>
+                <span className="border border-stone-300 text-stone-600 text-xs px-3 py-1.5 rounded-lg font-medium">Get in touch</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 flex-shrink-0 w-full md:w-64">
+              {[
+                { bg: "bg-blue-100", label: "Brand Identity" },
+                { bg: "bg-orange-100", label: "Web Design" },
+                { bg: "bg-emerald-100", label: "Packaging" },
+                { bg: "bg-violet-100", label: "Motion" },
+              ].map((item) => (
+                <div key={item.label} className={`${item.bg} rounded-xl aspect-square flex items-end p-2`}>
+                  <span className="text-[10px] font-semibold text-stone-600 bg-white/80 px-1.5 py-0.5 rounded">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        {/* Floating badge */}
+        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-stone-900 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg whitespace-nowrap">
+          Built in 8 minutes — no code needed
+        </div>
+      </div>
+
       {/* Divider label */}
-      <div className="mt-20 flex items-center gap-4">
+      <div className="mt-24 flex items-center gap-4">
         <div className="flex-1 h-px bg-stone-200"></div>
         <span className="text-xs font-medium text-stone-400 uppercase tracking-widest">Choose a template. Make it yours.</span>
         <div className="flex-1 h-px bg-stone-200"></div>
