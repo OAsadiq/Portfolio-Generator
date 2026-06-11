@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Eye, Save, Rocket } from 'lucide-react';
 
 interface TemplateField {
   name: string;
@@ -14,75 +13,68 @@ interface TemplateField {
   placeholder?: string;
 }
 
-const PROFESSIONAL_TEMPLATES = [
-  'professional-writer-template',
-];
+const PROFESSIONAL_TEMPLATES = ['professional-writer-template'];
+
+const SECTION_META: Record<string, { label: string; icon: string; optional?: boolean }> = {
+  personal:     { label: 'About you',           icon: '👤' },
+  samples:      { label: 'Your work',            icon: '📎' },
+  testimonials: { label: 'Client testimonials',  icon: '💬', optional: true },
+  contact:      { label: 'Contact details',      icon: '📧' },
+  other:        { label: 'Additional info',      icon: '📋' },
+};
+
+const getSection = (name: string) => {
+  if (['fullName', 'writerType', 'bio', 'profilePicture'].some(k => name.includes(k))) return 'personal';
+  if (name.includes('sample'))      return 'samples';
+  if (name.includes('testimonial')) return 'testimonials';
+  if (['email', 'linkedin', 'twitter'].some(k => name.includes(k))) return 'contact';
+  return 'other';
+};
 
 const EditPortfolio = () => {
   const { slug } = useParams();
   const { user } = useAuth();
-  const [portfolio, setPortfolio] = useState<any>(null);
-  const [templateFields, setTemplateFields] = useState<TemplateField[]>([]);
-  const [formData, setFormData] = useState<any>({});
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [previewing, setPreviewing] = useState(false);
-  const [deploying, setDeploying] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const [portfolio, setPortfolio]           = useState<any>(null);
+  const [templateFields, setTemplateFields] = useState<TemplateField[]>([]);
+  const [formData, setFormData]             = useState<any>({});
+  const [loading, setLoading]               = useState(true);
+  const [saving, setSaving]                 = useState(false);
+  const [previewing, setPreviewing]         = useState(false);
+  const [error, setError]                   = useState<string | null>(null);
+  const [toast, setToast]                   = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
+
   const uploadImage = async (file: File): Promise<string> => {
-    const ext = file.name.split('.').pop();
+    const ext  = file.name.split('.').pop();
     const path = `profile-pictures/${user?.id}/${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from('images').upload(path, file, { upsert: true });
     if (error) throw error;
-    const { data } = supabase.storage.from('images').getPublicUrl(path);
-    return data.publicUrl;
+    return supabase.storage.from('images').getPublicUrl(path).data.publicUrl;
   };
-  
-  useEffect(() => {
-    checkTemplateType();
-  }, [slug]);
+
+  useEffect(() => { checkTemplateType(); }, [slug]);
+  useEffect(() => { fetchPortfolio(); }, [slug, user]);
+  useEffect(() => { if (portfolio && templateFields.length > 0) initFormData(); }, [portfolio, templateFields]);
 
   const checkTemplateType = async () => {
-    try {
-      const { data: portfolio, error } = await supabase
-        .from('portfolios')
-        .select('template_id, slug')
-        .eq('slug', slug)
-        .single();
-
-      if (error) {
-        console.error('Error fetching portfolio:', error);
-        setLoading(false);
-        return;
-      }
-
-      if (PROFESSIONAL_TEMPLATES.includes(portfolio.template_id)) {
-        navigate(`/builder/${slug}`, { replace: true });
-      } else {
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      setLoading(false);
+    const { data } = await supabase
+      .from('portfolios')
+      .select('template_id')
+      .eq('slug', slug)
+      .single();
+    if (data && PROFESSIONAL_TEMPLATES.includes(data.template_id)) {
+      navigate(`/builder/${slug}`, { replace: true });
     }
   };
-
-  useEffect(() => {
-    fetchPortfolio();
-  }, [slug, user]);
-
-  useEffect(() => {
-    if (portfolio && templateFields.length > 0) {
-      initializeFormData();
-    }
-  }, [portfolio, templateFields]);
 
   const fetchPortfolio = async () => {
     if (!user || !slug) return;
-
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -91,115 +83,66 @@ const EditPortfolio = () => {
         .eq('slug', slug)
         .eq('user_id', user.id)
         .single();
-
       if (error) throw error;
-      if (!data) {
-        setError('Portfolio not found');
-        return;
-      }
-
       setPortfolio(data);
-
-      if (data.template_fields && Array.isArray(data.template_fields)) {
+      if (Array.isArray(data.template_fields)) {
         setTemplateFields(data.template_fields);
       } else {
-        const fields = Object.keys(data.form_data || {}).map(key => ({
-          name: key,
-          label: key.replace(/([A-Z])/g, ' $1').trim(),
-          type: typeof data.form_data[key] === 'string' && data.form_data[key].length > 100 ? 'textarea' : 'text',
-          required: false,
-          placeholder: `Enter ${key.replace(/([A-Z])/g, ' $1').trim()}`
-        }));
-        setTemplateFields(fields);
+        setTemplateFields(
+          Object.keys(data.form_data || {}).map(key => ({
+            name: key,
+            label: key.replace(/([A-Z])/g, ' $1').trim(),
+            type: typeof data.form_data[key] === 'string' && data.form_data[key].length > 100 ? 'textarea' : 'text',
+            required: false,
+            placeholder: `Enter ${key.replace(/([A-Z])/g, ' $1').trim()}`,
+          }))
+        );
       }
     } catch (err: any) {
-      console.error('Error fetching portfolio:', err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const initializeFormData = () => {
-    const existingData = portfolio.form_data || {};
-    const initializedData: any = {};
-
-    if (templateFields.length === 0) {
-      setFormData(existingData);
-      return;
-    }
-
-    templateFields.forEach(field => {
-      initializedData[field.name] = existingData[field.name] || '';
-    });
-
-    setFormData(initializedData);
+  const initFormData = () => {
+    const existing = portfolio.form_data || {};
+    const init: any = {};
+    templateFields.forEach(f => { init[f.name] = existing[f.name] || ''; });
+    setFormData(init);
   };
 
-  const handleChange = async (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
-
-    if (files && files[0]) {
+    if (files?.[0]) {
       const url = await uploadImage(files[0]);
-      setFormData((prev: any) => ({
-        ...prev,
-        [name]: url,
-      }));
+      setFormData((p: any) => ({ ...p, [name]: url }));
     } else {
-      setFormData((prev: any) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFormData((p: any) => ({ ...p, [name]: value }));
     }
   };
 
-  const handlePreview = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePreview = async () => {
     if (!portfolio) return;
-
     setPreviewing(true);
     setError(null);
-
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/templates`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            templateId: portfolio.template_id,
-            ...formData
-          })
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error('Failed to generate preview');
-      }
-
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId: portfolio.template_id, ...formData }),
+      });
+      if (!res.ok) throw new Error('Failed to generate preview');
       const data = await res.json();
-
       if (data.html) {
-        const blob = new Blob([data.html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const newWindow = window.open(url, '_blank');
-        
-        if (newWindow) {
-          newWindow.addEventListener('load', () => {
-            URL.revokeObjectURL(url);
-          });
-        } else {
-          URL.revokeObjectURL(url);
-        }
+        const url = URL.createObjectURL(new Blob([data.html], { type: 'text/html' }));
+        const w = window.open(url, '_blank');
+        if (w) w.addEventListener('load', () => URL.revokeObjectURL(url));
+        else URL.revokeObjectURL(url);
       }
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err: any) {
-      console.error('Preview error:', err);
-      setError('Failed to generate preview. Please try again.');
+      setError('Preview failed. Please try again.');
     } finally {
       setPreviewing(false);
     }
@@ -209,108 +152,37 @@ const EditPortfolio = () => {
     e.preventDefault();
     if (!portfolio) return;
 
-    const missingFields = templateFields
-      .filter(field => field.required && !formData[field.name])
-      .map(field => field.label);
-
-    if (missingFields.length > 0) {
-      setError(`Please fill in required fields: ${missingFields.join(', ')}`);
-      return;
-    }
+    const missing = templateFields.filter(f => f.required && !formData[f.name]).map(f => f.label);
+    if (missing.length) { setError(`Please fill in: ${missing.join(', ')}`); return; }
 
     setSaving(true);
     setError(null);
-    setSuccessMessage(null);
-
     try {
       const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        setError('Please log in to continue');
-        setSaving(false);
-        return;
-      }
-
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/templates/update-portfolio`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
-          },
-          body: JSON.stringify({
-            slug: portfolio.slug,
-            templateId: portfolio.template_id,
-            formData
-          })
-        }
-      );
-
-      if (!res.ok) {
-        const data = await res.json();
-        console.error('❌ Save failed:', data);
-        throw new Error(data.error || 'Failed to update portfolio');
-      }
-
-      setSuccessMessage('Portfolio updated successfully!');
-
+      if (!session) { setError('Please log in to continue'); return; }
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates/update-portfolio`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ slug: portfolio.slug, templateId: portfolio.template_id, formData }),
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Save failed'); }
+      showToast('Changes saved.');
       await fetchPortfolio();
-      
-      setTimeout(() => setSuccessMessage(null), 3000);
-      
     } catch (err: any) {
-      setError(err.message || 'Failed to save changes. Please check console for details.');
+      setError(err.message || 'Failed to save changes.');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDeploy = async () => {
-    if (!portfolio) return;
-
-    setDeploying(true);
-    setError(null);
-
-    try {
-
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/vercel/deploy`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ portfolioId: portfolio.slug })
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error('Failed to deploy portfolio');
-      }
-
-      const data = await res.json();
-
-      setSuccessMessage(`✅ Successfully deployed to: ${data.url}`);
-      
-      await supabase
-        .from('portfolios')
-        .update({ deployed_url: data.url })
-        .eq('slug', portfolio.slug);
-
-      await fetchPortfolio();
-
-    } catch (err: any) {
-      setError(err.message || 'Failed to deploy portfolio');
-    } finally {
-      setDeploying(false);
-    }
-  };
+  // ── States ───────────────────────────────────────────────────────────────
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block w-12 h-12 border-4 border-slate-700 border-t-yellow-400 rounded-full animate-spin mb-4"></div>
-          <p className="text-slate-400">Loading portfolio...</p>
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-stone-200 border-t-stone-700 rounded-full animate-spin" />
+          <p className="text-stone-400 text-sm">Loading portfolio...</p>
         </div>
       </div>
     );
@@ -318,18 +190,18 @@ const EditPortfolio = () => {
 
   if (error && !portfolio) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 text-center">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
+        <div className="bg-white border border-stone-200 rounded-2xl p-8 max-w-sm w-full text-center">
+          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-slate-50 mb-2">Portfolio Not Found</h2>
-          <p className="text-slate-400 mb-6">{error}</p>
-          <Link to="/templates">
-            <button className="bg-yellow-400 text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-300 transition">
-              Back to Templates
+          <h2 className="font-bold text-stone-900 text-lg mb-2">Portfolio not found</h2>
+          <p className="text-stone-500 text-sm mb-5">{error}</p>
+          <Link to="/dashboard">
+            <button className="bg-stone-900 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-stone-700 transition">
+              Back to dashboard
             </button>
           </Link>
         </div>
@@ -339,18 +211,12 @@ const EditPortfolio = () => {
 
   if (!portfolio || templateFields.length === 0) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 text-center">
-          <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-slate-50 mb-2">No Template Data</h2>
-          <p className="text-slate-400 mb-6">This portfolio has no template information.</p>
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
+        <div className="bg-white border border-stone-200 rounded-2xl p-8 max-w-sm w-full text-center">
+          <p className="text-stone-500 text-sm mb-5">No template data found for this portfolio.</p>
           <Link to="/dashboard">
-            <button className="bg-yellow-400 text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-300 transition">
-              Back to Dashboard
+            <button className="bg-stone-900 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-stone-700 transition">
+              Back to dashboard
             </button>
           </Link>
         </div>
@@ -358,437 +224,221 @@ const EditPortfolio = () => {
     );
   }
 
-  const getFieldSection = (fieldName: string) => {
-    if (fieldName.includes('fullName') || fieldName.includes('writerType') || fieldName.includes('bio') || fieldName.includes('profilePicture')) {
-      return 'personal';
-    }
-    if (fieldName.includes('sample')) return 'samples';
-    if (fieldName.includes('testimonial')) return 'testimonials';
-    if (fieldName.includes('email') || fieldName.includes('linkedin') || fieldName.includes('twitter')) {
-      return 'contact';
-    }
-    return 'other';
-  };
-
   const groupedFields = templateFields.reduce((acc, field) => {
-    const section = getFieldSection(field.name);
-    if (!acc[section]) acc[section] = [];
-    acc[section].push(field);
+    const s = getSection(field.name);
+    if (!acc[s]) acc[s] = [];
+    acc[s].push(field);
     return acc;
   }, {} as Record<string, TemplateField[]>);
 
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-50 py-10 px-4 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
-        <div className="absolute inset-0 bg-radial-gradient"></div>
-      </div>
+  const portfolioUrl = `${import.meta.env.VITE_API_URL}/api/templates/preview?slug=${portfolio.slug}`;
 
-      <div className="max-w-4xl mx-auto relative z-10">
-        {/* Header */}
-        <div className="mb-8">
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors mb-4 mr-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  // ── Main render ──────────────────────────────────────────────────────────
+
+  return (
+    <div className="min-h-screen bg-stone-50">
+
+      {/* Sticky top bar */}
+      <div className="sticky top-0 z-20 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 min-w-0">
+          <Link to="/" className="text-stone-900 font-bold text-xl tracking-tight flex-shrink-0">
+            Porfil<span className="text-orange-600">r</span>
+          </Link>
+          <span className="text-stone-300 hidden sm:block">|</span>
+          <Link to="/templates" className="text-stone-400 hover:text-stone-700 text-sm transition flex items-center gap-1.5 flex-shrink-0">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Dashboard
+            Back
           </Link>
-
-          <div className="inline-block px-3 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full mb-4">
-            <span className="text-blue-400 text-sm font-semibold">Editing Portfolio</span>
-          </div>
-
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-50 mb-2">
-            Edit {portfolio.user_name || 'Portfolio'}
-          </h1>
-          <p className="text-slate-400">Update your portfolio information and regenerate</p>
-
-          {/* Deployment Status */}
-          {portfolio.deployed_url && (
-            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-xl">
-              <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-green-400 text-sm">Currently deployed at: </span>
-              <a
-                href={portfolio.deployed_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-green-300 hover:text-green-200 underline text-sm"
-              >
-                {portfolio.deployed_url}
-              </a>
-            </div>
-          )}
         </div>
 
-        {/* Success Message */}
-        {successMessage && (
-          <div className="mb-6 bg-green-500/10 border border-green-500/30 rounded-2xl p-4 flex items-center gap-3 animate-fadeIn">
-            <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span className="text-green-400">{successMessage}</span>
+        {/* Action buttons */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <a href={portfolioUrl} target="_blank" rel="noopener noreferrer">
+            <button className="hidden sm:flex items-center gap-2 border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 px-4 py-2 rounded-xl text-sm font-medium transition">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              View live
+            </button>
+          </a>
+          <button
+            type="button"
+            onClick={handlePreview}
+            disabled={previewing}
+            className="flex items-center gap-2 border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 px-4 py-2 rounded-xl text-sm font-medium transition disabled:opacity-50"
+          >
+            {previewing ? (
+              <div className="w-4 h-4 border-2 border-stone-300 border-t-stone-700 rounded-full animate-spin" />
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            )}
+            Preview
+          </button>
+          <button
+            form="edit-form"
+            type="submit"
+            disabled={saving}
+            className="flex items-center gap-2 bg-stone-900 hover:bg-stone-700 disabled:opacity-50 text-white px-5 py-2 rounded-xl text-sm font-semibold transition"
+          >
+            {saving ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+            {saving ? 'Saving…' : 'Save changes'}
+          </button>
+        </div>
+      </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-stone-900 text-white text-sm font-medium px-5 py-3 rounded-full shadow-lg flex items-center gap-2 animate-fade-up">
+          <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          {toast}
+        </div>
+      )}
+
+      <div className="max-w-2xl mx-auto px-6 py-10">
+
+        {/* Page header */}
+        <div className="mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-stone-900 mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
+            Edit your portfolio.
+          </h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <p className="text-stone-500 text-sm">
+              Template: <span className="font-medium text-stone-700">{portfolio.template_id.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()).replace(' Template', '')}</span>
+            </p>
+            <span className="text-stone-300">·</span>
+            <a href={portfolioUrl} target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:text-orange-500 text-sm font-medium transition flex items-center gap-1">
+              porfilr.com/p/{portfolio.slug}
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
           </div>
-        )}
+        </div>
 
-        {/* Edit Form */}
-        <form onSubmit={handleSave} className="space-y-6">
-          {/* Personal Information */}
-          {groupedFields.personal && groupedFields.personal.length > 0 && (
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
-              <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
-                <span className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center text-lg">
-                  👤
-                </span>
-                Personal Information
-              </h2>
-              <div className="space-y-4">
-                {groupedFields.personal.map((field) => (
-                  <div key={field.name}>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">
-                      {field.label}
-                      {field.required && <span className="text-yellow-400 ml-1">*</span>}
-                    </label>
-                    {field.type === "textarea" ? (
-                      <textarea
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleChange}
-                        required={field.required}
-                        placeholder={field.placeholder}
-                        rows={4}
-                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
-                      />
-                    ) : field.type === "file" ? (
-                      <div>
-                        {formData[field.name] && (
-                          <div className="mb-2 text-sm text-slate-400">
-                            Current: {formData[field.name].substring(0, 50)}...
-                          </div>
-                        )}
-                        <input
-                          type="file"
+        {/* Form */}
+        <form id="edit-form" onSubmit={handleSave} className="space-y-5">
+
+          {Object.entries(groupedFields).map(([section, fields]) => {
+            const meta = SECTION_META[section] || { label: section, icon: '📋' };
+            return (
+              <div key={section} className="bg-white border border-stone-200 rounded-2xl p-6">
+                <h2 className="font-bold text-stone-900 text-sm mb-5 flex items-center gap-2">
+                  <span>{meta.icon}</span>
+                  {meta.label}
+                  {meta.optional && <span className="text-stone-400 font-normal text-xs ml-1">(optional)</span>}
+                </h2>
+                <div className="space-y-4">
+                  {fields.map(field => (
+                    <div key={field.name}>
+                      <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wide">
+                        {field.label}
+                        {field.required && <span className="text-orange-500 ml-1">*</span>}
+                      </label>
+
+                      {field.type === 'textarea' ? (
+                        <textarea
                           name={field.name}
+                          value={formData[field.name] || ''}
                           onChange={handleChange}
-                          className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 hover:file:bg-yellow-300 file:cursor-pointer"
+                          required={field.required}
+                          placeholder={field.placeholder}
+                          rows={4}
+                          className="w-full bg-stone-50 border border-stone-200 text-stone-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 placeholder:text-stone-300 transition resize-none"
                         />
-                      </div>
-                    ) : (
-                      <input
-                        type={field.type}
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleChange}
-                        required={field.required}
-                        placeholder={field.placeholder}
-                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Writing Samples */}
-          {groupedFields.samples && groupedFields.samples.length > 0 && (
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
-              <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
-                <span className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center text-lg">
-                  📄
-                </span>
-                Writing Samples
-              </h2>
-              <div className="space-y-4">
-                {groupedFields.samples.map((field) => (
-                  <div key={field.name}>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">
-                      {field.label}
-                      {field.required && <span className="text-yellow-400 ml-1">*</span>}
-                    </label>
-                    {field.type === "textarea" ? (
-                      <textarea
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleChange}
-                        required={field.required}
-                        placeholder={field.placeholder}
-                        rows={3}
-                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
-                      />
-                    ) : field.type === "file" ? (
-                      <div>
-                        {formData[field.name] && (
-                          <div className="mb-2 text-sm text-slate-400">
-                            Current: {formData[field.name].substring(0, 50)}...
+                      ) : field.type === 'file' ? (
+                        <div className="space-y-2">
+                          {formData[field.name] && (
+                            <div className="flex items-center gap-2 text-xs text-stone-500 bg-stone-50 border border-stone-200 rounded-lg px-3 py-2">
+                              <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              Photo uploaded
+                            </div>
+                          )}
+                          <div className="border-2 border-dashed border-stone-200 rounded-xl p-4 text-center hover:border-orange-300 transition cursor-pointer">
+                            <input
+                              type="file"
+                              name={field.name}
+                              onChange={handleChange}
+                              accept="image/*"
+                              className="hidden"
+                              id={`file-${field.name}`}
+                            />
+                            <label htmlFor={`file-${field.name}`} className="cursor-pointer">
+                              <svg className="w-5 h-5 text-stone-300 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              <p className="text-stone-400 text-xs">{formData[field.name] ? 'Replace photo' : 'Upload a photo'}</p>
+                            </label>
                           </div>
-                        )}
+                        </div>
+                      ) : (
                         <input
-                          type="file"
+                          type={field.type}
                           name={field.name}
+                          value={formData[field.name] || ''}
                           onChange={handleChange}
-                          className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 hover:file:bg-yellow-300 file:cursor-pointer"
+                          required={field.required}
+                          placeholder={field.placeholder}
+                          className="w-full bg-stone-50 border border-stone-200 text-stone-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 placeholder:text-stone-300 transition"
                         />
-                      </div>
-                    ) : (
-                      <input
-                        type={field.type}
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleChange}
-                        required={field.required}
-                        placeholder={field.placeholder}
-                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
-                      />
-                    )}
-                  </div>
-                ))}
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })}
 
-          {/* Testimonials */}
-          {groupedFields.testimonials && groupedFields.testimonials.length > 0 && (
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
-              <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
-                <span className="w-8 h-8 bg-pink-500/20 rounded-lg flex items-center justify-center text-lg">
-                  💬
-                </span>
-                Client Testimonials
-                <span className="text-sm text-slate-500 font-normal">(Optional)</span>
-              </h2>
-              <div className="space-y-4">
-                {groupedFields.testimonials.map((field) => (
-                  <div key={field.name}>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">
-                      {field.label}
-                    </label>
-                    {field.type === "textarea" ? (
-                      <textarea
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleChange}
-                        required={field.required}
-                        placeholder={field.placeholder}
-                        rows={3}
-                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
-                      />
-                    ) : field.type === "file" ? (
-                      <div>
-                        {formData[field.name] && (
-                          <div className="mb-2 text-sm text-slate-400">
-                            Current: {formData[field.name].substring(0, 50)}...
-                          </div>
-                        )}
-                        <input
-                          type="file"
-                          name={field.name}
-                          onChange={handleChange}
-                          className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 hover:file:bg-yellow-300 file:cursor-pointer"
-                        />
-                      </div>
-                    ) : (
-                      <input
-                        type={field.type}
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleChange}
-                        required={field.required}
-                        placeholder={field.placeholder}
-                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Contact Information */}
-          {groupedFields.contact && groupedFields.contact.length > 0 && (
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
-              <h2 className="text-xl font-bold text-slate-50 mb-6 flex items-center gap-2">
-                <span className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center text-lg">
-                  📧
-                </span>
-                Contact Information
-              </h2>
-              <div className="space-y-4">
-                {groupedFields.contact.map((field) => (
-                  <div key={field.name}>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">
-                      {field.label}
-                      {field.required && <span className="text-yellow-400 ml-1">*</span>}
-                    </label>
-                    {field.type === "file" ? (
-                      <div>
-                        {formData[field.name] && (
-                          <div className="mb-2 text-sm text-slate-400">
-                            Current: {formData[field.name].substring(0, 50)}...
-                          </div>
-                        )}
-                        <input
-                          type="file"
-                          name={field.name}
-                          onChange={handleChange}
-                          className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 hover:file:bg-yellow-300 file:cursor-pointer"
-                        />
-                      </div>
-                    ) : (
-                      <input
-                        type={field.type}
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleChange}
-                        required={field.required}
-                        placeholder={field.placeholder}
-                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Other Fields */}
-          {groupedFields.other && groupedFields.other.length > 0 && (
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
-              <h2 className="text-xl font-bold text-slate-50 mb-6">Additional Information</h2>
-              <div className="space-y-4">
-                {groupedFields.other.map((field) => (
-                  <div key={field.name}>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">
-                      {field.label}
-                      {field.required && <span className="text-yellow-400 ml-1">*</span>}
-                    </label>
-                    {field.type === "textarea" ? (
-                      <textarea
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleChange}
-                        required={field.required}
-                        placeholder={field.placeholder}
-                        rows={3}
-                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
-                      />
-                    ) : (
-                      <input
-                        type={field.type}
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleChange}
-                        required={field.required}
-                        placeholder={field.placeholder}
-                        className="w-full bg-slate-900/50 border border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent placeholder:text-slate-600 transition-all"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Error Message */}
+          {/* Error */}
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 text-red-400 flex items-center gap-3">
-              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 text-red-600 text-sm">
+              <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {error}
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link to="/dashboard" className="lg:col-span-1">
-              <button
-                type="button"
-                className="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-4 px-6 rounded-xl font-bold transition"
-              >
-                Cancel
-              </button>
-            </Link>
-            
-            <button
-              type="button"
-              onClick={handlePreview}
-              disabled={previewing}
-              className="lg:col-span-1 bg-blue-500/20 border-2 border-blue-500 text-blue-400 py-4 px-6 rounded-xl font-bold hover:bg-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              {previewing ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-3 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                  Previewing...
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  <Eye className="w-5 h-5" /> Preview
-                </span>
-              )}
-            </button>
+          {/* Bottom save — convenience duplicate for long forms */}
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full bg-stone-900 hover:bg-stone-700 disabled:opacity-50 text-white py-4 rounded-xl font-bold text-sm transition"
+          >
+            {saving ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Saving…
+              </span>
+            ) : 'Save changes'}
+          </button>
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="lg:col-span-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 py-4 px-6 rounded-xl font-bold shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300"
-            >
-              {saving ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-3 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-                  Saving...
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  <Save className="w-5 h-5" /> Save
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleDeploy}
-              disabled={deploying || saving}
-              className="lg:col-span-1 bg-green-500/20 border-2 border-green-500 text-green-400 py-4 px-6 rounded-xl font-bold hover:bg-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              {deploying ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-3 border-green-400 border-t-transparent rounded-full animate-spin"></div>
-                  Deploying...
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  <Rocket className="w-5 h-5" /> {portfolio.deployed_url ? 'Redeploy' : 'Deploy'}
-                </span>
-              )}
-            </button>
-          </div>
+          <p className="text-center text-stone-400 text-xs pb-4">
+            Changes go live on your portfolio immediately after saving.
+          </p>
         </form>
       </div>
 
-      {/* CSS */}
       <style>{`
-        .bg-grid-pattern {
-          background-image: 
-            linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
-          background-size: 50px 50px;
+        @keyframes fade-up {
+          from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
-        .bg-radial-gradient {
-          background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(15, 23, 42, 0.2) 50%, rgba(15, 23, 42, 0.6) 100%);
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
+        .animate-fade-up { animation: fade-up 0.2s ease-out; }
       `}</style>
     </div>
   );

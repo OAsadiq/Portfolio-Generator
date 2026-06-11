@@ -1,11 +1,10 @@
 import Navbar from "../components/Navbar";
 import Hero from "../components/HeroSection";
-import SampleSection from "../components/SampleSection";
 import CreatorTypes from "../components/CreatorTypesSection";
+import SampleSection from "../components/SampleSection";
 import Feature from "../components/FeatureSection";
-import HowItWorks from "../components/HowItWorksSection";
 import ComparisonSection from "../components/ComparisonSection";
-import SeeItInAction from "../components/SeeItInActionSection";
+import HowItWorks from "../components/HowItWorksSection";
 import TestimonialsSection from "../components/TestimonialsSection";
 import PricingSection from "../components/PricingSection";
 import FinalCTASection from "../components/FinalCTASection";
@@ -18,12 +17,11 @@ const Home = () => {
     <div className="min-h-screen bg-stone-50 text-stone-900">
       <Navbar />
       <Hero />
-      <SampleSection />
       <CreatorTypes />
+      <SampleSection />
       <Feature />
-      <HowItWorks />
       <ComparisonSection />
-      <SeeItInAction />
+      <HowItWorks />
       <TestimonialsSection />
       <PricingSection />
       <FinalCTASection />

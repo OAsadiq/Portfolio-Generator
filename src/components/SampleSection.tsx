@@ -1,164 +1,159 @@
+import { Link } from "react-router-dom";
+
+const TEMPLATES = [
+  {
+    id: "minimal-template",
+    name: "Minimal",
+    tier: "Free",
+    description: "Clean and distraction-free. Your work is the only thing on the page.",
+    bestFor: "Writers, consultants, developers",
+    preview: "/templates/minimal-template/preview.html",
+    palette: ["#1c1917", "#f5f5f4", "#e7e5e4"],
+    accent: "#f5f5f4",
+    bg: "bg-stone-900",
+    featured: false,
+  },
+  {
+    id: "modern-writer-template",
+    name: "Modern",
+    tier: "Pro",
+    description: "Bold layout with stats, featured work, and a built-in testimonial block.",
+    bestFor: "Content strategists, designers, creators",
+    preview: "/templates/modern-writer-template/preview.html",
+    palette: ["#ea580c", "#1c1917", "#fff7ed"],
+    accent: "#ea580c",
+    bg: "bg-orange-600",
+    featured: true,
+  },
+  {
+    id: "professional-writer-template",
+    name: "Professional",
+    tier: "Pro",
+    description: "Structured and polished. Ideal when your credibility needs to do the talking.",
+    bestFor: "Photographers, videographers, traders",
+    preview: "/templates/professional-writer-template/preview.html",
+    palette: ["#0f172a", "#334155", "#e2e8f0"],
+    accent: "#e2e8f0",
+    bg: "bg-slate-900",
+    featured: false,
+  },
+];
+
+const TemplateCard = ({ t }: { t: typeof TEMPLATES[0] }) => (
+  <div className={`group flex flex-col rounded-2xl overflow-hidden border transition-all duration-200 ${t.featured ? "border-orange-300 shadow-md" : "border-stone-200 hover:border-stone-300 hover:shadow-sm"}`}>
+
+    {/* Visual preview area */}
+    <div className={`relative ${t.bg} h-52 flex items-center justify-center overflow-hidden`}>
+
+      {/* Subtle grid pattern */}
+      <div className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+        }}
+      />
+
+      {/* Mini mockup */}
+      <div className="relative w-48 bg-white/10 border border-white/20 rounded-xl p-4 backdrop-blur-sm">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-6 h-6 rounded-full bg-white/30"></div>
+          <div className="space-y-1 flex-1">
+            <div className="h-2 bg-white/40 rounded-full w-3/4"></div>
+            <div className="h-1.5 bg-white/20 rounded-full w-1/2"></div>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="h-1.5 bg-white/30 rounded-full"></div>
+          <div className="h-1.5 bg-white/20 rounded-full w-5/6"></div>
+          <div className="h-1.5 bg-white/20 rounded-full w-4/6"></div>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-1.5">
+          <div className="h-10 bg-white/20 rounded-lg"></div>
+          <div className="h-10 bg-white/20 rounded-lg"></div>
+        </div>
+        <div className="mt-2 h-6 bg-white/30 rounded-lg"></div>
+      </div>
+
+      {/* Tier badge */}
+      <div className={`absolute top-3 right-3 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${t.tier === "Free" ? "bg-white/20 text-white/80" : "bg-orange-600 text-white"}`}>
+        {t.tier}
+      </div>
+
+      {t.featured && (
+        <div className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white text-orange-600">
+          Popular
+        </div>
+      )}
+    </div>
+
+    {/* Card body */}
+    <div className="bg-white flex flex-col flex-1 p-6 gap-4">
+      <div>
+        <h3 className="font-bold text-stone-900 text-lg mb-1">{t.name}</h3>
+        <p className="text-stone-500 text-sm leading-relaxed">{t.description}</p>
+      </div>
+
+      <div className="flex items-center gap-2 mt-auto">
+        <svg className="w-3.5 h-3.5 text-stone-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span className="text-stone-400 text-xs">{t.bestFor}</span>
+      </div>
+
+      <div className="flex gap-2 pt-2 border-t border-stone-100">
+        <a
+          href={t.preview}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 text-center border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 py-2.5 rounded-xl text-sm font-medium transition"
+        >
+          Preview
+        </a>
+        <Link to="/templates" className="flex-1">
+          <button className={`w-full py-2.5 rounded-xl text-sm font-semibold transition ${t.featured ? "bg-stone-900 hover:bg-stone-700 text-white" : "bg-stone-100 hover:bg-stone-200 text-stone-800"}`}>
+            Use this →
+          </button>
+        </Link>
+      </div>
+    </div>
+  </div>
+);
+
 const SampleSection = () => {
   const scrollToHowItWorks = () => {
     document.getElementById("HowItWorks")?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   return (
-    <section className="py-12 px-6">
+    <section className="py-24 px-6 bg-white border-t border-stone-100">
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          {/* Card 1 — Minimal */}
-          <div className="group bg-white border border-stone-200 rounded-2xl overflow-hidden hover:shadow-md hover:border-stone-300 transition-all duration-300">
-            <div className="p-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center text-stone-600 font-bold text-sm border border-stone-200">
-                  SC
-                </div>
-                <div>
-                  <h3 className="text-stone-900 font-semibold">Saro Chen</h3>
-                  <p className="text-stone-400 text-sm">Copywriter</p>
-                </div>
-              </div>
-              <p className="text-stone-500 text-sm leading-relaxed">
-                B2B SaaS writer. Published in TechCrunch and Forbes.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {["SaaS", "B2B", "Tech"].map((t) => (
-                  <span key={t} className="px-2.5 py-1 bg-stone-100 text-stone-600 rounded-full text-xs font-medium">{t}</span>
-                ))}
-              </div>
-              <div className="space-y-2">
-                {["How AI is Transforming SaaS — TechCrunch", "The Future of Remote Work — Forbes"].map((a) => (
-                  <div key={a} className="bg-stone-50 border border-stone-100 rounded-lg p-3">
-                    <p className="text-stone-700 text-xs font-medium">{a}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-                <span className="text-stone-400 text-xs">Minimal Template</span>
-                <span className="px-2.5 py-1 bg-stone-100 text-stone-600 text-xs font-semibold rounded-full">FREE</span>
-              </div>
-              <a href="/templates/minimal-template/preview.html" target="_blank" rel="noopener noreferrer">
-                <button className="w-full border border-stone-200 hover:bg-stone-50 text-stone-700 py-2.5 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 group">
-                  View Portfolio
-                  <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </button>
-              </a>
-            </div>
-          </div>
-
-          {/* Card 2 — Modern (featured) */}
-          <div className="group bg-white border-2 border-orange-200 rounded-2xl overflow-hidden hover:shadow-md hover:border-orange-300 transition-all duration-300 relative">
-            <div className="absolute top-0 right-0 bg-orange-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl">
-              POPULAR
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-700 font-bold text-sm border border-orange-200">
-                  SM
-                </div>
-                <div>
-                  <h3 className="text-stone-900 font-semibold">Sarah Mitchell</h3>
-                  <p className="text-orange-600 text-sm font-medium">Content Strategist</p>
-                </div>
-              </div>
-              <p className="text-stone-500 text-sm leading-relaxed">
-                Helping SaaS companies 10x organic traffic. 5+ years in growth.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {["SEO", "Growth", "Strategy"].map((t) => (
-                  <span key={t} className="px-2.5 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-medium border border-orange-100">{t}</span>
-                ))}
-              </div>
-              <div className="space-y-2">
-                <div className="bg-stone-50 border border-stone-100 rounded-lg p-3">
-                  <p className="text-stone-700 text-xs font-medium">Complete Guide to SaaS SEO</p>
-                  <p className="text-stone-400 text-[10px] mt-0.5">15K+ views</p>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-orange-50 border border-orange-100 rounded-lg p-3 text-center">
-                    <p className="text-orange-600 font-bold text-base">50+</p>
-                    <p className="text-stone-400 text-[10px]">Articles</p>
-                  </div>
-                  <div className="bg-orange-50 border border-orange-100 rounded-lg p-3 text-center">
-                    <p className="text-orange-600 font-bold text-base">2M+</p>
-                    <p className="text-stone-400 text-[10px]">Readers</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-                <span className="text-stone-400 text-xs">Modern Template</span>
-                <span className="px-2.5 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">PRO</span>
-              </div>
-              <a href="/templates/modern-writer-template/preview.html" target="_blank" rel="noopener noreferrer">
-                <button className="w-full bg-stone-900 hover:bg-stone-700 text-white py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 group">
-                  View Portfolio
-                  <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </button>
-              </a>
-            </div>
-          </div>
-
-          {/* Card 3 — Professional */}
-          <div className="group bg-white border border-stone-200 rounded-2xl overflow-hidden hover:shadow-md hover:border-stone-300 transition-all duration-300">
-            <div className="p-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold text-sm border border-emerald-200">
-                  JS
-                </div>
-                <div>
-                  <h3 className="text-stone-900 font-semibold">Jane Smith</h3>
-                  <p className="text-stone-400 text-sm">Technical Writer</p>
-                </div>
-              </div>
-              <p className="text-stone-500 text-sm leading-relaxed">
-                Explaining complex tech simply. API docs and dev tutorials.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {["API Docs", "Dev Tools", "Tutorials"].map((t) => (
-                  <span key={t} className="px-2.5 py-1 bg-stone-100 text-stone-600 rounded-full text-xs font-medium">{t}</span>
-                ))}
-              </div>
-              <div className="space-y-2">
-                {["Getting Started with GraphQL — Dev.to", "REST API Best Practices — Hashnode"].map((a) => (
-                  <div key={a} className="bg-stone-50 border border-stone-100 rounded-lg p-3">
-                    <p className="text-stone-700 text-xs font-medium">{a}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3">
-                <p className="text-emerald-700 text-xs italic">"Clearest API docs we've ever had"</p>
-                <p className="text-emerald-500 text-[10px] mt-1">— CTO, TechStartup</p>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-                <span className="text-stone-400 text-xs">Professional Template</span>
-                <span className="px-2.5 py-1 bg-stone-100 text-stone-600 text-xs font-semibold rounded-full">PRO</span>
-              </div>
-              <a href="/templates/professional-writer-template/preview.html" target="_blank" rel="noopener noreferrer">
-                <button className="w-full border border-stone-200 hover:bg-stone-50 text-stone-700 py-2.5 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 group">
-                  View Portfolio
-                  <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </button>
-              </a>
-            </div>
-          </div>
+        {/* Header */}
+        <div className="text-center mb-14">
+          <p className="text-orange-600 text-sm font-semibold uppercase tracking-widest mb-3">Templates</p>
+          <h2
+            className="text-4xl md:text-5xl font-bold text-stone-900 mb-4"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Pick a template.<br />Make it yours in minutes.
+          </h2>
+          <p className="text-stone-500 text-lg max-w-xl mx-auto">
+            Every template is designed to look professional out of the box — no design skills needed.
+          </p>
         </div>
 
-        {/* CTA */}
-        <div className="text-center mt-12 space-y-4">
-          <p className="text-stone-400 text-sm">Each portfolio built in <span className="text-stone-800 font-semibold">under 10 minutes</span></p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button onClick={scrollToHowItWorks} className="border border-stone-300 hover:bg-stone-100 text-stone-700 px-7 py-3 rounded-xl font-medium text-sm transition">
-              See how it works
-            </button>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {TEMPLATES.map((t) => <TemplateCard key={t.id} t={t} />)}
+        </div>
+
+        <div className="text-center mt-10">
+          <p className="text-stone-400 text-sm mb-3">Not sure which one? You can always change templates later.</p>
+          <button
+            onClick={scrollToHowItWorks}
+            className="text-orange-600 hover:text-orange-500 text-sm font-medium transition"
+          >
+            See how it works →
+          </button>
         </div>
       </div>
     </section>
