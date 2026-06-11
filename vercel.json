@@ -2,7 +2,7 @@
   "version": 2,
   
   "rewrites": [
-    { "source": "/p/:slug", "destination": "/api/p/:slug" },
+    { "source": "/p/:slug", "destination": "/api/p/index?slug=:slug" },
     { "source": "/(.*)", "destination": "/" }
   ],
 
