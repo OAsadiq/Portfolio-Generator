@@ -54,7 +54,7 @@ const ContactMain = () => {
 
     setIsSubmitting(true); setStatus('Sending...'); lastSubmitTime.current = now;
     try {
-      const response = await fetch('https://formsubmit.co/ajax/hello@porfilr.com', {
+      const response = await fetch('https://formsubmit.co/ajax/support@porfilr.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ name: formData.name.trim(), email: formData.email.toLowerCase().trim(), message: formData.message.trim(), _subject: `Porfilr Contact Form: ${formData.name}`, _captcha: 'false', _template: 'table' }),
@@ -123,8 +123,8 @@ const ContactMain = () => {
             <h3 className="text-base font-bold text-stone-900 mb-2">Direct Contact</h3>
             <p className="text-stone-500 text-sm">
               Email:{' '}
-              <a href="mailto:hello@porfilr.com" className="text-orange-600 hover:underline font-medium">
-                hello@porfilr.com
+              <a href="mailto:support@porfilr.com" className="text-orange-600 hover:underline font-medium">
+                support@porfilr.com
               </a>
             </p>
             <p className="text-stone-400 text-xs mt-1">We typically respond within 24 hours</p>

@@ -285,8 +285,8 @@ const PricingPage = () => {
 
           <div className="text-center mt-8 p-5 bg-white border border-stone-200 rounded-xl">
             <p className="text-stone-600 text-sm mb-2">Still have questions?</p>
-            <a href="mailto:hello@porfilr.com" className="text-orange-600 hover:text-orange-500 font-semibold text-sm transition">
-              hello@porfilr.com
+            <a href="mailto:support@porfilr.com" className="text-orange-600 hover:text-orange-500 font-semibold text-sm transition">
+              support@porfilr.com
             </a>
           </div>
         </div>

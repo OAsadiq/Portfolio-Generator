@@ -146,7 +146,7 @@ const SECTIONS: PolicySection[] = [
     icon: "✉️",
     content: [
       { type: "paragraph", text: "Questions, concerns, or feedback about this policy? We're happy to talk." },
-      { type: "list", items: ["Email: hello@porfilr.com", "Website: https://porfilr.com"] },
+      { type: "list", items: ["Email: support@porfilr.com", "Website: https://porfilr.com"] },
       { type: "paragraph", text: "We typically respond within 24–48 hours on business days." },
     ],
   },
