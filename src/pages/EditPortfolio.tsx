@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import Logo from '../components/Logo';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -241,9 +242,7 @@ const EditPortfolio = () => {
       {/* Sticky top bar */}
       <div className="sticky top-0 z-20 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 min-w-0">
-          <Link to="/" className="text-stone-900 font-bold text-xl tracking-tight flex-shrink-0">
-            Porfil<span className="text-orange-600">r</span>
-          </Link>
+          <Link to="/" className="flex-shrink-0"><Logo size={28} /></Link>
           <span className="text-stone-300 hidden sm:block">|</span>
           <Link to="/templates" className="text-stone-400 hover:text-stone-700 text-sm transition flex items-center gap-1.5 flex-shrink-0">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
+import Logo from "./Logo";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -19,15 +20,15 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 bg-stone-50/95 backdrop-blur-sm border-b border-stone-200">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-6xl w-full mx-auto px-6 py-4 grid grid-cols-3 items-center">
 
-        {/* Logo */}
-        <Link to="/" className="text-xl font-bold text-stone-900 tracking-tight">
-          Porfil<span className="text-orange-600">r</span>
-        </Link>
+        {/* Logo — left */}
+        <div className="flex items-center">
+          <Link to="/"><Logo size={28} /></Link>
+        </div>
 
-        {/* Desktop links */}
-        <div className="hidden lg:flex items-center gap-8">
+        {/* Desktop links — truly centered */}
+        <div className="hidden lg:flex items-center justify-center gap-8">
           <Link to="/" className="text-stone-600 text-sm font-medium hover:text-stone-900 transition">
             Home
           </Link>
@@ -38,9 +39,8 @@ const Navbar = () => {
             Contact
           </Link>
         </div>
-
-        {/* Desktop CTA */}
-        <div className="hidden lg:flex items-center gap-3">
+        {/* Desktop CTA — right */}
+        <div className="hidden lg:flex items-center justify-end gap-3">
           {user ? (
             <div className="relative">
               <button
@@ -95,7 +95,7 @@ const Navbar = () => {
                 Sign in
               </Link>
               <Link
-                to="/templates"
+                to="/login"
                 className="bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition"
               >
                 Get started free
@@ -104,13 +104,15 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile menu button */}
-        <button
-          className="lg:hidden text-stone-600 hover:text-stone-900 transition"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <FaTimes size={18} /> : <FaBars size={18} />}
-        </button>
+        {/* Mobile: hamburger sits in right col */}
+        <div className="lg:hidden flex justify-end col-start-3">
+          <button
+            className="text-stone-600 hover:text-stone-900 transition"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <FaTimes size={18} /> : <FaBars size={18} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
@@ -151,7 +153,7 @@ const Navbar = () => {
               <Link to="/login" className="block text-center border border-stone-200 py-2.5 rounded-lg text-stone-700 text-sm font-medium hover:bg-stone-50 transition" onClick={() => setMobileOpen(false)}>
                 Sign in
               </Link>
-              <Link to="/templates" className="block text-center bg-stone-900 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-stone-700 transition" onClick={() => setMobileOpen(false)}>
+              <Link to="/login" className="block text-center bg-stone-900 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-stone-700 transition" onClick={() => setMobileOpen(false)}>
                 Get started free
               </Link>
             </div>

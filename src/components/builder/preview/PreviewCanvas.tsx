@@ -25,7 +25,7 @@ export default function PreviewCanvas({ formData, previewMode, sections, templat
       : renderProfessionalSection(id, formData, isMobile, isTablet);
 
   return (
-    <div className="flex-1 overflow-auto p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="flex-1 overflow-auto p-6 bg-stone-100">
       <div
         className={`transition-all duration-500 ${isDesktop ? 'w-full max-w-7xl mx-auto' : isTablet ? 'w-[768px] mx-auto' : 'w-[375px] mx-auto'}`}
         {...(isModern ? { 'data-theme': formData.defaultTheme || 'light' } : {})}

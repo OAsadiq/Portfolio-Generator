@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import Logo from "../components/Logo";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import PortfolioVisualBuilder from "../components/PortfolioVisualBuilder.tsx";
@@ -278,7 +279,7 @@ const CreatePortfolio = () => {
       {/* Top bar */}
       <div className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
         <Link to="/" className="text-stone-900 font-bold text-xl tracking-tight">
-          Porfil<span className="text-orange-600">r</span>
+          <Logo size={28} />
         </Link>
         <Link to="/templates" className="text-stone-400 hover:text-stone-700 text-sm transition flex items-center gap-1.5">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

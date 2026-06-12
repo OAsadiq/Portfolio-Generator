@@ -82,7 +82,7 @@ async function handleCreateCheckoutSession({ priceId, userId, userEmail }, res) 
             payment_method_types: ['card'],
             line_items: [{ price: priceId, quantity: 1 }],
             success_url: `${process.env.VITE_REDIRECT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${process.env.VITE_REDIRECT_URL}`,
+            cancel_url: `${process.env.VITE_REDIRECT_URL}/pricing`,
             metadata: { userId }
         });
 
@@ -121,13 +121,31 @@ async function handleCreatePortalSession({ userId }, res) {
             .eq('user_id', userId)
             .single();
 
-        if (!subscription?.stripe_customer_id) {
-            return res.status(404).json({ error: 'No subscription found' });
+        let customerId = subscription?.stripe_customer_id;
+
+        // Fallback: look up customer by userId metadata if stripe_customer_id wasn't stored
+        if (!customerId) {
+            const { data: userData } = await supabase.auth.admin.getUserById(userId);
+            const email = userData?.user?.email;
+            if (!email) {
+                return res.status(404).json({ error: 'No subscription found' });
+            }
+            const customers = await stripe.customers.list({ email, limit: 1 });
+            if (customers.data.length === 0) {
+                return res.status(404).json({ error: 'No Stripe customer found for this account' });
+            }
+            customerId = customers.data[0].id;
+
+            // Backfill so future calls work
+            await supabase
+                .from('subscriptions')
+                .update({ stripe_customer_id: customerId })
+                .eq('user_id', userId);
         }
 
         const session = await stripe.billingPortal.sessions.create({
-            customer: subscription.stripe_customer_id,
-            return_url: `${process.env.VITE_REDIRECT_URL}/settings`,
+            customer: customerId,
+            return_url: `${process.env.VITE_REDIRECT_URL}/dashboard`,
         });
 
         return res.json({ url: session.url });

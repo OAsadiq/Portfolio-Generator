@@ -19,7 +19,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="min-h-screen bg-slate-900">
+        <div className="min-h-screen bg-stone-50">
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Home />} />
@@ -40,11 +40,6 @@ function App() {
             <Route path="/create/:templateId" element={
               <ProtectedRoute>
                 <CreatePortfolio />
-              </ProtectedRoute>
-            } />
-            <Route path="/create/:templateId" element={
-              <ProtectedRoute>
-                <PortfolioVisualBuilder />
               </ProtectedRoute>
             } />
             <Route path="/success" element={

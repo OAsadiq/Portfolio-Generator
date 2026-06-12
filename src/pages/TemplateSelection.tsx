@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, Link } from "react-router-dom";
+import Logo from "../components/Logo";
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -272,9 +273,7 @@ const TemplateSelection = () => {
 
       {/* Top bar */}
       <div className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="text-stone-900 font-bold text-xl tracking-tight">
-          Porfil<span className="text-orange-600">r</span>
-        </Link>
+        <Link to="/"><Logo size={28} /></Link>
         {user && (
           <span className="text-stone-400 text-sm">{user.email}</span>
         )}

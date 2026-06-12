@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-
-// ─── Data ────────────────────────────────────────────────────────────────────
+import Logo from "../components/Logo";
 
 interface PolicySection {
   id: string;
@@ -22,23 +21,14 @@ const SECTIONS: PolicySection[] = [
     title: "Information We Collect",
     icon: "📥",
     content: [
-      {
-        type: "paragraph",
-        text: "We collect only the information necessary to provide you with our portfolio-building service. We believe in data minimalism — if we don't need it, we don't collect it.",
-      },
-      {
-        type: "highlight",
-        text: "We only collect what we need. No hidden tracking, no unnecessary data points.",
-      },
-      {
-        type: "list",
-        items: [
-          "Name and email address — provided via Google Sign-In during account creation.",
-          "Google profile picture — displayed on your portfolio if you choose to use it.",
-          "Portfolio content you create — text, images, and layout preferences you configure inside the builder.",
-          "Basic usage data — anonymised signals to help us improve the product (e.g. which templates are popular).",
-        ],
-      },
+      { type: "paragraph", text: "We collect only the information necessary to provide you with our portfolio-building service. We believe in data minimalism — if we don't need it, we don't collect it." },
+      { type: "highlight", text: "We only collect what we need. No hidden tracking, no unnecessary data points." },
+      { type: "list", items: [
+        "Name and email address — provided via Google Sign-In during account creation.",
+        "Google profile picture — displayed on your portfolio if you choose to use it.",
+        "Portfolio content you create — text, images, and layout preferences you configure inside the builder.",
+        "Basic usage data — anonymised signals to help us improve the product.",
+      ]},
     ],
   },
   {
@@ -46,24 +36,15 @@ const SECTIONS: PolicySection[] = [
     title: "How We Use Your Data",
     icon: "⚙️",
     content: [
-      {
-        type: "paragraph",
-        text: "Every piece of data we hold has a clear, defined purpose. We never sell your information, and we never use it for anything beyond what is described here.",
-      },
-      {
-        type: "list",
-        items: [
-          "Authenticate your identity and maintain your session securely.",
-          "Store and retrieve your portfolio projects so they persist across devices.",
-          "Personalise the builder experience based on your saved preferences.",
-          "Send you transactional emails only — password resets, signup confirmations, and critical account notices.",
-          "Analyse anonymised, aggregated usage patterns to improve Porfilr.",
-        ],
-      },
-      {
-        type: "paragraph",
-        text: "We do not use your data for advertising, profiling, or any form of automated decision-making.",
-      },
+      { type: "paragraph", text: "Every piece of data we hold has a clear, defined purpose. We never sell your information, and we never use it for anything beyond what is described here." },
+      { type: "list", items: [
+        "Authenticate your identity and maintain your session securely.",
+        "Store and retrieve your portfolio projects so they persist across devices.",
+        "Personalise the builder experience based on your saved preferences.",
+        "Send you transactional emails only — password resets, signup confirmations, and critical account notices.",
+        "Analyse anonymised, aggregated usage patterns to improve Porfilr.",
+      ]},
+      { type: "paragraph", text: "We do not use your data for advertising, profiling, or any form of automated decision-making." },
     ],
   },
   {
@@ -71,23 +52,14 @@ const SECTIONS: PolicySection[] = [
     title: "Sign In with Google",
     icon: "🔐",
     content: [
-      {
-        type: "paragraph",
-        text: "Porfilr uses Google OAuth to let you sign in quickly and securely. When you click \"Sign in with Google\", you are redirected to Google's own authentication flow.",
-      },
-      {
-        type: "highlight",
-        text: "We request only the minimum scopes: your email address, name, and profile picture. Nothing else.",
-      },
-      {
-        type: "list",
-        items: [
-          "Google shares your name, email, and profile picture with us after you grant consent.",
-          "We store a secure token — never your Google password or sensitive credentials.",
-          "You can revoke Porfilr's access at any time via your Google Account → Third-party apps & services.",
-          "Refer to Google's Privacy Policy for details on how Google handles your data during this flow.",
-        ],
-      },
+      { type: "paragraph", text: "Porfilr uses Google OAuth to let you sign in quickly and securely. When you click \"Sign in with Google\", you are redirected to Google's own authentication flow." },
+      { type: "highlight", text: "We request only the minimum scopes: your email address, name, and profile picture. Nothing else." },
+      { type: "list", items: [
+        "Google shares your name, email, and profile picture with us after you grant consent.",
+        "We store a secure token — never your Google password or sensitive credentials.",
+        "You can revoke Porfilr's access at any time via your Google Account → Third-party apps & services.",
+        "Refer to Google's Privacy Policy for details on how Google handles your data during this flow.",
+      ]},
     ],
   },
   {
@@ -95,23 +67,14 @@ const SECTIONS: PolicySection[] = [
     title: "Data Storage & Security",
     icon: "🛡️",
     content: [
-      {
-        type: "paragraph",
-        text: "We take the security of your data seriously. Our infrastructure is built on industry-trusted, SOC 2-compliant services.",
-      },
-      {
-        type: "list",
-        items: [
-          "All data is stored via Supabase, which encrypts data at rest (AES-256) and in transit (TLS 1.3).",
-          "Authentication tokens are short-lived and rotated automatically.",
-          "Portfolio images are stored in object storage with strict access controls — only you can see your unpublished work.",
-          "We do not store data in any jurisdiction outside the EU / US without your knowledge.",
-        ],
-      },
-      {
-        type: "paragraph",
-        text: "No method of transmission over the internet is 100 % secure. We minimise risk, but we cannot guarantee absolute security. If you become aware of any breach, please contact us immediately.",
-      },
+      { type: "paragraph", text: "We take the security of your data seriously. Our infrastructure is built on industry-trusted, SOC 2-compliant services." },
+      { type: "list", items: [
+        "All data is stored via Supabase, which encrypts data at rest (AES-256) and in transit (TLS 1.3).",
+        "Authentication tokens are short-lived and rotated automatically.",
+        "Portfolio images are stored in object storage with strict access controls.",
+        "We do not store data in any jurisdiction outside the EU / US without your knowledge.",
+      ]},
+      { type: "paragraph", text: "No method of transmission over the internet is 100% secure. We minimise risk, but we cannot guarantee absolute security. If you become aware of any breach, please contact us immediately." },
     ],
   },
   {
@@ -119,22 +82,13 @@ const SECTIONS: PolicySection[] = [
     title: "Data Sharing",
     icon: "🤝",
     content: [
-      {
-        type: "paragraph",
-        text: "We do not sell, trade, or rent your personal information to third parties. The only situations in which data leaves Porfilr are outlined below.",
-      },
-      {
-        type: "list",
-        items: [
-          "Service providers — We use Google (auth), Supabase (database & storage), and Vercel (hosting). Each is bound by their own privacy policies.",
-          "Legal obligation — We may disclose information if required by law, court order, or governmental regulation.",
-          "Published portfolios — Content you choose to publish is publicly visible by design. You control what is shared.",
-        ],
-      },
-      {
-        type: "highlight",
-        text: "We never sell your data. Period. Our business model does not depend on monetising your personal information.",
-      },
+      { type: "paragraph", text: "We do not sell, trade, or rent your personal information to third parties. The only situations in which data leaves Porfilr are outlined below." },
+      { type: "list", items: [
+        "Service providers — We use Google (auth), Supabase (database & storage), and Vercel (hosting). Each is bound by their own privacy policies.",
+        "Legal obligation — We may disclose information if required by law, court order, or governmental regulation.",
+        "Published portfolios — Content you choose to publish is publicly visible by design. You control what is shared.",
+      ]},
+      { type: "highlight", text: "We never sell your data. Period. Our business model does not depend on monetising your personal information." },
     ],
   },
   {
@@ -142,24 +96,15 @@ const SECTIONS: PolicySection[] = [
     title: "Your Rights",
     icon: "⚖️",
     content: [
-      {
-        type: "paragraph",
-        text: "Depending on your location, you may have additional rights under applicable data-protection laws (e.g. GDPR, CCPA). Regardless of where you are, we honour the following:",
-      },
-      {
-        type: "list",
-        items: [
-          "Access — View all personal data we hold about you at any time.",
-          "Correction — Request updates to any inaccurate information.",
-          "Deletion — Ask us to permanently delete your account and all associated data.",
-          "Portability — Export your portfolio content in a standard format.",
-          "Opt-out — Unsubscribe from non-essential communications at any time.",
-        ],
-      },
-      {
-        type: "paragraph",
-        text: "To exercise any of these rights, simply email us at privacy@Porfilr.com. We will respond within 30 days.",
-      },
+      { type: "paragraph", text: "Depending on your location, you may have additional rights under applicable data-protection laws (e.g. GDPR, CCPA). Regardless of where you are, we honour the following:" },
+      { type: "list", items: [
+        "Access — View all personal data we hold about you at any time.",
+        "Correction — Request updates to any inaccurate information.",
+        "Deletion — Ask us to permanently delete your account and all associated data.",
+        "Portability — Export your portfolio content in a standard format.",
+        "Opt-out — Unsubscribe from non-essential communications at any time.",
+      ]},
+      { type: "paragraph", text: "To exercise any of these rights, simply email us at hello@porfilr.com. We will respond within 30 days." },
     ],
   },
   {
@@ -167,22 +112,13 @@ const SECTIONS: PolicySection[] = [
     title: "Cookies & Local Storage",
     icon: "🍪",
     content: [
-      {
-        type: "paragraph",
-        text: "We keep things simple. Porfilr uses minimal cookies and browser storage — only what is technically necessary to run the product.",
-      },
-      {
-        type: "list",
-        items: [
-          "Session cookie — Keeps you logged in during an active session. Deleted when you close the browser.",
-          "Theme preference — Stored in local storage to remember your light/dark mode choice.",
-          "No third-party tracking cookies are placed on your device by Porfilr.",
-        ],
-      },
-      {
-        type: "highlight",
-        text: "We do not use cookies for advertising or cross-site tracking. What you see is what you get.",
-      },
+      { type: "paragraph", text: "Porfilr uses minimal cookies and browser storage — only what is technically necessary to run the product." },
+      { type: "list", items: [
+        "Session cookie — Keeps you logged in during an active session. Deleted when you close the browser.",
+        "Theme preference — Stored in local storage to remember your light/dark mode choice.",
+        "No third-party tracking cookies are placed on your device by Porfilr.",
+      ]},
+      { type: "highlight", text: "We do not use cookies for advertising or cross-site tracking. What you see is what you get." },
     ],
   },
   {
@@ -190,14 +126,8 @@ const SECTIONS: PolicySection[] = [
     title: "Children's Privacy",
     icon: "👶",
     content: [
-      {
-        type: "paragraph",
-        text: "Porfilr is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13.",
-      },
-      {
-        type: "paragraph",
-        text: "If you believe a child under 13 has provided us with personal information, please contact us at privacy@Porfilr.com so we can promptly delete that information.",
-      },
+      { type: "paragraph", text: "Porfilr is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13." },
+      { type: "paragraph", text: "If you believe a child under 13 has provided us with personal information, please contact us at hello@porfilr.com so we can promptly delete that information." },
     ],
   },
   {
@@ -205,18 +135,9 @@ const SECTIONS: PolicySection[] = [
     title: "Changes to This Policy",
     icon: "📝",
     content: [
-      {
-        type: "paragraph",
-        text: "We may update this privacy policy from time to time. When we do, we will revise the \"Last updated\" date at the top of this page.",
-      },
-      {
-        type: "paragraph",
-        text: "If the change is material, we will notify you via email or an in-app banner before it takes effect. Continued use of Porfilr after the effective date constitutes acceptance of the updated policy.",
-      },
-      {
-        type: "highlight",
-        text: "We promise to notify you of any significant changes before they go into effect — no surprises.",
-      },
+      { type: "paragraph", text: "We may update this privacy policy from time to time. When we do, we will revise the \"Last updated\" date at the top of this page." },
+      { type: "paragraph", text: "If the change is material, we will notify you via email or an in-app banner before it takes effect. Continued use of Porfilr after the effective date constitutes acceptance of the updated policy." },
+      { type: "highlight", text: "We promise to notify you of any significant changes before they go into effect — no surprises." },
     ],
   },
   {
@@ -224,68 +145,31 @@ const SECTIONS: PolicySection[] = [
     title: "Contact Us",
     icon: "✉️",
     content: [
-      {
-        type: "paragraph",
-        text: "Questions, concerns, or feedback about this policy? We're happy to talk.",
-      },
-      {
-        type: "list",
-        items: [
-          "Email: hello@porfilr.com",
-          "General support: hello@porfilr.com",
-          "Website: https://porfilr.com",
-        ],
-      },
-      {
-        type: "paragraph",
-        text: "We typically respond within 24–48 hours on business days.",
-      },
+      { type: "paragraph", text: "Questions, concerns, or feedback about this policy? We're happy to talk." },
+      { type: "list", items: ["Email: hello@porfilr.com", "Website: https://porfilr.com"] },
+      { type: "paragraph", text: "We typically respond within 24–48 hours on business days." },
     ],
   },
 ];
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
-
 function Highlight({ text }: { text: string }) {
   return (
-    <div className="relative border border-indigo-500/20 bg-gradient-to-r from-indigo-500/[0.08] to-pink-500/[0.04] rounded-xl px-5 py-4 my-4">
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full bg-gradient-to-b from-indigo-500 to-pink-500" />
-      <p className="text-sm text-slate-200 font-medium leading-relaxed">{text}</p>
+    <div className="border-l-2 border-orange-400 bg-orange-50 rounded-r-xl px-4 py-3 my-4">
+      <p className="text-sm text-orange-800 font-medium leading-relaxed">{text}</p>
     </div>
   );
 }
-
-function SectionNum({ n }: { n: number }) {
-  return (
-    <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500/[0.2] to-pink-500/[0.15] border border-slate-700 text-indigo-400 text-xs font-bold flex-shrink-0">
-      {String(n).padStart(2, "0")}
-    </span>
-  );
-}
-
-// ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function PrivacyPolicy() {
   const [activeSection, setActiveSection] = useState<string>(SECTIONS[0].id);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Intersection-observer based active-section tracking
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        }
-      },
+      (entries) => { for (const entry of entries) { if (entry.isIntersecting) setActiveSection(entry.target.id); } },
       { rootMargin: "-40% 0px -50% 0px" }
     );
-
-    contentRef.current
-      ?.querySelectorAll<HTMLElement>("[data-section]")
-      .forEach((el) => observer.observe(el));
-
+    contentRef.current?.querySelectorAll<HTMLElement>("[data-section]").forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
 
@@ -294,63 +178,40 @@ export default function PrivacyPolicy() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-50 relative overflow-hidden">
+    <div className="min-h-screen bg-stone-50">
 
-      {/* Animated Background Effects */}  
-      <div className="fixed inset-0 pointer-events-none">
-        {/* 2. Animated Grid Lines */}
-        <div className="absolute inset-0">
-          {/* Horizontal lines */}
-          <div className="absolute inset-0 bg-grid-horizontal"></div>
-          {/* Vertical lines */}
-          <div className="absolute inset-0 bg-grid-vertical"></div>
-          {/* Animated glow on grid */}
-          <div className="absolute inset-0 bg-grid-glow"></div>
-        </div>
-
-        {/* Subtle Vignette */}
-        <div className="absolute inset-0 bg-radial-gradient"></div>
-      </div>
-
-      {/* ── Header ── */}
-      <header className="bg-slate-800/50 backdrop-blur-md border-b border-slate-700/50 shadow-lg shadow-slate-900/20 z-10 relative">
-        <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between">
-          <Link
-            to="/"
-            className="text-md lg:text-xl font-bold text-slate-50 hover:text-yellow-400 transition"
-            >
-            Folio<span className="text-yellow-400">base</span>
-          </Link>
-          <Link to="/">
-            <button className="text-slate-400 hover:text-slate-300 text-sm">
-              ← Back to Home
-            </button>
+      {/* Header */}
+      <header className="bg-white border-b border-stone-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Link to="/"><Logo size={28} /></Link>
+          <Link to="/" className="text-stone-500 hover:text-stone-800 text-sm transition">
+            ← Back to Home
           </Link>
         </div>
       </header>
 
-      {/* ── Hero ── */}
-      <section className="relative z-10 text-center px-4 pt-16 pb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-800 bg-slate-900 text-slate-500 text-xs font-semibold uppercase tracking-widest mb-5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />
+      {/* Hero */}
+      <section className="text-center px-4 pt-14 pb-10">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-stone-200 bg-white text-stone-500 text-xs font-semibold uppercase tracking-widest mb-5">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
           Up to date
         </div>
-        <h1 className="text-4xl sm:text-5xl font-bold text-slate-100 mb-3 tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+        <h1 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-3 tracking-tight">
           Privacy Policy
         </h1>
-        <p className="text-slate-500 text-base max-w-xl mx-auto">
+        <p className="text-stone-500 text-sm max-w-xl mx-auto">
           We're transparent about how we collect, use, and protect your information — no hidden surprises.
         </p>
-        <p className="text-slate-600 text-xs mt-3">Last updated: January 31, 2026</p>
+        <p className="text-stone-400 text-xs mt-2">Last updated: January 31, 2026</p>
       </section>
 
-      {/* ── Body layout ── */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row gap-8 pb-24">
+      {/* Body */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row gap-8 pb-24">
 
-        {/* ── Sticky TOC ── */}
-        <aside className="lg:w-56 flex-shrink-0">
-          <nav className="lg:sticky lg:top-6 bg-slate-900 border border-slate-800 rounded-2xl p-4">
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-600 mb-3 pb-3 border-b border-slate-800">
+        {/* TOC */}
+        <aside className="lg:w-52 flex-shrink-0">
+          <nav className="lg:sticky lg:top-20 bg-white border border-stone-200 rounded-2xl p-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-stone-400 mb-3 pb-3 border-b border-stone-100">
               Contents
             </p>
             <ol className="space-y-0.5">
@@ -358,13 +219,13 @@ export default function PrivacyPolicy() {
                 <li key={sec.id}>
                   <button
                     onClick={() => scrollTo(sec.id)}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-xs font-medium transition-colors duration-200 ${
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-xs font-medium transition-colors ${
                       activeSection === sec.id
-                        ? "bg-slate-800 text-slate-100"
-                        : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
+                        ? "bg-orange-50 text-orange-700 font-semibold"
+                        : "text-stone-500 hover:text-stone-800 hover:bg-stone-50"
                     }`}
                   >
-                    <span className="text-slate-600 text-[0.65rem] w-4 text-right flex-shrink-0" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                    <span className="text-stone-300 text-[0.65rem] w-4 text-right flex-shrink-0">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span className="truncate">{sec.title}</span>
@@ -375,135 +236,54 @@ export default function PrivacyPolicy() {
           </nav>
         </aside>
 
-        {/* ── Sections ── */}
+        {/* Sections */}
         <div ref={contentRef} className="flex-1 min-w-0 space-y-10">
           {SECTIONS.map((sec, i) => (
-            <article
-              key={sec.id}
-              id={sec.id}
-              data-section={sec.id}
-              className="scroll-mt-6"
-            >
-              {/* Section heading */}
+            <article key={sec.id} id={sec.id} data-section={sec.id} className="scroll-mt-24">
               <h2 className="flex items-center gap-3 mb-4">
-                <SectionNum n={i + 1} />
-                <span className="text-lg font-semibold text-slate-100 tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-orange-50 border border-orange-100 text-orange-600 text-xs font-bold flex-shrink-0">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="text-base font-bold text-stone-900">
                   {sec.icon} {sec.title}
                 </span>
               </h2>
 
-              {/* Section body */}
               <div className="pl-11">
                 {sec.content.map((block, j) => {
-                  if (block.type === "paragraph") {
-                    return (
-                      <p key={j} className="text-slate-400 text-sm leading-[1.85] mb-3">
-                        {block.text}
-                      </p>
-                    );
-                  }
-                  if (block.type === "highlight") {
-                    return <Highlight key={j} text={block.text!} />;
-                  }
-                  if (block.type === "list") {
-                    return (
-                      <ul key={j} className="mb-3 space-y-2">
-                        {block.items!.map((item, k) => (
-                          <li key={k} className="flex gap-2.5 text-sm text-slate-400 leading-[1.8]">
-                            <span className="mt-[0.55rem] flex-shrink-0 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    );
-                  }
+                  if (block.type === "paragraph") return (
+                    <p key={j} className="text-stone-600 text-sm leading-relaxed mb-3">{block.text}</p>
+                  );
+                  if (block.type === "highlight") return <Highlight key={j} text={block.text!} />;
+                  if (block.type === "list") return (
+                    <ul key={j} className="mb-3 space-y-2">
+                      {block.items!.map((item, k) => (
+                        <li key={k} className="flex gap-2.5 text-sm text-stone-600 leading-relaxed">
+                          <span className="mt-2 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-orange-400" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  );
                   return null;
                 })}
               </div>
 
-              {/* Divider (skip on last) */}
-              {i < SECTIONS.length - 1 && (
-                <div className="mt-8 border-b border-slate-800" />
-              )}
+              {i < SECTIONS.length - 1 && <div className="mt-8 border-b border-stone-100" />}
             </article>
           ))}
         </div>
       </div>
 
-      {/* ── Footer ── */}
-      <footer className="mt-20 text-center text-sm text-slate-500 bg-slate-900/50 border-t border-slate-800 p-8 backdrop-blur-sm">
-        © 2025 <a href="https://porfilr.com" className="hover:text-yellow-400 hover:underline transition">Porfilr</a> | 
-        <a href="/contact" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Contact Us</a> | 
-        <a href="/privacy-policy" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Privacy Policy</a>
+      {/* Footer */}
+      <footer className="text-center text-sm text-stone-400 border-t border-stone-200 py-6">
+        © 2025{' '}
+        <a href="https://porfilr.com" className="hover:text-orange-600 transition">Porfilr</a>
+        {' · '}
+        <a href="/contact" className="hover:text-orange-600 transition">Contact</a>
+        {' · '}
+        <a href="/privacy-policy" className="hover:text-orange-600 transition">Privacy Policy</a>
       </footer>
-
-       {/* CSS Animations and Styles */}
-      <style>{`
-        /* ===== ANIMATED GRID LINES ===== */
-        .bg-grid-horizontal {
-          background-image: linear-gradient(
-            rgba(148, 163, 184, 0.03) 1px,
-            transparent 1px
-          );
-          background-size: 100% 50px;
-          animation: gridMoveVertical 20s linear infinite;
-        }
-
-        .bg-grid-vertical {
-          background-image: linear-gradient(
-            90deg,
-            rgba(148, 163, 184, 0.03) 1px,
-            transparent 1px
-          );
-          background-size: 50px 100%;
-          animation: gridMoveHorizontal 20s linear infinite;
-        }
-
-        .bg-grid-glow {
-          background: 
-            radial-gradient(
-              circle at 20% 30%,
-              rgba(251, 191, 36, 0.03) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 80% 70%,
-              rgba(59, 130, 246, 0.03) 0%,
-              transparent 50%
-            );
-          animation: glowPulse 8s ease-in-out infinite;
-        }
-
-        @keyframes gridMoveVertical {
-          0% {
-            background-position: 0 0;
-          }
-          100% {
-            background-position: 0 50px;
-          }
-        }
-
-        @keyframes gridMoveHorizontal {
-          0% {
-            background-position: 0 0;
-          }
-          100% {
-            background-position: 50px 0;
-          }
-        }
-
-        /* ===== ACCESSIBILITY ===== */
-        @media (prefers-reduced-motion: reduce) {
-          .animate-blob,
-          .animate-draw,
-          .animate-pulse-slow,
-          .bg-grid-horizontal,
-          .bg-grid-vertical,
-          .bg-grid-glow {
-            animation: none;
-          }
-        }
-      `}</style>
     </div>
   );
 }
