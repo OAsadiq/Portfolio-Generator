@@ -7,6 +7,7 @@ interface AuthContextType {
   user: any;
   session: any;
   loading: boolean;
+  subscriptionLoading: boolean;
   hasPortfolio: boolean;
   existingPortfolio: { slug: string; template_id: string } | null;
   isPro: boolean;
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
   const [hasPortfolio, setHasPortfolio] = useState(false);
   const [existingPortfolio, setExistingPortfolio] = useState<{ slug: string; template_id: string } | null>(null);
   const [isPro, setIsPro] = useState(false);
@@ -31,9 +33,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const checkSubscription = useCallback(async () => {
     if (!user) {
       setIsPro(false);
+      setSubscriptionLoading(false);
       return;
     }
 
+    setSubscriptionLoading(true);
     try {
       const { data, error } = await supabase
         .from('subscriptions')
@@ -50,17 +54,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (data && data.length > 0) {
         const subscription = data[0];
-        if (subscription.status === 'active' && subscription.plan === 'pro') {
-          setIsPro(true);
-        } else {
-          setIsPro(false);
-        }
+        setIsPro(subscription.status === 'active' && subscription.plan === 'pro');
       } else {
         setIsPro(false);
       }
     } catch (err) {
       console.error(err);
       setIsPro(false);
+    } finally {
+      setSubscriptionLoading(false);
     }
   }, [user]);
 
@@ -173,6 +175,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       checkPortfolio();
     } else {
       setIsPro(false);
+      setSubscriptionLoading(false);
       setHasPortfolio(false);
       setExistingPortfolio(null);
     }
@@ -186,6 +189,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         user,
         session,
         loading,
+        subscriptionLoading,
         hasPortfolio,
         existingPortfolio,
         isPro,

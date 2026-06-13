@@ -66,6 +66,7 @@ const StepIndicator = ({ current }: { current: number }) => (
 const SECTION_META: Record<string, { label: string; icon: string }> = {
   personal: { label: "About you", icon: "👤" },
   samples: { label: "Your work", icon: "📎" },
+  services: { label: "Services", icon: "🛠️" },
   testimonials: { label: "Client testimonials", icon: "💬" },
   contact: { label: "Contact details", icon: "📧" },
   other: { label: "Additional info", icon: "📋" },
@@ -80,6 +81,7 @@ const CreatePortfolio = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [completedFields, setCompletedFields] = useState(0);
+  const [copied, setCopied] = useState(false);
   const { user, isPro } = useAuth();
 
   const uploadImage = async (file: File): Promise<string> => {
@@ -145,10 +147,11 @@ const CreatePortfolio = () => {
   };
 
   const getFieldSection = (name: string) => {
-    if (["fullName", "writerType", "bio", "profilePicture"].some(k => name.includes(k))) return "personal";
+    if (["fullName", "role", "bio", "profileImage", "profilePicture", "location", "writerType"].some(k => name.includes(k))) return "personal";
     if (name.includes("sample")) return "samples";
+    if (name.includes("service")) return "services";
     if (name.includes("testimonial")) return "testimonials";
-    if (["email", "linkedin", "twitter"].some(k => name.includes(k))) return "contact";
+    if (["email", "linkedin", "twitter", "website"].some(k => name.includes(k))) return "contact";
     return "other";
   };
 
@@ -215,27 +218,56 @@ const CreatePortfolio = () => {
 
   // Success screen
   if (portfolioSlug) {
-    return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center">
+    const portfolioUrl = `${import.meta.env.VITE_APP_URL ?? ''}/p/${portfolioSlug}`;
+    const displayUrl = `porfilr.com/p/${portfolioSlug}`;
+    const handleCopy = () => {
+      navigator.clipboard.writeText(portfolioUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
 
-          {/* Check */}
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+    return (
+      <div className="min-h-screen bg-stone-50">
+        {/* Top bar */}
+        <div className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
+          <Link to="/"><Logo size={28} /></Link>
+        </div>
+
+        <div className="max-w-md mx-auto px-6 py-12">
+          <StepIndicator current={2} />
+
+          {/* Check + heading */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-5">
+              <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-bold text-stone-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Your portfolio is live.
+            </h2>
+            <p className="text-stone-500 text-sm">
+              Share it anywhere — your bio, email signature, or next pitch.
+            </p>
           </div>
 
-          <h2 className="text-3xl font-bold text-stone-900 mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Your portfolio is live.
-          </h2>
-          <p className="text-stone-500 text-base mb-8">
-            You're done. Share the link, edit it any time, or go to your dashboard.
-          </p>
+          {/* Copyable link */}
+          <div className="bg-white border border-stone-200 rounded-xl p-4 flex items-center gap-3 mb-6">
+            <p className="flex-1 text-sm text-stone-700 font-medium truncate">{displayUrl}</p>
+            <button
+              onClick={handleCopy}
+              className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg transition ${
+                copied ? "bg-emerald-100 text-emerald-700" : "bg-stone-100 hover:bg-stone-200 text-stone-600"
+              }`}
+            >
+              {copied ? "Copied!" : "Copy link"}
+            </button>
+          </div>
 
-          <div className="flex flex-col gap-3 mb-8">
+          {/* Actions */}
+          <div className="flex flex-col gap-3">
             <a
-              href={`${import.meta.env.VITE_API_URL}/api/templates/preview?slug=${portfolioSlug}`}
+              href={portfolioUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-stone-900 hover:bg-stone-700 text-white py-3.5 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2"
@@ -247,25 +279,17 @@ const CreatePortfolio = () => {
               View my portfolio
             </a>
 
-            <Link to={isPro ? `/builder/${portfolioSlug}` : `/edit/${portfolioSlug}`} className="w-full">
+            <Link to={`/edit/${portfolioSlug}`} className="w-full">
               <button className="w-full border border-stone-200 hover:bg-stone-50 text-stone-700 py-3.5 rounded-xl font-semibold text-sm transition">
-                Edit portfolio
+                Edit details
               </button>
             </Link>
 
-            <Link to={isPro ? "/pro-dashboard" : "/dashboard"} className="w-full">
+            <Link to="/dashboard" className="w-full">
               <button className="w-full border border-stone-200 hover:bg-stone-50 text-stone-700 py-3.5 rounded-xl font-semibold text-sm transition">
                 Go to dashboard
               </button>
             </Link>
-          </div>
-
-          {/* Share nudge */}
-          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-            <p className="text-stone-700 text-sm font-medium mb-1">Ready to share?</p>
-            <p className="text-stone-500 text-xs">
-              Copy your link from the portfolio preview and drop it in your next email, bio, or pitch.
-            </p>
           </div>
         </div>
       </div>

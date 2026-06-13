@@ -250,7 +250,7 @@ export function useBuilderState(onCancel?: () => void) {
       const data = await res.json();
 
       if (!res.ok) {
-        if (data.code === 'FREE_TEMPLATE_LIMIT_REACHED') throw new Error("You've already used your free template. Upgrade to Pro for unlimited portfolios!");
+        if (data.code === 'FREE_TEMPLATE_LIMIT_REACHED') throw new Error("You've already used your free template. Upgrade to Pro to access premium templates.");
         if (data.code === 'PRO_TEMPLATE_REQUIRED') throw new Error('This template requires a Pro subscription. Upgrade to unlock all templates!');
         if (data.code === 'PORTFOLIO_NOT_FOUND') throw new Error(`Portfolio not found. The slug "${portfolioSlug}" does not exist.`);
         if (data.code === 'PERMISSION_DENIED') throw new Error('You do not have permission to edit this portfolio.');

@@ -54,7 +54,7 @@ const PROFESSIONAL_TEMPLATES = ['professional-writer-template', 'modern-writer-t
 const INPUT = 'w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-100 transition';
 
 const ProDashboard = () => {
-  const { user, isPro, signOut } = useAuth();
+  const { user, isPro, subscriptionLoading, signOut } = useAuth();
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [stats, setStats] = useState<Stats>({ totalPortfolios: 0, totalViews: 0, templatesUsed: 0, lastCreated: null });
   const [loading, setLoading] = useState(true);
@@ -220,7 +220,7 @@ const ProDashboard = () => {
   const getEditRoute = (portfolio: Portfolio) =>
     PROFESSIONAL_TEMPLATES.includes(portfolio.template_id) ? `/builder/${portfolio.slug}` : `/edit/${portfolio.slug}`;
 
-  if (!user) {
+  if (!user || subscriptionLoading) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="inline-block w-10 h-10 border-[3px] border-stone-200 border-t-orange-600 rounded-full animate-spin"></div>
@@ -239,7 +239,7 @@ const ProDashboard = () => {
           </div>
           <h2 className="text-2xl font-bold text-stone-900 mb-2">Pro Dashboard</h2>
           <p className="text-stone-500 mb-6">This dashboard is only available for Pro members.</p>
-          <Link to="/">
+          <Link to="/pricing">
             <button className="w-full bg-orange-600 hover:bg-orange-500 text-white py-3 px-6 rounded-xl font-bold transition">
               Upgrade to Pro
             </button>
@@ -577,7 +577,7 @@ const ProDashboard = () => {
                             {subscription?.status === 'active' ? 'Active' : subscription?.status === 'past_due' ? 'Past due' : subscription?.status || 'Active'}
                           </span>
                         </div>
-                        <p className="text-stone-500 text-sm">$9/month · Unlimited portfolios & templates</p>
+                        <p className="text-stone-500 text-sm">$9/month · Premium templates, custom domain & more</p>
                         {subscription?.current_period_end && (
                           <p className="text-stone-400 text-xs mt-1">
                             Renews {new Date(subscription.current_period_end).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}

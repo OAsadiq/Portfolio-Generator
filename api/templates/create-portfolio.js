@@ -161,7 +161,7 @@ export default async function handler(req, res) {
             .upload(filePath, finalHTML, {
                 contentType: 'text/html',
                 cacheControl: '3600',
-                upsert: false
+                upsert: true
             });
 
         if (uploadError) {

@@ -59,6 +59,7 @@ export const SECTION_METADATA: Record<string, { name: string; icon: React.ReactN
   footer:        { name: 'Footer',      icon: React.createElement(Footprints, { className: 'w-4 h-4' }) },
 };
 
+
 const PROFESSIONAL_SECTIONS: SectionItem[] = [
   { id: 'hero',         name: 'Hero',         visible: true, order: 0, icon: React.createElement(User, { className: 'w-4 h-4' }) },
   { id: 'specialties',  name: 'Specialties',  visible: true, order: 1, icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
