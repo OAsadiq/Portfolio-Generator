@@ -90,35 +90,43 @@ const TemplateMockup = ({ id, hovered }: { id: string; hovered: boolean }) => {
 
   if (id === "modern-writer-template") {
     return (
-      <div className={`w-full h-full bg-stone-900 p-5 transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"}`}>
+      <div className={`w-full h-full bg-white p-5 transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"}`}>
         {/* Nav */}
-        <div className="flex items-center justify-between mb-5">
-          <div className="h-2.5 w-14 bg-orange-500 rounded-full" />
-          <div className="h-6 w-16 bg-orange-600 rounded-lg" />
+        <div className="flex items-center justify-between mb-5 pb-2.5 border-b border-stone-200">
+          <div className="h-2.5 w-16 bg-stone-900 rounded-full" />
+          <div className="flex gap-1.5">
+            <div className="h-5 w-5 bg-stone-100 border border-stone-200 rounded-md" />
+            <div className="h-5 w-5 bg-stone-100 border border-stone-200 rounded-md" />
+          </div>
         </div>
-        {/* Big headline */}
-        <div className="mb-4">
-          <div className="h-5 w-4/5 bg-white rounded-md mb-1.5" />
-          <div className="h-5 w-3/5 bg-white rounded-md mb-3" />
-          <div className="h-2 w-full bg-stone-700 rounded-full mb-1" />
-          <div className="h-2 w-5/6 bg-stone-700 rounded-full mb-4" />
+        {/* Hero: label + big name */}
+        <div className="mb-5">
+          <div className="h-3 w-20 border border-stone-300 rounded-full mb-3" />
+          <div className="h-6 w-4/5 bg-stone-900 rounded-md mb-1.5" />
+          <div className="h-2 w-full bg-stone-200 rounded-full mb-1" />
+          <div className="h-2 w-2/3 bg-stone-200 rounded-full mb-3" />
+          <div className="flex gap-1.5">
+            <div className="h-5 w-16 bg-stone-900 rounded-lg" />
+            <div className="h-5 w-16 bg-white border border-stone-200 rounded-lg" />
+          </div>
         </div>
-        {/* Stats row */}
-        <div className="flex gap-2 mb-3">
-          {["50+", "2M+", "5yr"].map(s => (
-            <div key={s} className="flex-1 bg-stone-800 border border-stone-700 rounded-lg p-1.5 text-center">
-              <div className="h-2.5 w-6 bg-orange-500 rounded-full mx-auto mb-1" />
-              <div className="h-1.5 w-8 bg-stone-600 rounded-full mx-auto" />
-            </div>
+        {/* Skill pills */}
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {["w-12", "w-10", "w-14", "w-9"].map((w, i) => (
+            <div key={i} className={`h-4 ${w} border border-stone-200 rounded-full`} />
           ))}
         </div>
-        {/* Featured article */}
-        <div className="bg-stone-800 border border-stone-700 rounded-lg p-2 flex gap-2">
-          <div className="w-8 h-8 bg-orange-600/40 rounded flex-shrink-0" />
-          <div className="flex-1">
-            <div className="h-1.5 w-full bg-stone-600 rounded-full mb-1" />
-            <div className="h-1.5 w-3/4 bg-stone-600 rounded-full" />
-          </div>
+        {/* Work grid */}
+        <div className="grid grid-cols-2 gap-2">
+          {[0, 1].map(i => (
+            <div key={i} className="border border-stone-200 rounded-lg overflow-hidden">
+              <div className="h-8 bg-stone-100" />
+              <div className="p-1.5">
+                <div className="h-1.5 w-full bg-stone-300 rounded-full mb-1" />
+                <div className="h-1.5 w-2/3 bg-stone-200 rounded-full" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );

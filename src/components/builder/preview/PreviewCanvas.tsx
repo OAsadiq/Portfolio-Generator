@@ -29,23 +29,23 @@ export default function PreviewCanvas({ formData, previewMode, sections, templat
       <div
         className={`transition-all duration-500 ${isDesktop ? 'w-full max-w-7xl mx-auto' : isTablet ? 'w-[768px] mx-auto' : 'w-[375px] mx-auto'}`}
         {...(isModern ? { 'data-theme': formData.defaultTheme || 'light' } : {})}
-        style={{ background: isModern && formData.defaultTheme === 'dark' ? '#0f172a' : '#ffffff' }}
+        style={{ background: isModern && formData.defaultTheme === 'dark' ? '#0a0a0a' : '#ffffff' }}
       >
         {isModern && (
           <style>{`
             [data-theme="light"] {
-              --primary: ${formData.primaryColor || '#6366f1'};
-              --accent: ${formData.accentColor || '#ec4899'};
-              --bg: #ffffff; --bg-alt: #f8fafc;
-              --text: #0f172a; --text-muted: #64748b;
-              --border: #e2e8f0;
+              --primary: ${formData.primaryColor || '#0a0a0a'};
+              --accent: ${formData.primaryColor || '#0a0a0a'};
+              --bg: #ffffff; --bg-alt: #f7f7f7;
+              --text: #0a0a0a; --text-muted: #6b7280;
+              --border: #e5e7eb;
             }
             [data-theme="dark"] {
-              --primary: ${formData.primaryColor || '#6366f1'};
-              --accent: ${formData.accentColor || '#ec4899'};
-              --bg: #0f172a; --bg-alt: #1e293b;
-              --text: #f1f5f9; --text-muted: #94a3b8;
-              --border: #334155;
+              --primary: ${formData.primaryColor || '#f5f5f5'};
+              --accent: ${formData.primaryColor || '#f5f5f5'};
+              --bg: #0a0a0a; --bg-alt: #141414;
+              --text: #f5f5f5; --text-muted: #9ca3af;
+              --border: #262626;
             }
           `}</style>
         )}
