@@ -155,14 +155,14 @@ const CreatePortfolio = () => {
     return "other";
   };
 
-  const groupedFields = template?.fields.reduce((acc, field) => {
+  const groupedFields = template?.fields?.reduce((acc, field) => {
     const section = getFieldSection(field.name);
     if (!acc[section]) acc[section] = [];
     acc[section].push(field);
     return acc;
   }, {} as Record<string, TemplateField[]>);
 
-  const totalFields = template?.fields.length || 1;
+  const totalFields = template?.fields?.length || 1;
   const progress = Math.round((completedFields / totalFields) * 100);
   const isProTemplate = template?.id === "professional-writer-template" || template?.isPro;
 
