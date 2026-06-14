@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Globe, Mail, Sparkles, BookOpen, MessageSquare, FileText, Plus, Trash2, Edit2, Check, Upload } from 'lucide-react';
+import { User, Globe, Mail, Sparkles, BookOpen, MessageSquare, FileText, Plus, Trash2, Edit2, Check, Upload, TrendingUp, Briefcase, Building2, Image as ImageIcon } from 'lucide-react';
 import { SKILL_OPTIONS, getTemplateConfig } from '../builder.config';
 
 interface Props {
@@ -102,6 +102,35 @@ export default function ContentTab({
             <textarea value={formData.bio || ''} onChange={e => onChange('bio', e.target.value)} rows={4}
               className={`${INPUT} resize-none builder-scrollbar`} placeholder="Tell visitors about yourself..." />
           </div>
+
+          {isModern && (
+            <>
+              <div className="flex items-center justify-between gap-3 p-3 bg-stone-50 border border-stone-200 rounded-xl">
+                <div>
+                  <p className="text-sm font-medium text-stone-700">Available for work badge</p>
+                  <p className="text-xs text-stone-400">Show a green "available" pill in your hero</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onChange('availability', formData.availability === 'true' ? '' : 'true')}
+                  className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${formData.availability === 'true' ? 'bg-emerald-500' : 'bg-stone-300'}`}
+                  aria-pressed={formData.availability === 'true'}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.availability === 'true' ? 'translate-x-5' : ''}`} />
+                </button>
+              </div>
+              {formData.availability === 'true' && (
+                <div>
+                  <label className={LABEL}>Badge text</label>
+                  <input type="text" value={formData.availabilityText || ''} onChange={e => onChange('availabilityText', e.target.value)} className={INPUT} placeholder="Available for work" />
+                </div>
+              )}
+              <div>
+                <label className={LABEL}>Resume / CV link <span className="text-stone-400 font-normal normal-case">(optional)</span></label>
+                <input type="url" value={formData.resumeUrl || ''} onChange={e => onChange('resumeUrl', e.target.value)} className={INPUT} placeholder="https://link-to-your-resume.pdf" />
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -162,6 +191,76 @@ export default function ContentTab({
           <p className="text-xs text-stone-400 text-center mt-2">
             {[1, 2, 3, 4, 5, 6].filter(n => formData[`skill${n}`]).length} / 6 selected
           </p>
+        </div>
+      )}
+
+      {/* ── Stats ─────────────────────────────────────────── */}
+      {blocks.includes('stats') && (
+        <div className={DIVIDER}>
+          <p className={SECTION_HDR}><TrendingUp className="w-3.5 h-3.5" />Stats</p>
+          <p className="text-xs text-stone-400 mb-3">Quick numbers that show your track record. Leave blank to hide.</p>
+          <div className="space-y-2">
+            {[1, 2, 3, 4].map(n => (
+              <div key={n} className="flex gap-2">
+                <input type="text" value={formData[`stat${n}Value`] || ''} onChange={e => onChange(`stat${n}Value`, e.target.value)} className={`${INPUT} w-1/3`} placeholder={n === 1 ? '8yrs' : 'Value'} />
+                <input type="text" value={formData[`stat${n}Label`] || ''} onChange={e => onChange(`stat${n}Label`, e.target.value)} className={INPUT} placeholder={n === 1 ? 'Experience' : 'Label'} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Services ──────────────────────────────────────── */}
+      {blocks.includes('services') && (
+        <div className={DIVIDER}>
+          <p className={SECTION_HDR}><Briefcase className="w-3.5 h-3.5" />Services</p>
+          <p className="text-xs text-stone-400 mb-3">What you offer. Leave a slot blank to hide it.</p>
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5, 6].map(n => (
+              <div key={n} className="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
+                <input type="text" value={formData[`service${n}Title`] || ''} onChange={e => onChange(`service${n}Title`, e.target.value)} className={INPUT} placeholder={`Service ${n} title`} />
+                {formData[`service${n}Title`] && (
+                  <textarea value={formData[`service${n}Desc`] || ''} onChange={e => onChange(`service${n}Desc`, e.target.value)} rows={2} className={`${INPUT} resize-none`} placeholder="Short description" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Trusted By ────────────────────────────────────── */}
+      {blocks.includes('trusted-by') && (
+        <div className={DIVIDER}>
+          <p className={SECTION_HDR}><Building2 className="w-3.5 h-3.5" />Trusted By</p>
+          <input type="text" value={formData.clients || ''} onChange={e => onChange('clients', e.target.value)} className={INPUT} placeholder="Stripe, Figma, Linear, Vercel" />
+          <p className="text-xs text-stone-400 mt-1.5">Company or client names, separated by commas.</p>
+        </div>
+      )}
+
+      {/* ── Gallery ───────────────────────────────────────── */}
+      {blocks.includes('gallery') && (
+        <div className={DIVIDER}>
+          <p className={SECTION_HDR}><ImageIcon className="w-3.5 h-3.5" />Gallery</p>
+          <p className="text-xs text-stone-400 mb-3">Up to 8 images. Great for visual work; leave empty to hide.</p>
+          <div className="grid grid-cols-4 gap-2">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
+              <div key={n} className="relative aspect-square">
+                {formData[`gallery${n}`] ? (
+                  <>
+                    <img src={formData[`gallery${n}`]} alt="" className="w-full h-full object-cover rounded-lg border border-stone-200" />
+                    <button onClick={() => onChange(`gallery${n}`, '')} className="absolute top-1 right-1 p-1 bg-white/90 hover:bg-white rounded-md shadow transition">
+                      <Trash2 className="w-3 h-3 text-red-400" />
+                    </button>
+                  </>
+                ) : (
+                  <label className="w-full h-full flex items-center justify-center bg-stone-50 border-2 border-dashed border-stone-200 hover:border-orange-300 rounded-lg cursor-pointer transition">
+                    <Upload className="w-4 h-4 text-stone-300" />
+                    <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) onFileChange(`gallery${n}`, f); }} />
+                  </label>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

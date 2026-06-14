@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, FileText, BookOpen, MessageSquare, Mail, Sparkles, Footprints } from 'lucide-react';
+import { User, FileText, BookOpen, MessageSquare, Mail, Sparkles, Footprints, TrendingUp, Briefcase, Building2, Image } from 'lucide-react';
 
 export const COLOR_PRESETS = [
   { name: 'Ocean', primary: '#0ea5e9', accent: '#06b6d4' },
@@ -51,12 +51,16 @@ export type TemplateConfig = {
 
 export const SECTION_METADATA: Record<string, { name: string; icon: React.ReactNode }> = {
   hero:          { name: 'Hero',        icon: React.createElement(User, { className: 'w-4 h-4' }) },
+  stats:         { name: 'Stats',       icon: React.createElement(TrendingUp, { className: 'w-4 h-4' }) },
+  'trusted-by':  { name: 'Trusted By',  icon: React.createElement(Building2, { className: 'w-4 h-4' }) },
   about:         { name: 'About',       icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
+  services:      { name: 'Services',    icon: React.createElement(Briefcase, { className: 'w-4 h-4' }) },
   specialties:   { name: 'Specialties', icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
   samples:       { name: 'Samples',     icon: React.createElement(BookOpen, { className: 'w-4 h-4' }) },
   skills:        { name: 'Skills',      icon: React.createElement(Sparkles, { className: 'w-4 h-4' }) },
-  'case-studies':{ name: 'Case Studies',icon: React.createElement(BookOpen, { className: 'w-4 h-4' }) },
-  blog:          { name: 'Blog',        icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
+  'case-studies':{ name: 'Work',        icon: React.createElement(BookOpen, { className: 'w-4 h-4' }) },
+  gallery:       { name: 'Gallery',     icon: React.createElement(Image, { className: 'w-4 h-4' }) },
+  blog:          { name: 'Writing',     icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
   testimonials:  { name: 'Testimonials',icon: React.createElement(MessageSquare, { className: 'w-4 h-4' }) },
   contact:       { name: 'Contact',     icon: React.createElement(Mail, { className: 'w-4 h-4' }) },
   footer:        { name: 'Footer',      icon: React.createElement(Footprints, { className: 'w-4 h-4' }) },
@@ -73,14 +77,18 @@ const PROFESSIONAL_SECTIONS: SectionItem[] = [
 ];
 
 const MODERN_SECTIONS: SectionItem[] = [
-  { id: 'hero',         name: 'Hero',         visible: true, order: 0, icon: React.createElement(User, { className: 'w-4 h-4' }) },
-  { id: 'about',        name: 'About',        visible: true, order: 1, icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
-  { id: 'skills',       name: 'Skills',       visible: true, order: 2, icon: React.createElement(Sparkles, { className: 'w-4 h-4' }) },
-  { id: 'case-studies', name: 'Work',         visible: true, order: 3, icon: React.createElement(BookOpen, { className: 'w-4 h-4' }) },
-  { id: 'blog',         name: 'Writing',      visible: false, order: 4, icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
-  { id: 'testimonials', name: 'Testimonials', visible: true, order: 5, icon: React.createElement(MessageSquare, { className: 'w-4 h-4' }) },
-  { id: 'contact',      name: 'Contact',      visible: true, order: 6, icon: React.createElement(Mail, { className: 'w-4 h-4' }) },
-  { id: 'footer',       name: 'Footer',       visible: true, order: 7, icon: React.createElement(Footprints, { className: 'w-4 h-4' }) },
+  { id: 'hero',         name: 'Hero',         visible: true,  order: 0,  icon: React.createElement(User, { className: 'w-4 h-4' }) },
+  { id: 'stats',        name: 'Stats',        visible: true,  order: 1,  icon: React.createElement(TrendingUp, { className: 'w-4 h-4' }) },
+  { id: 'trusted-by',   name: 'Trusted By',   visible: true,  order: 2,  icon: React.createElement(Building2, { className: 'w-4 h-4' }) },
+  { id: 'about',        name: 'About',        visible: true,  order: 3,  icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
+  { id: 'services',     name: 'Services',     visible: true,  order: 4,  icon: React.createElement(Briefcase, { className: 'w-4 h-4' }) },
+  { id: 'skills',       name: 'Skills',       visible: true,  order: 5,  icon: React.createElement(Sparkles, { className: 'w-4 h-4' }) },
+  { id: 'case-studies', name: 'Work',         visible: true,  order: 6,  icon: React.createElement(BookOpen, { className: 'w-4 h-4' }) },
+  { id: 'gallery',      name: 'Gallery',      visible: true,  order: 7,  icon: React.createElement(Image, { className: 'w-4 h-4' }) },
+  { id: 'blog',         name: 'Writing',      visible: false, order: 8,  icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
+  { id: 'testimonials', name: 'Testimonials', visible: true,  order: 9,  icon: React.createElement(MessageSquare, { className: 'w-4 h-4' }) },
+  { id: 'contact',      name: 'Contact',      visible: true,  order: 10, icon: React.createElement(Mail, { className: 'w-4 h-4' }) },
+  { id: 'footer',       name: 'Footer',       visible: true,  order: 11, icon: React.createElement(Footprints, { className: 'w-4 h-4' }) },
 ];
 
 export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
@@ -113,7 +121,7 @@ export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
   },
   'modern-writer-template': {
     sections: MODERN_SECTIONS,
-    contentBlocks: ['hero', 'social', 'contact', 'skills', 'case-studies', 'testimonials'],
+    contentBlocks: ['hero', 'social', 'contact', 'stats', 'trusted-by', 'services', 'skills', 'case-studies', 'gallery', 'testimonials'],
     fields: {
       fullName: 'Alex Rivera',
       tagline: 'Product Designer & Developer',
@@ -125,6 +133,22 @@ export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
       website: '',
       primaryColor: '#0a0a0a',
       accentColor: '#2563eb',
+      availability: 'true',
+      availabilityText: 'Available for work',
+      resumeUrl: '',
+      stat1Value: '8yrs',
+      stat1Label: 'Experience',
+      stat2Value: '120+',
+      stat2Label: 'Projects shipped',
+      stat3Value: '30',
+      stat3Label: 'Happy clients',
+      clients: 'Stripe, Figma, Linear, Vercel, Notion',
+      service1Title: 'Product Design',
+      service1Desc: 'End-to-end design — from research and wireframes to polished, shippable interfaces.',
+      service2Title: 'Development',
+      service2Desc: 'Production React & TypeScript with clean, maintainable systems.',
+      service3Title: 'Consulting',
+      service3Desc: 'Design audits, strategy, and hands-on help to level up your product.',
       skill1: 'Product Design',
       skill2: 'UX Research',
       skill3: 'Figma',

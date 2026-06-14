@@ -19,10 +19,15 @@ export default function PreviewCanvas({ formData, previewMode, sections, templat
     .filter(s => s.visible)
     .sort((a, b) => a.order - b.order);
 
-  const renderSection = (id: string) =>
-    isModern
-      ? renderModernSection(id, formData, isMobile, isTablet)
-      : renderProfessionalSection(id, formData, isMobile, isTablet);
+  // Sections that get an editorial "01 —" number in the Modern template.
+  const NUMBERED = new Set(['about', 'services', 'skills', 'case-studies', 'gallery', 'blog', 'testimonials', 'contact']);
+  let counter = 0;
+
+  const renderSection = (id: string) => {
+    if (!isModern) return renderProfessionalSection(id, formData, isMobile, isTablet);
+    const num = NUMBERED.has(id) ? String(++counter).padStart(2, '0') : undefined;
+    return renderModernSection(id, formData, isMobile, isTablet, num);
+  };
 
   return (
     <div className="flex-1 overflow-auto p-6 bg-stone-100">
