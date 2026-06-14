@@ -9,7 +9,7 @@ export function renderModernSection(
   isTablet: boolean,
   num?: string,
 ) {
-  const accent = formData.primaryColor || '#0a0a0a';
+  const accent = formData.primaryColor || '#4f46e5';
   const ff = { fontFamily: "'Inter', sans-serif" } as const;
   const pad = isMobile ? 'py-14 px-6' : isTablet ? 'py-20 px-8' : 'py-24 px-8';
   const wrap = `mx-auto ${isMobile ? 'max-w-md' : 'max-w-5xl'} w-full`;

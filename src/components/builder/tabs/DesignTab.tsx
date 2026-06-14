@@ -38,6 +38,31 @@ export default function DesignTab({ formData, onChange, templateId }: Props) {
         </div>
       )}
 
+      {/* Availability — Modern only */}
+      {isModern && (
+        <div>
+          <label className="block text-xs font-semibold text-stone-500 uppercase tracking-widest mb-3">Availability</label>
+          <div className="flex items-center justify-between gap-3 p-3 bg-stone-50 border border-stone-200 rounded-xl">
+            <div>
+              <p className="text-sm font-medium text-stone-700">Available for work badge</p>
+              <p className="text-xs text-stone-400">Show a green "available" pill in your hero</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onChange('availability', formData.availability === 'true' ? '' : 'true')}
+              className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${formData.availability === 'true' ? 'bg-emerald-500' : 'bg-stone-300'}`}
+              aria-pressed={formData.availability === 'true'}
+            >
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.availability === 'true' ? 'translate-x-5' : ''}`} />
+            </button>
+          </div>
+          {formData.availability === 'true' && (
+            <input type="text" value={formData.availabilityText || ''} onChange={e => onChange('availabilityText', e.target.value)}
+              className={`${INPUT} mt-2`} placeholder="Available for work" />
+          )}
+        </div>
+      )}
+
       {/* Primary color */}
       <div>
         <label className="block text-xs font-semibold text-stone-500 uppercase tracking-widest mb-3">Primary Color</label>

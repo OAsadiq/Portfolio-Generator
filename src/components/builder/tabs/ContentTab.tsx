@@ -104,32 +104,10 @@ export default function ContentTab({
           </div>
 
           {isModern && (
-            <>
-              <div className="flex items-center justify-between gap-3 p-3 bg-stone-50 border border-stone-200 rounded-xl">
-                <div>
-                  <p className="text-sm font-medium text-stone-700">Available for work badge</p>
-                  <p className="text-xs text-stone-400">Show a green "available" pill in your hero</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onChange('availability', formData.availability === 'true' ? '' : 'true')}
-                  className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${formData.availability === 'true' ? 'bg-emerald-500' : 'bg-stone-300'}`}
-                  aria-pressed={formData.availability === 'true'}
-                >
-                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.availability === 'true' ? 'translate-x-5' : ''}`} />
-                </button>
-              </div>
-              {formData.availability === 'true' && (
-                <div>
-                  <label className={LABEL}>Badge text</label>
-                  <input type="text" value={formData.availabilityText || ''} onChange={e => onChange('availabilityText', e.target.value)} className={INPUT} placeholder="Available for work" />
-                </div>
-              )}
-              <div>
-                <label className={LABEL}>Resume / CV link <span className="text-stone-400 font-normal normal-case">(optional)</span></label>
-                <input type="url" value={formData.resumeUrl || ''} onChange={e => onChange('resumeUrl', e.target.value)} className={INPUT} placeholder="https://link-to-your-resume.pdf" />
-              </div>
-            </>
+            <div>
+              <label className={LABEL}>Resume / CV link <span className="text-stone-400 font-normal normal-case">(optional)</span></label>
+              <input type="url" value={formData.resumeUrl || ''} onChange={e => onChange('resumeUrl', e.target.value)} className={INPUT} placeholder="https://link-to-your-resume.pdf" />
+            </div>
           )}
         </div>
       )}

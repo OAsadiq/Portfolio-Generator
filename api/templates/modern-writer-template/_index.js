@@ -338,7 +338,7 @@ function getStyles(accent) {
 }
 
 function generateHTML(data, sections = []) {
-  const accent = data.primaryColor || '#0a0a0a';
+  const accent = data.primaryColor || '#4f46e5';
   const name = data.fullName || 'Your Name';
   const role = data.tagline || data.headline || 'Professional';
   const bio = data.bio || '';

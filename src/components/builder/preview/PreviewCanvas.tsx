@@ -39,15 +39,15 @@ export default function PreviewCanvas({ formData, previewMode, sections, templat
         {isModern && (
           <style>{`
             [data-theme="light"] {
-              --primary: ${formData.primaryColor || '#0a0a0a'};
-              --accent: ${formData.primaryColor || '#0a0a0a'};
+              --primary: ${formData.primaryColor || '#4f46e5'};
+              --accent: ${formData.primaryColor || '#4f46e5'};
               --bg: #ffffff; --bg-alt: #f7f7f7;
               --text: #0a0a0a; --text-muted: #6b7280;
               --border: #e5e7eb;
             }
             [data-theme="dark"] {
-              --primary: ${formData.primaryColor || '#f5f5f5'};
-              --accent: ${formData.primaryColor || '#f5f5f5'};
+              --primary: ${formData.primaryColor || '#4f46e5'};
+              --accent: ${formData.primaryColor || '#4f46e5'};
               --bg: #0a0a0a; --bg-alt: #141414;
               --text: #f5f5f5; --text-muted: #9ca3af;
               --border: #262626;
