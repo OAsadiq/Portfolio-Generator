@@ -1,0 +1,12 @@
+# Keep serverless function count within the Hobby plan's limit of 12.
+# These files are NOT real API endpoints used by the app, so excluding them
+# from the deployment is safe and frees two function slots.
+
+# Dead duplicate: the live minimal template is minimal-template/_index.js
+# (imported by _templateConfig.js). This non-underscore copy is unused.
+api/templates/minimal-template/index.js
+
+# Legacy/unused: superseded by api/templates/create-portfolio.js, which records
+# the public URL inline. Its own header notes "no Vercel deployment needed".
+# Nothing in the app references it.
+api/vercel/deploy.js
