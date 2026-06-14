@@ -4,12 +4,13 @@ import { COLOR_PRESETS } from '../builder.config';
 interface Props {
   formData: Record<string, string>;
   onChange: (field: string, value: string) => void;
+  onMultiChange?: (updates: Record<string, string>) => void;
   templateId: string;
 }
 
 const INPUT = 'w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-sm text-stone-900 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-100 transition';
 
-export default function DesignTab({ formData, onChange, templateId }: Props) {
+export default function DesignTab({ formData, onChange, onMultiChange, templateId }: Props) {
   const isModern = templateId === 'modern-writer-template';
 
   return (
@@ -97,7 +98,9 @@ export default function DesignTab({ formData, onChange, templateId }: Props) {
         <div className="grid grid-cols-3 gap-2">
           {COLOR_PRESETS.map(preset => (
             <button key={preset.name}
-              onClick={() => { onChange('primaryColor', preset.primary); onChange('accentColor', preset.accent); }}
+              onClick={() => onMultiChange
+                ? onMultiChange({ primaryColor: preset.primary, accentColor: preset.accent })
+                : onChange('primaryColor', preset.primary)}
               className="relative py-3 px-2 rounded-xl border-2 border-transparent hover:border-stone-300 transition overflow-hidden group"
               style={{ background: `linear-gradient(135deg, ${preset.primary}, ${preset.accent})` }}>
               <span className="relative z-10 text-white text-xs font-bold drop-shadow">{preset.name}</span>

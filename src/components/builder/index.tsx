@@ -106,7 +106,7 @@ export default function PortfolioBuilder({ onCancel }: Props) {
         {/* Tab content */}
         <div className="flex-1 overflow-y-auto builder-scrollbar px-4 py-4">
           {state.activeTab === 'design' && (
-            <DesignTab formData={state.formData} onChange={state.handleInputChange} templateId={state.selectedTemplate} />
+            <DesignTab formData={state.formData} onChange={state.handleInputChange} onMultiChange={state.handleMultiChange} templateId={state.selectedTemplate} />
           )}
           {state.activeTab === 'content' && (
             <ContentTab

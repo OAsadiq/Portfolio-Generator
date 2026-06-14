@@ -78,15 +78,25 @@ export function useBuilderState(onCancel?: () => void) {
     pushHistory(newData);
   };
 
+  // Apply several fields in a single update so sequential setState calls don't
+  // clobber each other (e.g. a colour preset setting primary + accent at once).
+  const handleMultiChange = (updates: Record<string, string>) => {
+    const newData = { ...formData, ...updates };
+    setFormData(newData);
+    pushHistory(newData);
+  };
+
   const handleFileChange = async (field: string, file: File | null) => {
     if (!file) return;
     try {
+      setError('');
       const url = await uploadImage(file);
       const newData = { ...formData, [field]: url };
       setFormData(newData);
       pushHistory(newData);
     } catch (err) {
       console.error('Error uploading image:', err);
+      setError(err instanceof Error ? `Image upload failed: ${err.message}` : 'Image upload failed. Please try again.');
     }
   };
 
@@ -295,7 +305,7 @@ export function useBuilderState(onCancel?: () => void) {
     successModalOpen, setSuccessModalOpen,
     portfolioSlug,
     // handlers
-    handleInputChange, handleFileChange,
+    handleInputChange, handleMultiChange, handleFileChange,
     undo, redo,
     toggleSection, moveSectionUp, moveSectionDown, handleReorder,
     handleDeleteSample, handleDeleteTestimonial, handleDeleteCase, handleDeleteBlog,

@@ -87,10 +87,9 @@ const MODERN_SECTIONS: SectionItem[] = [
   { id: 'skills',       name: 'Skills',       visible: true,  order: 5,  icon: React.createElement(Sparkles, { className: 'w-4 h-4' }) },
   { id: 'case-studies', name: 'Work',         visible: true,  order: 6,  icon: React.createElement(BookOpen, { className: 'w-4 h-4' }) },
   { id: 'gallery',      name: 'Gallery',      visible: true,  order: 7,  icon: React.createElement(Image, { className: 'w-4 h-4' }) },
-  { id: 'blog',         name: 'Writing',      visible: false, order: 8,  icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
-  { id: 'testimonials', name: 'Testimonials', visible: true,  order: 9,  icon: React.createElement(MessageSquare, { className: 'w-4 h-4' }) },
-  { id: 'contact',      name: 'Contact',      visible: true,  order: 10, icon: React.createElement(Mail, { className: 'w-4 h-4' }) },
-  { id: 'footer',       name: 'Footer',       visible: true,  order: 11, icon: React.createElement(Footprints, { className: 'w-4 h-4' }) },
+  { id: 'testimonials', name: 'Testimonials', visible: true,  order: 8,  icon: React.createElement(MessageSquare, { className: 'w-4 h-4' }) },
+  { id: 'contact',      name: 'Contact',      visible: true,  order: 9,  icon: React.createElement(Mail, { className: 'w-4 h-4' }) },
+  { id: 'footer',       name: 'Footer',       visible: true,  order: 10, icon: React.createElement(Footprints, { className: 'w-4 h-4' }) },
 ];
 
 export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
