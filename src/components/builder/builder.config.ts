@@ -2,6 +2,8 @@ import React from 'react';
 import { User, FileText, BookOpen, MessageSquare, Mail, Sparkles, Footprints, TrendingUp, Briefcase, Building2, Image } from 'lucide-react';
 
 export const COLOR_PRESETS = [
+  { name: 'Indigo', primary: '#4f46e5', accent: '#4f46e5' },
+  { name: 'Ink', primary: '#0a0a0a', accent: '#0a0a0a' },
   { name: 'Ocean', primary: '#0ea5e9', accent: '#06b6d4' },
   { name: 'Purple', primary: '#a855f7', accent: '#ec4899' },
   { name: 'Sunset', primary: '#f97316', accent: '#ef4444' },
