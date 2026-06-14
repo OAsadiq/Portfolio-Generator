@@ -112,6 +112,7 @@ export default function PortfolioBuilder({ onCancel }: Props) {
             <ContentTab
               formData={state.formData}
               onChange={state.handleInputChange}
+              onMultiChange={state.handleMultiChange}
               onFileChange={state.handleFileChange}
               onOpenSampleModal={num => { state.setCurrentSample(num); state.setSampleModalOpen(true); }}
               onOpenTestimonialModal={num => { state.setCurrentTestimonial(num); state.setTestimonialModalOpen(true); }}

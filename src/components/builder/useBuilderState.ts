@@ -149,7 +149,7 @@ export function useBuilderState(onCancel?: () => void) {
   };
 
   const deleteItem = (prefix: string, num: number, total: number, keys: string[]) => {
-    let newData = { ...formData };
+    const newData = { ...formData };
     for (let i = num; i < total; i++) {
       Object.assign(newData, shiftItemFields(prefix, i, i + 1, keys, newData));
     }

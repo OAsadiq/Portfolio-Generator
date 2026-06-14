@@ -5,6 +5,7 @@ import { SKILL_OPTIONS, getTemplateConfig } from '../builder.config';
 interface Props {
   formData: Record<string, string>;
   onChange: (field: string, value: string) => void;
+  onMultiChange?: (updates: Record<string, string>) => void;
   onFileChange: (field: string, file: File | null) => void;
   onOpenSampleModal: (num: number) => void;
   onOpenTestimonialModal: (num: number) => void;
@@ -32,7 +33,7 @@ function countItems(formData: Record<string, string>, prefix: string, titleKey: 
 }
 
 export default function ContentTab({
-  formData, onChange, onFileChange,
+  formData, onChange, onMultiChange, onFileChange,
   onOpenSampleModal, onOpenTestimonialModal, onOpenCaseModal, onOpenBlogModal,
   onDeleteSample, onDeleteTestimonial, onDeleteCase, onDeleteBlog,
   templateId,
@@ -40,6 +41,24 @@ export default function ContentTab({
   const config = getTemplateConfig(templateId);
   const blocks = config.contentBlocks;
   const isModern = templateId === 'modern-writer-template';
+
+  const [customSkill, setCustomSkill] = useState('');
+  const selectedSkills = [1, 2, 3, 4, 5, 6].map(n => formData[`skill${n}`]).filter(Boolean);
+
+  // Write the full skill1..6 set in a single update (avoids stale-closure clobber).
+  const setSkills = (arr: string[]) => {
+    const updates: Record<string, string> = {};
+    for (let i = 1; i <= 6; i++) updates[`skill${i}`] = arr[i - 1] || '';
+    if (onMultiChange) onMultiChange(updates);
+    else for (let i = 1; i <= 6; i++) onChange(`skill${i}`, arr[i - 1] || '');
+  };
+  const addSkill = (name: string) => {
+    const v = name.trim();
+    if (!v || selectedSkills.length >= 6) return;
+    if (selectedSkills.some(s => s.toLowerCase() === v.toLowerCase())) return;
+    setSkills([...selectedSkills, v]);
+  };
+  const removeSkill = (name: string) => setSkills(selectedSkills.filter(s => s !== name));
 
   const [totalSamples, setTotalSamples] = useState(() => countItems(formData, 'sample', 'Title'));
   const [totalCases, setTotalCases]     = useState(() => countItems(formData, 'case', 'Title'));
@@ -138,22 +157,43 @@ export default function ContentTab({
       {blocks.includes('skills') && (
         <div className={DIVIDER}>
           <p className={SECTION_HDR}><Sparkles className="w-3.5 h-3.5" />Skills</p>
+
+          {/* Selected skills (incl. custom) as removable chips */}
+          {selectedSkills.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {selectedSkills.map(s => (
+                <button key={s} onClick={() => removeSkill(s)}
+                  className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full bg-orange-50 border border-orange-300 text-orange-700 text-xs font-medium transition hover:bg-orange-100">
+                  <span className="truncate max-w-[140px]">{s}</span>
+                  <Trash2 className="w-3 h-3 flex-shrink-0" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Add your own */}
+          <div className="flex gap-2 mb-3">
+            <input type="text" value={customSkill}
+              onChange={e => setCustomSkill(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(customSkill); setCustomSkill(''); } }}
+              disabled={selectedSkills.length >= 6}
+              className={INPUT} placeholder="Add your own skill…" />
+            <button type="button" disabled={!customSkill.trim() || selectedSkills.length >= 6}
+              onClick={() => { addSkill(customSkill); setCustomSkill(''); }}
+              className={`${ADD_BTN} flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed`}>
+              <Plus className="w-3.5 h-3.5" />Add
+            </button>
+          </div>
+
+          {/* Quick-pick suggestions */}
+          <p className="text-xs text-stone-400 mb-2">Or pick from suggestions:</p>
           <div className="grid grid-cols-2 gap-1.5">
             {SKILL_OPTIONS.map(skill => {
-              const isSelected = [1, 2, 3, 4, 5, 6].some(n => formData[`skill${n}`] === skill.name);
-              const count = [1, 2, 3, 4, 5, 6].filter(n => formData[`skill${n}`]).length;
-              const canSelect = count < 6;
+              const isSelected = selectedSkills.some(s => s === skill.name);
+              const canSelect = selectedSkills.length < 6;
               return (
                 <button key={skill.name} disabled={!isSelected && !canSelect}
-                  onClick={() => {
-                    if (isSelected) {
-                      const slot = [1, 2, 3, 4, 5, 6].find(n => formData[`skill${n}`] === skill.name);
-                      if (slot) { for (let i = slot; i < 6; i++) onChange(`skill${i}`, formData[`skill${i + 1}`] || ''); onChange('skill6', ''); }
-                    } else if (canSelect) {
-                      const empty = [1, 2, 3, 4, 5, 6].find(n => !formData[`skill${n}`]);
-                      if (empty) onChange(`skill${empty}`, skill.name);
-                    }
-                  }}
+                  onClick={() => isSelected ? removeSkill(skill.name) : addSkill(skill.name)}
                   className={`flex items-center gap-2 p-3 rounded-xl border text-left text-xs font-medium transition ${
                     isSelected ? 'bg-orange-50 border-orange-300 text-orange-700'
                     : canSelect ? 'bg-white border-stone-200 hover:border-stone-300 text-stone-700'
@@ -167,7 +207,7 @@ export default function ContentTab({
             })}
           </div>
           <p className="text-xs text-stone-400 text-center mt-2">
-            {[1, 2, 3, 4, 5, 6].filter(n => formData[`skill${n}`]).length} / 6 selected
+            {selectedSkills.length} / 6 selected
           </p>
         </div>
       )}
