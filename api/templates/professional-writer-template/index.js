@@ -8,30 +8,8 @@ function getSocialIcon(type) {
   return icons[type] || icons.globe;
 }
 
-function getSampleIcon(type) {
-  const typeIcons = {
-    'blog post': '📝',
-    'case study': '📊',
-    'white paper': '📄',
-    'article': '✍️',
-    'email campaign': '📧',
-    'social media': '📱',
-    'newsletter': '📮',
-    'press release': '📰',
-    'ebook': '📚',
-    'guide': '🗺️',
-    'tutorial': '💡',
-    'research': '🔬',
-    'report': '📈',
-    'landing page': '🎯',
-    'product description': '🏷️',
-    'script': '🎬',
-    'technical documentation': '⚙️',
-    'user manual': '📖'
-  };
-
-  const normalizedType = type?.toLowerCase().trim() || '';
-  return typeIcons[normalizedType] || '📄';
+function getSampleIcon() {
+  return `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.35"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`;
 }
 
 function buildSamples(data) {
@@ -54,7 +32,7 @@ function buildSamples(data) {
 
     const displayIcon = image ?
       `<img src="${image}" alt="${title}" class="sample-card-image" />` :
-      `<div class="sample-emoji-icon">${getSampleIcon(type)}</div>`;
+      `<div class="sample-emoji-icon">${getSampleIcon()}</div>`;
 
     samplesHTML += `
       <article class="sample-card">
@@ -222,7 +200,6 @@ function getStyles(primaryColor, accentColor) {
       margin: 0 auto 2rem;
       border: 5px solid var(--primary);
       box-shadow: var(--shadow-xl), 0 0 0 8px var(--primary)20;
-      animation: float 6s ease-in-out infinite;
     }
 
     .profile-letter-avatar {
@@ -238,11 +215,6 @@ function getStyles(primaryColor, accentColor) {
       font-weight: bold; 
       color: white;
       background: linear-gradient(135deg, ${primaryColor}, ${accentColor}); 
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
     }
 
     h1 {
@@ -871,14 +843,14 @@ function getStyles(primaryColor, accentColor) {
 
 const professionalWriterTemplate = {
   id: "professional-writer-template",
-  name: "Professional Writer Portfolio",
-  description: "Advanced portfolio with visual builder, modal samples, and modern design.",
+  name: "Professional Portfolio",
+  description: "Advanced portfolio with visual builder, modal work samples, and modern design.",
   thumbnail: "/images/professional-template.jpg",
   isPro: true,
   fields: [
     // Hero Section
     { name: "fullName", label: "Full Name", type: "text", required: true, section: "hero" },
-    { name: "headline", label: "Professional Headline", type: "text", placeholder: "e.g., B2B Content Writer | SaaS Specialist", required: true, section: "hero" },
+    { name: "headline", label: "Professional Headline", type: "text", placeholder: "e.g., Product Designer | UX Specialist", required: true, section: "hero" },
     { name: "bio", label: "About You", type: "textarea", required: true, section: "hero" },
     { name: "profileImage", label: "Profile Image", type: "file", section: "hero" },
 
@@ -887,10 +859,10 @@ const professionalWriterTemplate = {
     { name: "accentColor", label: "Accent Color", type: "color", default: "#0ea5e9", section: "theme" },
 
     // Specialties
-    { name: "specialty1", label: "Specialty 1", type: "text", placeholder: "e.g., SEO Blog Posts", section: "specialties" },
-    { name: "specialty2", label: "Specialty 2", type: "text", placeholder: "e.g., Email Campaigns", section: "specialties" },
-    { name: "specialty3", label: "Specialty 3", type: "text", placeholder: "e.g., Case Studies", section: "specialties" },
-    { name: "specialty4", label: "Specialty 4", type: "text", placeholder: "e.g., White Papers", section: "specialties" },
+    { name: "specialty1", label: "Specialty 1", type: "text", placeholder: "e.g., Product Design", section: "specialties" },
+    { name: "specialty2", label: "Specialty 2", type: "text", placeholder: "e.g., Brand Strategy", section: "specialties" },
+    { name: "specialty3", label: "Specialty 3", type: "text", placeholder: "e.g., Frontend Dev", section: "specialties" },
+    { name: "specialty4", label: "Specialty 4", type: "text", placeholder: "e.g., User Research", section: "specialties" },
 
     // Testimonials
     { name: "testimonial1", label: "Testimonial 1", type: "textarea", section: "testimonials" },
@@ -918,9 +890,9 @@ const professionalWriterTemplate = {
 
   generateHTML: (data, sections = []) => {
     const name = data.fullName || "Your Name";
-    const headline = data.headline || "Freelance Writer";
-    const bio = data.bio || "Crafting compelling content for brands and businesses.";
-    const profile = data.profileImage || "/images/default-avatar.png";
+    const headline = data.headline || "Freelance Professional";
+    const bio = data.bio || "Building things people love.";
+    const profile = data.profileImage || "";
     const email = data.email || "";
     const primaryColor = data.primaryColor || "#2563eb";
     const accentColor = data.accentColor || "#0ea5e9";
@@ -945,7 +917,7 @@ const professionalWriterTemplate = {
 
     const sectionContent = {
       hero: () => {
-        const profileHTML = profile && profile !== '/images/default-avatar.png'
+        const profileHTML = profile
           ? `<img src="${profile}" alt="${name}" class="profile-image" />`
           : `<div class="profile-letter-avatar">
               <span>${name.charAt(0).toUpperCase()}</span>
@@ -1012,7 +984,7 @@ const professionalWriterTemplate = {
               <div class="container">
                 <div class="section-header">
                   <h2 class="section-title">Featured Work</h2>
-                  <p class="section-subtitle">A curated selection of my best writing samples and published articles</p>
+                  <p class="section-subtitle">A curated selection of featured projects and published work</p>
                 </div>
                 <div class="samples-grid">
                   <p style="text-align:center;color:var(--text-tertiary);font-size:1.125rem;">No samples added yet.</p>
@@ -1027,7 +999,7 @@ const professionalWriterTemplate = {
             <div class="container">
               <div class="section-header">
                 <h2 class="section-title">Featured Work</h2>
-                <p class="section-subtitle">A curated selection of my best writing samples and published articles</p>
+                <p class="section-subtitle">A curated selection of featured projects and published work</p>
               </div>
               <div class="samples-grid">
                 ${samplesHTML}
@@ -1100,7 +1072,7 @@ const professionalWriterTemplate = {
       footer: () => `
         <footer>
           <div class="container">
-            <p>Built with <a href="https://foliobase.vercel.app" target="_blank">Foliobase</a> ✨</p>
+            <p>Made with <a href="https://porfilr.com" target="_blank">Porfilr</a></p>
           </div>
         </footer>
       `
@@ -1120,7 +1092,7 @@ const professionalWriterTemplate = {
         <head>
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <link rel="icon" type="image/svg+xml" href="${profile}" />
+          <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23ea580c'/%3E%3Crect x='6' y='7' width='7' height='26' rx='1.5' fill='white' transform='rotate(-8 9.5 20)'/%3E%3Crect x='19' y='7' width='7' height='19' rx='1.5' fill='white' transform='rotate(-8 22.5 16.5)'/%3E%3Crect x='6' y='7' width='20' height='7' rx='1.5' fill='white' transform='rotate(-8 16 10.5)'/%3E%3Crect x='6' y='17' width='15' height='6' rx='1.5' fill='white' transform='rotate(-8 13.5 20)'/%3E%3C/svg%3E" />
           <link rel="preconnect" href="https://fonts.googleapis.com">
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">

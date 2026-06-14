@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portfolio-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "public", "-p", "4200", "--no-clipboard"],
+      "port": 4200
+    }
+  ]
+}
