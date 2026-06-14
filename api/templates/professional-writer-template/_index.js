@@ -43,7 +43,7 @@ function buildSamples(data) {
           ${type ? `<span class="sample-type">${type}</span>` : ""}
           <h3 class="sample-title">${title}</h3>
           ${desc ? `<p class="sample-description">${desc}</p>` : ""}
-          
+
           <div class="sample-actions">
             ${hasContent ? `
               <button class="sample-btn sample-btn-primary" onclick="openModal('modal-${i}')">
@@ -182,8 +182,8 @@ function getStyles(primaryColor, accentColor) {
       left: 0;
       right: 0;
       height: 100%;
-      background: linear-gradient(135deg, var(--primary)10, transparent 70%),
-                  linear-gradient(225deg, var(--accent)05, transparent 70%);
+      background: linear-gradient(135deg, ${primaryColor}10, transparent 70%),
+                  linear-gradient(225deg, ${accentColor}05, transparent 70%);
       z-index: -1;
     }
 
@@ -199,22 +199,22 @@ function getStyles(primaryColor, accentColor) {
       object-fit: cover;
       margin: 0 auto 2rem;
       border: 5px solid var(--primary);
-      box-shadow: var(--shadow-xl), 0 0 0 8px var(--primary)20;
+      box-shadow: var(--shadow-xl), 0 0 0 8px ${primaryColor}20;
     }
 
     .profile-letter-avatar {
-      display: flex; 
+      display: flex;
       align-items: center;
       justify-content: center;
       width: 180px;
       height: 180px;
       border-radius: 50%;
       margin: 0 auto 2rem;
-      text-align: center; 
-      font-size: 4rem; 
-      font-weight: bold; 
+      text-align: center;
+      font-size: 4rem;
+      font-weight: bold;
       color: white;
-      background: linear-gradient(135deg, ${primaryColor}, ${accentColor}); 
+      background: linear-gradient(135deg, ${primaryColor}, ${accentColor});
     }
 
     h1 {
@@ -701,8 +701,9 @@ function getStyles(primaryColor, accentColor) {
     /* Contact Section */
     .contact-section {
       background: linear-gradient(135deg, var(--primary), var(--accent));
-      padding: 4rem 3rem;
+      padding: 5rem 2rem;
       border-radius: 32px;
+      text-align: center;
       color: white;
       position: relative;
       overflow: hidden;
@@ -721,102 +722,39 @@ function getStyles(primaryColor, accentColor) {
     .contact-section h2 {
       font-size: clamp(2rem, 4vw, 3rem);
       font-weight: 900;
-      margin-bottom: 0.75rem;
-      position: relative;
-      z-index: 1;
-      text-align: center;
-    }
-
-    .contact-section > p {
-      font-size: 1.25rem;
-      margin-bottom: 2rem;
-      opacity: 0.9;
-      position: relative;
-      z-index: 1;
-      text-align: center;
-    }
-
-    .contact-form {
-      max-width: 560px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+      margin-bottom: 1rem;
       position: relative;
       z-index: 1;
     }
 
-    .contact-form input,
-    .contact-form textarea {
-      width: 100%;
-      padding: 0.9375rem 1.25rem;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 12px;
-      background: rgba(255,255,255,0.15);
-      color: white;
-      font-size: 1rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
+    .contact-section p {
+      font-size: 1.375rem;
+      margin-bottom: 2.5rem;
+      opacity: 0.95;
+      position: relative;
+      z-index: 1;
     }
 
-    .contact-form input::placeholder,
-    .contact-form textarea::placeholder {
-      color: rgba(255,255,255,0.6);
-    }
-
-    .contact-form input:focus,
-    .contact-form textarea:focus {
-      border-color: rgba(255,255,255,0.8);
-      background: rgba(255,255,255,0.2);
-    }
-
-    .contact-form textarea {
-      resize: vertical;
-      min-height: 130px;
-    }
-
-    .contact-form button {
-      padding: 1.125rem;
+    .contact-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.25rem 3rem;
       background: white;
       color: var(--primary);
-      border: none;
+      text-decoration: none;
       border-radius: 100px;
-      font-size: 1.0625rem;
       font-weight: 800;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      font-size: 1.125rem;
+      transition: all 0.3s;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
     }
 
-    .contact-form button:hover:not(:disabled) {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
-    }
-
-    .contact-form button:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    .form-msg {
-      text-align: center;
-      padding: 0.875rem;
-      border-radius: 10px;
-      font-weight: 600;
-      display: none;
-    }
-
-    .form-msg.success {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      display: block;
-    }
-
-    .form-msg.error {
-      background: rgba(255,80,80,0.3);
-      color: white;
-      display: block;
+    .contact-button:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
 
     /* Footer */
@@ -993,9 +931,9 @@ const professionalWriterTemplate = {
                 <h1>${name}</h1>
                 <p class="headline">${headline}</p>
                 <p class="bio">${bio}</p>
-                
+
                 ${buildSocialLinks(data)}
-                
+
                 <a href="mailto:${email}" class="cta-button">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                     <path d="M3 4L10 11L17 4M3 4H17V14H3V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1119,14 +1057,13 @@ const professionalWriterTemplate = {
           <div class="container">
             <div class="contact-section">
               <h2>Let's Create Something Amazing</h2>
-              <p>Ready to elevate your content? Send me a message below.</p>
-              <form class="contact-form" id="contactForm">
-                <input type="text" name="senderName" placeholder="Your name" required />
-                <input type="email" name="senderEmail" placeholder="Your email" required />
-                <textarea name="message" placeholder="Tell me about your project..." required></textarea>
-                <button type="submit" id="submitBtn">Start a Conversation</button>
-                <div class="form-msg" id="formMsg"></div>
-              </form>
+              <p>Ready to elevate your content? Let's discuss your project.</p>
+              <a href="mailto:${email}" class="contact-button">
+                Start a Conversation
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M7 13L13 7M13 7H7M13 7V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
             </div>
           </div>
         </section>
@@ -1135,7 +1072,7 @@ const professionalWriterTemplate = {
       footer: () => `
         <footer>
           <div class="container">
-            <p>Built with <a href="https://foliobase.vercel.app" target="_blank">Foliobase</a> ✨</p>
+            <p>Made with <a href="https://porfilr.com" target="_blank">Porfilr</a></p>
           </div>
         </footer>
       `
@@ -1196,46 +1133,8 @@ const professionalWriterTemplate = {
                 });
               }
             });
-
-            document.getElementById('contactForm').addEventListener('submit', async function(e) {
-              e.preventDefault();
-              const btn = document.getElementById('submitBtn');
-              const msg = document.getElementById('formMsg');
-              const fd = new FormData(this);
-              btn.disabled = true;
-              btn.textContent = 'Sending...';
-              msg.className = 'form-msg';
-              try {
-                const res = await fetch('/api/contact', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    ownerEmail: '${email}',
-                    portfolioName: '${name}',
-                    senderName: fd.get('senderName'),
-                    senderEmail: fd.get('senderEmail'),
-                    message: fd.get('message'),
-                  })
-                });
-                const data = await res.json();
-                if (data.success) {
-                  msg.textContent = '✓ Message sent! I\\'ll be in touch soon.';
-                  msg.className = 'form-msg success';
-                  this.reset();
-                } else {
-                  msg.textContent = data.error || 'Something went wrong. Please try again.';
-                  msg.className = 'form-msg error';
-                }
-              } catch {
-                msg.textContent = 'Something went wrong. Please try again.';
-                msg.className = 'form-msg error';
-              } finally {
-                btn.disabled = false;
-                btn.textContent = 'Start a Conversation';
-              }
-            });
           </script>
-          
+
           <!-- Embed portfolio data for future editing -->
           <script type="application/json" id="portfolio-data">
             ${JSON.stringify({
