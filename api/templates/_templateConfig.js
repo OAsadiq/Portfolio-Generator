@@ -1,6 +1,6 @@
-import minimalTemplate from "./minimal-template/index.js";
-import professionalWriterTemplate from "./professional-writer-template/index.js";
-import modernTemplate from "./modern-writer-template/index.js";
+import minimalTemplate from "./minimal-template/_index.js";
+import professionalWriterTemplate from "./professional-writer-template/_index.js";
+import modernTemplate from "./modern-writer-template/_index.js";
 
 export const templates = {
   [minimalTemplate.id]: minimalTemplate,

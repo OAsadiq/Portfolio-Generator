@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, Link } from "react-router-dom";
+import Logo from "../components/Logo";
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -12,9 +13,170 @@ interface Template {
   available?: boolean;
 }
 
+const STEPS = ["Pick a template", "Add your details", "Portfolio is live"];
+
+const StepIndicator = ({ current }: { current: number }) => (
+  <div className="flex items-center justify-center gap-0 mb-10">
+    {STEPS.map((label, i) => {
+      const done = i < current;
+      const active = i === current;
+      return (
+        <div key={i} className="flex items-center">
+          <div className="flex flex-col items-center gap-1.5">
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
+                done
+                  ? "bg-stone-900 text-white"
+                  : active
+                  ? "bg-orange-600 text-white"
+                  : "bg-stone-100 border-2 border-stone-200 text-stone-400"
+              }`}
+            >
+              {done ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                i + 1
+              )}
+            </div>
+            <span
+              className={`text-xs font-medium hidden sm:block ${
+                active ? "text-stone-900" : done ? "text-stone-500" : "text-stone-400"
+              }`}
+            >
+              {label}
+            </span>
+          </div>
+          {i < STEPS.length - 1 && (
+            <div className={`w-16 sm:w-24 h-px mx-2 mb-5 ${done ? "bg-stone-900" : "bg-stone-200"}`} />
+          )}
+        </div>
+      );
+    })}
+  </div>
+);
+
+const TemplateMockup = ({ id, hovered }: { id: string; hovered: boolean }) => {
+  if (id === "minimal-template") {
+    return (
+      <div className={`w-full h-full bg-stone-50 p-5 transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"}`}>
+        {/* Nav */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="h-2.5 w-16 bg-stone-900 rounded-full" />
+          <div className="flex gap-2">
+            <div className="h-1.5 w-8 bg-stone-300 rounded-full" />
+            <div className="h-1.5 w-8 bg-stone-300 rounded-full" />
+            <div className="h-1.5 w-8 bg-stone-300 rounded-full" />
+          </div>
+        </div>
+        {/* Hero text block */}
+        <div className="mb-4">
+          <div className="h-4 w-3/4 bg-stone-800 rounded-md mb-2" />
+          <div className="h-4 w-1/2 bg-stone-800 rounded-md mb-3" />
+          <div className="h-2 w-full bg-stone-200 rounded-full mb-1" />
+          <div className="h-2 w-5/6 bg-stone-200 rounded-full mb-1" />
+          <div className="h-2 w-4/6 bg-stone-200 rounded-full mb-4" />
+          <div className="h-7 w-28 bg-stone-900 rounded-lg" />
+        </div>
+        {/* Work grid */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="h-8 bg-stone-100 border border-stone-200 rounded-lg" />
+          <div className="h-8 bg-stone-100 border border-stone-200 rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  if (id === "modern-writer-template") {
+    return (
+      <div className={`w-full h-full bg-stone-900 p-5 transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"}`}>
+        {/* Nav */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="h-2.5 w-14 bg-orange-500 rounded-full" />
+          <div className="h-6 w-16 bg-orange-600 rounded-lg" />
+        </div>
+        {/* Big headline */}
+        <div className="mb-4">
+          <div className="h-5 w-4/5 bg-white rounded-md mb-1.5" />
+          <div className="h-5 w-3/5 bg-white rounded-md mb-3" />
+          <div className="h-2 w-full bg-stone-700 rounded-full mb-1" />
+          <div className="h-2 w-5/6 bg-stone-700 rounded-full mb-4" />
+        </div>
+        {/* Stats row */}
+        <div className="flex gap-2 mb-3">
+          {["50+", "2M+", "5yr"].map(s => (
+            <div key={s} className="flex-1 bg-stone-800 border border-stone-700 rounded-lg p-1.5 text-center">
+              <div className="h-2.5 w-6 bg-orange-500 rounded-full mx-auto mb-1" />
+              <div className="h-1.5 w-8 bg-stone-600 rounded-full mx-auto" />
+            </div>
+          ))}
+        </div>
+        {/* Featured article */}
+        <div className="bg-stone-800 border border-stone-700 rounded-lg p-2 flex gap-2">
+          <div className="w-8 h-8 bg-orange-600/40 rounded flex-shrink-0" />
+          <div className="flex-1">
+            <div className="h-1.5 w-full bg-stone-600 rounded-full mb-1" />
+            <div className="h-1.5 w-3/4 bg-stone-600 rounded-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (id === "professional-writer-template") {
+    return (
+      <div className={`w-full h-full bg-slate-900 p-5 transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"}`}>
+        {/* Top bar */}
+        <div className="flex items-center justify-between mb-5 border-b border-slate-700 pb-3">
+          <div className="h-2 w-20 bg-slate-400 rounded-full" />
+          <div className="flex gap-3">
+            <div className="h-1.5 w-6 bg-slate-600 rounded-full" />
+            <div className="h-1.5 w-6 bg-slate-600 rounded-full" />
+            <div className="h-1.5 w-6 bg-slate-600 rounded-full" />
+          </div>
+        </div>
+        {/* Two-col layout */}
+        <div className="flex gap-3">
+          {/* Left: avatar + info */}
+          <div className="w-14 flex-shrink-0">
+            <div className="w-12 h-12 bg-slate-700 rounded-full mb-2" />
+            <div className="h-1.5 w-10 bg-slate-500 rounded-full mb-1" />
+            <div className="h-1.5 w-8 bg-slate-600 rounded-full mb-3" />
+            <div className="h-5 w-12 bg-slate-600 rounded-lg" />
+          </div>
+          {/* Right: content */}
+          <div className="flex-1">
+            <div className="h-3 w-full bg-slate-300 rounded-md mb-1.5" />
+            <div className="h-3 w-4/5 bg-slate-300 rounded-md mb-3" />
+            <div className="h-1.5 w-full bg-slate-700 rounded-full mb-1" />
+            <div className="h-1.5 w-5/6 bg-slate-700 rounded-full mb-1" />
+            <div className="h-1.5 w-4/6 bg-slate-700 rounded-full mb-3" />
+            {/* Cards */}
+            <div className="space-y-1.5">
+              <div className="h-6 bg-slate-800 border border-slate-700 rounded-lg" />
+              <div className="h-6 bg-slate-800 border border-slate-700 rounded-lg" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback for any future templates
+  return (
+    <div className={`w-full h-full bg-stone-100 p-5 flex items-center justify-center transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"}`}>
+      <div className="text-center">
+        <div className="w-10 h-10 bg-stone-200 rounded-xl mx-auto mb-2" />
+        <div className="h-2 w-16 bg-stone-300 rounded-full mx-auto" />
+      </div>
+    </div>
+  );
+};
+
 const TemplateSelection = () => {
   const navigate = useNavigate();
-  const { user, hasUsedFreeTemplate, isPro, checkTemplateUsage, checkSubscription, session } = useAuth();
+  const { user, hasPortfolio, existingPortfolio, isPro, checkPortfolio, checkSubscription, session } = useAuth();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
@@ -23,136 +185,83 @@ const TemplateSelection = () => {
   const [attemptedTemplate, setAttemptedTemplate] = useState<Template | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    const key = `porfilr_welcomed_${user?.id}`;
+    if (user && !localStorage.getItem(key)) {
+      setShowWelcome(true);
+    }
+  }, [user]);
+
+  const dismissWelcome = () => {
+    const key = `porfilr_welcomed_${user?.id}`;
+    localStorage.setItem(key, "1");
+    setShowWelcome(false);
+  };
 
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
         setLoading(true);
         setError(null);
-
         const token = session?.access_token;
-        
-        if (!token) {
-          setError("Please log in to view templates");
-          setLoading(false);
-          return;
-        }
-
-        const apiUrl = import.meta.env.VITE_API_URL;
-        
-        const res = await fetch(`${apiUrl}/api/templates`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+        if (!token) { setError("Please log in to view templates"); setLoading(false); return; }
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`, {
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         });
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || `Failed to load templates (Status: ${res.status})`);
-        }
-        
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error || `Failed (${res.status})`); }
         const data = await res.json();
-
-        const templateList = data.templates || data;
-
-        if (!Array.isArray(templateList)) {
-          throw new Error('Invalid response format from API');
-        }
-        setTemplates(templateList);
+        const list = data.templates || data;
+        if (!Array.isArray(list)) throw new Error("Invalid response");
+        setTemplates(list);
       } catch (err: any) {
         setError(err.message || "Failed to load templates");
       } finally {
         setLoading(false);
       }
     };
-
     fetchTemplates();
-    
-    if (user) {
-      checkTemplateUsage();
-      checkSubscription();
-    }
-  }, [user, checkTemplateUsage, checkSubscription, session]);
+    if (user) { checkPortfolio(); checkSubscription(); }
+  }, [user, checkPortfolio, checkSubscription, session]);
 
-  // Check if template shows lock overlay (only minimal-template if already used)
-  const isTemplateLocked = (templateId: string) => {
-    // Pro users: Nothing is locked
-    if (isPro) {
-      return false;
-    }
-    
-    // Free users: Only lock minimal-template if they've already used it
-    if (templateId === 'minimal-template' && hasUsedFreeTemplate) {
-      return true;
-    }
-    
-    // All other templates: Not visually locked (can preview)
-    return false;
-  };
-  
-  // Check if user can actually SELECT the template (enforces Pro requirement)
-  const canSelectTemplate = (templateId: string) => {
-    // Pro users: Can select anything
-    if (isPro) {
-      return true;
-    }
-    
-    // Free users: Can only select minimal-template (if not used yet)
-    if (templateId === 'minimal-template' && !hasUsedFreeTemplate) {
-      return true;
-    }
-    
-    // All other cases: Cannot select (show upgrade modal)
-    return false;
-  };
+  const isTemplateLocked = (id: string) => !isPro && id !== "minimal-template";
+  const canSelectTemplate = (id: string) => isPro || id === "minimal-template";
 
   const handleSelect = async (templateId: string) => {
-    // Check if user can select this template
     if (!canSelectTemplate(templateId)) {
-      const template = templates.find(t => t.id === templateId);
-      setAttemptedTemplate(template || null);
+      setAttemptedTemplate(templates.find(t => t.id === templateId) || null);
       setShowUpgradeModal(true);
       return;
     }
-
     try {
       setSelectedLoading(templateId);
-
       const selected = templates.find(t => t.id === templateId);
-
-      if (!selected) {
-        alert("Template not found");
-        return;
-      }
-
+      if (!selected) return;
       localStorage.setItem("selectedTemplate", JSON.stringify(selected));
       navigate(`/create/${selected.id}`);
-    } catch (error: any) {
-      console.error(error);
-      alert(error.message || "Error selecting template.");
+    } catch (err: any) {
+      console.error(err);
     } finally {
       setSelectedLoading(null);
     }
   };
 
+  const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "there";
+
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-900 text-slate-50 flex items-center justify-center py-10 px-4">
-        <div className="max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
+        <div className="text-center max-w-sm">
+          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-slate-50 mb-2">Unable to Load Templates</h3>
-          <p className="text-slate-400 mb-6">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-yellow-400 text-slate-900 px-6 py-2.5 rounded-lg font-semibold hover:bg-yellow-300 transition"
-          >
-            Retry
+          <h3 className="text-lg font-bold text-stone-900 mb-2">Couldn't load templates</h3>
+          <p className="text-stone-500 text-sm mb-5">{error}</p>
+          <button onClick={() => window.location.reload()} className="bg-stone-900 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-stone-700 transition">
+            Try again
           </button>
         </div>
       </div>
@@ -160,197 +269,155 @@ const TemplateSelection = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-50 flex items-center justify-center py-10 md:py-16 px-4 relative overflow-hidden">
-      
-      {/* Animated Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-grid-horizontal pointer-events-none"></div>
-          <div className="absolute inset-0 bg-grid-vertical pointer-events-none"></div>
-        </div>
-        <div className="absolute inset-0 bg-radial-gradient pointer-events-none"></div>
+    <div className="min-h-screen bg-stone-50">
+
+      {/* Top bar */}
+      <div className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
+        <Link to="/"><Logo size={28} /></Link>
+        {user && (
+          <span className="text-stone-400 text-sm">{user.email}</span>
+        )}
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl w-full relative z-10">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors mb-4 mr-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Homepage
-          </Link>
+      <div className="max-w-5xl mx-auto px-6 py-12">
 
-          <div className="inline-block px-3 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full mb-4">
-            <span className="text-yellow-400 text-sm font-semibold">Writer Templates</span>
+        {/* Step indicator */}
+        <StepIndicator current={0} />
+
+        {/* Welcome banner — first visit only */}
+        {showWelcome && (
+          <div className="mb-8 bg-orange-50 border border-orange-200 rounded-2xl p-6 flex items-start gap-4">
+            <div className="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+              {firstName[0].toUpperCase()}
+            </div>
+            <div className="flex-1">
+              <p className="text-stone-900 font-bold text-base mb-0.5">Welcome, {firstName}.</p>
+              <p className="text-stone-600 text-sm">
+                You're 3 steps from a live portfolio. Pick a template below, fill in your details, and your link is ready to share — in under 10 minutes.
+              </p>
+            </div>
+            <button onClick={dismissWelcome} className="text-stone-400 hover:text-stone-600 transition mt-0.5 flex-shrink-0">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
+        )}
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-slate-50">
-            Choose Your <span className="text-yellow-400">Writer Portfolio</span> Template
-          </h2>
-
-          <p className="text-slate-400 text-base md:text-lg max-w-2xl mx-auto">
-            Professional templates designed specifically for writers and copywriters. Pick one and start building in minutes.
+        {/* Header */}
+        <div className="mb-10">
+          <h1 className="text-3xl md:text-4xl font-bold text-stone-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+            Choose your template.
+          </h1>
+          <p className="text-stone-500 text-base">
+            {isPro ? "All templates unlocked." : "Start free with Minimal. Upgrade any time for Pro templates."}
           </p>
-
-          {/* Pro Status Badge */}
-          {isPro && (
-            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-yellow-400/20 border border-yellow-400/40 rounded-full">
-              <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-              <span className="text-yellow-400 text-sm font-bold">Pro Member - All Templates Unlocked ✨</span>
-            </div>
-          )}
-
-          {/* Usage Status for Free Users */}
-          {!isPro && hasUsedFreeTemplate && (
-            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full">
-              <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-blue-400 text-sm">You've used your free template. Upgrade to create unlimited portfolios!</span>
-            </div>
-          )}
-
-          {/* Info for Free Users */}
-          {!isPro && !hasUsedFreeTemplate && (
-            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full">
-              <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-green-400 text-sm font-bold">Free Member - 1 portfolio with Minimal template</span>
-            </div>
-          )}
         </div>
 
-        {/* Templates Grid */}
+        {/* Existing portfolio block */}
+        {hasPortfolio && existingPortfolio && (
+          <div className="mb-8 bg-white border border-stone-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="w-10 h-10 bg-stone-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-stone-900 text-sm mb-0.5">You already have a portfolio</p>
+              <p className="text-stone-500 text-sm">Each account gets one. Edit your existing portfolio, or delete it first to switch templates.</p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <Link
+                to={isPro ? `/builder/${existingPortfolio.slug}` : `/edit/${existingPortfolio.slug}`}
+                className="bg-stone-900 hover:bg-stone-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
+              >
+                Edit mine
+              </Link>
+              <Link
+                to={isPro ? "/dashboard" : "/dashboard"}
+                className="border border-stone-200 hover:bg-stone-50 text-stone-700 px-4 py-2 rounded-xl text-sm font-medium transition"
+              >
+                Dashboard
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Template grid */}
         {loading ? (
-          <div className="text-center py-20">
-            <div className="inline-block w-12 h-12 border-4 border-slate-700 border-t-yellow-400 rounded-full animate-spin"></div>
-            <p className="text-slate-400 mt-4">Loading templates...</p>
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="w-8 h-8 border-2 border-stone-200 border-t-stone-700 rounded-full animate-spin"></div>
+            <p className="text-stone-400 text-sm">Loading templates...</p>
           </div>
         ) : templates.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-slate-400">No templates available</p>
-          </div>
+          <p className="text-center text-stone-400 py-16">No templates available</p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.map((template) => {
-              const isHovered = hoveredTemplate === template.id;
               const isLoading = selectedLoading === template.id;
               const isLocked = isTemplateLocked(template.id);
-              const isFreeTemplate = template.id === 'minimal-template';
-              const isProTemplate = !isFreeTemplate;
+              const isFree = template.id === "minimal-template";
+              const isHovered = hoveredTemplate === template.id;
 
               return (
                 <div
                   key={template.id}
                   onMouseEnter={() => setHoveredTemplate(template.id)}
                   onMouseLeave={() => setHoveredTemplate(null)}
-                  style={{
-                    transform: isHovered ? 'scale(1.05)' : 'scale(1)',
-                    transition: 'all 0.3s ease',
-                    opacity: isLocked ? 0.7 : 1
-                  }}
-                  className={`relative bg-slate-800/50 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl ${
-                    isHovered 
-                      ? 'shadow-2xl shadow-yellow-400/10 border-yellow-400/30' 
-                      : 'border-slate-700/50'
-                  } border`}
+                  className={`group bg-white rounded-2xl overflow-hidden border transition-all duration-200 ${
+                    isHovered ? "border-stone-300 shadow-md -translate-y-0.5" : "border-stone-200"
+                  } ${isLocked ? "opacity-75" : ""}`}
                 >
-                  {/* Pro Badge for Pro Templates */}
-                  {isPro && isProTemplate && (
-                    <div className="absolute top-3 left-3 bg-yellow-400/90 backdrop-blur-sm px-3 py-1 text-xs text-slate-900 rounded-full font-bold z-10 flex items-center gap-1">
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      PRO
-                    </div>
-                  )}
+                  {/* Visual mockup */}
+                  <div className="relative h-48 overflow-hidden">
+                    <TemplateMockup id={template.id} hovered={isHovered} />
 
-                  {isLocked && (
-                    <div className="absolute inset-0 bg-slate-900/85 backdrop-blur-sm z-20 flex items-center justify-center">
-                      <div className="text-center p-4">
-                        <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {/* Tier badge */}
+                    <div className={`absolute top-3 right-3 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
+                      isFree ? "bg-white/90 text-stone-600 border border-stone-200" : "bg-orange-600 text-white"
+                    }`}>
+                      {isFree ? "Free" : "Pro"}
+                    </div>
+
+                    {/* Lock overlay */}
+                    {isLocked && (
+                      <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center">
+                        <div className="bg-white border border-stone-200 rounded-xl px-4 py-3 text-center shadow-sm">
+                          <svg className="w-5 h-5 text-stone-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                           </svg>
+                          <p className="text-stone-700 text-xs font-semibold">Pro only</p>
                         </div>
-                        <p className="text-slate-300 font-semibold mb-1">Already Used</p>
-                        <p className="text-slate-500 text-sm">Upgrade to create more</p>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Template Thumbnail */}
-                  <div className="relative h-52 sm:h-64 md:h-72 overflow-hidden bg-slate-900/50">
-                    <img
-                      src={`${template.thumbnail}`}
-                      alt={template.name}
-                      style={{
-                        transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-                        transition: 'transform 0.5s ease'
-                      }}
-                      className="w-full h-full object-cover"
-                    />
-                    
-                    <div 
-                      style={{
-                        opacity: isHovered ? 0.4 : 0.6,
-                        transition: 'opacity 0.3s ease'
-                      }}
-                      className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent"
-                    ></div>
+                    )}
                   </div>
 
-                  {/* Template Info */}
-                  <div className="p-5 md:p-6">
-                    <h3 
-                      style={{
-                        color: isHovered ? '#FACC15' : '#F8FAFC',
-                        transition: 'color 0.3s ease'
-                      }}
-                      className="font-bold text-lg md:text-xl mb-2"
-                    >
-                      {template.name}
-                    </h3>
-                    <p className="text-sm text-slate-400 mb-4 line-clamp-2">
-                      {template.description}
-                    </p>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-3">
+                  {/* Card body */}
+                  <div className="p-5">
+                    <h3 className="font-bold text-stone-900 text-base mb-1">{template.name}</h3>
+                    <p className="text-stone-400 text-xs leading-relaxed mb-4 line-clamp-2">{template.description}</p>
+                    <div className="flex gap-2">
                       <button
                         onClick={() => setPreviewTemplate(template)}
-                        className="flex-1 bg-slate-700/50 border border-slate-600/50 text-slate-200 text-sm py-2.5 px-4 rounded-lg font-semibold hover:bg-slate-700 hover:border-slate-500 hover:text-yellow-400 transition-all duration-300"
+                        className="flex-1 border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 py-2.5 rounded-xl text-sm font-medium transition"
                       >
                         Preview
                       </button>
-
                       <button
                         onClick={() => handleSelect(template.id)}
-                        disabled={isLoading || isLocked}
-                        className={`flex-1 text-sm py-2.5 px-4 rounded-lg font-semibold transition-all duration-300 ${
+                        disabled={isLoading}
+                        className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition ${
                           isLocked
-                            ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed'
-                            : 'bg-yellow-400 text-slate-900 hover:bg-yellow-300 shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40'
+                            ? "bg-stone-100 text-stone-400 hover:bg-orange-50 hover:text-orange-600 hover:border hover:border-orange-200"
+                            : "bg-stone-900 hover:bg-stone-700 text-white"
                         }`}
                       >
                         {isLoading ? (
                           <span className="flex items-center justify-center gap-2">
-                            <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-                            Loading...
+                            <div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
+                            Loading
                           </span>
-                        ) : isLocked ? (
-                          "Used"
-                        ) : (
-                          <>Select{isProTemplate && !isPro && ' (Pro)'}</>
-                        )}
+                        ) : isLocked ? "Upgrade" : "Use this →"}
                       </button>
                     </div>
                   </div>
@@ -360,167 +427,88 @@ const TemplateSelection = () => {
           </div>
         )}
 
-        {/* Coming Soon Message */}
-        <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-full">
-            <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            <span className="text-slate-400 text-sm">
-              More templates coming soon for designers, developers, and other creatives
-            </span>
-          </div>
-        </div>
+        <p className="text-center text-stone-400 text-xs mt-10">
+          More templates coming soon — designers, developers, photographers, and more.
+        </p>
       </div>
 
-      {/* Upgrade Modal - Shows when trying to select Pro template */}
+      {/* Upgrade modal */}
       {showUpgradeModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex justify-center items-center p-4">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-slate-50 mb-2">Upgrade to Pro</h3>
-              <p className="text-slate-400 mb-2">
-                {attemptedTemplate && (
-                  <span className="block font-semibold text-yellow-400 mb-2">"{attemptedTemplate.name}"</span>
-                )}
-                {hasUsedFreeTemplate 
-                  ? "You've already created your free portfolio. Upgrade to Pro for unlimited portfolios and all premium templates!"
-                  : "This is a Pro template. Upgrade to unlock all premium templates and create unlimited portfolios!"}
-              </p>
-              
-              {/* Benefits List */}
-              <div className="text-left mt-4 mb-6 bg-slate-900/50 rounded-lg p-4">
-                <p className="text-sm font-semibold text-yellow-400 mb-2">Pro includes:</p>
-                <ul className="text-sm text-slate-300 space-y-1.5">
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Unlimited portfolios</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>All premium templates</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Custom domain support</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Priority support</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setShowUpgradeModal(false);
-                    setAttemptedTemplate(null);
-                  }}
-                  className="flex-1 bg-slate-700 text-slate-300 py-2.5 px-4 rounded-lg font-semibold hover:bg-slate-600 transition"
-                >
-                  Maybe Later
+        <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-stone-200 rounded-2xl p-8 max-w-sm w-full shadow-xl">
+            <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-5">
+              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-stone-900 text-center mb-1">Pro template</h3>
+            {attemptedTemplate && (
+              <p className="text-center text-stone-500 text-sm mb-4">"{attemptedTemplate.name}" requires a Pro subscription.</p>
+            )}
+            <ul className="space-y-2 mb-6">
+              {["All 3 premium templates", "Custom domain (yourname.com)", "Portfolio analytics", "Priority support"].map(item => (
+                <li key={item} className="flex items-center gap-2.5 text-sm text-stone-700">
+                  <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setShowUpgradeModal(false); setAttemptedTemplate(null); }}
+                className="flex-1 border border-stone-200 hover:bg-stone-50 text-stone-600 py-2.5 rounded-xl text-sm font-medium transition"
+              >
+                Not now
+              </button>
+              <Link to="/pricing" className="flex-1">
+                <button className="w-full bg-orange-600 hover:bg-orange-500 text-white py-2.5 rounded-xl text-sm font-bold transition">
+                  Upgrade — $9/mo
                 </button>
-                <Link to="/#pricing" className="flex-1">
-                  <button
-                    className="w-full bg-yellow-400 text-slate-900 py-2.5 px-4 rounded-lg font-semibold hover:bg-yellow-300 transition shadow-lg shadow-yellow-400/20"
-                  >
-                    Upgrade Now
-                  </button>
-                </Link>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
       )}
 
-      {/* Preview Modal */}
+      {/* Preview modal */}
       {previewTemplate && (
-        <div className="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex justify-center items-center p-4 animate-fadeIn">
-          <div className="relative bg-slate-800/90 backdrop-blur-md border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-6xl h-[85vh] overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 bg-slate-900/50 backdrop-blur-sm border-b border-slate-700/50 px-6 py-4 flex items-center justify-between z-10">
+        <div className="fixed inset-0 z-50 bg-stone-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-stone-200 rounded-2xl w-full max-w-5xl h-[85vh] overflow-hidden shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100 flex-shrink-0">
               <div>
-                <h3 className="text-slate-50 font-bold text-lg">{previewTemplate.name}</h3>
-                <p className="text-slate-400 text-sm">{previewTemplate.description}</p>
+                <h3 className="font-bold text-stone-900">{previewTemplate.name}</h3>
+                <p className="text-stone-400 text-xs">{previewTemplate.description}</p>
               </div>
               <button
                 onClick={() => setPreviewTemplate(null)}
-                className="w-10 h-10 flex items-center justify-center bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-yellow-400 rounded-lg transition-all"
+                className="w-8 h-8 flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-
             <iframe
               src={`/templates/${previewTemplate.id}/preview.html`}
               title={`${previewTemplate.name} Preview`}
-              className="w-full h-full border-none pt-20"
+              className="flex-1 w-full border-none"
             />
-
-            <div className="absolute bottom-0 left-0 right-0 bg-slate-900/50 backdrop-blur-sm border-t border-slate-700/50 px-6 py-4 flex items-center justify-between">
-              <div className="text-slate-400 text-sm">
-                {previewTemplate.id === 'minimal-template' ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Free Forever
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    Pro Template
-                  </span>
-                )}
-              </div>
+            <div className="flex items-center justify-between px-6 py-4 border-t border-stone-100 flex-shrink-0">
+              <span className={`text-xs font-semibold px-3 py-1 rounded-full ${previewTemplate.id === "minimal-template" ? "bg-stone-100 text-stone-600" : "bg-orange-100 text-orange-700"}`}>
+                {previewTemplate.id === "minimal-template" ? "Free" : "Pro"}
+              </span>
               <button
-                onClick={() => {
-                  setPreviewTemplate(null);
-                  handleSelect(previewTemplate.id);
-                }}
-                className="bg-yellow-400 text-slate-900 px-6 py-2.5 rounded-lg font-semibold hover:bg-yellow-300 shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 transition-all duration-300"
+                onClick={() => { setPreviewTemplate(null); handleSelect(previewTemplate.id); }}
+                className="bg-stone-900 hover:bg-stone-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition"
               >
-                Select This Template
+                Use this template →
               </button>
             </div>
           </div>
         </div>
       )}
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .bg-grid-horizontal {
-          background-image: linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px);
-          background-size: 100% 50px;
-        }
-        .bg-grid-vertical {
-          background-image: linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
-          background-size: 50px 100%;
-        }
-        .bg-radial-gradient {
-          background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(15, 23, 42, 0.2) 50%, rgba(15, 23, 42, 0.6) 100%);
-        }
-      `}</style>
     </div>
   );
 };

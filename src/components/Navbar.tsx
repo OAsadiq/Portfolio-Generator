@@ -1,113 +1,88 @@
-// src/components/Navbar.tsx - Updated with Auth
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { FaXTwitter } from 'react-icons/fa6';
 import { useAuth } from "../contexts/AuthContext";
+import Logo from "./Logo";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { user, signOut } = useAuth();
 
-  const shareOnTwitter = () => {
-    const text = encodeURIComponent(
-      "Create your stunning portfolio effortlessly with Porfilr!"
-    );
-    const url = encodeURIComponent(window.location.href);
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
-  };
-
   const handleSignOut = async () => {
     try {
       await signOut();
       setShowUserMenu(false);
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
     }
   };
 
   return (
-    <nav className="max-w-7xl mx-6 lg:mx-auto bg-slate-800/50 backdrop-blur-md border border-slate-700/50 shadow-lg shadow-slate-900/20 p-4 rounded-xl sticky top-0 z-50">
-      <div className="flex justify-between items-center">
+    <nav className="sticky top-0 z-50 bg-stone-50/95 backdrop-blur-sm border-b border-stone-200">
+      <div className="max-w-6xl w-full mx-auto px-6 py-4 grid grid-cols-3 items-center">
 
-        {/* LOGO */}
-        <Link
-          to="/"
-          className="text-md lg:text-xl font-bold text-slate-50 hover:text-yellow-400 transition"
-        >
-          Porfil<span className="text-yellow-400">r</span>
-        </Link>
+        {/* Logo — left */}
+        <div className="flex items-center">
+          <Link to="/"><Logo size={28} /></Link>
+        </div>
 
-        {/* DESKTOP LINKS */}
-        <div className="hidden lg:flex items-center space-x-6 -mr-32">
-          <Link to="/" className="text-slate-300 font-semibold hover:text-yellow-400 transition">
+        {/* Desktop links — truly centered */}
+        <div className="hidden lg:flex items-center justify-center gap-8">
+          <Link to="/" className="text-stone-600 text-sm font-medium hover:text-stone-900 transition">
             Home
           </Link>
-
-          <Link
-            to="/pricing"
-            className="text-slate-300 font-semibold hover:text-yellow-400 transition"
-          >
+          <Link to="/pricing" className="text-stone-600 text-sm font-medium hover:text-stone-900 transition">
             Pricing
           </Link>
-
-          <Link to="/contact" className="text-slate-300 font-semibold hover:text-yellow-400 transition">
+          <Link to="/contact" className="text-stone-600 text-sm font-medium hover:text-stone-900 transition">
             Contact
           </Link>
         </div>
-
-        {/* DESKTOP BUTTONS */}
-        <div className="hidden lg:flex items-center space-x-3">
-          <button
-            onClick={shareOnTwitter}
-            className="bg-slate-700/50 text-slate-300 px-3 py-2 rounded-lg flex items-center hover:text-yellow-400 hover:bg-slate-700 transition border border-slate-600/50"
-          >
-            <FaXTwitter className="mr-1" /> Share
-          </button>
-
+        {/* Desktop CTA — right */}
+        <div className="hidden lg:flex items-center justify-end gap-3">
           {user ? (
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-xl hover:bg-slate-700 transition"
+                className="flex items-center gap-2 px-4 py-2 border border-stone-200 rounded-lg hover:bg-stone-100 transition"
               >
                 <img
-                  src={user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}&background=FACC15&color=1E293B`}
+                  src={user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}&background=EA580C&color=fff`}
                   alt="Profile"
                   className="w-6 h-6 rounded-full"
                 />
-                <span className="text-slate-300 text-sm font-semibold">
-                  {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                <span className="text-stone-700 text-sm font-medium">
+                  {user.user_metadata?.full_name || user.email?.split("@")[0]}
                 </span>
+                <svg className="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
 
-              {/* Dropdown Menu */}
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
-                  <div className="px-4 py-2 border-b border-slate-700">
-                    <p className="text-slate-300 text-sm font-semibold">{user.user_metadata?.full_name}</p>
-                    <p className="text-slate-500 text-xs truncate">{user.email}</p>
+                <div className="absolute right-0 mt-2 w-52 bg-white border border-stone-200 rounded-xl shadow-lg py-1 z-50">
+                  <div className="px-4 py-3 border-b border-stone-100">
+                    <p className="text-stone-800 text-sm font-semibold">{user.user_metadata?.full_name}</p>
+                    <p className="text-stone-400 text-xs truncate">{user.email}</p>
                   </div>
                   <Link
                     to="/templates"
-                    target="_blank" rel="noopener noreferrer"
-                    className="block px-4 py-2 text-slate-300 hover:bg-slate-700 hover:text-yellow-400 transition text-sm"
+                    className="block px-4 py-2.5 text-stone-600 hover:bg-stone-50 hover:text-stone-900 text-sm transition"
                     onClick={() => setShowUserMenu(false)}
                   >
-                    My Templates
+                    Templates
                   </Link>
                   <Link
                     to="/dashboard"
-                    target="_blank" rel="noopener noreferrer"
-                    className="block px-4 py-2 text-slate-300 hover:bg-slate-700 hover:text-yellow-400 transition text-sm"
+                    className="block px-4 py-2.5 text-stone-600 hover:bg-stone-50 hover:text-stone-900 text-sm transition"
                     onClick={() => setShowUserMenu(false)}
                   >
                     Dashboard
                   </Link>
                   <button
                     onClick={handleSignOut}
-                    className="w-full text-left px-4 py-2 text-red-400 hover:bg-slate-700 transition text-sm"
+                    className="w-full text-left px-4 py-2.5 text-red-500 hover:bg-red-50 text-sm transition"
                   >
                     Sign Out
                   </button>
@@ -115,111 +90,74 @@ const Navbar = () => {
               )}
             </div>
           ) : (
-            <Link
-              to="/login"
-              className="px-4 py-2 text-slate-900 bg-yellow-400 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
-            >
-              Get Started
-            </Link>
+            <>
+              <Link to="/login" className="text-stone-600 text-sm font-medium hover:text-stone-900 transition">
+                Sign in
+              </Link>
+              <Link
+                to="/login"
+                className="bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition"
+              >
+                Get started free
+              </Link>
+            </>
           )}
         </div>
 
-        {/* MOBILE MENU BUTTON */}
-        <button
-          className="lg:hidden text-slate-300 text-lg lg:text-2xl hover:text-yellow-400 transition"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <FaTimes /> : <FaBars />}
-        </button>
+        {/* Mobile: hamburger sits in right col */}
+        <div className="lg:hidden flex justify-end col-start-3">
+          <button
+            className="text-stone-600 hover:text-stone-900 transition"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <FaTimes size={18} /> : <FaBars size={18} />}
+          </button>
+        </div>
       </div>
 
-      {/* MOBILE DROPDOWN MENU */}
+      {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden mt-4 bg-slate-800/80 backdrop-blur-md rounded-lg border border-slate-700/50 p-4 space-y-4 animate-slideDown">
-
-          <Link
-            to="/"
-            className="block text-slate-300 font-semibold hover:text-yellow-400 transition"
-            onClick={() => setMobileOpen(false)}
-          >
+        <div className="lg:hidden border-t border-stone-200 bg-white px-6 py-4 space-y-4">
+          <Link to="/" className="block text-stone-700 font-medium hover:text-stone-900 transition" onClick={() => setMobileOpen(false)}>
             Home
           </Link>
-
-          <Link
-            to="/pricing"
-            className="block text-slate-300 font-semibold hover:text-yellow-400 transition"
-            onClick={() => setMobileOpen(false)}
-          >
+          <Link to="/pricing" className="block text-stone-700 font-medium hover:text-stone-900 transition" onClick={() => setMobileOpen(false)}>
             Pricing
           </Link>
-
-          <Link
-            to="/contact"
-            className="block text-slate-300 font-semibold hover:text-yellow-400 transition"
-            onClick={() => setMobileOpen(false)}
-          >
+          <Link to="/contact" className="block text-stone-700 font-medium hover:text-stone-900 transition" onClick={() => setMobileOpen(false)}>
             Contact
           </Link>
 
-          <button
-            onClick={shareOnTwitter}
-            className="w-full bg-slate-700/50 border border-slate-600/50 py-2 rounded-lg flex justify-center items-center text-slate-300 hover:text-yellow-400 hover:bg-slate-700 transition"
-          >
-            <FaXTwitter className="mr-1" /> Share
-          </button>
-
           {user ? (
-            <>
-              {/* User Info */}
-              <div className="border-t border-slate-700 pt-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <img
-                    src={user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}&background=FACC15&color=1E293B`}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div>
-                    <p className="text-slate-300 text-sm font-semibold">{user.user_metadata?.full_name}</p>
-                    <p className="text-slate-500 text-xs truncate">{user.email}</p>
-                  </div>
+            <div className="border-t border-stone-100 pt-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <img
+                  src={user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}&background=EA580C&color=fff`}
+                  alt="Profile"
+                  className="w-9 h-9 rounded-full"
+                />
+                <div>
+                  <p className="text-stone-800 text-sm font-semibold">{user.user_metadata?.full_name}</p>
+                  <p className="text-stone-400 text-xs">{user.email}</p>
                 </div>
-                <Link
-                  to="/templates"
-                  onClick={() => setMobileOpen(false)}
-                  target="_blank" rel="noopener noreferrer"
-                  className="block text-center bg-slate-700/50 border border-slate-600/50 py-2 rounded-lg text-slate-300 hover:text-yellow-400 hover:bg-slate-700 transition mb-2"
-                >
-                  My Templates
-                </Link>
-                <Link
-                  to="/dashboard"
-                  target="_blank" rel="noopener noreferrer"
-                  className="block text-center bg-slate-700/50 border border-slate-600/50 py-2 rounded-lg text-slate-300 hover:text-yellow-400 hover:bg-slate-700 transition mb-2"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Dashboard
-                </Link>
-                <button
-                  onClick={() => {
-                    handleSignOut();
-                    setMobileOpen(false);
-                  }}
-                  className="w-full text-center bg-red-500/10 border border-red-500/30 py-2 rounded-lg text-red-400 hover:bg-red-500/20 transition"
-                >
-                  Sign Out
-                </button>
               </div>
-            </>
+              <Link to="/dashboard" className="block text-center border border-stone-200 py-2.5 rounded-lg text-stone-700 text-sm font-medium hover:bg-stone-50 transition" onClick={() => setMobileOpen(false)}>
+                Dashboard
+              </Link>
+              <button onClick={() => { handleSignOut(); setMobileOpen(false); }} className="w-full text-center bg-red-50 border border-red-200 py-2.5 rounded-lg text-red-500 text-sm font-medium transition">
+                Sign Out
+              </button>
+            </div>
           ) : (
-            <Link
-              to="/login"
-              onClick={() => setMobileOpen(false)}
-              className="block text-center bg-yellow-400 text-slate-900 py-2 rounded-xl font-semibold shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 transition"
-            >
-              Get Started
-            </Link>
+            <div className="border-t border-stone-100 pt-4 space-y-3">
+              <Link to="/login" className="block text-center border border-stone-200 py-2.5 rounded-lg text-stone-700 text-sm font-medium hover:bg-stone-50 transition" onClick={() => setMobileOpen(false)}>
+                Sign in
+              </Link>
+              <Link to="/login" className="block text-center bg-stone-900 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-stone-700 transition" onClick={() => setMobileOpen(false)}>
+                Get started free
+              </Link>
+            </div>
           )}
-
         </div>
       )}
     </nav>

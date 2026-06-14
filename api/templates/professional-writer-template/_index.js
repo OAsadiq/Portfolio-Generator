@@ -701,9 +701,8 @@ function getStyles(primaryColor, accentColor) {
     /* Contact Section */
     .contact-section {
       background: linear-gradient(135deg, var(--primary), var(--accent));
-      padding: 5rem 2rem;
+      padding: 4rem 3rem;
       border-radius: 32px;
-      text-align: center;
       color: white;
       position: relative;
       overflow: hidden;
@@ -722,39 +721,102 @@ function getStyles(primaryColor, accentColor) {
     .contact-section h2 {
       font-size: clamp(2rem, 4vw, 3rem);
       font-weight: 900;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .contact-section > p {
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .contact-form {
+      max-width: 560px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
       position: relative;
       z-index: 1;
     }
 
-    .contact-section p {
-      font-size: 1.375rem;
-      margin-bottom: 2.5rem;
-      opacity: 0.95;
-      position: relative;
-      z-index: 1;
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 0.9375rem 1.25rem;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
     }
 
-    .contact-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1.25rem 3rem;
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder {
+      color: rgba(255,255,255,0.6);
+    }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border-color: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.2);
+    }
+
+    .contact-form textarea {
+      resize: vertical;
+      min-height: 130px;
+    }
+
+    .contact-form button {
+      padding: 1.125rem;
       background: white;
       color: var(--primary);
-      text-decoration: none;
+      border: none;
       border-radius: 100px;
+      font-size: 1.0625rem;
       font-weight: 800;
-      font-size: 1.125rem;
-      transition: all 0.3s;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      position: relative;
-      z-index: 1;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     }
 
-    .contact-button:hover {
-      transform: translateY(-4px) scale(1.05);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    .contact-form button:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    }
+
+    .contact-form button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .form-msg {
+      text-align: center;
+      padding: 0.875rem;
+      border-radius: 10px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .form-msg.success {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      display: block;
+    }
+
+    .form-msg.error {
+      background: rgba(255,80,80,0.3);
+      color: white;
+      display: block;
     }
 
     /* Footer */
@@ -1057,13 +1119,14 @@ const professionalWriterTemplate = {
           <div class="container">
             <div class="contact-section">
               <h2>Let's Create Something Amazing</h2>
-              <p>Ready to elevate your content? Let's discuss your project.</p>
-              <a href="mailto:${email}" class="contact-button">
-                Start a Conversation
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M7 13L13 7M13 7H7M13 7V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
+              <p>Ready to elevate your content? Send me a message below.</p>
+              <form class="contact-form" id="contactForm">
+                <input type="text" name="senderName" placeholder="Your name" required />
+                <input type="email" name="senderEmail" placeholder="Your email" required />
+                <textarea name="message" placeholder="Tell me about your project..." required></textarea>
+                <button type="submit" id="submitBtn">Start a Conversation</button>
+                <div class="form-msg" id="formMsg"></div>
+              </form>
             </div>
           </div>
         </section>
@@ -1072,7 +1135,7 @@ const professionalWriterTemplate = {
       footer: () => `
         <footer>
           <div class="container">
-            <p>Made with <a href="https://porfilr.com" target="_blank">Porfilr</a></p>
+            <p>Built with <a href="https://foliobase.vercel.app" target="_blank">Foliobase</a> ✨</p>
           </div>
         </footer>
       `
@@ -1131,6 +1194,44 @@ const professionalWriterTemplate = {
                 document.querySelectorAll('.modal.active').forEach(modal => {
                   closeModal(modal.id);
                 });
+              }
+            });
+
+            document.getElementById('contactForm').addEventListener('submit', async function(e) {
+              e.preventDefault();
+              const btn = document.getElementById('submitBtn');
+              const msg = document.getElementById('formMsg');
+              const fd = new FormData(this);
+              btn.disabled = true;
+              btn.textContent = 'Sending...';
+              msg.className = 'form-msg';
+              try {
+                const res = await fetch('/api/contact', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    ownerEmail: '${email}',
+                    portfolioName: '${name}',
+                    senderName: fd.get('senderName'),
+                    senderEmail: fd.get('senderEmail'),
+                    message: fd.get('message'),
+                  })
+                });
+                const data = await res.json();
+                if (data.success) {
+                  msg.textContent = '✓ Message sent! I\\'ll be in touch soon.';
+                  msg.className = 'form-msg success';
+                  this.reset();
+                } else {
+                  msg.textContent = data.error || 'Something went wrong. Please try again.';
+                  msg.className = 'form-msg error';
+                }
+              } catch {
+                msg.textContent = 'Something went wrong. Please try again.';
+                msg.className = 'form-msg error';
+              } finally {
+                btn.disabled = false;
+                btn.textContent = 'Start a Conversation';
               }
             });
           </script>

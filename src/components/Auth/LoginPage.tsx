@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import Logo from '../Logo';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 
@@ -44,42 +45,27 @@ const LoginPage = () => {
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!email) {
-      setError('Please enter your email');
-      return;
-    }
-
+    if (!email) { setError('Please enter your email'); return; }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
+    if (!emailRegex.test(email)) { setError('Please enter a valid email address'); return; }
 
     try {
       setIsLoading(true);
       setError(null);
       setSuccess(null);
 
-      const { data: userCheck, error: checkError } = await supabase.rpc('check_user_verified', {
-        user_email: email
-      });
-
+      const { data: userCheck, error: checkError } = await supabase.rpc('check_user_verified', { user_email: email });
       let userExists = false;
       let emailVerified = false;
 
       if (checkError) {
-        console.log('RPC error, using signInWithOtp response fallback');
         const result = await signInWithOTP(email);
-        
         userExists = !!result?.user;
         emailVerified = !!result?.session;
       } else {
         const checkResult = Array.isArray(userCheck) && userCheck.length > 0 ? userCheck[0] : null;
-        
         userExists = checkResult?.user_exists || false;
         emailVerified = checkResult?.email_verified || false;
-        
         await signInWithOTP(email);
       }
 
@@ -94,12 +80,10 @@ const LoginPage = () => {
         setOtpSent(true);
         setSuccess('✨ Welcome back! Check your email for a 6-digit code.');
       }
-      
       setResendTimer(60);
       setIsLoading(false);
     } catch (err: any) {
       console.error('OTP send error:', err);
-      
       if (err.message?.includes('rate limit') || err.message?.includes('Email rate limit exceeded')) {
         setError('Too many attempts. Please try again in 1 hour or use a different email.');
       } else if (err.message?.includes('Email not allowed')) {
@@ -113,26 +97,14 @@ const LoginPage = () => {
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!otp || otp.length !== 6) {
-      setError('Please enter the 6-digit code');
-      return;
-    }
-
+    if (!otp || otp.length !== 6) { setError('Please enter the 6-digit code'); return; }
     try {
       setIsLoading(true);
       setError(null);
-
       await verifyOTP(email, otp);
-
-      if (isNewUser) {
-        setSuccess('Account created! Signing you in...');
-      } else {
-        setSuccess('Verified! Signing you in...');
-      }
+      setSuccess(isNewUser ? 'Account created! Signing you in...' : 'Verified! Signing you in...');
     } catch (err: any) {
       console.error('OTP verify error:', err);
-
       if (err.message?.includes('expired')) {
         setError('Code expired. Please request a new one.');
         setOtpSent(false);
@@ -152,18 +124,12 @@ const LoginPage = () => {
 
   const handleResendOTP = async () => {
     if (resendTimer > 0) return;
-
     try {
       setIsLoading(true);
       setError(null);
       setSuccess(null);
-
       await signInWithOTP(email);
-
-      setSuccess(isNewUser 
-        ? 'New confirmation link sent! Check your email.'
-        : 'New code sent! Check your email.'
-      );
+      setSuccess(isNewUser ? 'New confirmation link sent! Check your email.' : 'New code sent! Check your email.');
       setResendTimer(60);
       setIsLoading(false);
     } catch (err: any) {
@@ -186,32 +152,22 @@ const LoginPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="inline-block w-12 h-12 border-4 border-slate-700 border-t-yellow-400 rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <div className="inline-block w-10 h-10 border-[3px] border-stone-200 border-t-orange-600 rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-50 flex items-center justify-center py-10 px-4 relative overflow-hidden">
+  const INPUT = 'w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-orange-100 focus:border-orange-500 transition-all';
 
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-grid-horizontal pointer-events-none"></div>
-          <div className="absolute inset-0 bg-grid-vertical pointer-events-none"></div>
-        </div>
-        <div className="absolute inset-0 bg-radial-gradient pointer-events-none"></div>
-      </div>
-      
-      <div className="max-w-md w-full relative z-10">
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8 md:p-10 shadow-2xl">
+  return (
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center py-10 px-4">
+      <div className="max-w-md w-full">
+        <div className="bg-white border border-stone-200 rounded-3xl p-8 md:p-10 shadow-sm">
 
           {/* Back to Home */}
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors mb-6"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <Link to="/" className="inline-flex items-center gap-2 text-stone-500 hover:text-stone-800 transition-colors mb-6 text-sm">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Back to Home
@@ -219,38 +175,30 @@ const LoginPage = () => {
 
           {/* Logo/Title */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+            <div className="flex justify-center mb-4">
+              <Logo size={52} showWordmark={false} />
             </div>
-            <h1 className="text-3xl font-bold text-slate-50 mb-2">
-              {otpSent 
-                ? (isNewUser ? 'Check Your Email' : 'Welcome Back')
-                : 'Welcome to Porfilr'
-              }
+            <h1 className="text-2xl font-bold text-stone-900 mb-1">
+              {otpSent ? (isNewUser ? 'Check Your Email' : 'Welcome Back') : 'Welcome to Porfilr'}
             </h1>
-            <p className="text-slate-400">
+            <p className="text-stone-500 text-sm">
               {otpSent
-                ? (isNewUser 
-                    ? `Verify your email to complete signup`
-                    : `We sent a code to ${email}`
-                  )
+                ? (isNewUser ? 'Verify your email to complete signup' : `We sent a code to ${email}`)
                 : 'Sign in or create an account'
               }
             </p>
           </div>
 
-          {/* Google Sign In Button */}
+          {/* Google Sign In */}
           {!otpSent && (
             <button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full bg-white hover:bg-gray-50 text-slate-900 font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group"
+              className="w-full bg-white hover:bg-stone-50 text-stone-800 font-semibold py-3 px-6 rounded-xl border border-stone-200 hover:border-stone-300 shadow-sm transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-2 border-stone-300 border-t-stone-700 rounded-full animate-spin"></div>
                   <span>Signing in...</span>
                 </>
               ) : (
@@ -269,12 +217,12 @@ const LoginPage = () => {
 
           {/* Divider */}
           {!otpSent && (
-            <div className="relative my-6">
+            <div className="relative my-5">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-700"></div>
+                <div className="w-full border-t border-stone-200"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-slate-800/50 text-slate-500">Or continue with email</span>
+              <div className="relative flex justify-center text-xs">
+                <span className="px-3 bg-white text-stone-400">Or continue with email</span>
               </div>
             </div>
           )}
@@ -283,7 +231,7 @@ const LoginPage = () => {
           {!otpSent ? (
             <form onSubmit={handleSendOTP} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                <label htmlFor="email" className="block text-xs font-semibold text-stone-600 mb-1.5">
                   Email Address
                 </label>
                 <input
@@ -292,79 +240,60 @@ const LoginPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition-all"
+                  className={INPUT}
                   disabled={isLoading}
                   autoComplete="email"
                 />
-                <p className="mt-2 text-xs text-slate-500">
+                <p className="mt-1.5 text-xs text-stone-400">
                   🔒 No password needed. We'll create your account or sign you in automatically.
                 </p>
               </div>
-
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-orange-600 hover:bg-orange-500 text-white font-semibold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                     <span>Sending...</span>
                   </div>
-                ) : (
-                  'Continue with Email'
-                )}
+                ) : 'Continue with Email'}
               </button>
             </form>
           ) : (
             <form onSubmit={handleVerifyOTP} className="space-y-4">
-              <div className="bg-slate-900/30 border border-slate-700/50 rounded-xl p-4 flex items-center justify-between">
+              <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span className="text-slate-300 text-sm truncate">{email}</span>
+                  <span className="text-stone-700 text-sm truncate">{email}</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleChangeEmail}
-                  className="text-xs text-yellow-400 hover:text-yellow-300 transition-colors whitespace-nowrap ml-2"
-                >
+                <button type="button" onClick={handleChangeEmail} className="text-xs text-orange-600 hover:text-orange-500 transition-colors whitespace-nowrap ml-2 font-medium">
                   Change
                 </button>
               </div>
 
               {isNewUser ? (
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6 text-center">
-                  <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 text-center">
+                  <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
                     </svg>
                   </div>
-                  <p className="font-semibold text-blue-400 mb-2">Check Your Email</p>
-                  <p className="text-blue-300 text-sm leading-relaxed">
+                  <p className="font-semibold text-blue-700 mb-1.5">Check Your Email</p>
+                  <p className="text-blue-600 text-sm leading-relaxed">
                     We sent a <strong>confirmation link</strong> to <strong>{email}</strong>
                   </p>
-                  <p className="text-blue-300/80 text-xs mt-3">
-                    Click the link in your email to verify your account and sign in.
-                  </p>
-                  <p className="text-blue-400/60 text-xs mt-4">
-                    Link expires in 24 hours
-                  </p>
-                  
-                  {/* Resend for new users */}
-                  <div className="mt-6">
+                  <p className="text-blue-500 text-xs mt-2">Click the link in your email to verify your account.</p>
+                  <p className="text-blue-400 text-xs mt-3">Link expires in 24 hours</p>
+                  <div className="mt-5">
                     {resendTimer > 0 ? (
-                      <p className="text-sm text-slate-500">
-                        Resend link in {resendTimer}s
-                      </p>
+                      <p className="text-sm text-stone-400">Resend link in {resendTimer}s</p>
                     ) : (
-                      <button
-                        type="button"
-                        onClick={handleResendOTP}
-                        disabled={isLoading}
-                        className="text-sm text-yellow-400 hover:text-yellow-300 transition-colors disabled:opacity-50"
-                      >
+                      <button type="button" onClick={handleResendOTP} disabled={isLoading}
+                        className="text-sm text-orange-600 hover:text-orange-500 transition-colors disabled:opacity-50 font-medium">
                         Didn't receive email? Resend
                       </button>
                     )}
@@ -373,7 +302,7 @@ const LoginPage = () => {
               ) : (
                 <>
                   <div>
-                    <label htmlFor="otp" className="block text-sm font-medium text-slate-300 mb-2">
+                    <label htmlFor="otp" className="block text-xs font-semibold text-stone-600 mb-1.5">
                       Verification Code
                     </label>
                     <input
@@ -382,29 +311,21 @@ const LoginPage = () => {
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                       placeholder="000000"
-                      className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition-all text-center text-2xl tracking-widest font-mono"
+                      className={`${INPUT} text-center text-2xl tracking-widest font-mono`}
                       disabled={isLoading}
                       maxLength={6}
                       autoComplete="one-time-code"
                       autoFocus
                     />
-                    <p className="mt-2 text-xs text-slate-500 text-center">
-                      Enter the 6-digit code from your email
-                    </p>
+                    <p className="mt-1.5 text-xs text-stone-400 text-center">Enter the 6-digit code from your email</p>
                   </div>
 
                   <div className="text-center">
                     {resendTimer > 0 ? (
-                      <p className="text-sm text-slate-500">
-                        Resend code in {resendTimer}s
-                      </p>
+                      <p className="text-sm text-stone-400">Resend code in {resendTimer}s</p>
                     ) : (
-                      <button
-                        type="button"
-                        onClick={handleResendOTP}
-                        disabled={isLoading}
-                        className="text-sm text-yellow-400 hover:text-yellow-300 transition-colors disabled:opacity-50"
-                      >
+                      <button type="button" onClick={handleResendOTP} disabled={isLoading}
+                        className="text-sm text-orange-600 hover:text-orange-500 transition-colors disabled:opacity-50 font-medium">
                         Didn't receive code? Resend
                       </button>
                     )}
@@ -413,16 +334,14 @@ const LoginPage = () => {
                   <button
                     type="submit"
                     disabled={isLoading || otp.length !== 6}
-                    className="w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-orange-600 hover:bg-orange-500 text-white font-semibold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center gap-2">
-                        <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                         <span>Verifying...</span>
                       </div>
-                    ) : (
-                      'Sign In'
-                    )}
+                    ) : 'Sign In'}
                   </button>
                 </>
               )}
@@ -430,8 +349,8 @@ const LoginPage = () => {
           )}
 
           {success && (
-            <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-sm flex items-start gap-3">
-              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mt-4 p-4 bg-green-50 border border-green-100 rounded-xl text-green-700 text-sm flex items-start gap-3">
+              <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>{success}</span>
@@ -439,8 +358,8 @@ const LoginPage = () => {
           )}
 
           {error && (
-            <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm flex items-start gap-3">
-              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm flex items-start gap-3">
+              <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>{error}</span>
@@ -449,76 +368,30 @@ const LoginPage = () => {
 
           {!otpSent && (
             <>
-              <div className="relative mt-6 mb-8">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-700"></div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-sm text-slate-300">
-                  <div className="w-5 h-5 bg-green-400/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+              <div className="border-t border-stone-100 mt-6 mb-5" />
+              <div className="space-y-2.5">
+                {['Create one free portfolio', 'Free hosting included', 'No credit card required'].map(item => (
+                  <div key={item} className="flex items-center gap-3 text-sm text-stone-600">
+                    <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span>{item}</span>
                   </div>
-                  <span>Create one free portfolio</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-slate-300">
-                  <div className="w-5 h-5 bg-green-400/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span>Free hosting included</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-slate-300">
-                  <div className="w-5 h-5 bg-green-400/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span>No credit card required</span>
-                </div>
+                ))}
               </div>
             </>
           )}
 
-          <p className="mt-6 text-xs text-slate-500 text-center">
+          <p className="mt-6 text-xs text-stone-400 text-center">
             By continuing, you agree to our{' '}
-            <a href="/privacy-policy" className="text-yellow-400 hover:underline">Terms of Service</a>
+            <a href="/privacy-policy" className="text-orange-600 hover:underline">Terms of Service</a>
             {' '}and{' '}
-            <a href="/privacy-policy" className="text-yellow-400 hover:underline">Privacy Policy</a>
+            <a href="/privacy-policy" className="text-orange-600 hover:underline">Privacy Policy</a>
           </p>
         </div>
       </div>
-
-      {/* CSS Animations */}
-      <style>{`
-        .bg-grid-horizontal {
-          background-image: linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px);
-          background-size: 100% 50px;
-          animation: gridMoveVertical 20s linear infinite;
-        }
-        .bg-grid-vertical {
-          background-image: linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
-          background-size: 50px 100%;
-          animation: gridMoveHorizontal 20s linear infinite;
-        }
-
-        @keyframes gridMoveVertical {
-          0% { background-position: 0 0; }
-          100% { background-position: 0 50px; }
-        }
-        @keyframes gridMoveHorizontal {
-          0% { background-position: 0 0; }
-          100% { background-position: 50px 0; }
-        }
-
-        .bg-radial-gradient {
-          background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(15, 23, 42, 0.2) 50%, rgba(15, 23, 42, 0.6) 100%);
-        }
-      `}</style>
     </div>
   );
 };

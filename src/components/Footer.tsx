@@ -1,13 +1,34 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
-    return (
-        <>
-            <footer className="mt-20 text-center text-sm text-slate-500 bg-slate-900/50 border-t border-slate-800 p-8 backdrop-blur-sm">
-                © 2026 <a href="https://porfilr.com" className="hover:text-yellow-400 hover:underline transition">Porfilr</a> | 
-                <a href="/contact" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Contact Us</a> | 
-                <a href="/privacy-policy" className="ml-2 text-slate-500 hover:text-yellow-400 hover:underline transition">Privacy Policy</a>
-            </footer>
-        </>
-    );
+  return (
+    <footer className="bg-stone-900 text-stone-400 py-12 px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+
+          {/* Brand */}
+          <div>
+            <p className="text-white text-xl font-bold tracking-tight mb-1">
+              Porfil<span className="text-orange-500">r</span>
+            </p>
+            <p className="text-stone-500 text-sm">Your work, finally visible.</p>
+          </div>
+
+          {/* Links */}
+          <div className="flex flex-wrap gap-6 text-sm">
+            <Link to="/" className="hover:text-white transition">Home</Link>
+            <Link to="/pricing" className="hover:text-white transition">Pricing</Link>
+            <Link to="/contact" className="hover:text-white transition">Contact</Link>
+            <Link to="/privacy-policy" className="hover:text-white transition">Privacy Policy</Link>
+          </div>
+        </div>
+
+        <div className="border-t border-stone-800 mt-10 pt-8 text-center text-xs text-stone-600">
+          © 2026 Porfilr. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  );
 };
 
 export default Footer;

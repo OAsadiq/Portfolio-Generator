@@ -10,206 +10,164 @@ const PricingSection = () => {
 
   const handleUpgrade = async () => {
     if (!user) {
-      sessionStorage.setItem('pendingUpgrade', 'true');
+      sessionStorage.setItem("pendingUpgrade", "true");
       await signInWithGoogle();
       return;
     }
-
     setLoading(true);
     setError(null);
-    
     try {
       const apiUrl = `${import.meta.env.VITE_API_URL}/api/stripe/actions`;
       const priceId = import.meta.env.VITE_STRIPE_PRO_PRICE_ID;
-      
-      if (!priceId) {
-        throw new Error('Please contact support.');
-      }
-      
+      if (!priceId) throw new Error("Please contact support.");
       const res = await fetch(apiUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: 'create-checkout-session',
-          priceId: priceId,
-          userId: user.id,
-          userEmail: user.email,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create-checkout-session", priceId, userId: user.id, userEmail: user.email }),
       });
-
       if (!res.ok) {
-        const errorText = await res.text();
-        let errorMessage = "Failed to start checkout";
-        
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-        
-        throw new Error(errorMessage);
+        const text = await res.text();
+        let msg = "Failed to start checkout";
+        try { msg = JSON.parse(text).error || msg; } catch {}
+        throw new Error(msg);
       }
-
       const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
+      if (data.url) window.location.href = data.url;
+      else throw new Error("No checkout URL returned");
     } catch (err: any) {
-      console.error("Checkout error:", err);
       setError(err.message || "Failed to start checkout. Please try again.");
       setLoading(false);
     }
   };
 
   return (
-    <div className="py-15 px-6">
-      <div className="text-center mb-8">
-        <p className="text-slate-400 text-sm">
-          ⏰ Average time wasted on WordPress: <span className="text-red-400 font-semibold">20+ hours</span>
-        </p>
-        <p className="text-slate-400 text-sm">
-          ⚡ Average time with Foliobase: <span className="text-green-400 font-semibold">10 minutes</span>
-        </p>
-      </div>
-      <div className="mb-12 bg-slate-800/30 border border-slate-700/50 rounded-2xl p-6 max-w-2xl mx-auto">
-        <p className="text-slate-400 text-sm mb-4">What you'd pay elsewhere:</p>
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Squarespace:</span>
-            <span className="text-slate-300 font-semibold">$300/year</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Hire designer:</span>
-            <span className="text-slate-300 font-semibold">$500 one-time</span>
-          </div>
-          <div className="h-px bg-slate-700 my-3"></div>
-          <div className="flex justify-between text-sm">
-            <span className="text-green-400 font-semibold">Foliobase:</span>
-            <span className="text-green-400 font-bold">$0-108/year</span>
+    <section id="pricing" className="py-24 px-6 bg-white border-t border-stone-100">
+      <div className="max-w-4xl mx-auto">
+
+        {/* Header */}
+        <div className="text-center mb-16">
+          <p className="text-orange-600 text-sm font-semibold uppercase tracking-widest mb-3">Pricing</p>
+          <h2
+            className="text-4xl md:text-5xl font-bold text-stone-900 mb-4"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Start free. Upgrade when you're ready.
+          </h2>
+          <p className="text-stone-500 text-lg">No trial periods. No credit card required to start.</p>
+        </div>
+
+        {/* Comparison callout */}
+        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-6 mb-10 max-w-xl mx-auto">
+          <p className="text-stone-500 text-sm mb-3 font-medium">What you'd pay elsewhere:</p>
+          <div className="space-y-2">
+            {[
+              { label: "Squarespace", price: "$300/year" },
+              { label: "Hire a designer", price: "$500 one-time" },
+            ].map((r) => (
+              <div key={r.label} className="flex justify-between text-sm">
+                <span className="text-stone-400">{r.label}</span>
+                <span className="text-stone-600 font-medium">{r.price}</span>
+              </div>
+            ))}
+            <div className="h-px bg-stone-200 my-2"></div>
+            <div className="flex justify-between text-sm">
+              <span className="text-orange-600 font-semibold">Porfilr</span>
+              <span className="text-orange-600 font-bold">$0–108/year</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="max-w-5xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-50">
-          Start Free. Upgrade When Clients Start Paying You.
-        </h2>
 
         {error && (
-          <div className="mt-6 mb-8 max-w-lg mx-auto bg-red-500/10 border border-red-500/30 rounded-2xl p-4 flex items-center justify-center gap-3 text-red-400">
-            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mb-8 max-w-lg mx-auto bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3 text-red-600 text-sm">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>{error}</span>
-            <button onClick={() => setError(null)} className="ml-2 hover:text-red-300">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <button onClick={() => setError(null)} className="ml-auto">✕</button>
           </div>
         )}
 
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Free Plan */}
-          <div className="bg-slate-800/50 border border-slate-700/50 shadow-xl rounded-2xl p-6 md:p-8 text-left backdrop-blur-sm hover:border-slate-600 transition">
-            <div className="flex justify-between items-center">
-              <h3 className="text-2xl md:text-4xl font-extrabold text-slate-50">
-                $0<span className="text-lg font-normal text-slate-400">/forever</span>
-              </h3>
-              <div className="px-2 py-1 text-xs bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 rounded-2xl font-semibold">
-                Free Plan
-              </div>
+        {/* Plans */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* Free */}
+          <div className="bg-stone-50 border border-stone-200 rounded-2xl p-8">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold uppercase tracking-widest text-stone-400">Free</span>
             </div>
-
-            <p className="text-slate-400 mt-2">
-              Perfect for getting your first 3 clients. Then upgrade with your first paycheck.
-            </p>
-
-            <ul className="mt-6 space-y-3 text-slate-300">
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">✓</span>
-                Writer-focused template
-              </li>
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">✓</span>
-                3 writing samples
-              </li>
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">✓</span>
-                Free hosting with unique URL
-              </li>
+            <div className="mb-4">
+              <span className="text-4xl font-bold text-stone-900" style={{ fontFamily: "'Playfair Display', serif" }}>$0</span>
+              <span className="text-stone-400 text-sm ml-1">/ forever</span>
+            </div>
+            <p className="text-stone-500 text-sm mb-6">Perfect for getting your first few clients. Upgrade with your first paycheck.</p>
+            <ul className="space-y-3 mb-8">
+              {[
+                "1 portfolio",
+                "Minimal template",
+                "Free hosting with unique URL",
+                "Contact form",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-sm text-stone-700">
+                  <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
             </ul>
-
             <Link to="/templates">
-              <button className="mt-8 w-full bg-slate-700 hover:bg-slate-600 text-slate-50 py-3 rounded-lg transition font-semibold cursor-pointer">
-                Start Free
+              <button className="w-full border border-stone-300 hover:bg-stone-100 text-stone-700 py-3 rounded-xl font-semibold text-sm transition">
+                Start for free
               </button>
             </Link>
           </div>
 
-          {/* Pro Plan */}
-          <div className="bg-gradient-to-br from-yellow-500/10 to-slate-800/50 border-2 border-yellow-500/50 shadow-xl shadow-yellow-500/10 rounded-2xl p-6 md:p-8 text-left backdrop-blur-sm relative overflow-hidden">
-            {/* Glow effect */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-yellow-400/20 rounded-full blur-3xl"></div>
-
-            <div className="flex justify-between items-center relative z-10">
-              <h3 className="text-2xl md:text-4xl font-extrabold text-slate-50">
-                $9<span className="text-lg font-normal text-slate-400">/month</span>
-              </h3>
-              <div className="px-2 py-1 text-xs bg-yellow-400/20 text-yellow-300 border border-yellow-400/40 rounded-2xl font-semibold">
-                Pro Plan
-              </div>
+          {/* Pro */}
+          <div className="bg-stone-900 text-white rounded-2xl p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-orange-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-xl rounded-tr-2xl">
+              POPULAR
             </div>
-
-            <p className="text-slate-300 mt-2 relative z-10">
-              For professional writers who want their own domain and analytics.
-            </p>
-
-            <ul className="mt-6 space-y-3 text-slate-300 relative z-10">
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">✓</span>
-                Everything in Free
-              </li>
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">✓</span>
-                Custom domain (yourname.com)
-              </li>
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">✓</span>
-                Unlimited writing samples
-              </li>
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">✓</span>
-                Portfolio analytics
-              </li>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold uppercase tracking-widest text-stone-400">Pro</span>
+            </div>
+            <div className="mb-4">
+              <span className="text-4xl font-bold text-white" style={{ fontFamily: "'Playfair Display', serif" }}>$9</span>
+              <span className="text-stone-400 text-sm ml-1">/ month</span>
+            </div>
+            <p className="text-stone-400 text-sm mb-6">For creators who want their own domain and deeper analytics.</p>
+            <ul className="space-y-3 mb-8">
+              {[
+                "Everything in Free",
+                "All 3 premium templates",
+                "Custom domain (yourname.com)",
+                "Portfolio analytics",
+                "Priority support",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-sm text-stone-300">
+                  <svg className="w-4 h-4 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
             </ul>
-
             <button
               onClick={handleUpgrade}
               disabled={loading}
-              className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 py-3 rounded-lg cursor-pointer relative z-10 font-bold shadow-lg shadow-yellow-400/20 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
+              className="w-full bg-orange-600 hover:bg-orange-500 text-white py-3 rounded-xl font-bold text-sm transition disabled:opacity-50"
             >
-              {loading ? "Loading..." : "Upgrade Now"}
+              {loading ? "Loading..." : "Upgrade to Pro"}
             </button>
           </div>
         </div>
 
-        <p className="text-slate-500 text-sm mt-8">
-          💡 Start with the free plan. Upgrade anytime to unlock pro features.
-        </p>
-
-        <div className="text-center mt-5">
-          <a href="/pricing" className="text-yellow-400 hover:text-yellow-300 font-semibold cursor-pointer">
+        <div className="text-center mt-8">
+          <a href="/pricing" className="text-orange-600 hover:text-orange-500 text-sm font-medium">
             See full pricing comparison →
           </a>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -7,13 +7,15 @@ interface AuthContextType {
   user: any;
   session: any;
   loading: boolean;
-  hasUsedFreeTemplate: boolean;
+  subscriptionLoading: boolean;
+  hasPortfolio: boolean;
+  existingPortfolio: { slug: string; template_id: string } | null;
   isPro: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithOTP: (email: string) => Promise<any>;
   verifyOTP: (email: string, token: string) => Promise<any>;
   signOut: () => Promise<void>;
-  checkTemplateUsage: () => Promise<void>;
+  checkPortfolio: () => Promise<void>;
   checkSubscription: () => Promise<void>;
 }
 
@@ -23,15 +25,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [hasUsedFreeTemplate, setHasUsedFreeTemplate] = useState(false);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+  const [hasPortfolio, setHasPortfolio] = useState(false);
+  const [existingPortfolio, setExistingPortfolio] = useState<{ slug: string; template_id: string } | null>(null);
   const [isPro, setIsPro] = useState(false);
 
   const checkSubscription = useCallback(async () => {
     if (!user) {
       setIsPro(false);
+      setSubscriptionLoading(false);
       return;
     }
 
+    setSubscriptionLoading(true);
     try {
       const { data, error } = await supabase
         .from('subscriptions')
@@ -48,44 +54,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (data && data.length > 0) {
         const subscription = data[0];
-        if (subscription.status === 'active' && subscription.plan === 'pro') {
-          setIsPro(true);
-        } else {
-          setIsPro(false);
-        }
+        setIsPro(subscription.status === 'active' && subscription.plan === 'pro');
       } else {
         setIsPro(false);
       }
     } catch (err) {
       console.error(err);
       setIsPro(false);
+    } finally {
+      setSubscriptionLoading(false);
     }
   }, [user]);
 
-  const checkTemplateUsage = useCallback(async () => {
+  const checkPortfolio = useCallback(async () => {
     if (!user) {
-      setHasUsedFreeTemplate(false);
+      setHasPortfolio(false);
+      setExistingPortfolio(null);
       return;
     }
 
     try {
-      const { error, count } = await supabase
-        .from('user_portfolio_usage')
-        .select('*', { count: 'exact', head: false })
+      const { data, error } = await supabase
+        .from('portfolios')
+        .select('slug, template_id')
         .eq('user_id', user.id)
-        .eq('template_id', 'minimal-template');
+        .order('created_at', { ascending: false })
+        .limit(1);
 
       if (error) {
         console.error(error);
         return;
       }
 
-      const usageCount = count || 0;
-      const hasUsed = usageCount > 0;
-
-      setHasUsedFreeTemplate(hasUsed);
+      if (data && data.length > 0) {
+        setHasPortfolio(true);
+        setExistingPortfolio({ slug: data[0].slug, template_id: data[0].template_id });
+      } else {
+        setHasPortfolio(false);
+        setExistingPortfolio(null);
+      }
     } catch (err) {
-      console.error('Exception checking template usage:', err);
+      console.error('Exception checking portfolio:', err);
     }
   }, [user]);
 
@@ -137,7 +146,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
-    setHasUsedFreeTemplate(false);
+    setHasPortfolio(false);
+    setExistingPortfolio(null);
     setIsPro(false);
   };
 
@@ -162,12 +172,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (user) {
       checkSubscription();
-      checkTemplateUsage();
+      checkPortfolio();
     } else {
       setIsPro(false);
-      setHasUsedFreeTemplate(false);
+      setSubscriptionLoading(false);
+      setHasPortfolio(false);
+      setExistingPortfolio(null);
     }
-  }, [user, checkSubscription, checkTemplateUsage]);
+  }, [user, checkSubscription, checkPortfolio]);
 
 
 
@@ -177,13 +189,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         user,
         session,
         loading,
-        hasUsedFreeTemplate,
+        subscriptionLoading,
+        hasPortfolio,
+        existingPortfolio,
         isPro,
         signInWithGoogle,
         signInWithOTP,
         verifyOTP,
         signOut,
-        checkTemplateUsage,
+        checkPortfolio,
         checkSubscription,
       }}
     >

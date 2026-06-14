@@ -23,145 +23,424 @@ function buildSocials(data, inline = false) {
   return links ? `<div class="social-icons${inline ? ' social-icons--inline' : ''}">${links}</div>` : '';
 }
 
-function buildProjects(data) {
-  const cards = [];
-  for (let i = 1; i <= 6; i++) {
-    const title = data[`project${i}Title`];
-    if (!title) continue;
-    const client = data[`project${i}Client`] || '';
-    const role = data[`project${i}Role`] || '';
-    const year = data[`project${i}Year`] || '';
-    const desc = data[`project${i}Description`] || '';
-    const tags = (data[`project${i}Tags`] || '').split(',').map(t => t.trim()).filter(Boolean);
-    const img = data[`project${i}Image`] || '';
-    const link = data[`project${i}Link`] || '';
-    const hasDetail = data[`project${i}Overview`] || data[`project${i}Approach`] || data[`project${i}Outcome`];
+function buildCaseStudies(data) {
+  let caseStudiesHTML = "";
 
-    const tagHtml = tags.map(t => `<span class="tag">${t}</span>`).join('');
-    const imgArea = img
-      ? `<img src="${img}" alt="${title}" class="project-img" />`
-      : `<div class="project-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
+  for (let i = 1; i <= 100; i++) {
+    const title = data[`case${i}Title`];
+    if (!title) break;
 
-    const actions = [];
-    if (hasDetail) actions.push(`<button class="proj-btn proj-btn--detail" onclick="openModal(${i})">View details</button>`);
-    if (link) actions.push(`<a href="${link}" target="_blank" rel="noopener" class="proj-btn proj-btn--link">Live link ↗</a>`);
+    const client = data[`case${i}Client`];
+    const role = data[`case${i}Role`];
+    const description = data[`case${i}Description`];
+    const challenge = data[`case${i}Challenge`];
+    const solution = data[`case${i}Solution`];
+    const results = data[`case${i}Results`];
+    const image = data[`case${i}Image`];
+    const tags = data[`case${i}Tags`];
+    const emoji = getCaseStudyEmoji(i);
 
-    cards.push(`
-    <article class="project-card" data-index="${i}">
-      <div class="project-media">
-        ${imgArea}
-        ${(hasDetail || link) ? `<div class="project-overlay">${actions.join('')}</div>` : ''}
-      </div>
-      <div class="project-body">
-        <div class="project-meta">
-          ${client ? `<span class="project-client">${client}</span>` : ''}
-          ${(client && (role || year)) ? '<span class="meta-sep">·</span>' : ''}
-          ${role ? `<span class="project-role">${role}</span>` : ''}
-          ${year ? `<span class="project-year">${year}</span>` : ''}
+    // Determine if we show the modal link based on whether we have extended content
+    const hasExtendedContent = challenge || solution || results;
+
+    caseStudiesHTML += `
+      <article class="case-study" data-aos="fade-up" data-aos-delay="${(i - 1) * 100}">
+        <div class="case-image">
+          ${image ? `<img src="${image}" alt="${title}" />` : `<span class="case-emoji">${emoji}</span>`}
         </div>
-        <h3 class="project-title">${title}</h3>
-        ${desc ? `<p class="project-desc">${desc}</p>` : ''}
-        ${tagHtml ? `<div class="project-tags">${tagHtml}</div>` : ''}
-      </div>
-    </article>`);
-  }
-  return cards.join('');
-}
-
-function buildProjectModals(data) {
-  const modals = [];
-  for (let i = 1; i <= 6; i++) {
-    const title = data[`project${i}Title`];
-    if (!title) continue;
-    const overview = data[`project${i}Overview`];
-    const approach = data[`project${i}Approach`];
-    const outcome = data[`project${i}Outcome`];
-    const link = data[`project${i}Link`];
-    if (!overview && !approach && !outcome) continue;
-
-    const sections = [
-      overview && `<div class="modal-section"><h4>Overview</h4><p>${overview}</p></div>`,
-      approach && `<div class="modal-section"><h4>Approach</h4><p>${approach}</p></div>`,
-      outcome && `<div class="modal-section"><h4>Outcome</h4><p>${outcome}</p></div>`,
-    ].filter(Boolean).join('');
-
-    modals.push(`
-  <div id="modal-${i}" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-${i}">
-    <div class="modal-backdrop" onclick="closeModal(${i})"></div>
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal(${i})" aria-label="Close">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </button>
-      <h2 id="modal-title-${i}" class="modal-title">${title}</h2>
-      <div class="modal-sections">${sections}</div>
-      ${link ? `<a href="${link}" target="_blank" rel="noopener" class="modal-link">View live project ↗</a>` : ''}
-    </div>
-  </div>`);
-  }
-  return modals.join('');
-}
-
-function buildSkills(data) {
-  const skills = [];
-  for (let i = 1; i <= 16; i++) {
-    const s = data[`skill${i}`];
-    if (s) skills.push(`<span class="skill-pill">${s}</span>`);
-  }
-  return skills.length ? `<div class="skills-wrap">${skills.join('')}</div>` : '';
-}
-
-function buildExperience(data) {
-  const items = [];
-  for (let i = 1; i <= 6; i++) {
-    const role = data[`exp${i}Role`];
-    if (!role) continue;
-    const company = data[`exp${i}Company`] || '';
-    const period = data[`exp${i}Period`] || '';
-    const desc = data[`exp${i}Description`] || '';
-    items.push(`
-    <div class="exp-item">
-      <div class="exp-period">${period}</div>
-      <div class="exp-body">
-        <div class="exp-head">
-          <span class="exp-role">${role}</span>
-          ${company ? `<span class="exp-at">·</span><span class="exp-company">${company}</span>` : ''}
+        <div class="case-content">
+          <div class="case-meta">
+            <span class="case-client">${client || 'Client Project'}</span>
+            ${role ? `<span class="case-role">${role}</span>` : ''}
+          </div>
+          <h3 class="case-title">${title}</h3>
+          <p class="case-description">${description || ''}</p>
+          ${tags ? `
+            <div class="case-tags">
+              ${tags.split(',').map(tag => `<span class="tag">${tag.trim()}</span>`).join('')}
+            </div>
+          ` : ''}
+          ${hasExtendedContent ? `
+            <button class="read-more" onclick="openCaseModal(${i})">Read Full Case Study →</button>
+          ` : ''}
         </div>
-        ${desc ? `<p class="exp-desc">${desc}</p>` : ''}
-      </div>
-    </div>`);
-  }
-  return items.join('');
-}
-
-function buildTestimonials(data) {
-  const cards = [];
-  for (let i = 1; i <= 6; i++) {
-    const quote = data[`testimonial${i}`];
-    if (!quote) continue;
-    const author = data[`testimonial${i}Author`] || '';
-    const role = data[`testimonial${i}Role`] || '';
-    const img = data[`testimonial${i}Image`] || '';
-    const avatar = img
-      ? `<img src="${img}" alt="${author}" class="testi-avatar" />`
-      : author ? `<div class="testi-avatar-letter">${author.charAt(0).toUpperCase()}</div>` : '';
-
-    cards.push(`
-    <blockquote class="testi-card">
-      <p class="testi-quote">"${quote}"</p>
-      ${(author || role) ? `
-      <footer class="testi-footer">
-        ${avatar}
-        <div class="testi-info">
-          ${author ? `<strong>${author}</strong>` : ''}
-          ${role ? `<span>${role}</span>` : ''}
+      </article>
+      
+      ${hasExtendedContent ? `
+        <!-- Case Study Modal -->
+        <div id="case-modal-${i}" class="case-modal">
+          <div class="modal-overlay" onclick="closeCaseModal(${i})"></div>
+          <div class="modal-content">
+            <button class="modal-close" onclick="closeCaseModal(${i})">×</button>
+            <div class="modal-header">
+              ${image ? `<img src="${image}" alt="${title}" class="modal-hero-image" />` : ''}
+              <h2>${title}</h2>
+              <div class="modal-meta">
+                <span><strong>Client:</strong> ${client}</span>
+                ${role ? `<span><strong>Role:</strong> ${role}</span>` : ''}
+              </div>
+            </div>
+            <div class="modal-body">
+              ${challenge ? `
+                <section class="modal-section">
+                  <h3>🎯 Challenge</h3>
+                  <p>${challenge}</p>
+                </section>
+              ` : ''}
+              ${solution ? `
+                <section class="modal-section">
+                  <h3>💡 Solution</h3>
+                  <p>${solution}</p>
+                </section>
+              ` : ''}
+              ${results ? `
+                <section class="modal-section">
+                  <h3>📊 Results</h3>
+                  <p>${results}</p>
+                </section>
+              ` : ''}
+            </div>
+          </div>
         </div>
-      </footer>` : ''}
-    </blockquote>`);
+      ` : ''}
+    `;
   }
-  return cards.join('');
+
+  return caseStudiesHTML;
 }
 
-function getStyles(accent) {
+function buildBlogPosts(data) {
+  let blogHTML = "";
+
+  for (let i = 1; i <= 100; i++) {
+    const title = data[`blog${i}Title`];
+    if (!title) break;
+
+    const excerpt = data[`blog${i}Excerpt`];
+    const date = data[`blog${i}Date`];
+    const category = data[`blog${i}Category`];
+    const readTime = data[`blog${i}ReadTime`];
+    const link = data[`blog${i}Link`];
+
+    blogHTML += `
+      <article class="blog-card" data-aos="fade-up" data-aos-delay="${(i - 1) * 100}">
+        <div class="blog-image">
+          ${category ? `<span class="blog-category">${category}</span>` : ''}
+          <div class="blog-icon">📄</div>
+        </div>
+        <div class="blog-content">
+          <div class="blog-meta">
+            ${date ? `<time>${date}</time>` : 'Recent'}
+            ${readTime ? `<span> • ${readTime} min read</span>` : ''}
+          </div>
+          <h3 class="blog-title">${title}</h3>
+          ${excerpt ? `<p class="blog-excerpt">${excerpt}</p>` : ''}
+          ${link ? `
+            <a href="${link}" target="_blank" rel="noopener noreferrer" class="blog-link">
+              Read More <span>→</span>
+            </a>
+          ` : ''}
+        </div>
+      </article>
+    `;
+  }
+
+  return blogHTML;
+}
+
+const modernTemplate = {
+  id: "modern-writer-template",
+  name: "Modern Writer Portfolio",
+  description: "Premium template with animations, dark mode, and interactive elements",
+  thumbnail: "/images/professional-template.jpg",
+  isPro: true,
+
+  fields: [
+    // Hero Section
+    { name: "fullName", label: "Full Name", type: "text", required: true, section: "hero" },
+    { name: "tagline", label: "Tagline", type: "text", placeholder: "Creative Developer & Designer", required: true, section: "hero" },
+    { name: "bio", label: "Bio", type: "textarea", required: true, section: "hero" },
+    { name: "profileImage", label: "Profile Image", type: "file", section: "hero" },
+    { name: "heroVideoUrl", label: "Hero Background Video URL (optional)", type: "text", placeholder: "https://example.com/video.mp4", section: "hero" },
+
+    // Theme
+    { name: "primaryColor", label: "Primary Color", type: "color", default: "#6366f1", section: "theme" },
+    { name: "accentColor", label: "Accent Color", type: "color", default: "#ec4899", section: "theme" },
+
+    // Skills/Expertise
+    { name: "skill1", label: "Skill 1", type: "text", section: "skills" },
+    { name: "skill2", label: "Skill 2", type: "text", section: "skills" },
+    { name: "skill3", label: "Skill 3", type: "text", section: "skills" },
+    { name: "skill4", label: "Skill 4", type: "text", section: "skills" },
+    { name: "skill5", label: "Skill 5", type: "text", section: "skills" },
+    { name: "skill6", label: "Skill 6", type: "text", section: "skills" },
+
+    // Contact
+    { name: "email", label: "Email", type: "email", required: true, section: "contact" },
+    { name: "linkedin", label: "LinkedIn", type: "text", section: "contact" },
+    { name: "twitter", label: "Twitter/X", type: "text", section: "contact" },
+    { name: "github", label: "GitHub", type: "text", section: "contact" },
+    { name: "dribbble", label: "Dribbble", type: "text", section: "contact" },
+    { name: "behance", label: "Behance", type: "text", section: "contact" },
+    { name: "website", label: "Website", type: "text", section: "contact" },
+  ],
+
+  generateHTML: (data, sections = []) => {
+    const name = data.fullName || "Your Name";
+    const tagline = data.tagline || "Creative Professional";
+    const bio = data.bio || "Passionate about creating amazing digital experiences";
+    const profile = data.profileImage || "";
+    const heroVideo = data.heroVideoUrl || "";
+    const email = data.email || "";
+    const primaryColor = data.primaryColor || "#6366f1";
+    const accentColor = data.accentColor || "#ec4899";
+
+    // Default sections
+    const defaultSections = [
+      { id: 'hero', enabled: true, order: 0 },
+      { id: 'about', enabled: true, order: 1 },
+      { id: 'skills', enabled: true, order: 2 },
+      { id: 'case-studies', enabled: true, order: 3 },
+      { id: 'blog', enabled: true, order: 4 },
+      { id: 'contact', enabled: true, order: 5 },
+      { id: 'footer', enabled: true, order: 6 },
+    ];
+
+    const activeSections = sections.length > 0 ? sections : defaultSections;
+    const sortedSections = [...activeSections].sort((a, b) => a.order - b.order);
+
+    const sectionContent = {
+      hero: () => `
+        <section class="hero" data-section="hero">
+          ${heroVideo ? `
+            <video class="hero-video" autoplay muted loop playsinline>
+              <source src="${heroVideo}" type="video/mp4">
+            </video>
+            <div class="hero-overlay"></div>
+          ` : ''}
+          <div class="hero-content">
+            ${profile ? `
+              <img src="${profile}" alt="${name}" class="hero-avatar" data-aos="zoom-in" />
+            ` : `
+              <div class="hero-avatar-letter" data-aos="zoom-in">${name.charAt(0)}</div>
+            `}
+            <h1 class="hero-title" data-aos="fade-up" data-aos-delay="100">${name}</h1>
+            <p class="hero-tagline" data-aos="fade-up" data-aos-delay="200">${tagline}</p>
+            <p class="hero-bio" data-aos="fade-up" data-aos-delay="300">${bio}</p>
+            <div class="hero-cta" data-aos="fade-up" data-aos-delay="400">
+              <a href="#contact" class="btn btn-primary">Get In Touch</a>
+              <a href="#case-studies" class="btn btn-secondary">View Work</a>
+            </div>
+            <div class="scroll-indicator" data-aos="fade-up" data-aos-delay="500">
+              <span>Scroll to explore</span>
+              <div class="scroll-arrow"></div>
+            </div>
+          </div>
+        </section>
+      `,
+
+      about: () => `
+        <section class="about-section" data-section="about">
+          <div class="container">
+            <h2 class="section-title" data-aos="fade-up">About Me</h2>
+            <div class="about-content" data-aos="fade-up" data-aos-delay="100">
+              <p>${bio}</p>
+            </div>
+          </div>
+        </section>
+      `,
+
+      skills: () => {
+        let skillsHTML = "";
+        for (let i = 1; i <= 6; i++) {
+          const skill = data[`skill${i}`];
+          if (skill) {
+            const icon = getSkillIcon(skill);
+            skillsHTML += `
+              <div class="skill-card" data-aos="flip-left" data-aos-delay="${i * 50}">
+                <div class="skill-icon">${icon}</div>
+                <h3>${skill}</h3>
+              </div>
+            `;
+          }
+        }
+
+        if (!skillsHTML) return '';
+
+        return `
+          <section class="skills-section" data-section="skills">
+            <div class="container">
+              <h2 class="section-title" data-aos="fade-up">Skills & Expertise</h2>
+              <div class="skills-grid">
+                ${skillsHTML}
+              </div>
+            </div>
+          </section>
+        `;
+      },
+
+      'case-studies': () => {
+        const caseStudies = buildCaseStudies(data);
+        if (!caseStudies) return '';
+
+        return `
+          <section class="case-studies-section" data-section="case-studies">
+            <div class="container">
+              <h2 class="section-title" data-aos="fade-up">Case Studies</h2>
+              <div class="case-studies-grid">
+                ${caseStudies}
+              </div>
+            </div>
+          </section>
+        `;
+      },
+
+      blog: () => {
+        const blogPosts = buildBlogPosts(data);
+        if (!blogPosts) return '';
+
+        return `
+          <section class="blog-section" data-section="blog">
+            <div class="container">
+              <h2 class="section-title" data-aos="fade-up">Latest Articles</h2>
+              <div class="blog-grid">
+                ${blogPosts}
+              </div>
+            </div>
+          </section>
+        `;
+      },
+
+      contact: () => `
+        <section class="contact-section" data-section="contact">
+          <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Let's Work Together</h2>
+            <div class="contact-content" data-aos="fade-up" data-aos-delay="100">
+              <p class="contact-text">Have a project in mind? Let's create something amazing together.</p>
+              <a href="mailto:${email}" class="contact-email">${email}</a>
+              <div class="social-links">
+                ${buildSocialLinks(data)}
+              </div>
+            </div>
+          </div>
+        </section>
+      `,
+
+      footer: () => `
+        <footer class="footer" data-section="footer">
+          <div class="container">
+            <p>© ${new Date().getFullYear()} ${name}. Built with <a href="https://foliobase.vercel.app" target="_blank">Foliobase</a></p>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+              <span class="sun-icon">☀️</span>
+              <span class="moon-icon">🌙</span>
+            </button>
+          </div>
+        </footer>
+      `
+    };
+
+    let mainContent = '';
+    sortedSections.forEach(section => {
+      if (section.enabled && sectionContent[section.id]) {
+        mainContent += sectionContent[section.id]();
+      }
+    });
+
+    return `
+    <!DOCTYPE html>
+    <html lang="en" data-theme="light">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>${name} - ${tagline}</title>
+        <meta name="description" content="${bio}" />
+        <meta name="author" content="${name}" />
+        <meta property="og:type" content="profile" />
+        <meta property="og:title" content="${name} - ${tagline}" />
+        <meta property="og:description" content="${bio}" />
+        <meta property="og:image" content="${profile}" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="${name} - ${tagline}" />
+        <meta name="twitter:description" content="${bio}" />
+        <meta name="twitter:image" content="${profile}" />
+        <meta name="robots" content="index, follow" />
+        <link rel="icon" type="image/svg+xml" href="${profile}" />
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+        
+        <!-- AOS Animation Library -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+        
+        <style>
+          ${getModernStyles(primaryColor, accentColor)}
+        </style>
+      </head>
+      <body>
+        <!-- Dark Mode Toggle (Fixed Position) -->
+        <button class="theme-toggle-fixed" onclick="toggleTheme()" aria-label="Toggle dark mode">
+          <span class="sun-icon">☀️</span>
+          <span class="moon-icon">🌙</span>
+        </button>
+        
+        ${mainContent}
+        
+        <!-- AOS Library -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+        
+        <script>
+          // Initialize AOS
+          AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 50
+          });
+          
+          // Dark mode toggle
+          function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+          }
+          
+          // Load saved theme
+          const savedTheme = localStorage.getItem('theme') || 'light';
+          document.documentElement.setAttribute('data-theme', savedTheme);
+          
+          // Case Study Modals
+          function openCaseModal(id) {
+            document.getElementById('case-modal-' + id).classList.add('active');
+            document.body.style.overflow = 'hidden';
+          }
+          
+          function closeCaseModal(id) {
+            document.getElementById('case-modal-' + id).classList.remove('active');
+            document.body.style.overflow = 'auto';
+          }
+          
+          // Smooth scroll
+          document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+              e.preventDefault();
+              const target = document.querySelector(this.getAttribute('href'));
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+              }
+            });
+          });
+        </script>
+      </body>
+    </html>
+    `;
+  }
+};
+
+function getModernStyles(primaryColor, accentColor) {
   return `
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -673,71 +952,66 @@ function getStyles(accent) {
       background: rgba(0,0,0,0.6);
       backdrop-filter: blur(4px);
     }
-
-    .modal-box {
-      position: relative;
-      background: var(--bg);
-      border-radius: 16px;
-      padding: 2.5rem;
-      max-width: 680px;
-      width: 100%;
-      max-height: 88vh;
-      overflow-y: auto;
-      border: 1px solid var(--border);
-      box-shadow: 0 24px 48px rgba(0,0,0,0.15);
+    
+    .blog-link:hover {
+      gap: 1rem;
     }
-
-    .modal-close {
-      position: absolute;
-      top: 1.25rem; right: 1.25rem;
-      width: 34px; height: 34px;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      cursor: pointer;
-      color: var(--text-2);
-      transition: all 0.15s;
+    
+    .blog-link span {
+      transition: transform 0.2s;
     }
-    .modal-close:hover { background: var(--bg-2); color: var(--text); }
-
-    .modal-title {
-      font-size: 1.5rem;
+    
+    .blog-link:hover span {
+      transform: translateX(5px);
+    }
+    
+    /* Contact Section */
+    .contact-section {
+      padding: 8rem 0;
+      background: var(--bg-alt);
+    }
+    
+    .contact-content {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    .contact-text {
+      font-size: 1.375rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .contact-email {
+      display: inline-block;
+      font-size: 2rem;
       font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 1.75rem;
-      padding-right: 2.5rem;
       color: var(--text);
-    }
-
-    .modal-sections { display: flex; flex-direction: column; gap: 1.5rem; }
-
-    .modal-section h4 {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-2);
-      margin-bottom: 0.5rem;
-    }
-
-    .modal-section p {
-      font-size: 0.9375rem;
-      line-height: 1.75;
-      color: var(--text);
-    }
-
-    .modal-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.375rem;
-      margin-top: 2rem;
-      font-size: 0.9375rem;
-      font-weight: 500;
-      color: var(--accent);
       text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.15s;
+      margin-bottom: 3rem;
+      transition: color 0.3s;
+      position: relative;
+    }
+    
+    .contact-email::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      transition: width 0.3s;
+    }
+    
+    .contact-email:hover {
+      color: var(--primary);
+    }
+    
+    .contact-email:hover::after {
+      width: 100%;
     }
     .modal-link:hover { border-color: var(--accent); }
 
