@@ -578,11 +578,7 @@ const ProDashboard = () => {
                           </span>
                         </div>
                         <p className="text-stone-500 text-sm">$19 one-time · Premium templates, custom domain & more</p>
-                        {subscription?.current_period_end && (
-                          <p className="text-stone-400 text-xs mt-1">
-                            Renews {new Date(subscription.current_period_end).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                          </p>
-                        )}
+                        <p className="text-stone-400 text-xs mt-1">Lifetime access — one-time payment, nothing to renew.</p>
                       </div>
                     </div>
                   </div>
@@ -616,8 +612,8 @@ const ProDashboard = () => {
                 <div className="bg-white border border-stone-200 rounded-2xl p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h3 className="font-bold text-stone-900 mb-1">Manage Billing</h3>
-                      <p className="text-stone-500 text-sm">Update your payment method, view invoices, or cancel your subscription — all from the Stripe billing portal.</p>
+                      <h3 className="font-bold text-stone-900 mb-1">Payment & Receipt</h3>
+                      <p className="text-stone-500 text-sm">View your payment details and download a receipt from the Stripe portal. Pro is a one-time purchase — there's nothing to renew or cancel.</p>
                     </div>
                   </div>
                   <button
@@ -635,7 +631,7 @@ const ProDashboard = () => {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                         </svg>
-                        Open Billing Portal
+                        View Receipt
                       </>
                     )}
                   </button>
