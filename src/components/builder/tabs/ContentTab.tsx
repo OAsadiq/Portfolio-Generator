@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Globe, Mail, Sparkles, BookOpen, MessageSquare, FileText, Plus, Trash2, Edit2, Check, Upload, TrendingUp, Briefcase, Building2, Image as ImageIcon } from 'lucide-react';
+import { User, Globe, Mail, Sparkles, BookOpen, MessageSquare, FileText, Plus, Trash2, Edit2, Check, Upload, TrendingUp, Briefcase, Building2, Image as ImageIcon, GraduationCap } from 'lucide-react';
 import { SKILL_OPTIONS, getTemplateConfig } from '../builder.config';
 
 interface Props {
@@ -41,6 +41,7 @@ export default function ContentTab({
   const config = getTemplateConfig(templateId);
   const blocks = config.contentBlocks;
   const isModern = templateId === 'modern-writer-template';
+  const isProfessional = templateId === 'professional-writer-template';
 
   const [customSkill, setCustomSkill] = useState('');
   const selectedSkills = [1, 2, 3, 4, 5, 6].map(n => formData[`skill${n}`]).filter(Boolean);
@@ -122,7 +123,21 @@ export default function ContentTab({
               className={`${INPUT} resize-none builder-scrollbar`} placeholder="Tell visitors about yourself..." />
           </div>
 
-          {isModern && (
+          {isProfessional && (
+            <>
+              <div>
+                <label className={LABEL}>Location <span className="text-stone-400 font-normal normal-case">(optional)</span></label>
+                <input type="text" value={formData.location || ''} onChange={e => onChange('location', e.target.value)} className={INPUT} placeholder="San Francisco, CA" />
+              </div>
+              <div>
+                <label className={LABEL}>Opening statement <span className="text-stone-400 font-normal normal-case">(optional)</span></label>
+                <textarea value={formData.statement || ''} onChange={e => onChange('statement', e.target.value)} rows={2}
+                  className={`${INPUT} resize-none`} placeholder="One bold line that sums up what you do…" />
+              </div>
+            </>
+          )}
+
+          {(isModern || isProfessional) && (
             <div>
               <label className={LABEL}>Resume / CV link <span className="text-stone-400 font-normal normal-case">(optional)</span></label>
               <input type="url" value={formData.resumeUrl || ''} onChange={e => onChange('resumeUrl', e.target.value)} className={INPUT} placeholder="https://link-to-your-resume.pdf" />
@@ -239,6 +254,51 @@ export default function ContentTab({
                 <input type="text" value={formData[`service${n}Title`] || ''} onChange={e => onChange(`service${n}Title`, e.target.value)} className={INPUT} placeholder={`Service ${n} title`} />
                 {formData[`service${n}Title`] && (
                   <textarea value={formData[`service${n}Desc`] || ''} onChange={e => onChange(`service${n}Desc`, e.target.value)} rows={2} className={`${INPUT} resize-none`} placeholder="Short description" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Experience ────────────────────────────────────── */}
+      {blocks.includes('experience') && (
+        <div className={DIVIDER}>
+          <p className={SECTION_HDR}><Building2 className="w-3.5 h-3.5" />Experience</p>
+          <p className="text-xs text-stone-400 mb-3">Work history. Leave a slot blank to hide it.</p>
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5, 6].map(n => (
+              <div key={n} className="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
+                <input type="text" value={formData[`exp${n}Role`] || ''} onChange={e => onChange(`exp${n}Role`, e.target.value)} className={INPUT} placeholder={`Role ${n} (e.g. Lead Designer)`} />
+                {formData[`exp${n}Role`] && (
+                  <>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input type="text" value={formData[`exp${n}Company`] || ''} onChange={e => onChange(`exp${n}Company`, e.target.value)} className={INPUT} placeholder="Company" />
+                      <input type="text" value={formData[`exp${n}Period`] || ''} onChange={e => onChange(`exp${n}Period`, e.target.value)} className={INPUT} placeholder="2022 — Now" />
+                    </div>
+                    <textarea value={formData[`exp${n}Description`] || ''} onChange={e => onChange(`exp${n}Description`, e.target.value)} rows={2} className={`${INPUT} resize-none`} placeholder="What you did there" />
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Education ─────────────────────────────────────── */}
+      {blocks.includes('education') && (
+        <div className={DIVIDER}>
+          <p className={SECTION_HDR}><GraduationCap className="w-3.5 h-3.5" />Education &amp; Certifications</p>
+          <p className="text-xs text-stone-400 mb-3">Degrees, certifications, or courses. Leave a slot blank to hide it.</p>
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5, 6].map(n => (
+              <div key={n} className="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
+                <input type="text" value={formData[`edu${n}Title`] || ''} onChange={e => onChange(`edu${n}Title`, e.target.value)} className={INPUT} placeholder={`Degree or certification ${n}`} />
+                {formData[`edu${n}Title`] && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <input type="text" value={formData[`edu${n}School`] || ''} onChange={e => onChange(`edu${n}School`, e.target.value)} className={INPUT} placeholder="School / Issuer" />
+                    <input type="text" value={formData[`edu${n}Year`] || ''} onChange={e => onChange(`edu${n}Year`, e.target.value)} className={INPUT} placeholder="Year" />
+                  </div>
                 )}
               </div>
             ))}

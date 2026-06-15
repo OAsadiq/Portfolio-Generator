@@ -1,961 +1,290 @@
-
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23ea580c'/%3E%3Crect x='6' y='7' width='7' height='26' rx='1.5' fill='white' transform='rotate(-8 9.5 20)'/%3E%3Crect x='19' y='7' width='7' height='19' rx='1.5' fill='white' transform='rotate(-8 22.5 16.5)'/%3E%3Crect x='6' y='7' width='20' height='7' rx='1.5' fill='white' transform='rotate(-8 16 10.5)'/%3E%3Crect x='6' y='17' width='15' height='6' rx='1.5' fill='white' transform='rotate(-8 13.5 20)'/%3E%3C/svg%3E" />
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-          <title>Jordan Williams - Product Designer & Brand Strategist</title>
-          <meta name="description" content="I help startups and scale-ups turn complex problems into intuitive products. 8 years crafting experiences across fintech, healthtech, and SaaS." />
-          <meta name="author" content="Jordan Williams" />
-          <meta property="og:type" content="profile" />
-          <meta property="og:title" content="Jordan Williams - Product Designer & Brand Strategist" />
-          <meta property="og:description" content="I help startups and scale-ups turn complex problems into intuitive products. 8 years crafting experiences across fintech, healthtech, and SaaS." />
-          <meta property="og:image" content="" />
-          <meta name="twitter:card" content="summary" />
-          <meta name="twitter:title" content="Jordan Williams - Product Designer & Brand Strategist" />
-          <meta name="twitter:description" content="I help startups and scale-ups turn complex problems into intuitive products. 8 years crafting experiences across fintech, healthtech, and SaaS." />
-          <meta name="twitter:image" content="" />
-          <meta name="robots" content="index, follow" />
-          <style>
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jordan Williams — Product Designer & Strategist</title>
+  <meta name="description" content="I help teams turn complex problems into clear, intuitive products. Ten years across fintech, healthtech, and SaaS — from first sketch to shipped feature." />
+  <meta name="author" content="Jordan Williams" />
+  <meta property="og:title" content="Jordan Williams — Product Designer & Strategist" />
+  <meta property="og:description" content="I help teams turn complex problems into clear, intuitive products. Ten years across fintech, healthtech, and SaaS — from first sketch to shipped feature." />
+  <meta property="og:type" content="profile" />
+  <meta property="og:image" content="" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23ea580c'/%3E%3Crect x='6' y='7' width='7' height='26' rx='1.5' fill='white' transform='rotate(-8 9.5 20)'/%3E%3Crect x='19' y='7' width='7' height='19' rx='1.5' fill='white' transform='rotate(-8 22.5 16.5)'/%3E%3Crect x='6' y='7' width='20' height='7' rx='1.5' fill='white' transform='rotate(-8 16 10.5)'/%3E%3Crect x='6' y='17' width='15' height='6' rx='1.5' fill='white' transform='rotate(-8 13.5 20)'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --primary: #2563eb;
-      --accent: #0ea5e9;
-      --text: #0f172a;
-      --text-secondary: #475569;
-      --text-tertiary: #94a3b8;
-      --bg: #ffffff;
-      --bg-secondary: #f8fafc;
-      --bg-tertiary: #f1f5f9;
-      --border: #e2e8f0;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+      --primary: #475569; --accent: #1e293b;
+      --grad: linear-gradient(135deg, #475569, #1e293b);
+      --bg: #ffffff; --bg-2: #f8fafc; --text: #0f172a; --text-2: #64748b; --border: #e9edf2; --sidebar-w: 340px;
+      --pop: #0d9488; --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
     }
-
-    body {
-      font-family: 'Inter', -apple-system, system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
-
-    .hero {
-      min-height: 90vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 6rem 0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 100%;
-      background: linear-gradient(135deg, #2563eb10, transparent 70%),
-                  linear-gradient(225deg, #0ea5e905, transparent 70%);
-      z-index: -1;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .profile-image {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin: 0 auto 2rem;
-      border: 5px solid var(--primary);
-      box-shadow: var(--shadow-xl), 0 0 0 8px #2563eb20;
-    }
-
-    .profile-letter-avatar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      margin: 0 auto 2rem;
-      text-align: center;
-      font-size: 4rem;
-      font-weight: bold;
-      color: white;
-      background: linear-gradient(135deg, #2563eb, #0ea5e9);
-    }
-
-    h1 {
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      font-weight: 900;
-      color: var(--text);
-      margin-bottom: 1rem;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-    }
-
-    .headline {
-      font-size: clamp(1.25rem, 2.5vw, 1.5rem);
-      color: var(--primary);
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-    }
-
-    .bio {
-      font-size: 1.25rem;
-      color: var(--text-secondary);
-      max-width: 700px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.8;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      margin-bottom: 2.5rem;
-    }
-
-    .social-link {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: var(--bg-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text);
-      transition: all 0.3s;
-      border: 2px solid var(--border);
-    }
-
-    .social-link:hover {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-4px);
-      border-color: var(--primary);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .cta-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1.25rem 3rem;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: white;
-      text-decoration: none;
-      border-radius: 100px;
-      font-weight: 700;
-      font-size: 1.125rem;
-      transition: all 0.3s;
-      box-shadow: var(--shadow-xl);
-    }
-
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-    }
-
-    .specialties {
-      padding: 4rem 0;
-      background: var(--bg-secondary);
-    }
-
-    .specialties-grid {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .specialty-pill {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1rem 1.75rem;
-      background: var(--bg);
-      border: 2px solid var(--border);
-      border-radius: 100px;
-      font-weight: 600;
-      color: var(--text);
-      transition: all 0.3s;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .specialty-pill:hover {
-      border-color: var(--primary);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
-    }
-
-    .specialty-icon {
-      color: var(--primary);
-    }
-
-    .section {
-      padding: 6rem 0;
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 4rem;
-    }
-
-    .section-title {
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 900;
-      color: var(--text);
-      margin-bottom: 1rem;
-      letter-spacing: -0.02em;
-    }
-
-    .section-subtitle {
-      font-size: 1.25rem;
-      color: var(--text-secondary);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .samples-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 2rem;
-    }
-
-    .sample-card {
-      background: var(--bg);
-      border: 2px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sample-card:hover {
-      border-color: var(--primary);
-      transform: translateY(-8px);
-      box-shadow: var(--shadow-xl);
-    }
-
-    .sample-image-container {
-      width: 100%;
-      height: 200px;
-      background: linear-gradient(135deg, #2563eb15, #0ea5e915);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .sample-card-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .sample-emoji-icon {
-      font-size: 5rem;
-      line-height: 1;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-    }
-
-    .sample-content {
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .sample-type {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      background: linear-gradient(135deg, #2563eb20, #0ea5e920);
-      color: var(--primary);
-      border-radius: 100px;
-      font-size: 0.8125rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      align-self: flex-start;
-      border: 1px solid #2563eb30;
-    }
-
-    .sample-title {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 1rem;
-      line-height: 1.3;
-    }
-
-    .sample-description {
-      color: var(--text-secondary);
-      margin-bottom: 1.5rem;
-      line-height: 1.7;
-      flex: 1;
-    }
-
-    .sample-actions {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      margin-top: auto;
-    }
-
-    .sample-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.9375rem;
-      transition: all 0.3s;
-      cursor: pointer;
-      border: none;
-      text-decoration: none;
-    }
-
-    .sample-btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: white;
-      box-shadow: var(--shadow);
-    }
-
-    .sample-btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .sample-btn-secondary {
-      background: var(--bg-secondary);
-      color: var(--text);
-      border: 2px solid var(--border);
-    }
-
-    .sample-btn-secondary:hover {
-      border-color: var(--primary);
-      background: var(--bg);
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(8px);
-      animation: fadeIn 0.3s;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .modal-container {
-      position: relative;
-      background: var(--bg);
-      border-radius: 24px;
-      max-width: 900px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
-      animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(40px) scale(0.95); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--bg-secondary);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-      z-index: 10;
-    }
-
-    .modal-close:hover {
-      background: var(--primary);
-      color: white;
-      transform: rotate(90deg);
-    }
-
-    .modal-content {
-      padding: 3rem;
-    }
-
-    .modal-type {
-      display: inline-block;
-      padding: 0.5rem 1.25rem;
-      background: linear-gradient(135deg, #2563eb20, #0ea5e920);
-      color: var(--primary);
-      border-radius: 100px;
-      font-size: 0.875rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border: 1px solid #2563eb30;
-    }
-
-    .modal-title {
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: var(--text);
-      margin-bottom: 2rem;
-      line-height: 1.2;
-    }
-
-    .modal-body {
-      font-size: 1.125rem;
-      line-height: 1.8;
-      color: var(--text-secondary);
-    }
-
-    .modal-body p {
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-top: 2rem;
-      padding: 1rem 2rem;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: white;
-      text-decoration: none;
-      border-radius: 12px;
-      font-weight: 700;
-      transition: all 0.3s;
-      box-shadow: var(--shadow-lg);
-    }
-
-    .modal-cta:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-xl);
-    }
-
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-    }
-
-    .testimonial-card {
-      background: var(--bg);
-      border: 2px solid var(--border);
-      border-radius: 20px;
-      padding: 2.5rem;
-      transition: all 0.3s;
-      box-shadow: var(--shadow);
-    }
-
-    .testimonial-card:hover {
-      border-color: var(--primary);
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-xl);
-    }
-
-    .testimonial-stars {
-      color: #fbbf24;
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
-      letter-spacing: 0.25rem;
-    }
-
-    .testimonial-text {
-      font-size: 1.125rem;
-      color: var(--text);
-      line-height: 1.7;
-      margin-bottom: 1.5rem;
-      font-style: italic;
-    }
-
-    .testimonial-author {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .testimonial-avatar,
-    .testimonial-avatar-placeholder {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--border);
-    }
-
-    .testimonial-avatar-placeholder {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1.5rem;
-    }
-
-    .testimonial-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .testimonial-info strong {
-      color: var(--text);
-      font-weight: 700;
-      font-size: 1.0625rem;
-    }
-
-    .testimonial-role {
-      color: var(--text-tertiary);
-      font-size: 0.9375rem;
-    }
-
-    .contact-section {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      padding: 5rem 2rem;
-      border-radius: 32px;
-      text-align: center;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .contact-section::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    }
-
-    .contact-section h2 {
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 900;
-      margin-bottom: 1rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    .contact-section p {
-      font-size: 1.375rem;
-      margin-bottom: 2.5rem;
-      opacity: 0.95;
-      position: relative;
-      z-index: 1;
-    }
-
-    .contact-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1.25rem 3rem;
-      background: white;
-      color: var(--primary);
-      text-decoration: none;
-      border-radius: 100px;
-      font-weight: 800;
-      font-size: 1.125rem;
-      transition: all 0.3s;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      position: relative;
-      z-index: 1;
-    }
-
-    .contact-button:hover {
-      transform: translateY(-4px) scale(1.05);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    footer {
-      padding: 2rem 0;
-      text-align: center;
-      background: var(--bg-secondary);
-    }
-
-    footer p {
-      color: var(--text-tertiary);
-      font-size: 0.9375rem;
-    }
-
-    footer a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 768px) {
-      .container { padding: 0 1.25rem; }
-      .hero { min-height: auto; padding: 4rem 0; }
-      .profile-image, .profile-letter-avatar { width: 140px; height: 140px; font-size: 2rem; }
-      .section { padding: 4rem 0; }
-      .samples-grid, .testimonials-grid { grid-template-columns: 1fr; }
-      .sample-image-container { height: 180px; }
-      .sample-emoji-icon { font-size: 4rem; }
-      .modal-content { padding: 2rem 1.5rem; }
-      .modal-title { font-size: 1.875rem; }
-      .contact-section { padding: 3rem 1.5rem; border-radius: 24px; }
-    }
-
     html { scroll-behavior: smooth; }
-    ::selection { background: var(--primary); color: white; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
 
-          </style>
-        </head>
-        <body>
+    .layout { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; background-color: var(--bg); background-image: radial-gradient(circle at 1px 1px, rgba(100,116,139,0.10) 1px, transparent 0); background-size: 22px 22px; }
 
-          <section class="hero">
-            <div class="container">
-              <div class="hero-content">
-                <div class="profile-letter-avatar">
-              <span>J</span>
-            </div>
-                <h1>Jordan Williams</h1>
-                <p class="headline">Product Designer & Brand Strategist</p>
-                <p class="bio">I help startups and scale-ups turn complex problems into intuitive products. 8 years crafting experiences across fintech, healthtech, and SaaS.</p>
+    /* ── Sidebar ── */
+    .sidebar { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: 3rem 2.25rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 1.5rem; background: var(--bg-2); }
+    .side-avatar { width: 96px; height: 96px; border-radius: 20px; overflow: hidden; background: var(--grad); box-shadow: 0 12px 30px rgba(15,23,42,.16); border: 3px solid #fff; }
+    .side-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .side-avatar-letter { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.4rem; font-weight: 700; font-family: var(--serif); }
+    .side-name { font-family: var(--serif); font-size: 1.85rem; font-weight: 600; letter-spacing: -.02em; line-height: 1.08; background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .side-role { font-size: .95rem; font-weight: 600; color: var(--text); margin-top: .35rem; }
+    .side-location { display: flex; align-items: center; gap: .35rem; font-size: .82rem; color: var(--text-2); margin-top: .4rem; }
+    .side-avail { display: inline-flex; align-items: center; gap: .5rem; font-size: .78rem; font-weight: 500; color: var(--text-2); padding: .3rem .7rem; border: 1px solid var(--border); border-radius: 100px; background: var(--bg); width: fit-content; }
+    .side-avail-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.2); }
+    .side-nav { display: flex; flex-direction: column; gap: .15rem; margin-top: .5rem; }
+    .side-link { display: flex; align-items: center; gap: .7rem; font-size: .9rem; color: var(--text-2); text-decoration: none; padding: .45rem .25rem; transition: color .15s; }
+    .side-link:hover { color: var(--text); }
+    .side-link.active { color: var(--pop); font-weight: 600; }
+    .side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 1rem; padding-top: 1.5rem; }
+    .side-actions { display: flex; flex-direction: column; gap: .6rem; }
+    .side-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .7rem 1rem; border-radius: 10px; font-size: .9rem; font-weight: 600; text-decoration: none; transition: all .15s; }
+    .side-btn-primary { background: var(--grad); color: #fff; }
+    .side-btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+    .side-btn-outline { border: 1px solid var(--border); color: var(--text); background: var(--bg); }
+    .side-btn-outline:hover { border-color: var(--text-2); }
+    .side-socials { display: flex; gap: .4rem; }
+    .side-social { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg); color: var(--text-2); transition: all .15s; }
+    .side-social:hover { color: #fff; background: var(--primary); border-color: var(--primary); }
 
+    /* ── Content ── */
+    .content { padding: 4rem 4.5rem; max-width: 920px; }
+    .section { padding: 3rem 0; }
+    .section:first-child { padding-top: 1rem; }
+    .section + .section { border-top: 1px solid var(--border); }
+    .sec-head { margin-bottom: 2rem; }
+    .sec-kicker { display: inline-flex; align-items: center; gap: .6rem; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em; color: var(--pop); margin-bottom: .65rem; }
+    .sec-kicker::before { content: ''; width: 22px; height: 1px; background: var(--pop); }
+    .sec-title { font-family: var(--serif); font-size: 2.1rem; font-weight: 600; letter-spacing: -.02em; line-height: 1.1; }
+    .sec-count { font-size: .85rem; color: var(--text-2); font-weight: 400; margin-left: .6rem; -webkit-text-fill-color: var(--text-2); }
+    .about-text { font-size: 1.35rem; line-height: 1.65; color: var(--text); letter-spacing: -.01em; }
+    .lead-statement { font-family: var(--serif); font-size: clamp(1.7rem, 3.2vw, 2.6rem); font-weight: 500; line-height: 1.18; letter-spacing: -.02em; color: var(--text); padding-bottom: 2.5rem; border-bottom: 1px solid var(--border); }
+    .lead-statement em { font-style: italic; color: var(--pop); }
 
-    <div class="social-links">
+    .exp-list { display: flex; flex-direction: column; }
+    .exp-item { display: grid; grid-template-columns: 150px 1fr; gap: 1.5rem; padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
+    .exp-item:last-child { border-bottom: none; }
+    .exp-period { font-size: .85rem; color: var(--text-2); font-weight: 500; padding-top: .15rem; }
+    .exp-head { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: .35rem; }
+    .exp-role { font-size: 1.1rem; font-weight: 700; }
+    .exp-at { font-size: .9rem; color: var(--text-2); }
+    .exp-company { font-size: 1rem; font-weight: 600; color: var(--primary); }
+    .exp-desc { font-size: .95rem; color: var(--text-2); line-height: 1.6; }
 
-    <a href="https://linkedin.com" target="_blank" class="social-link" title="LinkedIn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-    </a>
+    .edu-list { display: flex; flex-direction: column; }
+    .edu-item { display: grid; grid-template-columns: 90px 1fr; gap: 1.5rem; padding: 1.1rem 0; border-bottom: 1px solid var(--border); }
+    .edu-item:last-child { border-bottom: none; }
+    .edu-year { font-size: .85rem; color: var(--text-2); font-weight: 500; padding-top: .1rem; }
+    .edu-title { font-size: 1.05rem; font-weight: 700; }
+    .edu-school { font-size: .92rem; color: var(--text-2); margin-top: .15rem; }
 
-    <a href="https://twitter.com" target="_blank" class="social-link" title="Twitter">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-    </a>
+    .services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .service-card { border: 1px solid var(--border); border-radius: 16px; padding: 1.6rem; background: var(--bg); transition: all .15s; }
+    .service-card:hover { border-color: var(--primary); box-shadow: 0 8px 30px rgba(0,0,0,.05); transform: translateY(-2px); }
+    .service-title { font-size: 1.15rem; font-weight: 700; margin-bottom: .45rem; }
+    .service-desc { font-size: .92rem; color: var(--text-2); line-height: 1.6; }
 
+    .samples-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+    .sample-card { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--bg); transition: all .2s; display: flex; flex-direction: column; }
+    .sample-card:hover { border-color: var(--primary); box-shadow: 0 12px 36px rgba(0,0,0,.07); transform: translateY(-3px); }
+    .sample-media { height: 170px; background: var(--bg-2); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .sample-media .sample-img { width: 100%; height: 100%; object-fit: cover; }
+    .sample-icon { color: var(--primary); }
+    .sample-body { padding: 1.4rem; display: flex; flex-direction: column; flex: 1; }
+    .sample-type { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--primary); margin-bottom: .6rem; }
+    .sample-title { font-size: 1.2rem; font-weight: 700; margin-bottom: .5rem; line-height: 1.3; }
+    .sample-desc { font-size: .92rem; color: var(--text-2); line-height: 1.6; margin-bottom: 1rem; flex: 1; }
+    .sample-actions { display: flex; gap: 1rem; align-items: center; }
+    .sample-btn { background: none; border: none; padding: 0; font-size: .9rem; font-weight: 600; color: var(--primary); cursor: pointer; font-family: inherit; }
+    .sample-link { font-size: .9rem; font-weight: 600; color: var(--text-2); text-decoration: none; }
+    .sample-link:hover { color: var(--text); }
+
+    .testi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    .testi-card { border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; background: var(--bg); position: relative; }
+    .testi-quote-mark { color: var(--primary); opacity: .18; margin-bottom: .5rem; }
+    .testi-quote { font-size: 1rem; line-height: 1.65; color: var(--text); margin-bottom: 1.25rem; }
+    .testi-footer { display: flex; align-items: center; gap: .75rem; }
+    .testi-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .testi-avatar-letter { width: 40px; height: 40px; border-radius: 50%; background: var(--grad); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+    .testi-info { display: flex; flex-direction: column; }
+    .testi-info strong { font-size: .92rem; font-weight: 700; }
+    .testi-info span { font-size: .82rem; color: var(--text-2); }
+
+    /* Modal */
+    .modal { display: none; position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center; padding: 1.5rem; }
+    .modal.is-open { display: flex; }
+    .modal-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.6); backdrop-filter: blur(4px); }
+    .modal-box { position: relative; background: var(--bg); border-radius: 18px; padding: 2.5rem; max-width: 640px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,.2); }
+    .modal-close { position: absolute; top: 1.25rem; right: 1.25rem; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 9px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; color: var(--text-2); }
+    .modal-close:hover { color: var(--text); }
+    .modal-type { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--primary); }
+    .modal-title { font-family: var(--serif); font-size: 1.8rem; font-weight: 600; margin: .5rem 0 1.5rem; letter-spacing: -.02em; }
+    .modal-body p { font-size: 1rem; line-height: 1.75; color: var(--text-2); margin-bottom: 1rem; }
+    .modal-cta { display: inline-block; margin-top: 1rem; background: var(--grad); color: #fff; padding: .7rem 1.5rem; border-radius: 10px; font-weight: 600; text-decoration: none; }
+
+    .credit { padding: 2rem 0 0; font-size: .8rem; color: var(--text-2); }
+    .credit a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+      .side-nav { display: none; }
+      .side-foot { margin-top: 1rem; }
+      .content { padding: 2.5rem 1.5rem; }
+      .services-grid, .samples-grid, .testi-grid { grid-template-columns: 1fr; }
+      .exp-item { grid-template-columns: 1fr; gap: .25rem; }
+    }
+    ::selection { background: var(--primary); color: #fff; }
+    [id] { scroll-margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="side-avatar"><div class="side-avatar-letter">J</div></div>
+      <div>
+        <div class="side-name">Jordan Williams</div>
+        <div class="side-role">Product Designer & Strategist</div>
+        <p class="side-location"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>San Francisco, CA</p>
+      </div>
+      <span class="side-avail"><span class="side-avail-dot"></span>Available for work</span>
+      <nav class="side-nav"><a href="#about" class="side-link" data-target="about">About</a><a href="#experience" class="side-link" data-target="experience">Experience</a><a href="#services" class="side-link" data-target="services">Services</a><a href="#work" class="side-link" data-target="work">Work</a><a href="#testimonials" class="side-link" data-target="testimonials">Testimonials</a><a href="#education" class="side-link" data-target="education">Education</a></nav>
+      <div class="side-foot">
+        <div class="side-actions">
+          <a href="mailto:jordan@example.com" class="side-btn side-btn-primary">Get in touch</a>
+          <a href="https://example.com/resume.pdf" target="_blank" rel="noopener" class="side-btn side-btn-outline">Resume ↓</a>
+        </div>
+        <div class="side-socials"><a href="https://linkedin.com" target="_blank" rel="noopener" class="side-social" title="linkedin"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a><a href="https://twitter.com" target="_blank" rel="noopener" class="side-social" title="twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a><a href="https://example.com" target="_blank" rel="noopener" class="side-social" title="globe"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></a></div>
+      </div>
+    </aside>
+    <main class="content">
+      <p class="lead-statement">I design products people actually finish using — calm interfaces, clear systems, measurable results.</p>
+      <section class="section reveal" id="about"><div class="sec-head"><div class="sec-kicker">Profile</div><h2 class="sec-title">About</h2></div><p class="about-text">I help teams turn complex problems into clear, intuitive products. Ten years across fintech, healthtech, and SaaS — from first sketch to shipped feature.</p></section><section class="section reveal" id="experience"><div class="sec-head"><div class="sec-kicker">Career</div><h2 class="sec-title">Experience</h2></div><div class="exp-list">
+    <div class="exp-item">
+      <div class="exp-period">2022 — Present</div>
+      <div class="exp-body">
+        <div class="exp-head"><span class="exp-role">Lead Product Designer</span><span class="exp-at">at</span><span class="exp-company">Stripe</span></div>
+        <p class="exp-desc">Led the checkout redesign that lifted conversion 18% across three markets.</p>
+      </div>
     </div>
-
-
-                <a href="mailto:jordan@example.com" class="cta-button">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M3 4L10 11L17 4M3 4H17V14H3V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  Get In Touch
-                </a>
-              </div>
-            </div>
-          </section>
-
-          <section class="specialties">
-            <div class="container">
-              <div class="specialties-grid">
-
-              <div class="specialty-pill">
-                <svg class="specialty-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M9 2L11.5 7.5L17 8L13 12L14 17.5L9 15L4 17.5L5 12L1 8L6.5 7.5L9 2Z" fill="currentColor"/>
-                </svg>
-                Product Design
-              </div>
-
-              <div class="specialty-pill">
-                <svg class="specialty-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M9 2L11.5 7.5L17 8L13 12L14 17.5L9 15L4 17.5L5 12L1 8L6.5 7.5L9 2Z" fill="currentColor"/>
-                </svg>
-                Brand Strategy
-              </div>
-
-              <div class="specialty-pill">
-                <svg class="specialty-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M9 2L11.5 7.5L17 8L13 12L14 17.5L9 15L4 17.5L5 12L1 8L6.5 7.5L9 2Z" fill="currentColor"/>
-                </svg>
-                UX Research
-              </div>
-
-              <div class="specialty-pill">
-                <svg class="specialty-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M9 2L11.5 7.5L17 8L13 12L14 17.5L9 15L4 17.5L5 12L1 8L6.5 7.5L9 2Z" fill="currentColor"/>
-                </svg>
-                Design Systems
-              </div>
-
-              </div>
-            </div>
-          </section>
-
-          <section class="section">
-            <div class="container">
-              <div class="section-header">
-                <h2 class="section-title">Featured Work</h2>
-                <p class="section-subtitle">A curated selection of featured projects and published work</p>
-              </div>
-              <div class="samples-grid">
-
+    <div class="exp-item">
+      <div class="exp-period">2019 — 2022</div>
+      <div class="exp-body">
+        <div class="exp-head"><span class="exp-role">Senior Designer</span><span class="exp-at">at</span><span class="exp-company">Figma</span></div>
+        <p class="exp-desc">Built the design-token pipeline adopted by six product teams.</p>
+      </div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-period">2017 — 2019</div>
+      <div class="exp-body">
+        <div class="exp-head"><span class="exp-role">Product Designer</span><span class="exp-at">at</span><span class="exp-company">Notion</span></div>
+        <p class="exp-desc">Shipped the first analytics surface for the business tier.</p>
+      </div>
+    </div></div></section><section class="section reveal" id="services"><div class="sec-head"><div class="sec-kicker">Offerings</div><h2 class="sec-title">Services</h2></div><div class="services-grid">
+    <div class="service-card">
+      <h3 class="service-title">Product Design</h3>
+      <p class="service-desc">End-to-end design — research, flows, UI, and polished handoff to engineering.</p>
+    </div>
+    <div class="service-card">
+      <h3 class="service-title">Brand Strategy</h3>
+      <p class="service-desc">Positioning, identity systems, and messaging that make a product memorable.</p>
+    </div>
+    <div class="service-card">
+      <h3 class="service-title">Design Systems</h3>
+      <p class="service-desc">Scalable component libraries and tokens that keep teams fast and consistent.</p>
+    </div>
+    <div class="service-card">
+      <h3 class="service-title">UX Research</h3>
+      <p class="service-desc">Interviews, usability testing, and synthesis that ground decisions in evidence.</p>
+    </div></div></section><section class="section reveal" id="work"><div class="sec-head"><div class="sec-kicker">Portfolio</div><h2 class="sec-title">Selected Work</h2></div><div class="samples-grid">
       <article class="sample-card">
-        <div class="sample-image-container">
-          <div class="sample-emoji-icon"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.35"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-        </div>
-        <div class="sample-content">
+        <div class="sample-media"><div class="sample-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div></div>
+        <div class="sample-body">
           <span class="sample-type">Product Design</span>
-          <h3 class="sample-title">Payments Redesign — Stripe</h3>
-          <p class="sample-description">Redesigned the core checkout flow, reducing drop-off by 34% and increasing conversion across 3 markets.</p>
+          <h3 class="sample-title">Checkout Redesign</h3>
+          <p class="sample-desc">Rebuilt the core checkout flow, cutting drop-off and lifting conversion across markets.</p>
           <div class="sample-actions">
-              <button class="sample-btn sample-btn-primary" onclick="openModal('modal-1')">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M2 8C2 8 4.5 3 8 3C11.5 3 14 8 14 8C14 8 11.5 13 8 13C4.5 13 2 8 2 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="2"/>
-                </svg>
-                View Details
-              </button>
-              <a href="https://example.com" target="_blank" class="sample-btn sample-btn-secondary">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                Live Link
-              </a>
+            <button class="sample-btn" onclick="openModal('modal-1')">View details →</button>
+            <a href="https://example.com" target="_blank" rel="noopener" class="sample-link">Live link ↗</a>
           </div>
         </div>
       </article>
-
       <article class="sample-card">
-        <div class="sample-image-container">
-          <div class="sample-emoji-icon"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.35"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-        </div>
-        <div class="sample-content">
-          <span class="sample-type">UX Design</span>
-          <h3 class="sample-title">Analytics Dashboard — Notion</h3>
-          <p class="sample-description">Built the first analytics product for Notion's business tier, now used by 200k+ teams to track workspace activity.</p>
+        <div class="sample-media"><div class="sample-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div></div>
+        <div class="sample-body">
+          <span class="sample-type">Design Systems</span>
+          <h3 class="sample-title">Design System — Luma</h3>
+          <p class="sample-desc">Built the component library and token pipeline powering every product surface.</p>
           <div class="sample-actions">
-              <button class="sample-btn sample-btn-primary" onclick="openModal('modal-2')">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M2 8C2 8 4.5 3 8 3C11.5 3 14 8 14 8C14 8 11.5 13 8 13C4.5 13 2 8 2 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="2"/>
-                </svg>
-                View Details
-              </button>
+
+
           </div>
         </div>
-      </article>
+      </article></div></section><section class="section reveal" id="testimonials"><div class="sec-head"><div class="sec-kicker">Praise</div><h2 class="sec-title">Testimonials</h2></div><div class="testi-grid">
+    <blockquote class="testi-card">
+      <svg class="testi-quote-mark" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M9.5 4C6.46 4 4 6.46 4 9.5c0 2.5 1.67 4.6 3.95 5.28-.13.9-.6 2.1-1.95 3.22-.3.25-.1.75.3.7C9.9 18.1 12 14.5 12 10.5V9.5C12 6.46 9.54 4 9.5 4zm9 0C15.46 4 13 6.46 13 9.5c0 2.5 1.67 4.6 3.95 5.28-.13.9-.6 2.1-1.95 3.22-.3.25-.1.75.3.7C18.9 18.1 21 14.5 21 10.5V9.5C21 6.46 18.54 4 18.5 4z"/></svg>
+      <p class="testi-quote">Jordan shipped more polish in a month than we had managed in a year. A rare blend of designer and strategist.</p>
+      <footer class="testi-footer"><div class="testi-avatar-letter">M</div><div class="testi-info"><strong>Maya Chen</strong><span>CPO, Flowbase</span></div></footer>
+    </blockquote>
+    <blockquote class="testi-card">
+      <svg class="testi-quote-mark" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M9.5 4C6.46 4 4 6.46 4 9.5c0 2.5 1.67 4.6 3.95 5.28-.13.9-.6 2.1-1.95 3.22-.3.25-.1.75.3.7C9.9 18.1 12 14.5 12 10.5V9.5C12 6.46 9.54 4 9.5 4zm9 0C15.46 4 13 6.46 13 9.5c0 2.5 1.67 4.6 3.95 5.28-.13.9-.6 2.1-1.95 3.22-.3.25-.1.75.3.7C18.9 18.1 21 14.5 21 10.5V9.5C21 6.46 18.54 4 18.5 4z"/></svg>
+      <p class="testi-quote">Thoughtful, fast, and always focused on outcomes. My first call for any product problem.</p>
+      <footer class="testi-footer"><div class="testi-avatar-letter">J</div><div class="testi-info"><strong>James Okafor</strong><span>Founder, Stackwise</span></div></footer>
+    </blockquote></div></section><section class="section reveal" id="education"><div class="sec-head"><div class="sec-kicker">Background</div><h2 class="sec-title">Education & Certifications</h2></div><div class="edu-list">
+    <div class="edu-item">
+      <div class="edu-year">2014</div>
+      <div class="edu-body">
+        <div class="edu-title">B.F.A. Graphic Design</div>
+        <div class="edu-school">Rhode Island School of Design</div>
+      </div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-year">2019</div>
+      <div class="edu-body">
+        <div class="edu-title">UX Certification</div>
+        <div class="edu-school">Nielsen Norman Group</div>
+      </div>
+    </div></div></section>
+      <p class="credit">Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></p>
+    </main>
+  </div>
 
-      <article class="sample-card">
-        <div class="sample-image-container">
-          <div class="sample-emoji-icon"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.35"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <div id="modal-1" class="modal">
+        <div class="modal-backdrop" onclick="closeModal('modal-1')"></div>
+        <div class="modal-box">
+          <button class="modal-close" onclick="closeModal('modal-1')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          <span class="modal-type">Product Design</span>
+          <h2 class="modal-title">Checkout Redesign</h2>
+          <div class="modal-body"><p>The existing checkout had a 68% mobile abandonment rate.</p><p>We unified the visual language, cut the flow from 7 steps to 3, and added inline validation.</p><p>Result: 34% drop in abandonment and an 18% lift in conversion.</p></div>
+          <a href="https://example.com" target="_blank" rel="noopener" class="modal-cta">Visit project ↗</a>
         </div>
-        <div class="sample-content">
-          <span class="sample-type">Branding</span>
-          <h3 class="sample-title">Brand Identity — Luma</h3>
-          <p class="sample-description">Created the visual identity for Luma from zero — logo, colour system, typography, and product illustrations.</p>
-          <div class="sample-actions">
-              <a href="https://example.com" target="_blank" class="sample-btn sample-btn-secondary">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                Live Link
-              </a>
-          </div>
-        </div>
-      </article>
-
-              </div>
-            </div>
-          </section>
-
-        <div id="modal-1" class="modal">
-          <div class="modal-overlay" onclick="closeModal('modal-1')"></div>
-          <div class="modal-container">
-            <button class="modal-close" onclick="closeModal('modal-1')">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-            <div class="modal-content">
-              <span class="modal-type">Product Design</span>
-              <h2 class="modal-title">Payments Redesign — Stripe</h2>
-              <div class="modal-body">
-                <p>The existing checkout had a 68% mobile abandonment rate. We ran 12 usability sessions across 3 markets and rebuilt it in 6 weeks.</p><p>We unified the visual language, cut steps from 7 to 3, and added inline validation. Result: 34% drop in abandonment, 18% uplift in conversion.</p>
-              </div>
-              <a href="https://example.com" target="_blank" class="modal-cta">
-                View Live Project
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div id="modal-2" class="modal">
-          <div class="modal-overlay" onclick="closeModal('modal-2')"></div>
-          <div class="modal-container">
-            <button class="modal-close" onclick="closeModal('modal-2')">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-            <div class="modal-content">
-              <span class="modal-type">UX Design</span>
-              <h2 class="modal-title">Analytics Dashboard — Notion</h2>
-              <div class="modal-body">
-                <p>Teams had zero visibility into workspace usage. I interviewed 24 admins to find the core job-to-be-done: justify Notion's ROI to the CFO.</p><p>Shipped in 10 weeks. 62% of business-tier admins enabled it within the first month.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-          <section class="section" style="background: var(--bg-secondary);">
-            <div class="container">
-              <div class="section-header">
-                <h2 class="section-title">Client Testimonials</h2>
-                <p class="section-subtitle">What clients say about working with me</p>
-              </div>
-              <div class="testimonials-grid">
-
-              <div class="testimonial-card">
-                <div class="testimonial-stars">★★★★★</div>
-                <p class="testimonial-text">"Jordan completely transformed how we think about our product. The checkout redesign alone paid for the engagement in the first quarter."</p>
-                <div class="testimonial-author">
-                  <div class="testimonial-avatar-placeholder">M</div>
-                  <div class="testimonial-info">
-                    <strong>Maya Chen</strong>
-                    <span class="testimonial-role">CPO, Flowbase</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="testimonial-card">
-                <div class="testimonial-stars">★★★★★</div>
-                <p class="testimonial-text">"Working with Jordan is like having a senior design lead and a strategist in one. Fast, opinionated, and always right."</p>
-                <div class="testimonial-author">
-                  <div class="testimonial-avatar-placeholder">J</div>
-                  <div class="testimonial-info">
-                    <strong>James Okafor</strong>
-                    <span class="testimonial-role">Founder, Stackwise</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="testimonial-card">
-                <div class="testimonial-stars">★★★★★</div>
-                <p class="testimonial-text">"The design system Jordan built saved our team weeks every sprint. It's still the foundation we build on two years later."</p>
-                <div class="testimonial-author">
-                  <div class="testimonial-avatar-placeholder">P</div>
-                  <div class="testimonial-info">
-                    <strong>Priya Sharma</strong>
-                    <span class="testimonial-role">Head of Engineering, Luma</span>
-                  </div>
-                </div>
-              </div>
-
-              </div>
-            </div>
-          </section>
-
-        <section class="section">
-          <div class="container">
-            <div class="contact-section">
-              <h2>Let's Build Something Great</h2>
-              <p>Have a project in mind? Let's talk.</p>
-              <a href="mailto:jordan@example.com" class="contact-button">
-                Start a Conversation
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M7 13L13 7M13 7H7M13 7V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-          </div>
-        </section>
-
-        <footer>
-          <div class="container">
-            <p>Made with <a href="https://porfilr.com" target="_blank">Porfilr</a></p>
-          </div>
-        </footer>
-
-          <script>
-            function openModal(id) {
-              document.getElementById(id).classList.add('active');
-              document.body.style.overflow = 'hidden';
-            }
-
-            function closeModal(id) {
-              document.getElementById(id).classList.remove('active');
-              document.body.style.overflow = 'auto';
-            }
-
-            document.addEventListener('keydown', (e) => {
-              if (e.key === 'Escape') {
-                document.querySelectorAll('.modal.active').forEach(modal => {
-                  closeModal(modal.id);
-                });
-              }
-            });
-          </script>
-        </body>
-      </html>
+      </div>
+  <script>
+    function openModal(id){ var m = document.getElementById(id); if(m){ m.classList.add('is-open'); document.body.style.overflow='hidden'; } }
+    function closeModal(id){ var m = document.getElementById(id); if(m){ m.classList.remove('is-open'); document.body.style.overflow=''; } }
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ document.querySelectorAll('.modal.is-open').forEach(function(m){ m.classList.remove('is-open'); }); document.body.style.overflow=''; } });
+    (function(){
+      var els = document.querySelectorAll('.reveal');
+      if(!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(function(el){ el.classList.add('in'); }); return; }
+      var io = new IntersectionObserver(function(en){ en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: 0.12 });
+      els.forEach(function(el){ io.observe(el); });
+    })();
+    (function(){
+      var links = document.querySelectorAll('.side-link'); if(!links.length || !('IntersectionObserver' in window)) return;
+      var map = {}; links.forEach(function(l){ map[l.getAttribute('data-target')] = l; });
+      var io = new IntersectionObserver(function(en){ en.forEach(function(e){ var l = map[e.target.id]; if(l && e.isIntersecting){ links.forEach(function(x){ x.classList.remove('active'); }); l.classList.add('active'); } }); }, { rootMargin: '-30% 0px -60% 0px' });
+      Object.keys(map).forEach(function(id){ var s = document.getElementById(id); if(s) io.observe(s); });
+    })();
+  </script>
+</body>
+</html>

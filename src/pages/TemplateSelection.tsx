@@ -134,37 +134,33 @@ const TemplateMockup = ({ id, hovered }: { id: string; hovered: boolean }) => {
 
   if (id === "professional-writer-template") {
     return (
-      <div className={`w-full h-full bg-slate-900 p-5 transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"}`}>
-        {/* Top bar */}
-        <div className="flex items-center justify-between mb-5 border-b border-slate-700 pb-3">
-          <div className="h-2 w-20 bg-slate-400 rounded-full" />
-          <div className="flex gap-3">
-            <div className="h-1.5 w-6 bg-slate-600 rounded-full" />
-            <div className="h-1.5 w-6 bg-slate-600 rounded-full" />
-            <div className="h-1.5 w-6 bg-slate-600 rounded-full" />
+      <div className={`w-full h-full bg-white transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"} grid`} style={{ gridTemplateColumns: "38% 1fr" }}>
+        {/* Sidebar */}
+        <div className="p-4 flex flex-col gap-2.5" style={{ background: "#f8fafc", borderRight: "1px solid #e9edf2" }}>
+          <div className="w-11 h-11 rounded-xl" style={{ background: "linear-gradient(135deg, #475569, #1e293b)" }} />
+          <div className="h-2.5 w-16 rounded-full" style={{ background: "linear-gradient(135deg, #475569, #1e293b)" }} />
+          <div className="h-1.5 w-12 bg-stone-300 rounded-full" />
+          <div className="flex flex-col gap-1.5 mt-1">
+            <div className="h-1.5 w-14 bg-stone-200 rounded-full" />
+            <div className="h-1.5 w-12 bg-stone-200 rounded-full" />
+            <div className="h-1.5 w-16 rounded-full" style={{ background: "#cbd5e1" }} />
+            <div className="h-1.5 w-10 bg-stone-200 rounded-full" />
           </div>
+          <div className="mt-auto h-5 w-full rounded-lg" style={{ background: "linear-gradient(135deg, #475569, #1e293b)" }} />
         </div>
-        {/* Two-col layout */}
-        <div className="flex gap-3">
-          {/* Left: avatar + info */}
-          <div className="w-14 flex-shrink-0">
-            <div className="w-12 h-12 bg-slate-700 rounded-full mb-2" />
-            <div className="h-1.5 w-10 bg-slate-500 rounded-full mb-1" />
-            <div className="h-1.5 w-8 bg-slate-600 rounded-full mb-3" />
-            <div className="h-5 w-12 bg-slate-600 rounded-lg" />
+        {/* Content */}
+        <div className="p-4">
+          <div className="flex items-baseline gap-2 mb-2">
+            <div className="h-1.5 w-3 rounded-full" style={{ background: "#475569" }} />
+            <div className="h-3 w-16 bg-stone-800 rounded-md" />
           </div>
-          {/* Right: content */}
-          <div className="flex-1">
-            <div className="h-3 w-full bg-slate-300 rounded-md mb-1.5" />
-            <div className="h-3 w-4/5 bg-slate-300 rounded-md mb-3" />
-            <div className="h-1.5 w-full bg-slate-700 rounded-full mb-1" />
-            <div className="h-1.5 w-5/6 bg-slate-700 rounded-full mb-1" />
-            <div className="h-1.5 w-4/6 bg-slate-700 rounded-full mb-3" />
-            {/* Cards */}
-            <div className="space-y-1.5">
-              <div className="h-6 bg-slate-800 border border-slate-700 rounded-lg" />
-              <div className="h-6 bg-slate-800 border border-slate-700 rounded-lg" />
-            </div>
+          <div className="h-1.5 w-full bg-stone-200 rounded-full mb-1" />
+          <div className="h-1.5 w-5/6 bg-stone-200 rounded-full mb-4" />
+          <div className="grid grid-cols-2 gap-1.5">
+            <div className="h-9 border border-stone-200 rounded-lg" />
+            <div className="h-9 border border-stone-200 rounded-lg" />
+            <div className="h-9 border border-stone-200 rounded-lg" />
+            <div className="h-9 border border-stone-200 rounded-lg" />
           </div>
         </div>
       </div>

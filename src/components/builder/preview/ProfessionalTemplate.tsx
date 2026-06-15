@@ -1,321 +1,215 @@
-import { Globe } from 'lucide-react';
+// Professional template preview renderer — split sidebar layout.
+// Mirrors api/templates/professional-writer-template/_index.js.
+// CSS vars injected by PreviewCanvas: --primary, --accent, --grad, --bg, --bg-2, --text, --text-2, --border.
 
-interface Props {
-  formData: Record<string, string>;
-  isMobile: boolean;
-  isTablet: boolean;
-}
+const ff = { fontFamily: "'Inter', sans-serif" } as const;
+const serif = { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" } as const;
+const POP = '#0d9488';
+const gradText = { background: 'var(--grad)', WebkitBackgroundClip: 'text' as const, backgroundClip: 'text' as const, WebkitTextFillColor: 'transparent' as const };
 
-export default function ProfessionalTemplate({ formData, isMobile, isTablet }: Props) {
-  const pc = formData.primaryColor || '#2563eb';
-  const ac = formData.accentColor || '#0ea5e9';
-
-  const renderSection = (id: string) => {
-    switch (id) {
-      case 'hero':
-        return (
-          <section key="hero" data-section="hero" className={`min-h-screen flex items-center justify-center text-center relative overflow-hidden ${isMobile ? 'px-4 py-8' : 'px-8 py-16'}`}>
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent pointer-events-none" />
-            <div className={`relative z-10 mx-auto ${isMobile ? 'max-w-sm' : isTablet ? 'max-w-2xl' : 'max-w-4xl'}`}>
-              {formData.profileImage ? (
-                <img src={formData.profileImage} alt={formData.fullName || 'Profile'}
-                  className={`rounded-full mx-auto mb-6 object-cover border-4 shadow-xl ${isMobile ? 'w-24 h-24' : isTablet ? 'w-32 h-32' : 'w-40 h-40'}`}
-                  style={{ borderColor: pc }} />
-              ) : (
-                <div className={`rounded-full mx-auto mb-6 flex items-center justify-center text-white font-bold shadow-xl ${isMobile ? 'w-24 h-24 text-2xl' : isTablet ? 'w-32 h-32 text-4xl' : 'w-40 h-40 text-5xl'}`}
-                  style={{ background: `linear-gradient(135deg, ${pc}, ${ac})` }}>
-                  {formData.fullName?.charAt(0).toUpperCase() || '?'}
-                </div>
-              )}
-              <h1 className={`font-bold mb-4 text-slate-900 leading-tight ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-6xl'}`} style={{ letterSpacing: '-0.03em' }}>
-                {formData.fullName || 'Your Name'}
-              </h1>
-              <p className={`font-semibold mb-6 ${isMobile ? 'text-lg' : isTablet ? 'text-xl' : 'text-2xl'}`} style={{ color: pc }}>
-                {formData.headline || 'Your Professional Title'}
-              </p>
-              <p className={`text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed ${isMobile ? 'text-base' : isTablet ? 'text-lg' : 'text-xl'}`}>
-                {formData.bio || 'Your bio will appear here...'}
-              </p>
-              {(formData.linkedin || formData.twitter || formData.website) && (
-                <div className={`flex gap-4 justify-center mb-8 ${isMobile ? 'gap-2' : 'gap-4'}`}>
-                  {formData.linkedin && (
-                    <a href={formData.linkedin} className={`rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:text-white transition ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
-                    </a>
-                  )}
-                  {formData.twitter && (
-                    <a href={formData.twitter} className={`rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:text-white transition ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
-                    </a>
-                  )}
-                  {formData.website && (
-                    <a href={formData.website} className={`rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:text-white transition ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
-                      <Globe className={isMobile ? 'w-4 h-4' : 'w-5 h-5'} />
-                    </a>
-                  )}
-                </div>
-              )}
-              {formData.email && (
-                <a href={`mailto:${formData.email}`} className={`rounded-full text-white font-bold shadow-2xl hover:scale-105 transition inline-flex items-center gap-3 no-underline ${isMobile ? 'px-6 py-3 text-base' : isTablet ? 'px-8 py-3 text-lg' : 'px-10 py-4 text-lg'}`}
-                  style={{ background: `linear-gradient(135deg, ${pc}, ${ac})` }}>
-                  Get In Touch
-                </a>
-              )}
-            </div>
-          </section>
-        );
-
-      case 'specialties':
-        return [1, 2, 3, 4].some(n => formData[`specialty${n}`]) ? (
-          <section data-section="specialties" key="specialties" className={`bg-slate-50 ${isMobile ? 'py-8' : 'py-16'}`}>
-            <div className={`max-w-5xl mx-auto ${isMobile ? 'px-4' : 'px-8'}`}>
-              <div className={`flex justify-center flex-wrap ${isMobile ? 'gap-2' : 'gap-4'}`}>
-                {[1, 2, 3, 4].map(n => formData[`specialty${n}`] ? (
-                  <div key={n} className={`bg-white rounded-full border-2 font-semibold flex items-center gap-3 hover:scale-105 transition shadow-sm ${isMobile ? 'px-4 py-2 text-sm' : 'px-6 py-3'}`}
-                    style={{ borderColor: pc, color: pc }}>
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2L11.5 7.5L17 8L13 12L14 17.5L9 15L4 17.5L5 12L1 8L6.5 7.5L9 2Z" /></svg>
-                    {formData[`specialty${n}`]}
-                  </div>
-                ) : null)}
-              </div>
-            </div>
-          </section>
-        ) : null;
-
-      case 'samples':
-        return [1, 2, 3, 4].some(n => formData[`sample${n}Title`]) ? (
-          <section data-section="samples" key="samples" className={`${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className={`font-black text-slate-900 mb-4 ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'}`}>Featured Work</h2>
-                <p className={`text-slate-600 ${isMobile ? 'text-lg' : 'text-xl'}`}>A curated selection of my best writing samples</p>
-              </div>
-              <div className={`grid gap-8 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-3'}`}>
-                {[1, 2, 3, 4].map(n => {
-                  if (!formData[`sample${n}Title`]) return null;
-                  return (
-                    <article key={n} className="bg-white border-2 border-slate-200 rounded-3xl overflow-hidden hover:border-blue-500 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                      <div className={`flex items-center justify-center text-6xl ${isMobile ? 'h-32 text-4xl' : 'h-48'}`} style={{ background: `linear-gradient(135deg, ${pc}20, ${ac}20)` }}>📄</div>
-                      <div className={isMobile ? 'p-4' : 'p-6'}>
-                        <span className="inline-block rounded-full text-xs font-bold uppercase tracking-wide mb-3 px-4 py-1" style={{ background: `${pc}15`, color: pc }}>
-                          {formData[`sample${n}Type`] || 'Article'}
-                        </span>
-                        <h3 className={`font-bold text-slate-900 mb-3 leading-tight ${isMobile ? 'text-lg' : 'text-xl'}`}>{formData[`sample${n}Title`]}</h3>
-                        <p className="text-slate-600 leading-relaxed mb-4 text-sm">{formData[`sample${n}Description`] || 'Click to read more...'}</p>
-                        <button className="font-bold rounded-lg transition hover:scale-105 px-4 py-2 text-sm" style={{ background: `linear-gradient(135deg, ${pc}, ${ac})`, color: 'white' }}>Read Sample</button>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-        ) : null;
-
-      case 'testimonials':
-        return [1, 2, 3].some(n => formData[`testimonial${n}`]) ? (
-          <section key="testimonials" data-section="testimonials" className={`bg-slate-50 ${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className={`font-black text-slate-900 mb-4 ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'}`}>Client Testimonials</h2>
-              </div>
-              <div className={`grid gap-8 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-3'}`}>
-                {[1, 2, 3].map(n => {
-                  if (!formData[`testimonial${n}`]) return null;
-                  const author = formData[`testimonial${n}Author`] || 'Anonymous';
-                  return (
-                    <div key={n} className={`bg-white border-2 border-slate-200 rounded-3xl hover:border-blue-500 hover:shadow-xl hover:-translate-y-1 transition-all ${isMobile ? 'p-6' : 'p-8'}`}>
-                      <div className="text-yellow-400 mb-4 text-2xl">★★★★★</div>
-                      <p className={`text-slate-900 italic mb-6 leading-relaxed ${isMobile ? 'text-base' : 'text-lg'}`}>"{formData[`testimonial${n}`]}"</p>
-                      <div className="flex items-center gap-4">
-                        <div className={`rounded-full flex items-center justify-center text-white font-bold ${isMobile ? 'w-10 h-10 text-sm' : 'w-14 h-14 text-xl'}`} style={{ background: `linear-gradient(135deg, ${pc}, ${ac})` }}>
-                          {author.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900">{author}</p>
-                          <p className="text-sm text-slate-500">{formData[`testimonial${n}Role`] || 'Client'}</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-        ) : null;
-
-      case 'contact':
-        return (
-          <section key="contact" data-section="contact" className={`${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
-            <div className="max-w-5xl mx-auto">
-              <div className={`rounded-3xl text-center text-white relative overflow-hidden ${isMobile ? 'p-8' : isTablet ? 'p-12' : 'p-16'}`} style={{ background: `linear-gradient(135deg, ${pc}, ${ac})` }}>
-                <div className="absolute top-0 right-0 w-96 h-96 bg-white opacity-10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                <div className="relative z-10">
-                  <h2 className={`font-black mb-4 ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'}`}>Let's Create Something Amazing</h2>
-                  <p className={`mb-8 opacity-95 ${isMobile ? 'text-lg' : 'text-2xl'}`}>Ready to elevate your content? Let's discuss your project.</p>
-                  <a href={`mailto:${formData.email}`} className={`bg-white rounded-full font-bold hover:scale-105 transition shadow-2xl inline-flex items-center gap-2 ${isMobile ? 'px-6 py-3 text-base' : 'px-10 py-4 text-xl'}`} style={{ color: pc }}>
-                    Start a Conversation
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7 13L13 7M13 7H7M13 7V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </section>
-        );
-
-      case 'footer':
-        return (
-          <footer key="footer" data-section="footer" className="py-8 text-center bg-slate-50">
-            <p className="text-slate-500">Built with <span className="text-blue-600 font-semibold">Porfilr</span> ✨</p>
-          </footer>
-        );
-
-      default:
-        return null;
-    }
+function socialSvg(type: string) {
+  const p: Record<string, string> = {
+    linkedin: 'M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z',
+    twitter: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z',
+    instagram: 'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0 3.675a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z',
   };
-
-  return <>{renderSection}</>;
+  return <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d={p[type] || p.linkedin} /></svg>;
 }
 
-export { ProfessionalTemplate };
+export function renderProfessionalSidebar(formData: Record<string, string>, isMobile: boolean) {
+  const name = formData.fullName || 'Your Name';
+  const socials = ([
+    ['linkedin', formData.linkedin], ['twitter', formData.twitter], ['instagram', formData.instagram],
+  ] as [string, string][]).filter(([, v]) => v);
 
-// Named export for use in PreviewCanvas
-export function renderProfessionalSection(sectionId: string, formData: Record<string, string>, isMobile: boolean, isTablet: boolean) {
-  const pc = formData.primaryColor || '#2563eb';
-  const ac = formData.accentColor || '#0ea5e9';
+  return (
+    <aside key="sidebar" data-section="sidebar"
+      className={`flex flex-col gap-5 ${isMobile ? 'p-6 border-b' : 'p-8 border-r sticky top-0 self-start'}`}
+      style={{ background: 'var(--bg-2, #f8fafc)', borderColor: 'var(--border, #e9edf2)', ...(isMobile ? {} : { minHeight: 560 }) }}>
+      <div className="rounded-[20px] overflow-hidden" style={{ width: 88, height: 88, background: 'var(--grad)', boxShadow: '0 12px 30px rgba(15,23,42,.16)', border: '3px solid #fff' }}>
+        {formData.profileImage
+          ? <img src={formData.profileImage} alt={name} className="w-full h-full object-cover" />
+          : <div className="w-full h-full flex items-center justify-center text-white" style={{ fontSize: '2.1rem', fontWeight: 700, ...serif }}>{name.charAt(0).toUpperCase()}</div>}
+      </div>
+      <div>
+        <div className="leading-tight" style={{ fontSize: '1.7rem', fontWeight: 600, letterSpacing: '-0.02em', ...gradText, ...serif }}>{name}</div>
+        <div className="font-semibold mt-1.5" style={{ fontSize: '.95rem', color: 'var(--text, #0f172a)', ...ff }}>{formData.headline || 'Your role'}</div>
+        {formData.location && (
+          <div className="flex items-center gap-1.5 mt-1.5" style={{ fontSize: '.82rem', color: 'var(--text-2, #64748b)', ...ff }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+            {formData.location}
+          </div>
+        )}
+      </div>
+      {formData.availability === 'true' && (
+        <span className="inline-flex items-center gap-2 w-fit" style={{ fontSize: '.78rem', fontWeight: 500, color: 'var(--text-2, #64748b)', padding: '.3rem .7rem', border: '1px solid var(--border, #e9edf2)', borderRadius: 100, background: 'var(--bg, #fff)', ...ff }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 0 3px rgba(34,197,94,.2)' }} />
+          {formData.availabilityText || 'Available for work'}
+        </span>
+      )}
+      <div className="flex flex-col gap-2 mt-auto pt-4">
+        {formData.email && <a href={`mailto:${formData.email}`} className="inline-flex items-center justify-center gap-2 font-semibold" style={{ padding: '.7rem 1rem', borderRadius: 10, fontSize: '.9rem', background: 'var(--grad)', color: '#fff', textDecoration: 'none', ...ff }}>Get in touch</a>}
+        {formData.resumeUrl && <a href={formData.resumeUrl} className="inline-flex items-center justify-center gap-2 font-semibold" style={{ padding: '.7rem 1rem', borderRadius: 10, fontSize: '.9rem', border: '1px solid var(--border, #e9edf2)', color: 'var(--text, #0f172a)', background: 'var(--bg, #fff)', textDecoration: 'none', ...ff }}>Resume ↓</a>}
+        {socials.length > 0 && (
+          <div className="flex gap-1.5 mt-1">
+            {socials.map(([icon, url]) => (
+              <a key={icon} href={url} className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 9, border: '1px solid var(--border, #e9edf2)', color: 'var(--text-2, #64748b)', background: 'var(--bg, #fff)' }}>{socialSvg(icon)}</a>
+            ))}
+          </div>
+        )}
+      </div>
+    </aside>
+  );
+}
 
+function SecHead({ title, kicker }: { title: string; kicker?: string }) {
+  return (
+    <div className="mb-7">
+      {kicker && (
+        <div className="inline-flex items-center gap-2 mb-2.5" style={{ fontSize: '.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.14em', color: POP, ...ff }}>
+          <span style={{ width: 22, height: 1, background: POP, display: 'inline-block' }} />{kicker}
+        </div>
+      )}
+      <h2 style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.1, color: 'var(--text, #0f172a)', ...serif }}>{title}</h2>
+    </div>
+  );
+}
+
+const SECTION_PAD = { padding: '2.5rem 0', borderTop: '1px solid var(--border, #e9edf2)' } as const;
+
+export function renderProfessionalSection(sectionId: string, formData: Record<string, string>, isMobile: boolean, _isTablet: boolean) {
   switch (sectionId) {
-    case 'hero': {
-      return (
-        <section key="hero" data-section="hero" className={`min-h-screen flex items-center justify-center text-center relative overflow-hidden ${isMobile ? 'px-4 py-8' : 'px-8 py-16'}`}>
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent pointer-events-none" />
-          <div className={`relative z-10 mx-auto ${isMobile ? 'max-w-sm' : isTablet ? 'max-w-2xl' : 'max-w-4xl'}`}>
-            {formData.profileImage ? (
-              <img src={formData.profileImage} alt={formData.fullName || 'Profile'}
-                className={`rounded-full mx-auto mb-6 object-cover border-4 shadow-xl ${isMobile ? 'w-24 h-24' : isTablet ? 'w-32 h-32' : 'w-40 h-40'}`}
-                style={{ borderColor: pc }} />
-            ) : (
-              <div className={`rounded-full mx-auto mb-6 flex items-center justify-center text-white font-bold shadow-xl ${isMobile ? 'w-24 h-24 text-2xl' : isTablet ? 'w-32 h-32 text-4xl' : 'w-40 h-40 text-5xl'}`}
-                style={{ background: `linear-gradient(135deg, ${pc}, ${ac})` }}>
-                {formData.fullName?.charAt(0).toUpperCase() || '?'}
+    case 'about':
+      return formData.bio ? (
+        <section key="about" data-section="about" style={SECTION_PAD}>
+          <SecHead title="About" kicker="Profile" />
+          <p style={{ fontSize: isMobile ? '1.1rem' : '1.3rem', lineHeight: 1.65, color: 'var(--text, #0f172a)', letterSpacing: '-0.01em', ...ff }}>{formData.bio}</p>
+        </section>
+      ) : null;
+
+    case 'experience': {
+      const nums = [1, 2, 3, 4, 5, 6].filter(n => formData[`exp${n}Role`]);
+      return nums.length ? (
+        <section key="experience" data-section="experience" style={SECTION_PAD}>
+          <SecHead title="Experience" kicker="Career" />
+          <div>
+            {nums.map((n, idx) => (
+              <div key={n} className={`grid gap-6 py-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-[150px_1fr]'}`} style={idx < nums.length - 1 ? { borderBottom: '1px solid var(--border, #e9edf2)' } : {}}>
+                <div style={{ fontSize: '.85rem', color: 'var(--text-2, #64748b)', fontWeight: 500, ...ff }}>{formData[`exp${n}Period`] || ''}</div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="font-bold" style={{ fontSize: '1.1rem', color: 'var(--text, #0f172a)', ...ff }}>{formData[`exp${n}Role`]}</span>
+                    {formData[`exp${n}Company`] && <><span style={{ fontSize: '.9rem', color: 'var(--text-2, #64748b)' }}>at</span><span className="font-semibold" style={{ fontSize: '1rem', color: 'var(--primary, #4f46e5)', ...ff }}>{formData[`exp${n}Company`]}</span></>}
+                  </div>
+                  {formData[`exp${n}Description`] && <p style={{ fontSize: '.95rem', color: 'var(--text-2, #64748b)', lineHeight: 1.6, ...ff }}>{formData[`exp${n}Description`]}</p>}
+                </div>
               </div>
-            )}
-            <h1 className={`font-bold mb-4 text-slate-900 leading-tight ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-6xl'}`}>
-              {formData.fullName || 'Your Name'}
-            </h1>
-            <p className={`font-semibold mb-6 ${isMobile ? 'text-lg' : isTablet ? 'text-xl' : 'text-2xl'}`} style={{ color: pc }}>
-              {formData.headline || 'Your Professional Title'}
-            </p>
-            <p className={`text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed ${isMobile ? 'text-base' : isTablet ? 'text-lg' : 'text-xl'}`}>
-              {formData.bio || 'Your bio will appear here...'}
-            </p>
-            {formData.email && (
-              <a href={`mailto:${formData.email}`}
-                className={`rounded-full text-white font-bold shadow-2xl hover:scale-105 transition inline-flex items-center gap-3 no-underline ${isMobile ? 'px-6 py-3 text-base' : 'px-10 py-4 text-lg'}`}
-                style={{ background: `linear-gradient(135deg, ${pc}, ${ac})` }}>
-                Get In Touch
-              </a>
-            )}
+            ))}
           </div>
         </section>
-      );
+      ) : null;
     }
 
-    case 'specialties':
-      return [1, 2, 3, 4].some(n => formData[`specialty${n}`]) ? (
-        <section data-section="specialties" key="specialties" className={`bg-slate-50 ${isMobile ? 'py-8' : 'py-16'}`}>
-          <div className={`max-w-5xl mx-auto ${isMobile ? 'px-4' : 'px-8'}`}>
-            <div className={`flex justify-center flex-wrap ${isMobile ? 'gap-2' : 'gap-4'}`}>
-              {[1, 2, 3, 4].map(n => formData[`specialty${n}`] ? (
-                <div key={n} className={`bg-white rounded-full border-2 font-semibold flex items-center gap-3 shadow-sm ${isMobile ? 'px-4 py-2 text-sm' : 'px-6 py-3'}`} style={{ borderColor: pc, color: pc }}>
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2L11.5 7.5L17 8L13 12L14 17.5L9 15L4 17.5L5 12L1 8L6.5 7.5L9 2Z" /></svg>
-                  {formData[`specialty${n}`]}
+    case 'specialties': // legacy id → fall through to services
+    case 'services': {
+      const nums = [1, 2, 3, 4, 5, 6].filter(n => formData[`service${n}Title`]);
+      return nums.length ? (
+        <section key="services" data-section="services" style={SECTION_PAD}>
+          <SecHead title="Services" kicker="Offerings" />
+          <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
+            {nums.map(n => (
+              <div key={n} className="rounded-[16px] p-6" style={{ border: '1px solid var(--border, #e9edf2)', background: 'var(--bg, #fff)' }}>
+                <h3 className="font-bold mb-1.5" style={{ fontSize: '1.15rem', color: 'var(--text, #0f172a)', ...ff }}>{formData[`service${n}Title`]}</h3>
+                {formData[`service${n}Desc`] && <p style={{ fontSize: '.92rem', color: 'var(--text-2, #64748b)', lineHeight: 1.6, ...ff }}>{formData[`service${n}Desc`]}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null;
+    }
+
+    case 'samples': {
+      const nums = [1, 2, 3, 4, 5, 6, 7, 8].filter(n => formData[`sample${n}Title`]);
+      return nums.length ? (
+        <section key="samples" data-section="samples" style={SECTION_PAD}>
+          <SecHead title="Selected Work" kicker="Portfolio" />
+          <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
+            {nums.map(n => (
+              <article key={n} className="rounded-[16px] overflow-hidden flex flex-col" style={{ border: '1px solid var(--border, #e9edf2)' }}>
+                <div className="flex items-center justify-center" style={{ height: 150, background: 'var(--bg-2, #f8fafc)' }}>
+                  {formData[`sample${n}Image`]
+                    ? <img src={formData[`sample${n}Image`]} alt={formData[`sample${n}Title`]} className="w-full h-full object-cover" />
+                    : <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" style={{ opacity: 0.3, color: 'var(--primary, #4f46e5)' }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>}
                 </div>
-              ) : null)}
-            </div>
+                <div className="p-5 flex flex-col flex-1">
+                  {formData[`sample${n}Type`] && <span className="font-bold uppercase mb-1.5" style={{ fontSize: '.7rem', letterSpacing: '.06em', color: 'var(--primary, #4f46e5)', ...ff }}>{formData[`sample${n}Type`]}</span>}
+                  <h3 className="font-bold mb-1.5" style={{ fontSize: '1.15rem', color: 'var(--text, #0f172a)', ...ff }}>{formData[`sample${n}Title`]}</h3>
+                  {formData[`sample${n}Description`] && <p className="flex-1" style={{ fontSize: '.92rem', color: 'var(--text-2, #64748b)', lineHeight: 1.6, ...ff }}>{formData[`sample${n}Description`]}</p>}
+                  {(formData[`sample${n}Content`] || formData[`sample${n}Link`]) && (
+                    <div className="mt-3 font-semibold" style={{ fontSize: '.9rem', color: 'var(--primary, #4f46e5)', ...ff }}>View details →</div>
+                  )}
+                </div>
+              </article>
+            ))}
           </div>
         </section>
       ) : null;
+    }
 
-    case 'samples':
-      return [1, 2, 3, 4].some(n => formData[`sample${n}Title`]) ? (
-        <section data-section="samples" key="samples" className={`${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className={`font-black text-slate-900 mb-4 ${isMobile ? 'text-3xl' : 'text-5xl'}`}>Featured Work</h2>
-            </div>
-            <div className={`grid gap-8 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-3'}`}>
-              {[1, 2, 3, 4].map(n => {
-                if (!formData[`sample${n}Title`]) return null;
-                return (
-                  <article key={n} className="bg-white border-2 border-slate-200 rounded-3xl overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <div className="h-48 flex items-center justify-center text-6xl" style={{ background: `linear-gradient(135deg, ${pc}20, ${ac}20)` }}>📄</div>
-                    <div className="p-6">
-                      <span className="inline-block rounded-full text-xs font-bold uppercase tracking-wide mb-3 px-4 py-1" style={{ background: `${pc}15`, color: pc }}>{formData[`sample${n}Type`] || 'Article'}</span>
-                      <h3 className="font-bold text-slate-900 mb-3 text-xl">{formData[`sample${n}Title`]}</h3>
-                      <p className="text-slate-600 text-sm mb-4">{formData[`sample${n}Description`]}</p>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      ) : null;
-
-    case 'testimonials':
-      return [1, 2, 3].some(n => formData[`testimonial${n}`]) ? (
-        <section key="testimonials" data-section="testimonials" className={`bg-slate-50 ${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
-          <div className="max-w-6xl mx-auto">
-            <h2 className={`font-black text-slate-900 text-center mb-16 ${isMobile ? 'text-3xl' : 'text-5xl'}`}>Client Testimonials</h2>
-            <div className={`grid gap-8 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-3'}`}>
-              {[1, 2, 3].map(n => {
-                if (!formData[`testimonial${n}`]) return null;
-                const author = formData[`testimonial${n}Author`] || 'Anonymous';
-                return (
-                  <div key={n} className="bg-white border-2 border-slate-200 rounded-3xl p-8">
-                    <div className="text-yellow-400 mb-4 text-2xl">★★★★★</div>
-                    <p className="text-slate-900 italic mb-6 text-lg">"{formData[`testimonial${n}`]}"</p>
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl" style={{ background: `linear-gradient(135deg, ${pc}, ${ac})` }}>
-                        {author.charAt(0).toUpperCase()}
+    case 'testimonials': {
+      const nums = [1, 2, 3, 4, 5, 6].filter(n => formData[`testimonial${n}`]);
+      return nums.length ? (
+        <section key="testimonials" data-section="testimonials" style={SECTION_PAD}>
+          <SecHead title="Testimonials" kicker="Praise" />
+          <div className={`grid gap-5 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
+            {nums.map(n => {
+              const author = formData[`testimonial${n}Author`] || '';
+              return (
+                <blockquote key={n} className="rounded-[16px] p-7" style={{ border: '1px solid var(--border, #e9edf2)' }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" style={{ color: 'var(--primary, #4f46e5)', opacity: 0.18, marginBottom: '.5rem' }}><path d="M9.5 4C6.46 4 4 6.46 4 9.5c0 2.5 1.67 4.6 3.95 5.28-.13.9-.6 2.1-1.95 3.22-.3.25-.1.75.3.7C9.9 18.1 12 14.5 12 10.5V9.5C12 6.46 9.54 4 9.5 4zm9 0C15.46 4 13 6.46 13 9.5c0 2.5 1.67 4.6 3.95 5.28-.13.9-.6 2.1-1.95 3.22-.3.25-.1.75.3.7C18.9 18.1 21 14.5 21 10.5V9.5C21 6.46 18.54 4 18.5 4z" /></svg>
+                  <p style={{ fontSize: '1rem', lineHeight: 1.65, color: 'var(--text, #0f172a)', marginBottom: '1.25rem', ...ff }}>{formData[`testimonial${n}`]}</p>
+                  {(author || formData[`testimonial${n}Role`]) && (
+                    <footer className="flex items-center gap-3">
+                      {formData[`testimonial${n}Image`]
+                        ? <img src={formData[`testimonial${n}Image`]} alt={author} className="rounded-full object-cover" style={{ width: 40, height: 40 }} />
+                        : author ? <div className="rounded-full flex items-center justify-center text-white font-bold" style={{ width: 40, height: 40, background: 'var(--grad)' }}>{author.charAt(0).toUpperCase()}</div> : null}
+                      <div className="flex flex-col">
+                        {author && <strong style={{ fontSize: '.92rem', color: 'var(--text, #0f172a)', ...ff }}>{author}</strong>}
+                        {formData[`testimonial${n}Role`] && <span style={{ fontSize: '.82rem', color: 'var(--text-2, #64748b)', ...ff }}>{formData[`testimonial${n}Role`]}</span>}
                       </div>
-                      <div>
-                        <p className="font-bold text-slate-900">{author}</p>
-                        <p className="text-sm text-slate-500">{formData[`testimonial${n}Role`] || 'Client'}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                    </footer>
+                  )}
+                </blockquote>
+              );
+            })}
           </div>
         </section>
       ) : null;
+    }
 
-    case 'contact':
-      return (
-        <section key="contact" data-section="contact" className={`${isMobile ? 'py-12 px-4' : isTablet ? 'py-16 px-6' : 'py-20 px-8'}`}>
-          <div className="max-w-5xl mx-auto">
-            <div className="rounded-3xl text-center text-white relative overflow-hidden p-16" style={{ background: `linear-gradient(135deg, ${pc}, ${ac})` }}>
-              <h2 className="font-black text-5xl mb-4">Let's Create Something Amazing</h2>
-              <p className="text-2xl mb-8 opacity-95">Ready to elevate your content?</p>
-              <a href={`mailto:${formData.email}`} className="bg-white rounded-full font-bold hover:scale-105 transition inline-flex items-center gap-2 px-10 py-4 text-xl" style={{ color: pc }}>
-                Start a Conversation
-              </a>
-            </div>
+    case 'education': {
+      const nums = [1, 2, 3, 4, 5, 6].filter(n => formData[`edu${n}Title`]);
+      return nums.length ? (
+        <section key="education" data-section="education" style={SECTION_PAD}>
+          <SecHead title="Education & Certifications" kicker="Background" />
+          <div>
+            {nums.map((n, idx) => (
+              <div key={n} className={`grid gap-6 py-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-[90px_1fr]'}`} style={idx < nums.length - 1 ? { borderBottom: '1px solid var(--border, #e9edf2)' } : {}}>
+                <div style={{ fontSize: '.85rem', color: 'var(--text-2, #64748b)', fontWeight: 500, ...ff }}>{formData[`edu${n}Year`] || ''}</div>
+                <div>
+                  <div className="font-bold" style={{ fontSize: '1.05rem', color: 'var(--text, #0f172a)', ...ff }}>{formData[`edu${n}Title`]}</div>
+                  {formData[`edu${n}School`] && <div style={{ fontSize: '.92rem', color: 'var(--text-2, #64748b)', ...ff }}>{formData[`edu${n}School`]}</div>}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
-      );
+      ) : null;
+    }
 
+    // Legacy 'hero'/'footer' ids from old saved portfolios — sidebar/credit handle these now.
+    case 'hero':
     case 'footer':
-      return (
-        <footer key="footer" data-section="footer" className="py-8 text-center bg-slate-50">
-          <p className="text-slate-500">Built with <span className="text-blue-600 font-semibold">Porfilr</span> ✨</p>
-        </footer>
-      );
-
     default:
       return null;
   }

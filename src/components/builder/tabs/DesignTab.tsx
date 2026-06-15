@@ -12,6 +12,7 @@ const INPUT = 'w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 te
 
 export default function DesignTab({ formData, onChange, onMultiChange, templateId }: Props) {
   const isModern = templateId === 'modern-writer-template';
+  const isProfessional = templateId === 'professional-writer-template';
 
   return (
     <div className="space-y-6">
@@ -39,8 +40,8 @@ export default function DesignTab({ formData, onChange, onMultiChange, templateI
         </div>
       )}
 
-      {/* Availability — Modern only */}
-      {isModern && (
+      {/* Availability — Modern + Professional */}
+      {(isModern || isProfessional) && (
         <div>
           <label className="block text-xs font-semibold text-stone-500 uppercase tracking-widest mb-3">Availability</label>
           <div className="flex items-center justify-between gap-3 p-3 bg-stone-50 border border-stone-200 rounded-xl">

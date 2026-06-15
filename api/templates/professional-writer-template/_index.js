@@ -1,1151 +1,438 @@
+// ─── Icons ────────────────────────────────────────────────────────────────────
 function getSocialIcon(type) {
   const icons = {
-    linkedin: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>',
-    twitter: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
-    instagram: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>',
-    globe: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>'
+    linkedin: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>',
+    twitter: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+    instagram: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>',
+    globe: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
   };
   return icons[type] || icons.globe;
 }
 
 function getSampleIcon() {
-  return `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.35"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`;
+  return `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`;
+}
+
+function buildSocialLinks(data) {
+  const links = [
+    ['linkedin', data.linkedin], ['twitter', data.twitter],
+    ['instagram', data.instagram], ['globe', data.website],
+  ].filter(([, v]) => v && v.trim());
+  if (!links.length) return '';
+  return `<div class="side-socials">${links.map(([icon, url]) =>
+    `<a href="${url}" target="_blank" rel="noopener" class="side-social" title="${icon}">${getSocialIcon(icon)}</a>`).join('')}</div>`;
+}
+
+function buildServices(data) {
+  const out = [];
+  for (let i = 1; i <= 6; i++) {
+    const title = data[`service${i}Title`];
+    if (!title) continue;
+    out.push(`
+    <div class="service-card">
+      <h3 class="service-title">${title}</h3>
+      ${data[`service${i}Desc`] ? `<p class="service-desc">${data[`service${i}Desc`]}</p>` : ''}
+    </div>`);
+  }
+  return out;
+}
+
+function buildEducation(data) {
+  const out = [];
+  for (let i = 1; i <= 6; i++) {
+    const title = data[`edu${i}Title`];
+    if (!title) continue;
+    out.push(`
+    <div class="edu-item">
+      <div class="edu-year">${data[`edu${i}Year`] || ''}</div>
+      <div class="edu-body">
+        <div class="edu-title">${title}</div>
+        ${data[`edu${i}School`] ? `<div class="edu-school">${data[`edu${i}School`]}</div>` : ''}
+      </div>
+    </div>`);
+  }
+  return out;
+}
+
+function buildExperience(data) {
+  const out = [];
+  for (let i = 1; i <= 6; i++) {
+    const role = data[`exp${i}Role`];
+    if (!role) continue;
+    out.push(`
+    <div class="exp-item">
+      <div class="exp-period">${data[`exp${i}Period`] || ''}</div>
+      <div class="exp-body">
+        <div class="exp-head"><span class="exp-role">${role}</span>${data[`exp${i}Company`] ? `<span class="exp-at">at</span><span class="exp-company">${data[`exp${i}Company`]}</span>` : ''}</div>
+        ${data[`exp${i}Description`] ? `<p class="exp-desc">${data[`exp${i}Description`]}</p>` : ''}
+      </div>
+    </div>`);
+  }
+  return out;
 }
 
 function buildSamples(data) {
-  let samplesHTML = "";
-  let modalsHTML = "";
-
-  for (let i = 1; i <= 100; i++) {
+  let cards = '', modals = '';
+  for (let i = 1; i <= 50; i++) {
     const title = data[`sample${i}Title`];
-
-    if (!title) break;
-
+    if (!title) continue;
     const type = data[`sample${i}Type`];
     const desc = data[`sample${i}Description`];
     const content = data[`sample${i}Content`];
     const link = data[`sample${i}Link`];
     const image = data[`sample${i}Image`];
-
     const hasContent = content && content.trim();
     const hasLink = link && link.trim();
-
-    const displayIcon = image ?
-      `<img src="${image}" alt="${title}" class="sample-card-image" />` :
-      `<div class="sample-emoji-icon">${getSampleIcon()}</div>`;
-
-    samplesHTML += `
+    const media = image
+      ? `<img src="${image}" alt="${title}" class="sample-img" />`
+      : `<div class="sample-icon">${getSampleIcon()}</div>`;
+    cards += `
       <article class="sample-card">
-        <div class="sample-image-container">
-          ${displayIcon}
-        </div>
-        <div class="sample-content">
-          ${type ? `<span class="sample-type">${type}</span>` : ""}
+        <div class="sample-media">${media}</div>
+        <div class="sample-body">
+          ${type ? `<span class="sample-type">${type}</span>` : ''}
           <h3 class="sample-title">${title}</h3>
-          ${desc ? `<p class="sample-description">${desc}</p>` : ""}
-
+          ${desc ? `<p class="sample-desc">${desc}</p>` : ''}
           <div class="sample-actions">
-            ${hasContent ? `
-              <button class="sample-btn sample-btn-primary" onclick="openModal('modal-${i}')">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M2 8C2 8 4.5 3 8 3C11.5 3 14 8 14 8C14 8 11.5 13 8 13C4.5 13 2 8 2 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="2"/>
-                </svg>
-                Read Sample
-              </button>
-            ` : ''}
-            ${hasLink ? `
-              <a href="${link}" target="_blank" class="sample-btn sample-btn-secondary">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                View Article
-              </a>
-            ` : ''}
+            ${hasContent ? `<button class="sample-btn" onclick="openModal('modal-${i}')">View details →</button>` : ''}
+            ${hasLink ? `<a href="${link}" target="_blank" rel="noopener" class="sample-link">Live link ↗</a>` : ''}
           </div>
         </div>
-      </article>
-    `;
-
+      </article>`;
     if (hasContent) {
-      modalsHTML += `
-        <div id="modal-${i}" class="modal">
-          <div class="modal-overlay" onclick="closeModal('modal-${i}')"></div>
-          <div class="modal-container">
-            <button class="modal-close" onclick="closeModal('modal-${i}')">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-            <div class="modal-content">
-              ${type ? `<span class="modal-type">${type}</span>` : ""}
-              <h2 class="modal-title">${title}</h2>
-              <div class="modal-body">
-                ${content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
-              </div>
-              ${hasLink ? `
-                <a href="${link}" target="_blank" class="modal-cta">
-                  View Original Article
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M12 4H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
-                </a>
-              ` : ''}
-            </div>
-          </div>
+      modals += `
+      <div id="modal-${i}" class="modal">
+        <div class="modal-backdrop" onclick="closeModal('modal-${i}')"></div>
+        <div class="modal-box">
+          <button class="modal-close" onclick="closeModal('modal-${i}')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          ${type ? `<span class="modal-type">${type}</span>` : ''}
+          <h2 class="modal-title">${title}</h2>
+          <div class="modal-body">${content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}</div>
+          ${hasLink ? `<a href="${link}" target="_blank" rel="noopener" class="modal-cta">Visit project ↗</a>` : ''}
         </div>
-      `;
+      </div>`;
     }
   }
-
-  return { samplesHTML, modalsHTML };
+  return { cards, modals };
 }
 
-function buildSocialLinks(data) {
-  const socialLinks = [];
-  if (data.linkedin) socialLinks.push({ name: 'LinkedIn', url: data.linkedin, icon: 'linkedin' });
-  if (data.twitter) socialLinks.push({ name: 'Twitter', url: data.twitter, icon: 'twitter' });
-  if (data.instagram) socialLinks.push({ name: 'Instagram', url: data.instagram, icon: 'instagram' });
-  if (data.website) socialLinks.push({ name: 'Website', url: data.website, icon: 'globe' });
-
-  if (socialLinks.length === 0) return '';
-
-  const socialHTML = socialLinks.map(social => `
-    <a href="${social.url}" target="_blank" class="social-link" title="${social.name}">
-      ${getSocialIcon(social.icon)}
-    </a>
-  `).join('');
-
-  return `
-    <div class="social-links">
-      ${socialHTML}
-    </div>
-  `;
+function buildTestimonials(data) {
+  const out = [];
+  for (let i = 1; i <= 50; i++) {
+    const quote = data[`testimonial${i}`];
+    if (!quote) continue;
+    const author = data[`testimonial${i}Author`] || '';
+    const role = data[`testimonial${i}Role`] || '';
+    const image = data[`testimonial${i}Image`] || '';
+    const avatar = image
+      ? `<img src="${image}" alt="${author}" class="testi-avatar" />`
+      : author ? `<div class="testi-avatar-letter">${author.charAt(0).toUpperCase()}</div>` : '';
+    out.push(`
+    <blockquote class="testi-card">
+      <svg class="testi-quote-mark" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M9.5 4C6.46 4 4 6.46 4 9.5c0 2.5 1.67 4.6 3.95 5.28-.13.9-.6 2.1-1.95 3.22-.3.25-.1.75.3.7C9.9 18.1 12 14.5 12 10.5V9.5C12 6.46 9.54 4 9.5 4zm9 0C15.46 4 13 6.46 13 9.5c0 2.5 1.67 4.6 3.95 5.28-.13.9-.6 2.1-1.95 3.22-.3.25-.1.75.3.7C18.9 18.1 21 14.5 21 10.5V9.5C21 6.46 18.54 4 18.5 4z"/></svg>
+      <p class="testi-quote">${quote}</p>
+      ${(author || role) ? `<footer class="testi-footer">${avatar}<div class="testi-info">${author ? `<strong>${author}</strong>` : ''}${role ? `<span>${role}</span>` : ''}</div></footer>` : ''}
+    </blockquote>`);
+  }
+  return out;
 }
 
-function getStyles(primaryColor, accentColor) {
+function getStyles(primary, accent) {
   return `
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --primary: ${primaryColor};
-      --accent: ${accentColor};
-      --text: #0f172a;
-      --text-secondary: #475569;
-      --text-tertiary: #94a3b8;
-      --bg: #ffffff;
-      --bg-secondary: #f8fafc;
-      --bg-tertiary: #f1f5f9;
-      --border: #e2e8f0;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
-
-    /* Hero Section */
-    .hero {
-      min-height: 90vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 6rem 0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 100%;
-      background: linear-gradient(135deg, ${primaryColor}10, transparent 70%),
-                  linear-gradient(225deg, ${accentColor}05, transparent 70%);
-      z-index: -1;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .profile-image {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin: 0 auto 2rem;
-      border: 5px solid var(--primary);
-      box-shadow: var(--shadow-xl), 0 0 0 8px ${primaryColor}20;
-    }
-
-    .profile-letter-avatar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      margin: 0 auto 2rem;
-      text-align: center;
-      font-size: 4rem;
-      font-weight: bold;
-      color: white;
-      background: linear-gradient(135deg, ${primaryColor}, ${accentColor});
-    }
-
-    h1 {
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      font-weight: 900;
-      color: var(--text);
-      margin-bottom: 1rem;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-    }
-
-    .headline {
-      font-size: clamp(1.25rem, 2.5vw, 1.5rem);
-      color: var(--primary);
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-    }
-
-    .bio {
-      font-size: 1.25rem;
-      color: var(--text-secondary);
-      max-width: 700px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.8;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      margin-bottom: 2.5rem;
-    }
-
-    .social-link {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: var(--bg-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text);
-      transition: all 0.3s;
-      border: 2px solid var(--border);
-    }
-
-    .social-link:hover {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-4px);
-      border-color: var(--primary);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .cta-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1.25rem 3rem;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: white;
-      text-decoration: none;
-      border-radius: 100px;
-      font-weight: 700;
-      font-size: 1.125rem;
-      transition: all 0.3s;
-      box-shadow: var(--shadow-xl);
-    }
-
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-    }
-
-    /* Specialties Section */
-    .specialties {
-      padding: 4rem 0;
-      background: var(--bg-secondary);
-    }
-
-    .specialties-grid {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .specialty-pill {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1rem 1.75rem;
-      background: var(--bg);
-      border: 2px solid var(--border);
-      border-radius: 100px;
-      font-weight: 600;
-      color: var(--text);
-      transition: all 0.3s;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .specialty-pill:hover {
-      border-color: var(--primary);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
-    }
-
-    .specialty-icon {
-      color: var(--primary);
-    }
-
-    /* Section Styles */
-    .section {
-      padding: 6rem 0;
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 4rem;
-    }
-
-    .section-title {
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 900;
-      color: var(--text);
-      margin-bottom: 1rem;
-      letter-spacing: -0.02em;
-    }
-
-    .section-subtitle {
-      font-size: 1.25rem;
-      color: var(--text-secondary);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    /* Writing Samples Grid */
-    .samples-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 2rem;
-    }
-
-    .sample-card {
-      background: var(--bg);
-      border: 2px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sample-card:hover {
-      border-color: var(--primary);
-      transform: translateY(-8px);
-      box-shadow: var(--shadow-xl);
-    }
-
-    /* Image/Icon Container */
-    .sample-image-container {
-      width: 100%;
-      height: 200px;
-      background: linear-gradient(135deg, ${primaryColor}15, ${accentColor}15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* For uploaded images */
-    .sample-card-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    /* For emoji/icon fallback */
-    .sample-emoji-icon {
-      font-size: 5rem;
-      line-height: 1;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-    }
-
-    .sample-content {
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    /* Fixed Sample Type Badge */
-    .sample-type {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      background: linear-gradient(135deg, ${primaryColor}20, ${accentColor}20);
-      color: var(--primary);
-      border-radius: 100px;
-      font-size: 0.8125rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      align-self: flex-start;
-      border: 1px solid ${primaryColor}30;
-    }
-
-    .sample-title {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 1rem;
-      line-height: 1.3;
-    }
-
-    .sample-description {
-      color: var(--text-secondary);
-      margin-bottom: 1.5rem;
-      line-height: 1.7;
-      flex: 1;
-    }
-
-    .sample-actions {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      margin-top: auto;
-    }
-
-    .sample-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.9375rem;
-      transition: all 0.3s;
-      cursor: pointer;
-      border: none;
-      text-decoration: none;
-    }
-
-    .sample-btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: white;
-      box-shadow: var(--shadow);
-    }
-
-    .sample-btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .sample-btn-secondary {
-      background: var(--bg-secondary);
-      color: var(--text);
-      border: 2px solid var(--border);
-    }
-
-    .sample-btn-secondary:hover {
-      border-color: var(--primary);
-      background: var(--bg);
-    }
-
-    /* Modal Styles */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(8px);
-      animation: fadeIn 0.3s;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .modal-container {
-      position: relative;
-      background: var(--bg);
-      border-radius: 24px;
-      max-width: 900px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
-      animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(40px) scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--bg-secondary);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-      z-index: 10;
-    }
-
-    .modal-close:hover {
-      background: var(--primary);
-      color: white;
-      transform: rotate(90deg);
-    }
-
-    .modal-content {
-      padding: 3rem;
-    }
-
-    .modal-type {
-      display: inline-block;
-      padding: 0.5rem 1.25rem;
-      background: linear-gradient(135deg, ${primaryColor}20, ${accentColor}20);
-      color: var(--primary);
-      border-radius: 100px;
-      font-size: 0.875rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border: 1px solid ${primaryColor}30;
-    }
-
-    .modal-title {
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: var(--text);
-      margin-bottom: 2rem;
-      line-height: 1.2;
-    }
-
-    .modal-body {
-      font-size: 1.125rem;
-      line-height: 1.8;
-      color: var(--text-secondary);
-    }
-
-    .modal-body p {
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-top: 2rem;
-      padding: 1rem 2rem;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: white;
-      text-decoration: none;
-      border-radius: 12px;
-      font-weight: 700;
-      transition: all 0.3s;
-      box-shadow: var(--shadow-lg);
-    }
-
-    .modal-cta:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-xl);
-    }
-
-    /* Testimonials */
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-    }
-
-    .testimonial-card {
-      background: var(--bg);
-      border: 2px solid var(--border);
-      border-radius: 20px;
-      padding: 2.5rem;
-      transition: all 0.3s;
-      box-shadow: var(--shadow);
-    }
-
-    .testimonial-card:hover {
-      border-color: var(--primary);
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-xl);
-    }
-
-    .testimonial-stars {
-      color: #fbbf24;
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
-      letter-spacing: 0.25rem;
-    }
-
-    .testimonial-text {
-      font-size: 1.125rem;
-      color: var(--text);
-      line-height: 1.7;
-      margin-bottom: 1.5rem;
-      font-style: italic;
-    }
-
-    .testimonial-author {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .testimonial-avatar,
-    .testimonial-avatar-placeholder {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--border);
-    }
-
-    .testimonial-avatar-placeholder {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1.5rem;
-    }
-
-    .testimonial-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .testimonial-info strong {
-      color: var(--text);
-      font-weight: 700;
-      font-size: 1.0625rem;
-    }
-
-    .testimonial-role {
-      color: var(--text-tertiary);
-      font-size: 0.9375rem;
-    }
-
-    /* Contact Section */
-    .contact-section {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      padding: 5rem 2rem;
-      border-radius: 32px;
-      text-align: center;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .contact-section::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    }
-
-    .contact-section h2 {
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 900;
-      margin-bottom: 1rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    .contact-section p {
-      font-size: 1.375rem;
-      margin-bottom: 2.5rem;
-      opacity: 0.95;
-      position: relative;
-      z-index: 1;
-    }
-
-    .contact-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1.25rem 3rem;
-      background: white;
-      color: var(--primary);
-      text-decoration: none;
-      border-radius: 100px;
-      font-weight: 800;
-      font-size: 1.125rem;
-      transition: all 0.3s;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      position: relative;
-      z-index: 1;
-    }
-
-    .contact-button:hover {
-      transform: translateY(-4px) scale(1.05);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Footer */
-    footer {
-      padding: 2rem 0;
-      text-align: center;
-      background: var(--bg-secondary);
-    }
-
-    footer p {
-      color: var(--text-tertiary);
-      font-size: 0.9375rem;
-    }
-
-    footer a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .container {
-        padding: 0 1.25rem;
-      }
-
-      .hero {
-        min-height: auto;
-        padding: 4rem 0;
-      }
-
-      .profile-image, .profile-letter-avatar {
-        width: 140px;
-        height: 140px;
-        font-size: 2rem;
-      }
-
-      .section {
-        padding: 4rem 0;
-      }
-
-      .samples-grid,
-      .testimonials-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .sample-image-container {
-        height: 180px;
-      }
-
-      .sample-emoji-icon {
-        font-size: 4rem;
-      }
-
-      .modal-content {
-        padding: 2rem 1.5rem;
-      }
-
-      .modal-title {
-        font-size: 1.875rem;
-      }
-
-      .contact-section {
-        padding: 3rem 1.5rem;
-        border-radius: 24px;
-      }
-    }
-
-    /* Smooth Scrolling */
-    html {
-      scroll-behavior: smooth;
-    }
-
-    /* Selection */
-    ::selection {
-      background: var(--primary);
-      color: white;
-    }
+      --primary: ${primary}; --accent: ${accent};
+      --grad: linear-gradient(135deg, ${primary}, ${accent});
+      --bg: #ffffff; --bg-2: #f8fafc; --text: #0f172a; --text-2: #64748b; --border: #e9edf2; --sidebar-w: 340px;
+      --pop: #0d9488; --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+    .layout { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; background-color: var(--bg); background-image: radial-gradient(circle at 1px 1px, rgba(100,116,139,0.10) 1px, transparent 0); background-size: 22px 22px; }
+
+    /* ── Sidebar ── */
+    .sidebar { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: 3rem 2.25rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 1.5rem; background: var(--bg-2); }
+    .side-avatar { width: 96px; height: 96px; border-radius: 20px; overflow: hidden; background: var(--grad); box-shadow: 0 12px 30px rgba(15,23,42,.16); border: 3px solid #fff; }
+    .side-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .side-avatar-letter { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.4rem; font-weight: 700; font-family: var(--serif); }
+    .side-name { font-family: var(--serif); font-size: 1.85rem; font-weight: 600; letter-spacing: -.02em; line-height: 1.08; background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .side-role { font-size: .95rem; font-weight: 600; color: var(--text); margin-top: .35rem; }
+    .side-location { display: flex; align-items: center; gap: .35rem; font-size: .82rem; color: var(--text-2); margin-top: .4rem; }
+    .side-avail { display: inline-flex; align-items: center; gap: .5rem; font-size: .78rem; font-weight: 500; color: var(--text-2); padding: .3rem .7rem; border: 1px solid var(--border); border-radius: 100px; background: var(--bg); width: fit-content; }
+    .side-avail-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.2); }
+    .side-nav { display: flex; flex-direction: column; gap: .15rem; margin-top: .5rem; }
+    .side-link { display: flex; align-items: center; gap: .7rem; font-size: .9rem; color: var(--text-2); text-decoration: none; padding: .45rem .25rem; transition: color .15s; }
+    .side-link .side-link-num { font-size: .72rem; font-variant-numeric: tabular-nums; color: var(--text-2); opacity: .6; width: 1.2rem; }
+    .side-link:hover { color: var(--text); }
+    .side-link.active { color: var(--pop); font-weight: 600; }
+    .side-link.active .side-link-num { color: var(--primary); opacity: 1; }
+    .side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 1rem; padding-top: 1.5rem; }
+    .side-actions { display: flex; flex-direction: column; gap: .6rem; }
+    .side-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .7rem 1rem; border-radius: 10px; font-size: .9rem; font-weight: 600; text-decoration: none; transition: all .15s; }
+    .side-btn-primary { background: var(--grad); color: #fff; }
+    .side-btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+    .side-btn-outline { border: 1px solid var(--border); color: var(--text); background: var(--bg); }
+    .side-btn-outline:hover { border-color: var(--text-2); }
+    .side-socials { display: flex; gap: .4rem; }
+    .side-social { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg); color: var(--text-2); transition: all .15s; }
+    .side-social:hover { color: #fff; background: var(--primary); border-color: var(--primary); }
+
+    /* ── Content ── */
+    .content { padding: 4rem 4.5rem; max-width: 920px; }
+    .section { padding: 3rem 0; }
+    .section:first-child { padding-top: 1rem; }
+    .section + .section { border-top: 1px solid var(--border); }
+    .sec-head { margin-bottom: 2rem; }
+    .sec-kicker { display: inline-flex; align-items: center; gap: .6rem; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em; color: var(--pop); margin-bottom: .65rem; }
+    .sec-kicker::before { content: ''; width: 22px; height: 1px; background: var(--pop); }
+    .sec-title { font-family: var(--serif); font-size: 2.1rem; font-weight: 600; letter-spacing: -.02em; line-height: 1.1; }
+    .sec-count { font-size: .85rem; color: var(--text-2); font-weight: 400; margin-left: .6rem; -webkit-text-fill-color: var(--text-2); }
+    .about-text { font-size: 1.35rem; line-height: 1.65; color: var(--text); letter-spacing: -.01em; }
+    .lead-statement { font-family: var(--serif); font-size: clamp(1.7rem, 3.2vw, 2.6rem); font-weight: 500; line-height: 1.18; letter-spacing: -.02em; color: var(--text); padding-bottom: 2.5rem; border-bottom: 1px solid var(--border); }
+    .lead-statement em { font-style: italic; color: var(--pop); }
+
+    .exp-list { display: flex; flex-direction: column; }
+    .exp-item { display: grid; grid-template-columns: 150px 1fr; gap: 1.5rem; padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
+    .exp-item:last-child { border-bottom: none; }
+    .exp-period { font-size: .85rem; color: var(--text-2); font-weight: 500; padding-top: .15rem; }
+    .exp-head { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: .35rem; }
+    .exp-role { font-size: 1.1rem; font-weight: 700; }
+    .exp-at { font-size: .9rem; color: var(--text-2); }
+    .exp-company { font-size: 1rem; font-weight: 600; color: var(--primary); }
+    .exp-desc { font-size: .95rem; color: var(--text-2); line-height: 1.6; }
+
+    .edu-list { display: flex; flex-direction: column; }
+    .edu-item { display: grid; grid-template-columns: 90px 1fr; gap: 1.5rem; padding: 1.1rem 0; border-bottom: 1px solid var(--border); }
+    .edu-item:last-child { border-bottom: none; }
+    .edu-year { font-size: .85rem; color: var(--text-2); font-weight: 500; padding-top: .1rem; }
+    .edu-title { font-size: 1.05rem; font-weight: 700; }
+    .edu-school { font-size: .92rem; color: var(--text-2); margin-top: .15rem; }
+
+    .services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .service-card { border: 1px solid var(--border); border-radius: 16px; padding: 1.6rem; background: var(--bg); transition: all .15s; }
+    .service-card:hover { border-color: var(--primary); box-shadow: 0 8px 30px rgba(0,0,0,.05); transform: translateY(-2px); }
+    .service-num { display: inline-block; font-size: .8rem; font-weight: 700; background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .9rem; }
+    .service-title { font-size: 1.15rem; font-weight: 700; margin-bottom: .45rem; }
+    .service-desc { font-size: .92rem; color: var(--text-2); line-height: 1.6; }
+
+    .samples-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+    .sample-card { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--bg); transition: all .2s; display: flex; flex-direction: column; }
+    .sample-card:hover { border-color: var(--primary); box-shadow: 0 12px 36px rgba(0,0,0,.07); transform: translateY(-3px); }
+    .sample-media { height: 170px; background: var(--bg-2); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .sample-media .sample-img { width: 100%; height: 100%; object-fit: cover; }
+    .sample-icon { color: var(--primary); }
+    .sample-body { padding: 1.4rem; display: flex; flex-direction: column; flex: 1; }
+    .sample-type { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--primary); margin-bottom: .6rem; }
+    .sample-title { font-size: 1.2rem; font-weight: 700; margin-bottom: .5rem; line-height: 1.3; }
+    .sample-desc { font-size: .92rem; color: var(--text-2); line-height: 1.6; margin-bottom: 1rem; flex: 1; }
+    .sample-actions { display: flex; gap: 1rem; align-items: center; }
+    .sample-btn { background: none; border: none; padding: 0; font-size: .9rem; font-weight: 600; color: var(--primary); cursor: pointer; font-family: inherit; }
+    .sample-link { font-size: .9rem; font-weight: 600; color: var(--text-2); text-decoration: none; }
+    .sample-link:hover { color: var(--text); }
+
+    .testi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    .testi-card { border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; background: var(--bg); position: relative; }
+    .testi-quote-mark { color: var(--primary); opacity: .18; margin-bottom: .5rem; }
+    .testi-quote { font-size: 1rem; line-height: 1.65; color: var(--text); margin-bottom: 1.25rem; }
+    .testi-footer { display: flex; align-items: center; gap: .75rem; }
+    .testi-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .testi-avatar-letter { width: 40px; height: 40px; border-radius: 50%; background: var(--grad); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+    .testi-info { display: flex; flex-direction: column; }
+    .testi-info strong { font-size: .92rem; font-weight: 700; }
+    .testi-info span { font-size: .82rem; color: var(--text-2); }
+
+    .contact-card { border-radius: 20px; padding: 3rem; background: var(--grad); color: #fff; text-align: center; }
+    .contact-card h2 { font-size: 2rem; font-weight: 800; margin-bottom: .75rem; letter-spacing: -.02em; }
+    .contact-card p { font-size: 1.05rem; opacity: .92; margin-bottom: 2rem; }
+    .contact-btn { display: inline-block; background: #fff; color: var(--primary); padding: .9rem 2rem; border-radius: 10px; font-weight: 700; text-decoration: none; transition: transform .15s; }
+    .contact-btn:hover { transform: translateY(-2px); }
+
+    /* Modal */
+    .modal { display: none; position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center; padding: 1.5rem; }
+    .modal.is-open { display: flex; }
+    .modal-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.6); backdrop-filter: blur(4px); }
+    .modal-box { position: relative; background: var(--bg); border-radius: 18px; padding: 2.5rem; max-width: 640px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,.2); }
+    .modal-close { position: absolute; top: 1.25rem; right: 1.25rem; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 9px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; color: var(--text-2); }
+    .modal-close:hover { color: var(--text); }
+    .modal-type { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--primary); }
+    .modal-title { font-family: var(--serif); font-size: 1.8rem; font-weight: 600; margin: .5rem 0 1.5rem; letter-spacing: -.02em; }
+    .modal-body p { font-size: 1rem; line-height: 1.75; color: var(--text-2); margin-bottom: 1rem; }
+    .modal-cta { display: inline-block; margin-top: 1rem; background: var(--grad); color: #fff; padding: .7rem 1.5rem; border-radius: 10px; font-weight: 600; text-decoration: none; }
+
+    .credit { padding: 2rem 0 0; font-size: .8rem; color: var(--text-2); }
+    .credit a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+      .side-nav { display: none; }
+      .side-foot { margin-top: 1rem; }
+      .content { padding: 2.5rem 1.5rem; }
+      .services-grid, .samples-grid, .testi-grid { grid-template-columns: 1fr; }
+      .exp-item { grid-template-columns: 1fr; gap: .25rem; }
+    }
+    ::selection { background: var(--primary); color: #fff; }
+    [id] { scroll-margin-top: 1.5rem; }
   `;
 }
 
+function generateHTML(data, sections = []) {
+  const name = data.fullName || "Your Name";
+  const role = data.headline || "Professional";
+  const bio = data.bio || "";
+  const profile = data.profileImage || "";
+  const email = data.email || "";
+  const primary = data.primaryColor || "#475569";
+  const accent = data.accentColor || "#1e293b";
+  const resumeUrl = data.resumeUrl || "";
+  const showAvail = data.availability === "true" || data.availability === true;
+  const availText = data.availabilityText || "Available for work";
+  const statement = data.statement || "";
+  const location = data.location || "";
+
+  const services = buildServices(data);
+  const experience = buildExperience(data);
+  const education = buildEducation(data);
+  const { cards: sampleCards, modals: sampleModals } = buildSamples(data);
+  const hasSamples = sampleCards.trim().length > 0;
+  const testimonials = buildTestimonials(data);
+
+  const head = (title, kicker) => `<div class="sec-head"><div class="sec-kicker">${kicker}</div><h2 class="sec-title">${title}</h2></div>`;
+
+  const sectionContent = {
+    about: () => bio ? `<section class="section reveal" id="about">${head('About', 'Profile')}<p class="about-text">${bio}</p></section>` : '',
+    experience: () => experience.length ? `<section class="section reveal" id="experience">${head('Experience', 'Career')}<div class="exp-list">${experience.join('')}</div></section>` : '',
+    services: () => services.length ? `<section class="section reveal" id="services">${head('Services', 'Offerings')}<div class="services-grid">${services.join('')}</div></section>` : '',
+    samples: () => hasSamples ? `<section class="section reveal" id="work">${head('Selected Work', 'Portfolio')}<div class="samples-grid">${sampleCards}</div></section>` : '',
+    testimonials: () => testimonials.length ? `<section class="section reveal" id="testimonials">${head('Testimonials', 'Praise')}<div class="testi-grid">${testimonials.join('')}</div></section>` : '',
+    education: () => education.length ? `<section class="section reveal" id="education">${head('Education & Certifications', 'Background')}<div class="edu-list">${education.join('')}</div></section>` : '',
+  };
+
+  const navLabels = { about: 'About', experience: 'Experience', services: 'Services', samples: 'Work', testimonials: 'Testimonials', education: 'Education' };
+  const navTarget = { about: 'about', experience: 'experience', services: 'services', samples: 'work', testimonials: 'testimonials', education: 'education' };
+
+  const defaultSections = [
+    { id: 'about', enabled: true, order: 0 },
+    { id: 'experience', enabled: true, order: 1 },
+    { id: 'services', enabled: true, order: 2 },
+    { id: 'samples', enabled: true, order: 3 },
+    { id: 'testimonials', enabled: true, order: 4 },
+    { id: 'education', enabled: true, order: 5 },
+  ];
+  const active = (sections && sections.length > 0) ? sections : defaultSections;
+  const sorted = [...active].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  // Render each section exactly once (head() increments the section number as it runs).
+  const rendered = sorted
+    .filter(s => (s.enabled === undefined ? true : s.enabled) && sectionContent[s.id])
+    .map(s => ({ id: s.id, html: sectionContent[s.id]() }))
+    .filter(r => r.html.trim() !== '');
+
+  const contentHTML = rendered.map(r => r.html).join('');
+
+  // Sidebar nav from the sections that actually rendered.
+  const navHTML = rendered.filter(r => navLabels[r.id]).map(r =>
+    `<a href="#${navTarget[r.id]}" class="side-link" data-target="${navTarget[r.id]}">${navLabels[r.id]}</a>`
+  ).join('');
+
+  const avatar = profile
+    ? `<img src="${profile}" alt="${name}" />`
+    : `<div class="side-avatar-letter">${name.charAt(0).toUpperCase()}</div>`;
+
+  const favicon = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23ea580c'/%3E%3Crect x='6' y='7' width='7' height='26' rx='1.5' fill='white' transform='rotate(-8 9.5 20)'/%3E%3Crect x='19' y='7' width='7' height='19' rx='1.5' fill='white' transform='rotate(-8 22.5 16.5)'/%3E%3Crect x='6' y='7' width='20' height='7' rx='1.5' fill='white' transform='rotate(-8 16 10.5)'/%3E%3Crect x='6' y='17' width='15' height='6' rx='1.5' fill='white' transform='rotate(-8 13.5 20)'/%3E%3C/svg%3E`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${name} — ${role}</title>
+  <meta name="description" content="${bio.slice(0, 160)}" />
+  <meta name="author" content="${name}" />
+  <meta property="og:title" content="${name} — ${role}" />
+  <meta property="og:description" content="${bio.slice(0, 160)}" />
+  <meta property="og:type" content="profile" />
+  <meta property="og:image" content="${profile}" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" type="image/svg+xml" href="${favicon}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>${getStyles(primary, accent)}</style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="side-avatar">${avatar}</div>
+      <div>
+        <div class="side-name">${name}</div>
+        <div class="side-role">${role}</div>
+        ${location ? `<p class="side-location"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${location}</p>` : ''}
+      </div>
+      ${showAvail ? `<span class="side-avail"><span class="side-avail-dot"></span>${availText}</span>` : ''}
+      ${navHTML ? `<nav class="side-nav">${navHTML}</nav>` : ''}
+      <div class="side-foot">
+        <div class="side-actions">
+          ${email ? `<a href="mailto:${email}" class="side-btn side-btn-primary">Get in touch</a>` : ''}
+          ${resumeUrl ? `<a href="${resumeUrl}" target="_blank" rel="noopener" class="side-btn side-btn-outline">Resume ↓</a>` : ''}
+        </div>
+        ${buildSocialLinks(data)}
+      </div>
+    </aside>
+    <main class="content">
+      ${statement ? `<p class="lead-statement">${statement}</p>` : ''}
+      ${contentHTML}
+      <p class="credit">Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></p>
+    </main>
+  </div>
+  ${sampleModals}
+  <script>
+    function openModal(id){ var m = document.getElementById(id); if(m){ m.classList.add('is-open'); document.body.style.overflow='hidden'; } }
+    function closeModal(id){ var m = document.getElementById(id); if(m){ m.classList.remove('is-open'); document.body.style.overflow=''; } }
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ document.querySelectorAll('.modal.is-open').forEach(function(m){ m.classList.remove('is-open'); }); document.body.style.overflow=''; } });
+    (function(){
+      var els = document.querySelectorAll('.reveal');
+      if(!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(function(el){ el.classList.add('in'); }); return; }
+      var io = new IntersectionObserver(function(en){ en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: 0.12 });
+      els.forEach(function(el){ io.observe(el); });
+    })();
+    (function(){
+      var links = document.querySelectorAll('.side-link'); if(!links.length || !('IntersectionObserver' in window)) return;
+      var map = {}; links.forEach(function(l){ map[l.getAttribute('data-target')] = l; });
+      var io = new IntersectionObserver(function(en){ en.forEach(function(e){ var l = map[e.target.id]; if(l && e.isIntersecting){ links.forEach(function(x){ x.classList.remove('active'); }); l.classList.add('active'); } }); }, { rootMargin: '-30% 0px -60% 0px' });
+      Object.keys(map).forEach(function(id){ var s = document.getElementById(id); if(s) io.observe(s); });
+    })();
+  </script>
+  <script type="application/json" id="portfolio-data">${JSON.stringify({ formData: data, sections: active })}</script>
+</body>
+</html>`;
+}
 
 const professionalWriterTemplate = {
   id: "professional-writer-template",
   name: "Professional Portfolio",
-  description: "Advanced portfolio with visual builder, modal work samples, and modern design.",
+  description: "Premium split-layout portfolio with a sticky profile sidebar, experience timeline, and case-study modals.",
   thumbnail: "/images/professional-template.jpg",
   isPro: true,
   fields: [
-    // Hero Section
     { name: "fullName", label: "Full Name", type: "text", required: true, section: "hero" },
-    { name: "headline", label: "Professional Headline", type: "text", placeholder: "e.g., Product Designer | UX Specialist", required: true, section: "hero" },
+    { name: "headline", label: "Professional Headline", type: "text", required: true, section: "hero" },
     { name: "bio", label: "About You", type: "textarea", required: true, section: "hero" },
     { name: "profileImage", label: "Profile Image", type: "file", section: "hero" },
-
-    // Theme Customization
-    { name: "primaryColor", label: "Primary Color", type: "color", default: "#2563eb", section: "theme" },
-    { name: "accentColor", label: "Accent Color", type: "color", default: "#0ea5e9", section: "theme" },
-
-    // Specialties
-    { name: "specialty1", label: "Specialty 1", type: "text", placeholder: "e.g., Product Design", section: "specialties" },
-    { name: "specialty2", label: "Specialty 2", type: "text", placeholder: "e.g., Brand Strategy", section: "specialties" },
-    { name: "specialty3", label: "Specialty 3", type: "text", placeholder: "e.g., Frontend Dev", section: "specialties" },
-    { name: "specialty4", label: "Specialty 4", type: "text", placeholder: "e.g., User Research", section: "specialties" },
-
-    // Testimonials
-    { name: "testimonial1", label: "Testimonial 1", type: "textarea", section: "testimonials" },
-    { name: "testimonial1Author", label: "Client 1 Name", type: "text", section: "testimonials" },
-    { name: "testimonial1Role", label: "Client 1 Role/Company", type: "text", section: "testimonials" },
-    { name: "testimonial1Image", label: "Client 1 Photo", type: "file", section: "testimonials" },
-
-    { name: "testimonial2", label: "Testimonial 2", type: "textarea", section: "testimonials" },
-    { name: "testimonial2Author", label: "Client 2 Name", type: "text", section: "testimonials" },
-    { name: "testimonial2Role", label: "Client 2 Role/Company", type: "text", section: "testimonials" },
-    { name: "testimonial2Image", label: "Client 2 Photo", type: "file", section: "testimonials" },
-
-    { name: "testimonial3", label: "Testimonial 3", type: "textarea", section: "testimonials" },
-    { name: "testimonial3Author", label: "Client 3 Name", type: "text", section: "testimonials" },
-    { name: "testimonial3Role", label: "Client 3 Role/Company", type: "text", section: "testimonials" },
-    { name: "testimonial3Image", label: "Client 3 Photo", type: "file", section: "testimonials" },
-
-    // Contact
+    { name: "resumeUrl", label: "Resume / CV link", type: "url", section: "hero" },
+    { name: "primaryColor", label: "Primary Color", type: "color", default: "#4f46e5", section: "theme" },
+    { name: "accentColor", label: "Accent Color", type: "color", default: "#9333ea", section: "theme" },
     { name: "email", label: "Email Address", type: "email", required: true, section: "contact" },
     { name: "linkedin", label: "LinkedIn URL", type: "text", section: "contact" },
     { name: "twitter", label: "Twitter/X URL", type: "text", section: "contact" },
     { name: "instagram", label: "Instagram URL", type: "text", section: "contact" },
-    { name: "website", label: "Other Links", type: "text", section: "contact" },
+    { name: "website", label: "Website", type: "text", section: "contact" },
   ],
-
-  generateHTML: (data, sections = []) => {
-    const name = data.fullName || "Your Name";
-    const headline = data.headline || "Freelance Professional";
-    const bio = data.bio || "Building things people love.";
-    const profile = data.profileImage || "";
-    const email = data.email || "";
-    const primaryColor = data.primaryColor || "#2563eb";
-    const accentColor = data.accentColor || "#0ea5e9";
-
-    const defaultSections = [
-      { id: 'hero', enabled: true, order: 0 },
-      { id: 'specialties', enabled: true, order: 1 },
-      { id: 'samples', enabled: true, order: 2 },
-      { id: 'testimonials', enabled: true, order: 3 },
-      { id: 'contact', enabled: true, order: 4 },
-      { id: 'footer', enabled: true, order: 5 },
-    ];
-
-    const activeSections = sections.length > 0 ? sections : defaultSections;
-
-    const sectionMap = {};
-    activeSections.forEach(section => {
-      sectionMap[section.id] = section.enabled !== undefined ? section.enabled : true;
-    });
-
-    const sortedSections = [...activeSections].sort((a, b) => a.order - b.order);
-
-    const sectionContent = {
-      hero: () => {
-        const profileHTML = profile
-          ? `<img src="${profile}" alt="${name}" class="profile-image" />`
-          : `<div class="profile-letter-avatar">
-              <span>${name.charAt(0).toUpperCase()}</span>
-            </div>`;
-
-        return `
-          <section class="hero">
-            <div class="container">
-              <div class="hero-content">
-                ${profileHTML}
-                <h1>${name}</h1>
-                <p class="headline">${headline}</p>
-                <p class="bio">${bio}</p>
-
-                ${buildSocialLinks(data)}
-
-                <a href="mailto:${email}" class="cta-button">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M3 4L10 11L17 4M3 4H17V14H3V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  Get In Touch
-                </a>
-              </div>
-            </div>
-          </section>
-        `;
-      },
-
-      specialties: () => {
-        let specialtiesHTML = "";
-        for (let i = 1; i <= 4; i++) {
-          const specialty = data[`specialty${i}`];
-          if (specialty) {
-            specialtiesHTML += `
-              <div class="specialty-pill">
-                <svg class="specialty-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M9 2L11.5 7.5L17 8L13 12L14 17.5L9 15L4 17.5L5 12L1 8L6.5 7.5L9 2Z" fill="currentColor"/>
-                </svg>
-                ${specialty}
-              </div>
-            `;
-          }
-        }
-
-        if (!specialtiesHTML) return '';
-
-        return `
-          <section class="specialties">
-            <div class="container">
-              <div class="specialties-grid">
-                ${specialtiesHTML}
-              </div>
-            </div>
-          </section>
-        `;
-      },
-
-      samples: () => {
-        const { samplesHTML, modalsHTML } = buildSamples(data);
-
-        if (!samplesHTML) {
-          return `
-            <section class="section">
-              <div class="container">
-                <div class="section-header">
-                  <h2 class="section-title">Featured Work</h2>
-                  <p class="section-subtitle">A curated selection of featured projects and published work</p>
-                </div>
-                <div class="samples-grid">
-                  <p style="text-align:center;color:var(--text-tertiary);font-size:1.125rem;">No samples added yet.</p>
-                </div>
-              </div>
-            </section>
-          `;
-        }
-
-        return `
-          <section class="section">
-            <div class="container">
-              <div class="section-header">
-                <h2 class="section-title">Featured Work</h2>
-                <p class="section-subtitle">A curated selection of featured projects and published work</p>
-              </div>
-              <div class="samples-grid">
-                ${samplesHTML}
-              </div>
-            </div>
-          </section>
-          ${modalsHTML}
-        `;
-      },
-
-      testimonials: () => {
-        let testimonialsHTML = "";
-        for (let i = 1; i <= 3; i++) {
-          const testimonial = data[`testimonial${i}`];
-          const author = data[`testimonial${i}Author`];
-          const role = data[`testimonial${i}Role`];
-          const image = data[`testimonial${i}Image`];
-
-          if (testimonial && author) {
-            testimonialsHTML += `
-              <div class="testimonial-card">
-                <div class="testimonial-stars">${'★'.repeat(5)}</div>
-                <p class="testimonial-text">"${testimonial}"</p>
-                <div class="testimonial-author">
-                  ${image ? `<img src="${image}" alt="${author}" class="testimonial-avatar" />` : `<div class="testimonial-avatar-placeholder">${author.charAt(0)}</div>`}
-                  <div class="testimonial-info">
-                    <strong>${author}</strong>
-                    ${role ? `<span class="testimonial-role">${role}</span>` : ""}
-                  </div>
-                </div>
-              </div>
-            `;
-          }
-        }
-
-        if (!testimonialsHTML) return '';
-
-        return `
-          <section class="section" style="background: var(--bg-secondary);">
-            <div class="container">
-              <div class="section-header">
-                <h2 class="section-title">Client Testimonials</h2>
-                <p class="section-subtitle">What clients say about working with me</p>
-              </div>
-              <div class="testimonials-grid">
-                ${testimonialsHTML}
-              </div>
-            </div>
-          </section>
-        `;
-      },
-
-      contact: () => `
-        <section class="section">
-          <div class="container">
-            <div class="contact-section">
-              <h2>Let's Create Something Amazing</h2>
-              <p>Ready to elevate your content? Let's discuss your project.</p>
-              <a href="mailto:${email}" class="contact-button">
-                Start a Conversation
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M7 13L13 7M13 7H7M13 7V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-          </div>
-        </section>
-      `,
-
-      footer: () => `
-        <footer>
-          <div class="container">
-            <p>Made with <a href="https://porfilr.com" target="_blank">Porfilr</a></p>
-          </div>
-        </footer>
-      `
-    };
-
-    // Build the main content by iterating through sorted sections
-    let mainContent = '';
-    sortedSections.forEach(section => {
-      if (section.enabled && sectionContent[section.id]) {
-        mainContent += sectionContent[section.id]();
-      }
-    });
-
-    return `
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23ea580c'/%3E%3Crect x='6' y='7' width='7' height='26' rx='1.5' fill='white' transform='rotate(-8 9.5 20)'/%3E%3Crect x='19' y='7' width='7' height='19' rx='1.5' fill='white' transform='rotate(-8 22.5 16.5)'/%3E%3Crect x='6' y='7' width='20' height='7' rx='1.5' fill='white' transform='rotate(-8 16 10.5)'/%3E%3Crect x='6' y='17' width='15' height='6' rx='1.5' fill='white' transform='rotate(-8 13.5 20)'/%3E%3C/svg%3E" />
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-          <title>${name} - ${headline}</title>
-          <meta name="description" content="${bio}" />
-          <meta name="author" content="${name}" />
-          <meta property="og:type" content="profile" />
-          <meta property="og:title" content="${name} - ${headline}" />
-          <meta property="og:description" content="${bio}" />
-          <meta property="og:image" content="${profile}" />
-          <meta name="twitter:card" content="summary" />
-          <meta name="twitter:title" content="${name} - ${headline}" />
-          <meta name="twitter:description" content="${bio}" />
-          <meta name="twitter:image" content="${profile}" />
-          <meta name="robots" content="index, follow" />
-          <style>
-            ${getStyles(primaryColor, accentColor)}
-          </style>
-        </head>
-        <body>
-          ${mainContent}
-
-          <script>
-            function openModal(id) {
-              document.getElementById(id).classList.add('active');
-              document.body.style.overflow = 'hidden';
-            }
-
-            function closeModal(id) {
-              document.getElementById(id).classList.remove('active');
-              document.body.style.overflow = 'auto';
-            }
-
-            document.addEventListener('keydown', (e) => {
-              if (e.key === 'Escape') {
-                document.querySelectorAll('.modal.active').forEach(modal => {
-                  closeModal(modal.id);
-                });
-              }
-            });
-          </script>
-
-          <!-- Embed portfolio data for future editing -->
-          <script type="application/json" id="portfolio-data">
-            ${JSON.stringify({
-      formData: data,
-      sections: activeSections
-    })}
-          </script>
-        </body>
-      </html>
-    `;
-  },
+  generateHTML,
 };
 
 export default professionalWriterTemplate;
