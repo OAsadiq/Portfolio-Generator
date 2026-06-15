@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Undo, Redo, Palette, Type, Layout, Settings, Monitor, Tablet, Smartphone, AlertCircle, X } from 'lucide-react';
 import { useBuilderState } from './useBuilderState';
+import { Link } from "react-router-dom";
 import DesignTab from './tabs/DesignTab';
 import ContentTab from './tabs/ContentTab';
 import LayoutTab from './tabs/LayoutTab';
@@ -11,6 +11,7 @@ import TestimonialModal from './modals/TestimonialModal';
 import CaseStudyModal from './modals/CaseStudyModal';
 import BlogModal from './modals/BlogModal';
 import SuccessModal from './modals/SuccessModal';
+import Logo from "../Logo";
 
 const TABS = [
   { id: 'design',   label: 'Design',   icon: <Palette className="w-4 h-4" /> },
@@ -65,12 +66,7 @@ export default function PortfolioBuilder({ onCancel }: Props) {
         {/* Top bar — logo + save */}
         <div className="h-14 px-4 border-b border-stone-200 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-stone-900 rounded-lg flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <span className="font-bold text-stone-900 text-sm">Porfilr</span>
+            <Link to="/"><Logo size={8} variant="dark"/></Link>
             <span className="text-[10px] font-semibold uppercase tracking-widest text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100">Pro Editor</span>
           </div>
 
