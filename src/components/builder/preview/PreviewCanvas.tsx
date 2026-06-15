@@ -1,5 +1,5 @@
 import { SectionItem } from '../builder.config';
-import { renderProfessionalSection, renderProfessionalSidebar } from './ProfessionalTemplate';
+import { renderProfessionalSection, renderProfessionalSidebar, renderProfessionalHeader } from './ProfessionalTemplate';
 import { renderModernSection } from './ModernTemplate';
 
 interface Props {
@@ -36,24 +36,39 @@ export default function PreviewCanvas({ formData, previewMode, sections, templat
       backgroundSize: '22px 22px',
     } as React.CSSProperties;
 
+    const isStacked = (formData.layout || 'stacked') !== 'sidebar';
+    const credit = (
+      <p style={{ paddingTop: '2rem', fontSize: '.8rem', color: '#64748b', fontFamily: "'Inter', sans-serif" }}>
+        Made with <a href="https://porfilr.com" style={{ color: pc, textDecoration: 'none', fontWeight: 600 }}>Porfilr</a>
+      </p>
+    );
+
     return (
       <div className="flex-1 overflow-auto p-6 bg-stone-100">
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap');`}</style>
         <div className={`transition-all duration-500 ${widthClass} overflow-hidden rounded-sm`} style={proVars}>
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '300px 1fr' }}>
-            {renderProfessionalSidebar(formData, isMobile)}
-            <main style={{ padding: isMobile ? '1.25rem 1.25rem 2.5rem' : '2.5rem 3rem' }}>
-              {formData.statement && (
-                <p style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: isMobile ? '1.5rem' : '2.2rem', fontWeight: 500, lineHeight: 1.18, letterSpacing: '-0.02em', color: 'var(--text, #0f172a)', paddingBottom: '2.5rem', borderBottom: '1px solid var(--border, #e9edf2)' }}>
-                  {formData.statement}
-                </p>
-              )}
-              {visibleSections.map(s => renderProfessionalSection(s.id, formData, isMobile, isTablet))}
-              <p style={{ paddingTop: '2rem', fontSize: '.8rem', color: '#64748b', fontFamily: "'Inter', sans-serif" }}>
-                Made with <a href="https://porfilr.com" style={{ color: pc, textDecoration: 'none', fontWeight: 600 }}>Porfilr</a>
-              </p>
-            </main>
-          </div>
+          {isStacked ? (
+            <div>
+              {renderProfessionalHeader(formData, isMobile)}
+              <main style={{ maxWidth: 760, margin: '0 auto', padding: isMobile ? '0 1.25rem 2rem' : '0 2rem 2rem' }}>
+                {visibleSections.map(s => renderProfessionalSection(s.id, formData, isMobile, isTablet))}
+                {credit}
+              </main>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '300px 1fr' }}>
+              {renderProfessionalSidebar(formData, isMobile)}
+              <main style={{ padding: isMobile ? '1.25rem 1.25rem 2.5rem' : '2.5rem 3rem' }}>
+                {formData.statement && (
+                  <p style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: isMobile ? '1.5rem' : '2.2rem', fontWeight: 500, lineHeight: 1.18, letterSpacing: '-0.02em', color: 'var(--text, #0f172a)', paddingBottom: '2.5rem', borderBottom: '1px solid var(--border, #e9edf2)' }}>
+                    {formData.statement}
+                  </p>
+                )}
+                {visibleSections.map(s => renderProfessionalSection(s.id, formData, isMobile, isTablet))}
+                {credit}
+              </main>
+            </div>
+          )}
         </div>
       </div>
     );

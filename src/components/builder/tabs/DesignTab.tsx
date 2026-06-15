@@ -40,6 +40,27 @@ export default function DesignTab({ formData, onChange, onMultiChange, templateI
         </div>
       )}
 
+      {/* Layout — Professional only */}
+      {isProfessional && (
+        <div>
+          <label className="block text-xs font-semibold text-stone-500 uppercase tracking-widest mb-3">Layout</label>
+          <div className="grid grid-cols-2 gap-2">
+            {(['stacked', 'sidebar'] as const).map(opt => {
+              const active = (formData.layout || 'stacked') === opt;
+              return (
+                <button key={opt} type="button" onClick={() => onChange('layout', opt)}
+                  className={`py-2.5 rounded-xl text-sm font-semibold border transition ${
+                    active ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-600 border-stone-200 hover:border-stone-300'
+                  }`}>
+                  {opt === 'stacked' ? '▤ Stacked' : '◧ Sidebar'}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-xs text-stone-400 mt-2">Stacked centers your profile on top; Sidebar pins it to the left.</p>
+        </div>
+      )}
+
       {/* Availability — Modern + Professional */}
       {(isModern || isProfessional) && (
         <div>

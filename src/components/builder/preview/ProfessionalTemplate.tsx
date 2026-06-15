@@ -62,6 +62,52 @@ export function renderProfessionalSidebar(formData: Record<string, string>, isMo
   );
 }
 
+export function renderProfessionalHeader(formData: Record<string, string>, isMobile: boolean) {
+  const name = formData.fullName || 'Your Name';
+  const socials = ([
+    ['linkedin', formData.linkedin], ['twitter', formData.twitter], ['instagram', formData.instagram],
+  ] as [string, string][]).filter(([, v]) => v);
+
+  return (
+    <header key="header" className="text-center mx-auto" style={{ maxWidth: 680, padding: isMobile ? '2.5rem 1.25rem 2rem' : '4rem 2rem 3rem' }}>
+      <div className="mx-auto mb-5 rounded-[24px] overflow-hidden" style={{ width: 100, height: 100, background: 'var(--grad)', boxShadow: '0 12px 30px rgba(15,23,42,.16)', border: '3px solid #fff' }}>
+        {formData.profileImage
+          ? <img src={formData.profileImage} alt={name} className="w-full h-full object-cover" />
+          : <div className="w-full h-full flex items-center justify-center text-white" style={{ fontSize: '2.5rem', fontWeight: 700, ...serif }}>{name.charAt(0).toUpperCase()}</div>}
+      </div>
+      <h1 style={{ fontSize: isMobile ? '2.4rem' : '3.1rem', fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.05, ...gradText, ...serif }}>{name}</h1>
+      <p className="font-semibold" style={{ fontSize: '1.05rem', color: 'var(--text, #0f172a)', marginTop: '.6rem', ...ff }}>{formData.headline || 'Your role'}</p>
+      {formData.location && (
+        <p className="inline-flex items-center gap-1.5 justify-center" style={{ fontSize: '.85rem', color: 'var(--text-2, #64748b)', marginTop: '.5rem', ...ff }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>{formData.location}
+        </p>
+      )}
+      {formData.availability === 'true' && (
+        <div className="mt-4">
+          <span className="inline-flex items-center gap-2" style={{ fontSize: '.78rem', fontWeight: 500, color: 'var(--text-2, #64748b)', padding: '.3rem .7rem', border: '1px solid var(--border, #e9edf2)', borderRadius: 100, background: 'var(--bg, #fff)', ...ff }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 0 3px rgba(34,197,94,.2)' }} />
+            {formData.availabilityText || 'Available for work'}
+          </span>
+        </div>
+      )}
+      {formData.statement && (
+        <p style={{ ...serif, fontSize: isMobile ? '1.3rem' : '1.6rem', fontWeight: 500, lineHeight: 1.35, color: 'var(--text-2, #64748b)', maxWidth: 560, margin: '1.5rem auto 0', letterSpacing: '-0.01em' }}>{formData.statement}</p>
+      )}
+      <div className="flex justify-center items-center gap-3 flex-wrap mt-7">
+        {formData.email && <a href={`mailto:${formData.email}`} className="inline-flex items-center gap-2 font-semibold" style={{ padding: '.7rem 1.3rem', borderRadius: 10, fontSize: '.9rem', background: 'var(--grad)', color: '#fff', textDecoration: 'none', ...ff }}>Get in touch</a>}
+        {formData.resumeUrl && <a href={formData.resumeUrl} className="inline-flex items-center gap-2 font-semibold" style={{ padding: '.7rem 1.3rem', borderRadius: 10, fontSize: '.9rem', border: '1px solid var(--border, #e9edf2)', color: 'var(--text, #0f172a)', background: 'var(--bg, #fff)', textDecoration: 'none', ...ff }}>Resume ↓</a>}
+      </div>
+      {socials.length > 0 && (
+        <div className="flex justify-center gap-1.5 mt-4">
+          {socials.map(([icon, url]) => (
+            <a key={icon} href={url} className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 9, border: '1px solid var(--border, #e9edf2)', color: 'var(--text-2, #64748b)', background: 'var(--bg, #fff)' }}>{socialSvg(icon)}</a>
+          ))}
+        </div>
+      )}
+    </header>
+  );
+}
+
 function SecHead({ title, kicker }: { title: string; kicker?: string }) {
   return (
     <div className="mb-7">
