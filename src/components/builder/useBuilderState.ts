@@ -223,7 +223,18 @@ export function useBuilderState(onCancel?: () => void) {
       if (portfolio.user_id !== session.user.id) throw new Error('You do not have permission to edit this portfolio.');
 
       setPortfolioSlug(portfolio.slug);
-      if (portfolio.form_data) setFormData(portfolio.form_data);
+      if (portfolio.form_data) {
+        const fd: Record<string, string> = { ...portfolio.form_data };
+        // Migrate legacy named social fields (linkedin/twitter/github/instagram/website)
+        // into the generic social1..N slots so they show + stay editable in the builder.
+        const hasNewSocials = Array.from({ length: 10 }, (_, i) => fd[`social${i + 1}`]).some(Boolean);
+        if (!hasNewSocials) {
+          const legacy = [fd.linkedin, fd.twitter, fd.github, fd.instagram, fd.website].filter(v => v && String(v).trim());
+          legacy.forEach((url, i) => { fd[`social${i + 1}`] = url; });
+        }
+        ['linkedin', 'twitter', 'github', 'instagram', 'website'].forEach(k => { delete fd[k]; });
+        setFormData(fd);
+      }
       if (portfolio.template_id) {
         setSelectedTemplate(portfolio.template_id);
         const tConfig = getTemplateConfig(portfolio.template_id);
