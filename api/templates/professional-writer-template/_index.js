@@ -192,6 +192,23 @@ function getStyles(primary, accent) {
     .lead-statement { font-family: var(--serif); font-size: clamp(1.7rem, 3.2vw, 2.6rem); font-weight: 500; line-height: 1.18; letter-spacing: -.02em; color: var(--text); padding-bottom: 2.5rem; border-bottom: 1px solid var(--border); }
     .lead-statement em { font-style: italic; color: var(--pop); }
 
+    /* ── Stacked layout (no sidebar) ── */
+    .stacked { max-width: 1100px; margin: 0 auto; }
+    .top-header { text-align: center; padding: 5rem 2rem 3rem; max-width: 720px; margin: 0 auto; }
+    .th-avatar { width: 104px; height: 104px; border-radius: 24px; overflow: hidden; margin: 0 auto 1.5rem; background: var(--grad); box-shadow: 0 12px 30px rgba(15,23,42,.16); border: 3px solid #fff; }
+    .th-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .th-avatar-letter { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.6rem; font-weight: 700; font-family: var(--serif); }
+    .th-name { font-family: var(--serif); font-size: clamp(2.4rem, 6vw, 3.4rem); font-weight: 600; letter-spacing: -.025em; line-height: 1.05; background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .th-role { font-size: 1.05rem; font-weight: 600; color: var(--text); margin-top: .6rem; }
+    .th-location { display: inline-flex; align-items: center; gap: .35rem; font-size: .85rem; color: var(--text-2); margin-top: .5rem; }
+    .th-statement { font-family: var(--serif); font-size: clamp(1.25rem, 2.6vw, 1.7rem); font-weight: 500; line-height: 1.35; color: var(--text-2); max-width: 600px; margin: 1.5rem auto 0; letter-spacing: -.01em; }
+    .th-actions { display: flex; justify-content: center; align-items: center; gap: .75rem; flex-wrap: wrap; margin-top: 1.75rem; }
+    .top-header .side-avail { margin-top: 1.25rem; }
+    .top-header .side-socials { justify-content: center; margin-top: 1.25rem; }
+    .content--stacked { max-width: 760px; margin: 0 auto; padding: 0 2rem 2rem; }
+    .content--stacked .section:first-child { border-top: 1px solid var(--border); padding-top: 3rem; }
+    @media (max-width: 760px) { .top-header { padding: 3rem 1.25rem 2rem; } .content--stacked { padding: 0 1.25rem 2rem; } }
+
     .exp-list { display: flex; flex-direction: column; }
     .exp-item { display: grid; grid-template-columns: 150px 1fr; gap: 1.5rem; padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
     .exp-item:last-child { border-bottom: none; }
@@ -294,6 +311,7 @@ function generateHTML(data, sections = []) {
   const availText = data.availabilityText || "Available for work";
   const statement = data.statement || "";
   const location = data.location || "";
+  const layout = data.layout === 'sidebar' ? 'sidebar' : 'stacked';
 
   const services = buildServices(data);
   const experience = buildExperience(data);
@@ -342,6 +360,10 @@ function generateHTML(data, sections = []) {
   const avatar = profile
     ? `<img src="${profile}" alt="${name}" />`
     : `<div class="side-avatar-letter">${name.charAt(0).toUpperCase()}</div>`;
+  const headerAvatar = profile
+    ? `<img src="${profile}" alt="${name}" />`
+    : `<div class="th-avatar-letter">${name.charAt(0).toUpperCase()}</div>`;
+  const pinSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
 
   const favicon = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23ea580c'/%3E%3Crect x='6' y='7' width='7' height='26' rx='1.5' fill='white' transform='rotate(-8 9.5 20)'/%3E%3Crect x='19' y='7' width='7' height='19' rx='1.5' fill='white' transform='rotate(-8 22.5 16.5)'/%3E%3Crect x='6' y='7' width='20' height='7' rx='1.5' fill='white' transform='rotate(-8 16 10.5)'/%3E%3Crect x='6' y='17' width='15' height='6' rx='1.5' fill='white' transform='rotate(-8 13.5 20)'/%3E%3C/svg%3E`;
 
@@ -365,13 +387,14 @@ function generateHTML(data, sections = []) {
   <style>${getStyles(primary, accent)}</style>
 </head>
 <body>
+  ${layout === 'sidebar' ? `
   <div class="layout">
     <aside class="sidebar">
       <div class="side-avatar">${avatar}</div>
       <div>
         <div class="side-name">${name}</div>
         <div class="side-role">${role}</div>
-        ${location ? `<p class="side-location"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${location}</p>` : ''}
+        ${location ? `<p class="side-location">${pinSvg}${location}</p>` : ''}
       </div>
       ${showAvail ? `<span class="side-avail"><span class="side-avail-dot"></span>${availText}</span>` : ''}
       ${navHTML ? `<nav class="side-nav">${navHTML}</nav>` : ''}
@@ -388,7 +411,26 @@ function generateHTML(data, sections = []) {
       ${contentHTML}
       <p class="credit">Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></p>
     </main>
-  </div>
+  </div>` : `
+  <div class="stacked">
+    <header class="top-header">
+      <div class="th-avatar">${headerAvatar}</div>
+      <h1 class="th-name">${name}</h1>
+      <p class="th-role">${role}</p>
+      ${location ? `<p class="th-location">${pinSvg}${location}</p>` : ''}
+      ${showAvail ? `<span class="side-avail"><span class="side-avail-dot"></span>${availText}</span>` : ''}
+      ${statement ? `<p class="th-statement">${statement}</p>` : ''}
+      <div class="th-actions">
+        ${email ? `<a href="mailto:${email}" class="side-btn side-btn-primary">Get in touch</a>` : ''}
+        ${resumeUrl ? `<a href="${resumeUrl}" target="_blank" rel="noopener" class="side-btn side-btn-outline">Resume ↓</a>` : ''}
+      </div>
+      ${buildSocialLinks(data)}
+    </header>
+    <main class="content content--stacked">
+      ${contentHTML}
+      <p class="credit">Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></p>
+    </main>
+  </div>`}
   ${sampleModals}
   <script>
     function openModal(id){ var m = document.getElementById(id); if(m){ m.classList.add('is-open'); document.body.style.overflow='hidden'; } }

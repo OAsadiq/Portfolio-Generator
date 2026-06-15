@@ -101,6 +101,7 @@ export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
     fields: {
       fullName: 'Jordan Williams',
       headline: 'Product Designer & Strategist',
+      layout: 'stacked',
       location: 'San Francisco, CA',
       statement: 'I design products people actually finish using — calm interfaces, clear systems, measurable results.',
       bio: 'I help teams turn complex problems into clear, intuitive products. Ten years across fintech, healthtech, and SaaS — from first sketch to shipped feature.',
