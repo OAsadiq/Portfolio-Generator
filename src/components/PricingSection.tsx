@@ -28,7 +28,7 @@ const PricingSection = () => {
       if (!res.ok) {
         const text = await res.text();
         let msg = "Failed to start checkout";
-        try { msg = JSON.parse(text).error || msg; } catch {}
+        try { msg = JSON.parse(text).error || msg; } catch { /* empty */ }
         throw new Error(msg);
       }
       const data = await res.json();
@@ -72,7 +72,7 @@ const PricingSection = () => {
             <div className="h-px bg-stone-200 my-2"></div>
             <div className="flex justify-between text-sm">
               <span className="text-orange-600 font-semibold">Porfilr</span>
-              <span className="text-orange-600 font-bold">$0–108/year</span>
+              <span className="text-orange-600 font-bold">$19 one-time</span>
             </div>
           </div>
         </div>
