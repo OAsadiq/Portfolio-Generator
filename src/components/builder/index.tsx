@@ -66,7 +66,10 @@ export default function PortfolioBuilder({ onCancel }: Props) {
         {/* Top bar — logo + save */}
         <div className="h-14 px-4 border-b border-stone-200 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2.5">
-            <Link to="/"><Logo size={8} variant="dark"/></Link>
+            <span className="flex items-center gap-1">
+              <Link to="/"><Logo size={18} variant="dark" showWordmark = {false} /></Link>
+              <span className="font-bold text-stone-900 text-sm">Porfilr</span>            
+            </span>
             <span className="text-[10px] font-semibold uppercase tracking-widest text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100">Pro Editor</span>
           </div>
 
