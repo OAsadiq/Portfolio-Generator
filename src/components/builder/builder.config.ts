@@ -4,6 +4,7 @@ import { User, FileText, BookOpen, MessageSquare, Mail, Sparkles, Footprints, Tr
 export const COLOR_PRESETS = [
   { name: 'Indigo', primary: '#4f46e5', accent: '#4f46e5' },
   { name: 'Ink', primary: '#0a0a0a', accent: '#0a0a0a' },
+  { name: 'Slate', primary: '#475569', accent: '#1e293b' },
   { name: 'Ocean', primary: '#0ea5e9', accent: '#06b6d4' },
   { name: 'Purple', primary: '#a855f7', accent: '#ec4899' },
   { name: 'Sunset', primary: '#f97316', accent: '#ef4444' },

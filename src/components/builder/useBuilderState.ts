@@ -37,12 +37,17 @@ export function useBuilderState(onCancel?: () => void) {
   const [historyIndex, setHistoryIndex] = useState(0);
 
   useEffect(() => {
+    // When editing an existing portfolio, its saved data is loaded by
+    // loadPortfolioData(). That sets selectedTemplate, which would otherwise
+    // re-trigger this effect and clobber the loaded data with the demo seed
+    // (wiping the user's profile image, socials, etc). Skip the reset on edit.
+    if (isEditing) return;
     const newConfig = getTemplateConfig(selectedTemplate);
     setSections(newConfig.sections);
     setFormData(newConfig.fields);
     setHistory([newConfig.fields]);
     setHistoryIndex(0);
-  }, [selectedTemplate]);
+  }, [selectedTemplate, isEditing]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 1024);
