@@ -23,7 +23,7 @@ export const UpgradeHandler = () => {
 
       try {
         const apiUrl = `${import.meta.env.VITE_API_URL}/api/stripe/actions`;
-        const priceId = import.meta.env.VITE_STRIPE_PRICE_ID_PRO;
+        const priceId = import.meta.env.VITE_STRIPE_PRO_PRICE_ID;
         
         if (!priceId) {
           throw new Error('Stripe Price ID is not configured');

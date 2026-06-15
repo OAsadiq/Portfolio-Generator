@@ -167,6 +167,35 @@ async function handleCheckoutCompleted(session) {
     } catch (err) {
       throw err;
     }
+  } else if (metadata?.type === 'pro_lifetime') {
+    // One-time Pro purchase → grant lifetime Pro by writing an "active" subscription row.
+    try {
+      const record = {
+        user_id: metadata.userId,
+        stripe_customer_id: customer,
+        status: 'active',
+        plan: 'pro',
+        current_period_start: new Date().toISOString(),
+        current_period_end: new Date('2099-12-31T00:00:00Z').toISOString(), // effectively lifetime
+        updated_at: new Date().toISOString()
+      };
+
+      const { data: existing } = await supabase
+        .from('subscriptions')
+        .select('id')
+        .eq('user_id', metadata.userId)
+        .maybeSingle();
+
+      const { error } = existing
+        ? await supabase.from('subscriptions').update(record).eq('user_id', metadata.userId).select()
+        : await supabase.from('subscriptions').insert(record).select();
+
+      if (error) {
+        throw error;
+      }
+    } catch (err) {
+      throw err;
+    }
   } else if (metadata?.type === 'premium_template') {
 
     try {

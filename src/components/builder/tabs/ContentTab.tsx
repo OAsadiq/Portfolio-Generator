@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, Globe, Mail, Sparkles, BookOpen, MessageSquare, FileText, Plus, Trash2, Edit2, Check, Upload, TrendingUp, Briefcase, Building2, Image as ImageIcon, GraduationCap } from 'lucide-react';
 import { SKILL_OPTIONS, getTemplateConfig } from '../builder.config';
+import { SocialIcon } from '../preview/socialIcons';
 
 interface Props {
   formData: Record<string, string>;
@@ -150,11 +151,19 @@ export default function ContentTab({
       {blocks.includes('social') && (
         <div className={DIVIDER}>
           <p className={SECTION_HDR}><Globe className="w-3.5 h-3.5" />Social Links</p>
+          <p className="text-xs text-stone-400 mb-3">Paste any profile or site link — LinkedIn, GitHub, Dribbble, YouTube, your own site, anything. The icon is detected automatically.</p>
           <div className="space-y-2">
-            <input type="url" value={formData.linkedin || ''} onChange={e => onChange('linkedin', e.target.value)} className={INPUT} placeholder="LinkedIn URL" />
-            <input type="url" value={formData.twitter || ''} onChange={e => onChange('twitter', e.target.value)} className={INPUT} placeholder="Twitter / X URL" />
-            {isModern && <input type="url" value={formData.github || ''} onChange={e => onChange('github', e.target.value)} className={INPUT} placeholder="GitHub URL" />}
-            <input type="url" value={formData.website || ''} onChange={e => onChange('website', e.target.value)} className={INPUT} placeholder="Website URL" />
+            {[1, 2, 3, 4, 5, 6].map(n => {
+              const val = formData[`social${n}`] || '';
+              return (
+                <div key={n} className="flex items-center gap-2">
+                  <span className="flex items-center justify-center w-9 h-9 rounded-lg border border-stone-200 bg-stone-50 text-stone-500 flex-shrink-0">
+                    {val ? <SocialIcon url={val} size={16} /> : <Globe className="w-4 h-4 text-stone-300" />}
+                  </span>
+                  <input type="url" value={val} onChange={e => onChange(`social${n}`, e.target.value)} className={INPUT} placeholder={n === 1 ? 'https://linkedin.com/in/you' : 'https://…'} />
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

@@ -131,8 +131,8 @@ const PricingSection = () => {
               <span className="text-xs font-semibold uppercase tracking-widest text-stone-400">Pro</span>
             </div>
             <div className="mb-4">
-              <span className="text-4xl font-bold text-white" style={{ fontFamily: "'Playfair Display', serif" }}>$9</span>
-              <span className="text-stone-400 text-sm ml-1">/ month</span>
+              <span className="text-4xl font-bold text-white" style={{ fontFamily: "'Playfair Display', serif" }}>$19</span>
+              <span className="text-stone-400 text-sm ml-1">one-time</span>
             </div>
             <p className="text-stone-400 text-sm mb-6">For creators who want their own domain and deeper analytics.</p>
             <ul className="space-y-3 mb-8">

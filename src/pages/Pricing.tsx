@@ -64,7 +64,7 @@ const PricingPage = () => {
     { q: "Can I update my portfolio later?", a: "Absolutely! Update anytime. Add new articles, change your bio, update testimonials — all in real-time." },
     { q: "What's included in the free plan?", a: "One portfolio with our Minimal template, up to 3 writing samples, free hosting, and a yourname.porfilr.com URL. Forever free. No credit card required." },
     { q: "How is this different from Squarespace?", a: "Squarespace is built for everyone. We're built specifically for writers — clean templates, relevant sections, 3× cheaper." },
-    { q: "Can I cancel anytime?", a: "Yes! No contracts. Cancel your Pro subscription anytime from your dashboard. Your free plan stays forever." },
+    { q: "Is it really a one-time payment?", a: "Yes — pay $19 once and Pro is yours forever. No subscription, no monthly fees, no renewals. Your free plan stays free too." },
     { q: "Do you offer refunds?", a: "We offer a 30-day money-back guarantee on Pro plans. Not happy? Full refund, no questions asked." },
     { q: "Is my portfolio mobile-friendly?", a: "100%! All templates are fully responsive and optimized for mobile, tablet, and desktop." },
   ];
@@ -75,7 +75,7 @@ const PricingPage = () => {
     { label: "No Coding", porfilr: TICK, sq: "Sometimes", wp: "Often", gd: TICK },
     { label: "Made for Writers", porfilr: TICK, sq: CROSS, wp: CROSS, gd: CROSS },
     { label: "Professional Look", porfilr: TICK, sq: TICK, wp: "Maybe", gd: CROSS },
-    { label: "Custom Domain", porfilr: <span className="text-orange-600 text-xs font-semibold">Pro ($9/mo)</span>, sq: "$25+/mo", wp: "$17+/mo", gd: CROSS },
+    { label: "Custom Domain", porfilr: <span className="text-orange-600 text-xs font-semibold">Pro ($19 once)</span>, sq: "$25+/mo", wp: "$17+/mo", gd: CROSS },
   ];
 
   return (
@@ -165,8 +165,8 @@ const PricingPage = () => {
                 <span className="px-3 py-1 text-xs bg-orange-50 text-orange-600 border border-orange-100 rounded-full font-semibold">Best Value</span>
               </div>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-stone-900">$9</span>
-                <span className="text-stone-400 text-base ml-1">/month</span>
+                <span className="text-4xl font-extrabold text-stone-900">$19</span>
+                <span className="text-stone-400 text-base ml-1">one-time</span>
               </div>
               <ul className="space-y-3 mb-8">
                 {[
@@ -306,7 +306,7 @@ const PricingPage = () => {
               Start Building Free →
             </button>
           </Link>
-          <p className="text-stone-400 text-xs mt-4">No credit card required · 10-minute setup · Cancel anytime</p>
+          <p className="text-stone-400 text-xs mt-4">One-time payment · 10-minute setup · Yours forever</p>
         </div>
       </section>
 

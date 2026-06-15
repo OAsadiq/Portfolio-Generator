@@ -2,6 +2,8 @@
 // Mirrors api/templates/professional-writer-template/_index.js.
 // CSS vars injected by PreviewCanvas: --primary, --accent, --grad, --bg, --bg-2, --text, --text-2, --border.
 
+import { collectSocials, SocialIcon } from './socialIcons';
+
 const ff = { fontFamily: "'Inter', sans-serif" } as const;
 const serif = { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" } as const;
 const POP = '#0d9488';
@@ -18,9 +20,7 @@ function socialSvg(type: string) {
 
 export function renderProfessionalSidebar(formData: Record<string, string>, isMobile: boolean) {
   const name = formData.fullName || 'Your Name';
-  const socials = ([
-    ['linkedin', formData.linkedin], ['twitter', formData.twitter], ['instagram', formData.instagram],
-  ] as [string, string][]).filter(([, v]) => v);
+  const socials = collectSocials(formData);
 
   return (
     <aside key="sidebar" data-section="sidebar"
@@ -52,8 +52,8 @@ export function renderProfessionalSidebar(formData: Record<string, string>, isMo
         {formData.resumeUrl && <a href={formData.resumeUrl} className="inline-flex items-center justify-center gap-2 font-semibold" style={{ padding: '.7rem 1rem', borderRadius: 10, fontSize: '.9rem', border: '1px solid var(--border, #e9edf2)', color: 'var(--text, #0f172a)', background: 'var(--bg, #fff)', textDecoration: 'none', ...ff }}>Resume ↓</a>}
         {socials.length > 0 && (
           <div className="flex gap-1.5 mt-1">
-            {socials.map(([icon, url]) => (
-              <a key={icon} href={url} className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 9, border: '1px solid var(--border, #e9edf2)', color: 'var(--text-2, #64748b)', background: 'var(--bg, #fff)' }}>{socialSvg(icon)}</a>
+            {socials.map((url, i) => (
+              <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 9, border: '1px solid var(--border, #e9edf2)', color: 'var(--text-2, #64748b)', background: 'var(--bg, #fff)' }}><SocialIcon url={url} /></a>
             ))}
           </div>
         )}
@@ -64,9 +64,7 @@ export function renderProfessionalSidebar(formData: Record<string, string>, isMo
 
 export function renderProfessionalHeader(formData: Record<string, string>, isMobile: boolean) {
   const name = formData.fullName || 'Your Name';
-  const socials = ([
-    ['linkedin', formData.linkedin], ['twitter', formData.twitter], ['instagram', formData.instagram],
-  ] as [string, string][]).filter(([, v]) => v);
+  const socials = collectSocials(formData);
 
   return (
     <header key="header" className="text-center mx-auto" style={{ maxWidth: 680, padding: isMobile ? '2.5rem 1.25rem 2rem' : '4rem 2rem 3rem' }}>

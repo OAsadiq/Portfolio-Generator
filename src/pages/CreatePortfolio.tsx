@@ -189,7 +189,7 @@ const CreatePortfolio = () => {
             </svg>
           </div>
           <h2 className="text-xl font-bold text-stone-900 mb-2">Pro template</h2>
-          <p className="text-stone-500 text-sm mb-6">This template is available on Pro. Upgrade for $9/mo to unlock all templates, custom domains, and analytics.</p>
+          <p className="text-stone-500 text-sm mb-6">This template is available on Pro. Pay a one-time $19 to unlock all templates, custom domains, and analytics — yours forever.</p>
           <Link to="/pricing" className="block mb-3">
             <button className="w-full bg-orange-600 hover:bg-orange-500 text-white py-3 rounded-xl font-bold text-sm transition">
               Upgrade to Pro

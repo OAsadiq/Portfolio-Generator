@@ -468,7 +468,7 @@ const TemplateSelection = () => {
               </button>
               <Link to="/pricing" className="flex-1">
                 <button className="w-full bg-orange-600 hover:bg-orange-500 text-white py-2.5 rounded-xl text-sm font-bold transition">
-                  Upgrade — $9/mo
+                  Unlock Pro — $19 once
                 </button>
               </Link>
             </div>

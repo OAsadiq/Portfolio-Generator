@@ -577,7 +577,7 @@ const ProDashboard = () => {
                             {subscription?.status === 'active' ? 'Active' : subscription?.status === 'past_due' ? 'Past due' : subscription?.status || 'Active'}
                           </span>
                         </div>
-                        <p className="text-stone-500 text-sm">$9/month · Premium templates, custom domain & more</p>
+                        <p className="text-stone-500 text-sm">$19 one-time · Premium templates, custom domain & more</p>
                         {subscription?.current_period_end && (
                           <p className="text-stone-400 text-xs mt-1">
                             Renews {new Date(subscription.current_period_end).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}

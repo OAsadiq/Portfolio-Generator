@@ -78,12 +78,12 @@ async function handleCreateCheckoutSession({ priceId, userId, userEmail }, res) 
 
         const session = await stripe.checkout.sessions.create({
             customer: customerId,
-            mode: 'subscription',
+            mode: 'payment', // one-time Pro purchase — lifetime access (requires a ONE-TIME price in Stripe)
             payment_method_types: ['card'],
             line_items: [{ price: priceId, quantity: 1 }],
             success_url: `${process.env.VITE_REDIRECT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.VITE_REDIRECT_URL}/pricing`,
-            metadata: { userId }
+            metadata: { userId, type: 'pro_lifetime' }
         });
 
         console.log('Checkout session created:', session.id);
