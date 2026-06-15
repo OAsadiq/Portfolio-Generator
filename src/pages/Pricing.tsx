@@ -60,10 +60,10 @@ const PricingPage = () => {
   const faqs = [
     { q: "Do I need coding skills?", a: "Nope! Zero coding required. If you can fill out a form, you can build a portfolio with Porfilr." },
     { q: "Can I use my own domain?", a: "Yes! Pro plan includes custom domain support (yourname.com). Free plan gives you a yourname.porfilr.com URL." },
-    { q: "How long does setup take?", a: "Most writers finish in under 10 minutes. Pick a template, add your samples, publish. That's it." },
+    { q: "How long does setup take?", a: "Most people finish in under 10 minutes. Pick a template, add your work, publish. That's it." },
     { q: "Can I update my portfolio later?", a: "Absolutely! Update anytime. Add new articles, change your bio, update testimonials — all in real-time." },
-    { q: "What's included in the free plan?", a: "One portfolio with our Minimal template, up to 3 writing samples, free hosting, and a yourname.porfilr.com URL. Forever free. No credit card required." },
-    { q: "How is this different from Squarespace?", a: "Squarespace is built for everyone. We're built specifically for writers — clean templates, relevant sections, 3× cheaper." },
+    { q: "What's included in the free plan?", a: "One portfolio with our Minimal template, up to 3 work samples, free hosting, and a yourname.porfilr.com URL. Forever free. No credit card required." },
+    { q: "How is this different from Squarespace?", a: "Squarespace tries to do everything. We do one thing — make your work look great — with clean templates, relevant sections, and a fraction of the cost." },
     { q: "Is it really a one-time payment?", a: "Yes — pay $19 once and Pro is yours forever. No subscription, no monthly fees, no renewals. Your free plan stays free too." },
     { q: "Do you offer refunds?", a: "We offer a 30-day money-back guarantee on Pro plans. Not happy? Full refund, no questions asked." },
     { q: "Is my portfolio mobile-friendly?", a: "100%! All templates are fully responsive and optimized for mobile, tablet, and desktop." },
@@ -71,11 +71,11 @@ const PricingPage = () => {
 
   const tableRows = [
     { label: "Setup Time", porfilr: <span className="text-green-600 font-semibold text-sm">10 minutes</span>, sq: "3–5 days", wp: "20+ hours", gd: "5 minutes" },
-    { label: "Cost / Year", porfilr: <span className="text-green-600 font-semibold text-sm">$0–$108</span>, sq: "$300+", wp: "$200+", gd: "Free" },
+    { label: "Cost", porfilr: <span className="text-green-600 font-semibold text-sm">$0–$19 once</span>, sq: "$300+/yr", wp: "$200+/yr", gd: "Free" },
     { label: "No Coding", porfilr: TICK, sq: "Sometimes", wp: "Often", gd: TICK },
-    { label: "Made for Writers", porfilr: TICK, sq: CROSS, wp: CROSS, gd: CROSS },
+    { label: "Built for Creatives", porfilr: TICK, sq: CROSS, wp: CROSS, gd: CROSS },
     { label: "Professional Look", porfilr: TICK, sq: TICK, wp: "Maybe", gd: CROSS },
-    { label: "Custom Domain", porfilr: <span className="text-orange-600 text-xs font-semibold">Pro ($19 once)</span>, sq: "$25+/mo", wp: "$17+/mo", gd: CROSS },
+    { label: "Custom Domain", porfilr: <span className="text-green-600 font-semibold text-sm">Included (Pro)</span>, sq: "$25+/mo", wp: "$17+/mo", gd: CROSS },
   ];
 
   return (
@@ -139,7 +139,7 @@ const PricingPage = () => {
                 <span className="text-stone-400 text-base ml-1">/forever</span>
               </div>
               <ul className="space-y-3 mb-8">
-                {["1 portfolio with Minimal template", "3 writing samples", "Free hosting with unique URL", "Client testimonials section", "Mobile-optimized design"].map(f => (
+                {["1 portfolio with Minimal template", "3 work samples", "Free hosting with unique URL", "Client testimonials section", "Mobile-optimized design"].map(f => (
                   <li key={f} className="flex items-start gap-2.5 text-sm text-stone-700">{CHECK}{f}</li>
                 ))}
               </ul>
@@ -160,7 +160,7 @@ const PricingPage = () => {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 className="text-xl font-bold text-stone-900 mb-1">Pro</h3>
-                  <p className="text-stone-500 text-sm">For professional writers</p>
+                  <p className="text-stone-500 text-sm">For professionals & creatives</p>
                 </div>
                 <span className="px-3 py-1 text-xs bg-orange-50 text-orange-600 border border-orange-100 rounded-full font-semibold">Best Value</span>
               </div>
@@ -204,7 +204,7 @@ const PricingPage = () => {
               Stop Overpaying for Generic Website Builders
             </h2>
             <p className="text-stone-500 text-sm md:text-base max-w-xl mx-auto">
-              Squarespace and Wix are built for restaurants and photographers. Porfilr is built for writers.
+              Squarespace and Wix try to be everything for everyone. Porfilr is built to make your work look great.
             </p>
           </div>
 
@@ -242,7 +242,7 @@ const PricingPage = () => {
           </div>
 
           <div className="text-center mt-8">
-            <p className="text-stone-400 text-sm mb-4">Stop fighting with tools made for restaurants. Use one made for writers.</p>
+            <p className="text-stone-400 text-sm mb-4">Stop fighting with tools built to do everything. Use one built to showcase your work.</p>
             <Link to="/templates">
               <button className="bg-orange-600 hover:bg-orange-500 text-white px-7 py-3 rounded-xl font-bold text-sm transition">
                 Get Started Free
