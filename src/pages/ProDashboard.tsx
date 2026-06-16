@@ -359,73 +359,6 @@ const ProDashboard = () => {
             </div>
 
             {/* Overview Tab */}
-            {activeTab === 'overview' && (
-              <div className="space-y-5">
-                <div className="bg-white border border-stone-200 rounded-2xl p-6">
-                  <h2 className="text-lg font-bold text-stone-900 mb-4">Quick Actions</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <Link to="/templates">
-                      <button className="w-full bg-stone-900 hover:bg-stone-700 text-white py-3.5 px-6 rounded-xl font-semibold transition flex items-center justify-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                        Create New Portfolio
-                      </button>
-                    </Link>
-                    <button onClick={() => setActiveTab('templates')} className="w-full bg-stone-50 border border-stone-200 text-stone-700 py-3.5 px-6 rounded-xl font-semibold hover:bg-stone-100 transition flex items-center justify-center gap-2">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                      </svg>
-                      Browse Templates
-                    </button>
-                    <button onClick={() => setActiveTab('domains')} className="w-full bg-stone-50 border border-stone-200 text-stone-700 py-3.5 px-6 rounded-xl font-semibold hover:bg-stone-100 transition flex items-center justify-center gap-2">
-                      <Globe className="w-4 h-4" />
-                      Manage Domains
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-white border border-stone-200 rounded-2xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-stone-900">Recent Portfolios</h2>
-                    <button onClick={() => setActiveTab('portfolios')} className="text-orange-600 hover:text-orange-500 text-sm font-semibold flex items-center gap-1">
-                      View All
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </button>
-                  </div>
-                  {portfolios.length === 0 ? (
-                    <div className="text-center py-10">
-                      <p className="text-stone-400 text-sm mb-4">No portfolios yet</p>
-                      <Link to="/templates">
-                        <button className="bg-stone-900 hover:bg-stone-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition">
-                          Create Your First Portfolio
-                        </button>
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="space-y-2.5">
-                      {portfolios.slice(0, 3).map((portfolio) => (
-                        <div key={portfolio.id} className="bg-stone-50 border border-stone-200 rounded-xl p-4 hover:border-stone-300 transition-all">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h3 className="font-semibold text-stone-900 text-sm">{portfolio.user_name}</h3>
-                              <p className="text-xs text-stone-400 mt-0.5">{new Date(portfolio.created_at).toLocaleDateString()}</p>
-                            </div>
-                            <a href={`${import.meta.env.VITE_API_URL}/api/templates/preview?slug=${portfolio.slug}`} target="_blank" rel="noopener noreferrer"
-                              className="px-3 py-1.5 bg-white border border-stone-200 hover:border-stone-300 text-stone-700 rounded-lg text-xs font-semibold transition">
-                              View
-                            </a>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* Portfolios Tab */}
             {activeTab === 'portfolios' && (
               <div className="bg-white border border-stone-200 rounded-2xl p-6">
@@ -553,40 +486,6 @@ const ProDashboard = () => {
             )}
 
             {/* Templates Tab */}
-            {activeTab === 'templates' && (
-              <div className="space-y-5">
-                <div className="bg-white border border-stone-200 rounded-2xl p-6">
-                  <h2 className="text-lg font-bold text-stone-900 mb-1">Available Templates</h2>
-                  <p className="text-stone-500 text-sm mb-5">All templates are unlocked for Pro members ⭐</p>
-                  <Link to="/templates">
-                    <button className="bg-stone-900 hover:bg-stone-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2">
-                      Browse All Templates
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </button>
-                  </Link>
-                </div>
-
-                <div className="bg-white border border-stone-200 rounded-2xl p-6">
-                  <h2 className="text-lg font-bold text-stone-900 mb-4">Coming Soon</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[
-                      { name: 'Developer Portfolio', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>, bg: 'bg-blue-50 text-blue-500' },
-                      { name: 'Designer Showcase', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>, bg: 'bg-violet-50 text-violet-500' },
-                      { name: 'Photography Portfolio', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>, bg: 'bg-pink-50 text-pink-500' },
-                    ].map((t, idx) => (
-                      <div key={idx} className="bg-stone-50 border border-stone-200 rounded-xl p-4 opacity-60">
-                        <div className={`w-10 h-10 ${t.bg} rounded-xl flex items-center justify-center mb-3`}>{t.icon}</div>
-                        <h3 className="font-semibold text-stone-900 text-sm">{t.name}</h3>
-                        <p className="text-xs text-stone-400 mt-1">Coming Soon</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Billing Tab */}
             {activeTab === 'billing' && (
               <div className="space-y-5">
