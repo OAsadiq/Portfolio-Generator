@@ -30,6 +30,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [existingPortfolio, setExistingPortfolio] = useState<{ slug: string; template_id: string } | null>(null);
   const [isPro, setIsPro] = useState(false);
 
+  // Capture a ?ref=CODE from the URL as early as possible and stash it until signup.
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref) localStorage.setItem('porfilr_ref', ref);
+  }, []);
+
+  // Ensure the user has a referral row, and attribute them to a referrer if they arrived via a link.
+  const ensureReferral = useCallback(async () => {
+    if (!user) return;
+    try {
+      await supabase.rpc('ensure_referral');
+      const ref = localStorage.getItem('porfilr_ref');
+      if (ref) {
+        await supabase.rpc('attribute_referral', { ref_code: ref });
+        localStorage.removeItem('porfilr_ref');
+      }
+    } catch (err) {
+      console.error('Referral setup error:', err);
+    }
+  }, [user]);
+
   const checkSubscription = useCallback(async () => {
     if (!user) {
       setIsPro(false);
@@ -173,13 +194,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (user) {
       checkSubscription();
       checkPortfolio();
+      ensureReferral();
     } else {
       setIsPro(false);
       setSubscriptionLoading(false);
       setHasPortfolio(false);
       setExistingPortfolio(null);
     }
-  }, [user, checkSubscription, checkPortfolio]);
+  }, [user, checkSubscription, checkPortfolio, ensureReferral]);
 
 
 

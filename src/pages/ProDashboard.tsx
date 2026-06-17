@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Globe, Copy, Check, ExternalLink, AlertCircle, CheckCircle, Clock, Mail, Inbox } from 'lucide-react';
 import TutorialTour, { TourStep } from '../components/tutorial/TutorialTour';
+import ReferralCard from '../components/ReferralCard';
 
 const DASHBOARD_TOUR: TourStep[] = [
   { title: "Your dashboard", body: "This is home base for everything you've built. Here's a quick tour — replay it anytime from the ? button.", placement: "center" },
@@ -381,6 +382,9 @@ const ProDashboard = () => {
                 </div>
               ))}
             </div>
+
+            {/* Refer & earn */}
+            <ReferralCard />
 
             {/* Tabs */}
             <div data-tour="dash-tabs" className="flex gap-2 mb-6 overflow-x-auto pb-1">

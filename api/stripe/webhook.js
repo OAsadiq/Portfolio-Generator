@@ -193,6 +193,13 @@ async function handleCheckoutCompleted(session) {
       if (error) {
         throw error;
       }
+
+      // Credit whoever referred this buyer (referral hook). Never block the purchase on this.
+      try {
+        await rewardReferrerForProPurchase(metadata.userId);
+      } catch (refErr) {
+        console.error('Referral reward error:', refErr);
+      }
     } catch (err) {
       throw err;
     }
@@ -215,6 +222,70 @@ async function handleCheckoutCompleted(session) {
 
     } catch (err) {
       throw err;
+    }
+  }
+}
+
+// ── Referral rewards ──
+// Ladder: 1 qualified referral → free kit credit; 3 → Pro unlocked free.
+// "Qualified" = the referred friend completed a Pro purchase (this function's trigger).
+const REFERRALS_FOR_KIT = 1;
+const REFERRALS_FOR_PRO = 3;
+
+async function rewardReferrerForProPurchase(buyerUserId) {
+  // Who referred the buyer?
+  const { data: buyerRow } = await supabase
+    .from('referrals')
+    .select('referred_by')
+    .eq('user_id', buyerUserId)
+    .maybeSingle();
+
+  const referrerId = buyerRow?.referred_by;
+  if (!referrerId) return; // organic buyer, nobody to credit
+
+  const { data: refRow } = await supabase
+    .from('referrals')
+    .select('pro_referrals, kit_credit, pro_unlocked')
+    .eq('user_id', referrerId)
+    .maybeSingle();
+  if (!refRow) return;
+
+  const newCount = (refRow.pro_referrals || 0) + 1;
+  const update = { pro_referrals: newCount };
+
+  if (newCount >= REFERRALS_FOR_KIT && (refRow.kit_credit || 0) < 1) {
+    update.kit_credit = 1;
+  }
+
+  let grantPro = false;
+  if (newCount >= REFERRALS_FOR_PRO && !refRow.pro_unlocked) {
+    update.pro_unlocked = true;
+    grantPro = true;
+  }
+
+  await supabase.from('referrals').update(update).eq('user_id', referrerId);
+
+  // Milestone reached → grant the referrer lifetime Pro (same shape as a paid purchase).
+  if (grantPro) {
+    const { data: existing } = await supabase
+      .from('subscriptions')
+      .select('id')
+      .eq('user_id', referrerId)
+      .maybeSingle();
+
+    const record = {
+      user_id: referrerId,
+      status: 'active',
+      plan: 'pro',
+      current_period_start: new Date().toISOString(),
+      current_period_end: new Date('2099-12-31T00:00:00Z').toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (existing) {
+      await supabase.from('subscriptions').update(record).eq('user_id', referrerId);
+    } else {
+      await supabase.from('subscriptions').insert(record);
     }
   }
 }

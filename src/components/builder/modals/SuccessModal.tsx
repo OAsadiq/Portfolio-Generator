@@ -1,5 +1,6 @@
 import { X, Check, Eye, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import SharePortfolio from '../../SharePortfolio';
 
 interface Props {
   isOpen: boolean;
@@ -58,10 +59,8 @@ export default function SuccessModal({ isOpen, portfolioSlug, onClose }: Props) 
 
         {/* Share nudge */}
         {portfolioSlug && (
-          <div className="mt-6 p-4 bg-orange-50 border border-orange-100 rounded-xl">
-            <p className="text-xs text-orange-700 text-center">
-              Share your portfolio: <span className="font-semibold">porfilr.com/p/{portfolioSlug}</span>
-            </p>
+          <div className="mt-6">
+            <SharePortfolio url={`${import.meta.env.VITE_APP_URL ?? 'https://porfilr.com'}/p/${portfolioSlug}`} />
           </div>
         )}
       </div>

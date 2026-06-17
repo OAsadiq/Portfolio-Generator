@@ -5,6 +5,7 @@ import Logo from "../components/Logo";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import PortfolioVisualBuilder from "../components/PortfolioVisualBuilder.tsx";
+import SharePortfolio from "../components/SharePortfolio";
 
 interface TemplateField {
   name: string;
@@ -262,6 +263,11 @@ const CreatePortfolio = () => {
             >
               {copied ? "Copied!" : "Copy link"}
             </button>
+          </div>
+
+          {/* Share */}
+          <div className="mb-6">
+            <SharePortfolio url={portfolioUrl} />
           </div>
 
           {/* Actions */}
