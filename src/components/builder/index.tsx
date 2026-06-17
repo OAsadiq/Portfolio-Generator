@@ -12,6 +12,15 @@ import CaseStudyModal from './modals/CaseStudyModal';
 import BlogModal from './modals/BlogModal';
 import SuccessModal from './modals/SuccessModal';
 import Logo from "../Logo";
+import TutorialTour, { TourStep } from '../tutorial/TutorialTour';
+
+const BUILDER_TOUR: TourStep[] = [
+  { title: "Welcome to the Pro Editor", body: "This is where you design your portfolio live. Here's a 30-second tour — replay it anytime from the ? button.", placement: "center" },
+  { selector: '[data-tour="tour-tabs"]', title: "Four ways to edit", body: "Design controls colors & fonts. Content is your text, work and photos. Layout reorders or hides sections. Settings handles the rest.", placement: "right" },
+  { selector: '[data-tour="tour-panel"]', title: "Edit on the left", body: "Whatever you change here updates the preview instantly — no save needed to see it.", placement: "right" },
+  { selector: '[data-tour="tour-viewport"]', title: "Check every screen", body: "Preview how your portfolio looks on desktop, tablet, and mobile before you publish.", placement: "bottom" },
+  { selector: '[data-tour="tour-save"]', title: "Save when you're ready", body: "Hit Save to publish your portfolio. It goes live instantly, and you can come back to edit anytime.", placement: "bottom" },
+];
 
 const TABS = [
   { id: 'design',   label: 'Design',   icon: <Palette className="w-4 h-4" /> },
@@ -74,6 +83,7 @@ export default function PortfolioBuilder({ onCancel }: Props) {
           </div>
 
           <button
+            data-tour="tour-save"
             onClick={state.handleSubmit}
             disabled={state.saving}
             className="px-4 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
@@ -87,7 +97,7 @@ export default function PortfolioBuilder({ onCancel }: Props) {
 
         {/* Tab nav */}
         <div className="px-3 pt-3 pb-2 border-b border-stone-100">
-          <div className="grid grid-cols-4 gap-1 bg-stone-100 p-1 rounded-xl">
+          <div className="grid grid-cols-4 gap-1 bg-stone-100 p-1 rounded-xl" data-tour="tour-tabs">
             {TABS.map(tab => (
               <button key={tab.id} onClick={() => state.setActiveTab(tab.id)}
                 className={`flex flex-col items-center gap-1 py-2 px-1 rounded-lg transition text-xs font-semibold ${
@@ -103,7 +113,7 @@ export default function PortfolioBuilder({ onCancel }: Props) {
         </div>
 
         {/* Tab content */}
-        <div className="flex-1 overflow-y-auto builder-scrollbar px-4 py-4">
+        <div className="flex-1 overflow-y-auto builder-scrollbar px-4 py-4" data-tour="tour-panel">
           {state.activeTab === 'design' && (
             <DesignTab formData={state.formData} onChange={state.handleInputChange} onMultiChange={state.handleMultiChange} templateId={state.selectedTemplate} />
           )}
@@ -158,7 +168,7 @@ export default function PortfolioBuilder({ onCancel }: Props) {
             <div className="h-5 w-px bg-stone-200" />
 
             {/* Viewport switcher */}
-            <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-lg">
+            <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-lg" data-tour="tour-viewport">
               {[{ mode: 'desktop', Icon: Monitor }, { mode: 'tablet', Icon: Tablet }, { mode: 'mobile', Icon: Smartphone }].map(({ mode, Icon }) => (
                 <button key={mode} onClick={() => state.setPreviewMode(mode)}
                   className={`p-1.5 rounded-md transition ${state.previewMode === mode ? 'bg-white shadow-sm text-orange-600 border border-stone-200' : 'text-stone-400 hover:text-stone-600'}`}
@@ -222,6 +232,8 @@ export default function PortfolioBuilder({ onCancel }: Props) {
       <SuccessModal isOpen={state.successModalOpen} portfolioSlug={state.portfolioSlug} onClose={() => state.setSuccessModalOpen(false)} />
 
       <BuilderStyles />
+
+      <TutorialTour steps={BUILDER_TOUR} storageKey="porfilr_tour_builder_v1" />
     </div>
   );
 }

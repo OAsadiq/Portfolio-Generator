@@ -3,6 +3,13 @@ import { useNavigate, Link } from "react-router-dom";
 import Logo from "../components/Logo";
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import TutorialTour, { TourStep } from "../components/tutorial/TutorialTour";
+
+const TEMPLATE_TOUR: TourStep[] = [
+  { title: "Welcome to Porfilr", body: "Let's take 20 seconds to show you how to get a live portfolio. You can replay this anytime from the ? button.", placement: "center" },
+  { selector: '[data-tour="tour-grid"]', title: "Pick a template", body: "Every template works for any profession — designer, developer, writer, photographer. Start free with Minimal, or unlock all three with Pro.", placement: "top" },
+  { selector: '[data-tour="tour-card-actions"]', title: "Preview, then build", body: "Hit Preview to see a template full-screen, or “Use this” to jump straight into the editor and fill in your details.", placement: "top" },
+];
 
 interface Template {
   id: string;
@@ -275,6 +282,10 @@ const TemplateSelection = () => {
   return (
     <div className="min-h-screen bg-stone-50">
 
+      {!loading && templates.length > 0 && (
+        <TutorialTour steps={TEMPLATE_TOUR} storageKey={`porfilr_tour_templates_v1_${user?.id || 'anon'}`} />
+      )}
+
       {/* Top bar */}
       <div className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
         <Link to="/"><Logo size={28} /></Link>
@@ -356,8 +367,8 @@ const TemplateSelection = () => {
         ) : templates.length === 0 ? (
           <p className="text-center text-stone-400 py-16">No templates available</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {templates.map((template) => {
+          <div data-tour="tour-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {templates.map((template, idx) => {
               const isLoading = selectedLoading === template.id;
               const isLocked = isTemplateLocked(template.id);
               const isFree = template.id === "minimal-template";
@@ -400,7 +411,7 @@ const TemplateSelection = () => {
                   <div className="p-5">
                     <h3 className="font-bold text-stone-900 text-base mb-1">{template.name}</h3>
                     <p className="text-stone-400 text-xs leading-relaxed mb-4 line-clamp-2">{template.description}</p>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2" data-tour={idx === 0 ? "tour-card-actions" : undefined}>
                       <button
                         onClick={() => setPreviewTemplate(template)}
                         className="flex-1 border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 py-2.5 rounded-xl text-sm font-medium transition"

@@ -6,6 +6,15 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Globe, Copy, Check, ExternalLink, AlertCircle, CheckCircle, Clock, Mail, Inbox } from 'lucide-react';
+import TutorialTour, { TourStep } from '../components/tutorial/TutorialTour';
+
+const DASHBOARD_TOUR: TourStep[] = [
+  { title: "Your dashboard", body: "This is home base for everything you've built. Here's a quick tour — replay it anytime from the ? button.", placement: "center" },
+  { selector: '[data-tour="dash-stats"]', title: "Track your reach", body: "See total portfolios, views, and more at a glance — updated automatically as people visit your work.", placement: "bottom" },
+  { selector: '[data-tour="dash-tabs"]', title: "Everything in one place", body: "Switch between your Portfolios, Messages from your contact form, custom Domains, and Billing.", placement: "bottom" },
+  { selector: '[data-tour="dash-share"]', title: "Share in one click", body: "Copy your live link, open it in a new tab, or grab a QR code to put on cards, slides, or anywhere offline.", placement: "top" },
+  { selector: '[data-tour="dash-create"]', title: "Start something new", body: "Spin up a new portfolio anytime from here.", placement: "bottom" },
+];
 
 interface Portfolio {
   id: string;
@@ -307,7 +316,7 @@ const ProDashboard = () => {
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <Link to="/templates">
+              <Link to="/templates" data-tour="dash-create">
                 <button className="px-4 py-2 bg-stone-900 hover:bg-stone-700 text-white rounded-lg text-sm font-semibold transition">
                   Create New
                 </button>
@@ -358,8 +367,10 @@ const ProDashboard = () => {
           </div>
         ) : (
           <>
+            <TutorialTour steps={DASHBOARD_TOUR} storageKey={`porfilr_tour_dashboard_v1_${user?.id || 'anon'}`} />
+
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div data-tour="dash-stats" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
               {STAT_CARDS.map((card, i) => (
                 <div key={i} className="bg-white border border-stone-200 rounded-2xl p-5 hover:border-stone-300 transition-all">
                   <div className={`w-10 h-10 ${card.bg} rounded-xl flex items-center justify-center mb-3`}>
@@ -372,7 +383,7 @@ const ProDashboard = () => {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
+            <div data-tour="dash-tabs" className="flex gap-2 mb-6 overflow-x-auto pb-1">
               {[
                 { id: 'portfolios', label: 'Portfolios' },
                 { id: 'messages', label: 'Messages' },
@@ -428,7 +439,7 @@ const ProDashboard = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                    {portfolios.map((portfolio) => {
+                    {portfolios.map((portfolio, pIdx) => {
                       const liveUrl = portfolio.deployed_url || `https://porfilr.com/p/${portfolio.slug}`;
                       const displayUrl = liveUrl.replace(/^https?:\/\//, '');
                       const tplLabel = portfolio.template_id === 'modern-writer-template' ? 'Modern'
@@ -475,7 +486,7 @@ const ProDashboard = () => {
                         </div>
 
                         {/* Public URL + share actions */}
-                        <div className="flex items-center gap-1.5 bg-stone-50 border border-stone-200 rounded-lg pl-3 pr-1.5 py-1.5 mb-3">
+                        <div data-tour={pIdx === 0 ? 'dash-share' : undefined} className="flex items-center gap-1.5 bg-stone-50 border border-stone-200 rounded-lg pl-3 pr-1.5 py-1.5 mb-3">
                           <span className="flex-1 text-xs text-stone-600 font-medium truncate">{displayUrl}</span>
                           <button onClick={() => copyToClipboard(liveUrl, copyId)} title="Copy link"
                             className="p-1.5 rounded-md hover:bg-stone-200 text-stone-500 hover:text-stone-800 transition">
