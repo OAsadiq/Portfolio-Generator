@@ -19,6 +19,35 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+function getClientIp(req) {
+  const fwd = req.headers['x-forwarded-for'];
+  if (fwd) return String(fwd).split(',')[0].trim();
+  return req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown';
+}
+
+// ── Rate limiting ──
+// Durable window (shared via the leads table, survives cold starts):
+const DURABLE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const DURABLE_MAX = 5;                     // max messages per IP per window
+// In-memory burst guard (per warm instance, catches rapid-fire bursts):
+const BURST_WINDOW_MS = 20 * 1000;         // 20 seconds
+const BURST_MAX = 3;
+const burstHits = new Map(); // ip -> number[] timestamps
+
+function burstLimited(ip) {
+  const now = Date.now();
+  const hits = (burstHits.get(ip) || []).filter(t => now - t < BURST_WINDOW_MS);
+  hits.push(now);
+  burstHits.set(ip, hits);
+  // Opportunistic cleanup so the map can't grow unbounded.
+  if (burstHits.size > 5000) {
+    for (const [k, v] of burstHits) {
+      if (!v.some(t => now - t < BURST_WINDOW_MS)) burstHits.delete(k);
+    }
+  }
+  return hits.length > BURST_MAX;
+}
+
 export default async function handler(req, res) {
   enableCORS(res);
 
@@ -42,6 +71,31 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid email address.' });
   }
 
+  // ── Rate limit (per IP) ──
+  const ip = getClientIp(req);
+  const tooManyMsg = 'Too many messages. Please wait a few minutes and try again.';
+
+  // Fast in-memory burst guard.
+  if (burstLimited(ip)) {
+    return res.status(429).json({ error: tooManyMsg });
+  }
+
+  // Durable window backed by the leads table (survives cold starts / instances).
+  try {
+    const since = new Date(Date.now() - DURABLE_WINDOW_MS).toISOString();
+    const { count } = await supabase
+      .from('leads')
+      .select('id', { count: 'exact', head: true })
+      .eq('ip', ip)
+      .gte('created_at', since);
+    if ((count || 0) >= DURABLE_MAX) {
+      return res.status(429).json({ error: tooManyMsg });
+    }
+  } catch (err) {
+    // If the check fails, don't block a legitimate sender — the burst guard still applies.
+    console.error('Rate-limit check error:', err);
+  }
+
   // ── Save the lead to the dashboard inbox ──
   // Resolve the owning user/portfolio from the owner email. Each user has at
   // most one portfolio, so the owner email maps to a single record.
@@ -61,6 +115,7 @@ export default async function handler(req, res) {
       sender_name: senderName,
       sender_email: senderEmail,
       message,
+      ip,
     });
   } catch (err) {
     // Don't fail the request if logging the lead errors — the email still matters.

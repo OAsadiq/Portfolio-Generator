@@ -112,7 +112,7 @@ function SecHead({ title, kicker }: { title: string; kicker?: string }) {
 
 const SECTION_PAD = { padding: '2.5rem 0', borderTop: '1px solid var(--border, #e9edf2)' } as const;
 
-export function renderProfessionalSection(sectionId: string, formData: Record<string, string>, isMobile: boolean, _isTablet: boolean) {
+export function renderProfessionalSection(sectionId: string, formData: Record<string, string>, isMobile: boolean) {
   switch (sectionId) {
     case 'about':
       return formData.bio ? (

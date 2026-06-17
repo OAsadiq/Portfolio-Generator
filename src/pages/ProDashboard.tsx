@@ -249,8 +249,8 @@ const ProDashboard = () => {
     try {
       const { error: deleteError } = await supabase.from('portfolios').delete().eq('id', portfolioId).eq('user_id', user?.id);
       if (deleteError) throw new Error(deleteError.message || 'Failed to delete portfolio');
-      try { await supabase.storage.from('portfolios').remove([`portfolios/${portfolioSlug}.html`]); } catch {}
-      try { await supabase.from('user_portfolio_usage').delete().eq('portfolio_slug', portfolioSlug).eq('user_id', user?.id); } catch {}
+      try { await supabase.storage.from('portfolios').remove([`portfolios/${portfolioSlug}.html`]); } catch { /* best-effort cleanup */ }
+      try { await supabase.from('user_portfolio_usage').delete().eq('portfolio_slug', portfolioSlug).eq('user_id', user?.id); } catch { /* best-effort cleanup */ }
       setDeleteConfirm(null);
       showToast('Portfolio deleted successfully!', 'success');
       await fetchDashboardData();

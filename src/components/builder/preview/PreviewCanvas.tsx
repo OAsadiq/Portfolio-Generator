@@ -51,7 +51,7 @@ export default function PreviewCanvas({ formData, previewMode, sections, templat
             <div>
               {renderProfessionalHeader(formData, isMobile)}
               <main style={{ maxWidth: 760, margin: '0 auto', padding: isMobile ? '0 1.25rem 2rem' : '0 2rem 2rem' }}>
-                {visibleSections.map(s => renderProfessionalSection(s.id, formData, isMobile, isTablet))}
+                {visibleSections.map(s => renderProfessionalSection(s.id, formData, isMobile))}
                 {credit}
               </main>
             </div>
@@ -64,7 +64,7 @@ export default function PreviewCanvas({ formData, previewMode, sections, templat
                     {formData.statement}
                   </p>
                 )}
-                {visibleSections.map(s => renderProfessionalSection(s.id, formData, isMobile, isTablet))}
+                {visibleSections.map(s => renderProfessionalSection(s.id, formData, isMobile))}
                 {credit}
               </main>
             </div>
