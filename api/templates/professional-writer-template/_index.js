@@ -375,6 +375,11 @@ function generateHTML(data, sections = []) {
     .map(s => ({ id: s.id, html: sectionContent[s.id]() }))
     .filter(r => r.html.trim() !== '');
 
+  // Ensure the contact form always renders (older saved portfolios may not list it).
+  if (email && !rendered.some(r => r.id === 'contact')) {
+    rendered.push({ id: 'contact', html: sectionContent.contact() });
+  }
+
   const contentHTML = rendered.map(r => r.html).join('');
 
   // Sidebar nav from the sections that actually rendered.

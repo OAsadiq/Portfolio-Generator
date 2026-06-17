@@ -511,6 +511,8 @@ function generateHTML(data, sections = []) {
   const enabled = sorted.filter(s => (s.enabled === undefined ? true : s.enabled) && sectionContent[s.id]);
 
   let body = enabled.map(s => sectionContent[s.id]()).join('');
+  // Ensure the contact form always renders (older saved portfolios may not list it).
+  if (email && !enabled.some(s => s.id === 'contact')) body += sectionContent.contact();
   if (!enabled.some(s => s.id === 'footer')) body += sectionContent.footer();
 
   // Nav links for sections that exist + have content.
