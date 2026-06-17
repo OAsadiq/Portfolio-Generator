@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { NICHES } from "../pages/niches/nicheConfig";
 
 const Footer = () => {
   return (
@@ -23,7 +24,19 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-stone-800 mt-10 pt-8 text-center text-xs text-stone-600">
+        {/* Built-for niche pages — internal links for SEO + discovery */}
+        <div className="border-t border-stone-800 mt-10 pt-8">
+          <p className="text-stone-500 text-xs font-semibold uppercase tracking-widest mb-3">Built for</p>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            {NICHES.map(n => (
+              <Link key={n.slug} to={`/${n.slug}`} className="text-stone-400 hover:text-white transition">
+                {n.niche}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t border-stone-800 mt-8 pt-8 text-center text-xs text-stone-600">
           © 2026 Porfilr. All rights reserved.
         </div>
       </div>
