@@ -25,7 +25,7 @@ export default function NicheLanding({ config }: { config: NicheConfig }) {
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: 'Porfilr',
-      applicationCategory: 'DesignApplication',
+      applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
       url: canonical,
@@ -99,7 +99,7 @@ export default function NicheLanding({ config }: { config: NicheConfig }) {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {[
-            { t: 'Pick a template', d: 'Choose a clean, professional layout — every one works for design work.' },
+            { t: 'Pick a template', d: 'Choose a clean, professional layout — every one works for your field.' },
             { t: 'Add your details', d: 'Fill in your projects, services, and contact info. No code, no fuss.' },
             { t: 'Share your link', d: 'Publish instantly and drop your link anywhere clients can find you.' },
           ].map((s, i) => (
