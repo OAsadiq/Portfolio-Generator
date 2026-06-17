@@ -3,7 +3,10 @@ import { useNavigate, Link } from "react-router-dom";
 import Logo from "../components/Logo";
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabase";
 import TutorialTour, { TourStep } from "../components/tutorial/TutorialTour";
+
+const KIT_OPTIONS = ["Photographer", "Developer / Engineer", "Designer", "Real Estate", "Consultant / Coach", "Other"];
 
 const TEMPLATE_TOUR: TourStep[] = [
   { title: "Welcome to Porfilr", body: "Let's take 20 seconds to show you how to get a live portfolio. You can replay this anytime from the ? button.", placement: "center" },
@@ -197,6 +200,9 @@ const TemplateSelection = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showWaitlist, setShowWaitlist] = useState(false);
+  const [waitlistKit, setWaitlistKit] = useState(KIT_OPTIONS[0]);
+  const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
 
   useEffect(() => {
     const key = `porfilr_welcomed_${user?.id}`;
@@ -235,6 +241,23 @@ const TemplateSelection = () => {
     fetchTemplates();
     if (user) { checkPortfolio(); checkSubscription(); }
   }, [user, checkPortfolio, checkSubscription, session]);
+
+  const submitWaitlist = async () => {
+    if (!user) return;
+    setWaitlistStatus('saving');
+    try {
+      const { error } = await supabase.from('kit_waitlist').insert({
+        user_id: user.id,
+        email: user.email,
+        kit: waitlistKit,
+      });
+      if (error) throw error;
+      setWaitlistStatus('done');
+    } catch (err) {
+      console.error('Waitlist error:', err);
+      setWaitlistStatus('error');
+    }
+  };
 
   const isTemplateLocked = (id: string) => !isPro && id !== "minimal-template";
   const canSelectTemplate = (id: string) => isPro || id === "minimal-template";
@@ -439,12 +462,35 @@ const TemplateSelection = () => {
                 </div>
               );
             })}
+
+            {/* Coming soon — niche kits teaser */}
+            <button
+              onClick={() => { setWaitlistStatus('idle'); setShowWaitlist(true); }}
+              className="group text-left bg-stone-50 rounded-2xl overflow-hidden border-2 border-dashed border-stone-200 hover:border-orange-300 hover:bg-orange-50/30 transition-all duration-200 flex flex-col"
+            >
+              <div className="relative h-48 flex items-center justify-center">
+                <div className="text-center px-6">
+                  <div className="w-11 h-11 bg-white border border-stone-200 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-105 transition-transform">
+                    <svg className="w-5 h-5 text-stone-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-bold text-stone-600">More kits on the way</p>
+                </div>
+                <div className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-stone-200 text-stone-500">
+                  Soon
+                </div>
+              </div>
+              <div className="p-5">
+                <h3 className="font-bold text-stone-900 text-base mb-1">Niche template kits</h3>
+                <p className="text-stone-400 text-xs leading-relaxed mb-4 line-clamp-2">Tailored sections for photographers, developers, real estate & more. Tell us which to build first.</p>
+                <span className="block w-full text-center border border-stone-200 group-hover:border-orange-300 group-hover:text-orange-600 text-stone-600 py-2.5 rounded-xl text-sm font-semibold transition">
+                  Get notified →
+                </span>
+              </div>
+            </button>
           </div>
         )}
-
-        <p className="text-center text-stone-400 text-xs mt-10">
-          More templates coming soon — designers, developers, photographers, and more.
-        </p>
       </div>
 
       {/* Upgrade modal */}
@@ -483,6 +529,68 @@ const TemplateSelection = () => {
                 </button>
               </Link>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Waitlist modal */}
+      {showWaitlist && (
+        <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowWaitlist(false)}>
+          <div className="bg-white border border-stone-200 rounded-2xl p-8 max-w-sm w-full shadow-xl" onClick={e => e.stopPropagation()}>
+            {waitlistStatus === 'done' ? (
+              <div className="text-center">
+                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                  <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-stone-900 mb-1">You're on the list</h3>
+                <p className="text-stone-500 text-sm mb-6">We'll email <span className="font-medium text-stone-700">{user?.email}</span> the moment the {waitlistKit} kit is ready.</p>
+                <button onClick={() => setShowWaitlist(false)} className="w-full bg-stone-900 hover:bg-stone-700 text-white py-2.5 rounded-xl text-sm font-bold transition">
+                  Done
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                  <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-stone-900 text-center mb-1">Get notified</h3>
+                <p className="text-center text-stone-500 text-sm mb-5">We're building niche template kits. Which one should we ship first?</p>
+
+                <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wide">I want a kit for</label>
+                <select
+                  value={waitlistKit}
+                  onChange={e => setWaitlistKit(e.target.value)}
+                  className="w-full bg-stone-50 border border-stone-200 text-stone-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 transition mb-5"
+                >
+                  {KIT_OPTIONS.map(k => <option key={k} value={k}>{k}</option>)}
+                </select>
+
+                {waitlistStatus === 'error' && (
+                  <p className="text-red-500 text-xs mb-3 text-center">Couldn't save that — please try again.</p>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowWaitlist(false)}
+                    className="flex-1 border border-stone-200 hover:bg-stone-50 text-stone-600 py-2.5 rounded-xl text-sm font-medium transition"
+                  >
+                    Not now
+                  </button>
+                  <button
+                    onClick={submitWaitlist}
+                    disabled={waitlistStatus === 'saving'}
+                    className="flex-1 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white py-2.5 rounded-xl text-sm font-bold transition"
+                  >
+                    {waitlistStatus === 'saving' ? 'Saving…' : 'Notify me'}
+                  </button>
+                </div>
+                <p className="text-center text-stone-400 text-[11px] mt-3">We'll only email you about new kits. No spam.</p>
+              </>
+            )}
           </div>
         </div>
       )}
