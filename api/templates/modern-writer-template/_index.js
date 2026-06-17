@@ -295,6 +295,20 @@ function getStyles(accent) {
     .copy-btn { font-size: .8125rem; font-weight: 500; padding: .4rem .8rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-2); cursor: pointer; transition: all .15s; }
     .copy-btn:hover { color: var(--text); border-color: var(--text-2); }
     .contact-sub { font-size: 1rem; color: var(--text-2); line-height: 1.6; max-width: 480px; }
+    .contact-form { display: flex; flex-direction: column; gap: .85rem; width: 100%; max-width: 520px; margin-top: .5rem; }
+    .contact-form .cf-row { display: flex; gap: .85rem; }
+    .contact-form .cf-row > * { flex: 1; }
+    .contact-form input, .contact-form textarea { width: 100%; padding: .85rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: .95rem; font-family: inherit; transition: border-color .15s; }
+    .contact-form input:focus, .contact-form textarea:focus { outline: none; border-color: var(--accent); }
+    .contact-form textarea { resize: vertical; min-height: 120px; }
+    .cf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    .contact-form button { align-self: flex-start; padding: .85rem 1.75rem; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-size: .95rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity .15s, transform .15s; }
+    .contact-form button:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+    .contact-form button:disabled { opacity: .5; cursor: not-allowed; }
+    .cf-msg { font-size: .9rem; min-height: 1.2em; }
+    .cf-msg.success { color: #16a34a; }
+    .cf-msg.error { color: #dc2626; }
+    @media (max-width: 560px) { .contact-form .cf-row { flex-direction: column; } }
 
     /* Modals + lightbox */
     .modal, .lightbox { display: none; position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center; padding: 1.5rem; }
@@ -451,6 +465,17 @@ function generateHTML(data, sections = []) {
           ${email ? `<button class="copy-btn" onclick="copyEmail(this, '${email}')">Copy</button>` : ''}
         </div>
         <p class="contact-sub">Open to freelance projects, full-time roles, and interesting conversations.</p>
+        ${email ? `
+        <form class="contact-form" id="contactForm">
+          <div class="cf-row">
+            <input type="text" name="senderName" placeholder="Your name" required />
+            <input type="email" name="senderEmail" placeholder="Your email" required />
+          </div>
+          <textarea name="message" placeholder="Tell me about your project…" required></textarea>
+          <input type="text" name="company" class="cf-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <button type="submit" id="cfSubmit">Send message</button>
+          <div class="cf-msg" id="cfMsg"></div>
+        </form>` : ''}
         ${buildSocials(data, true)}
       </div>
     </div>
@@ -553,6 +578,25 @@ function generateHTML(data, sections = []) {
       var map = {}; links.forEach(function(l){ map[l.getAttribute('data-target')] = l; });
       var io = new IntersectionObserver(function(entries){ entries.forEach(function(en){ var l = map[en.target.id]; if (l && en.isIntersecting){ links.forEach(function(x){ x.classList.remove('active'); }); l.classList.add('active'); } }); }, { rootMargin: '-45% 0px -50% 0px' });
       Object.keys(map).forEach(function(id){ var s = document.getElementById(id); if (s) io.observe(s); });
+    })();
+    // Contact form
+    (function(){
+      var form = document.getElementById('contactForm'); if (!form) return;
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        var btn = document.getElementById('cfSubmit'), msg = document.getElementById('cfMsg'), fd = new FormData(this);
+        btn.disabled = true; btn.textContent = 'Sending…'; msg.className = 'cf-msg'; msg.textContent = '';
+        try {
+          var res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+            ownerEmail: ${JSON.stringify(email)}, portfolioName: ${JSON.stringify(name)},
+            senderName: fd.get('senderName'), senderEmail: fd.get('senderEmail'), message: fd.get('message'), company: fd.get('company')
+          }) });
+          var data = await res.json();
+          if (data.success) { msg.textContent = 'Message sent — I\\'ll be in touch soon.'; msg.className = 'cf-msg success'; this.reset(); }
+          else { msg.textContent = data.error || 'Something went wrong. Please try again.'; msg.className = 'cf-msg error'; }
+        } catch { msg.textContent = 'Something went wrong. Please try again.'; msg.className = 'cf-msg error'; }
+        finally { btn.disabled = false; btn.textContent = 'Send message'; }
+      });
     })();
   </script>
   <script type="application/json" id="portfolio-data">${JSON.stringify({ formData: data, sections: activeSections })}</script>

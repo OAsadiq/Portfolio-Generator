@@ -242,6 +242,24 @@ export function renderProfessionalSection(sectionId: string, formData: Record<st
       ) : null;
     }
 
+    case 'contact': {
+      if (!formData.email) return null;
+      const inputStyle: React.CSSProperties = { width: '100%', padding: '.85rem 1rem', borderRadius: 10, border: '1px solid var(--border, #e9edf2)', background: 'var(--bg, #fff)', color: 'var(--text, #0f172a)', fontSize: '.95rem', ...ff };
+      return (
+        <section key="contact" data-section="contact" style={SECTION_PAD}>
+          <SecHead title="Get in Touch" kicker="Contact" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '.85rem', maxWidth: 540 }}>
+            <div style={{ display: 'flex', gap: '.85rem', flexDirection: isMobile ? 'column' : 'row' }}>
+              <input style={inputStyle} placeholder="Your name" disabled />
+              <input style={inputStyle} placeholder="Your email" disabled />
+            </div>
+            <textarea style={{ ...inputStyle, minHeight: 110, resize: 'vertical' }} placeholder="Tell me about your project…" disabled />
+            <button style={{ alignSelf: 'flex-start', padding: '.85rem 1.9rem', borderRadius: 10, border: 'none', background: 'var(--grad)', color: '#fff', fontSize: '.95rem', fontWeight: 600, ...ff }} disabled>Send message</button>
+          </div>
+        </section>
+      );
+    }
+
     // Legacy 'hero'/'footer' ids from old saved portfolios — sidebar/credit handle these now.
     case 'hero':
     case 'footer':

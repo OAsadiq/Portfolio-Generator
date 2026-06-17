@@ -263,6 +263,20 @@ function getStyles(primary, accent) {
     .contact-card p { font-size: 1.05rem; opacity: .92; margin-bottom: 2rem; }
     .contact-btn { display: inline-block; background: #fff; color: var(--primary); padding: .9rem 2rem; border-radius: 10px; font-weight: 700; text-decoration: none; transition: transform .15s; }
     .contact-btn:hover { transform: translateY(-2px); }
+    .cform { display: flex; flex-direction: column; gap: .85rem; max-width: 540px; }
+    .cform .cf-row { display: flex; gap: .85rem; }
+    .cform .cf-row > * { flex: 1; }
+    .cform input, .cform textarea { width: 100%; padding: .85rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: .95rem; font-family: inherit; transition: border-color .15s; }
+    .cform input:focus, .cform textarea:focus { outline: none; border-color: var(--primary); }
+    .cform textarea { resize: vertical; min-height: 130px; }
+    .cf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    .cform button { align-self: flex-start; padding: .85rem 1.9rem; border-radius: 10px; border: none; background: var(--grad); color: #fff; font-size: .95rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity .15s, transform .15s; }
+    .cform button:hover:not(:disabled) { opacity: .92; transform: translateY(-1px); }
+    .cform button:disabled { opacity: .5; cursor: not-allowed; }
+    .cf-msg { font-size: .9rem; min-height: 1.2em; }
+    .cf-msg.success { color: #16a34a; }
+    .cf-msg.error { color: #dc2626; }
+    @media (max-width: 560px) { .cform .cf-row { flex-direction: column; } }
 
     /* Modal */
     .modal { display: none; position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center; padding: 1.5rem; }
@@ -328,10 +342,21 @@ function generateHTML(data, sections = []) {
     samples: () => hasSamples ? `<section class="section reveal" id="work">${head('Selected Work', 'Portfolio')}<div class="samples-grid">${sampleCards}</div></section>` : '',
     testimonials: () => testimonials.length ? `<section class="section reveal" id="testimonials">${head('Testimonials', 'Praise')}<div class="testi-grid">${testimonials.join('')}</div></section>` : '',
     education: () => education.length ? `<section class="section reveal" id="education">${head('Education & Certifications', 'Background')}<div class="edu-list">${education.join('')}</div></section>` : '',
+    contact: () => email ? `<section class="section reveal" id="contact">${head('Get in Touch', 'Contact')}
+      <form class="cform" id="contactForm">
+        <div class="cf-row">
+          <input type="text" name="senderName" placeholder="Your name" required />
+          <input type="email" name="senderEmail" placeholder="Your email" required />
+        </div>
+        <textarea name="message" placeholder="Tell me about your project…" required></textarea>
+        <input type="text" name="company" class="cf-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <button type="submit" id="cfSubmit">Send message</button>
+        <div class="cf-msg" id="cfMsg"></div>
+      </form></section>` : '',
   };
 
-  const navLabels = { about: 'About', experience: 'Experience', services: 'Services', samples: 'Work', testimonials: 'Testimonials', education: 'Education' };
-  const navTarget = { about: 'about', experience: 'experience', services: 'services', samples: 'work', testimonials: 'testimonials', education: 'education' };
+  const navLabels = { about: 'About', experience: 'Experience', services: 'Services', samples: 'Work', testimonials: 'Testimonials', education: 'Education', contact: 'Contact' };
+  const navTarget = { about: 'about', experience: 'experience', services: 'services', samples: 'work', testimonials: 'testimonials', education: 'education', contact: 'contact' };
 
   const defaultSections = [
     { id: 'about', enabled: true, order: 0 },
@@ -340,6 +365,7 @@ function generateHTML(data, sections = []) {
     { id: 'samples', enabled: true, order: 3 },
     { id: 'testimonials', enabled: true, order: 4 },
     { id: 'education', enabled: true, order: 5 },
+    { id: 'contact', enabled: true, order: 6 },
   ];
   const active = (sections && sections.length > 0) ? sections : defaultSections;
   const sorted = [...active].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
@@ -446,6 +472,24 @@ function generateHTML(data, sections = []) {
       var map = {}; links.forEach(function(l){ map[l.getAttribute('data-target')] = l; });
       var io = new IntersectionObserver(function(en){ en.forEach(function(e){ var l = map[e.target.id]; if(l && e.isIntersecting){ links.forEach(function(x){ x.classList.remove('active'); }); l.classList.add('active'); } }); }, { rootMargin: '-30% 0px -60% 0px' });
       Object.keys(map).forEach(function(id){ var s = document.getElementById(id); if(s) io.observe(s); });
+    })();
+    (function(){
+      var form = document.getElementById('contactForm'); if(!form) return;
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        var btn = document.getElementById('cfSubmit'), msg = document.getElementById('cfMsg'), fd = new FormData(this);
+        btn.disabled = true; btn.textContent = 'Sending…'; msg.className = 'cf-msg'; msg.textContent = '';
+        try {
+          var res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+            ownerEmail: ${JSON.stringify(email)}, portfolioName: ${JSON.stringify(name)},
+            senderName: fd.get('senderName'), senderEmail: fd.get('senderEmail'), message: fd.get('message'), company: fd.get('company')
+          }) });
+          var data = await res.json();
+          if(data.success){ msg.textContent = 'Message sent — I\\'ll be in touch soon.'; msg.className = 'cf-msg success'; this.reset(); }
+          else { msg.textContent = data.error || 'Something went wrong. Please try again.'; msg.className = 'cf-msg error'; }
+        } catch { msg.textContent = 'Something went wrong. Please try again.'; msg.className = 'cf-msg error'; }
+        finally { btn.disabled = false; btn.textContent = 'Send message'; }
+      });
     })();
   </script>
   <script type="application/json" id="portfolio-data">${JSON.stringify({ formData: data, sections: active })}</script>

@@ -5,7 +5,7 @@ import Logo from '../components/Logo';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Globe, Copy, Check, ExternalLink, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Globe, Copy, Check, ExternalLink, AlertCircle, CheckCircle, Clock, Mail, Inbox } from 'lucide-react';
 
 interface Portfolio {
   id: string;
@@ -49,6 +49,15 @@ interface CustomDomain {
   created_at: string;
 }
 
+interface Lead {
+  id: string;
+  sender_name: string;
+  sender_email: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+}
+
 const PROFESSIONAL_TEMPLATES = ['professional-writer-template', 'modern-writer-template'];
 
 const INPUT = 'w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-100 transition';
@@ -59,7 +68,8 @@ const ProDashboard = () => {
   const [stats, setStats] = useState<Stats>({ totalPortfolios: 0, totalViews: 0, templatesUsed: 0, lastCreated: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'portfolios' | 'templates' | 'domains' | 'billing'>('portfolios');
+  const [activeTab, setActiveTab] = useState<'overview' | 'portfolios' | 'messages' | 'templates' | 'domains' | 'billing'>('portfolios');
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; slug: string; name: string } | null>(null);
 
@@ -72,8 +82,32 @@ const ProDashboard = () => {
   const [billingLoading, setBillingLoading] = useState(false);
 
   useEffect(() => {
-    if (user) { fetchDashboardData(); fetchCustomDomains(); fetchSubscription(); }
+    if (user) { fetchDashboardData(); fetchCustomDomains(); fetchSubscription(); fetchLeads(); }
   }, [user?.id]);
+
+  const fetchLeads = async () => {
+    if (!user?.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('id, sender_name, sender_email, message, read, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      if (error) { console.error('Leads error:', error); return; }
+      setLeads(data || []);
+    } catch (err) {
+      console.error('Leads fetch error:', err);
+    }
+  };
+
+  const markLeadRead = async (id: string, read: boolean) => {
+    setLeads(prev => prev.map(l => l.id === id ? { ...l, read } : l));
+    try {
+      await supabase.from('leads').update({ read }).eq('id', id).eq('user_id', user?.id);
+    } catch (err) {
+      console.error('Mark read error:', err);
+    }
+  };
 
   const fetchSubscription = async () => {
     if (!user?.id) return;
@@ -341,21 +375,28 @@ const ProDashboard = () => {
             <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
               {[
                 { id: 'portfolios', label: 'Portfolios' },
+                { id: 'messages', label: 'Messages' },
                 { id: 'domains', label: 'Domains' },
                 { id: 'billing', label: 'Billing' },
-              ].map((tab) => (
+              ].map((tab) => {
+                const unread = tab.id === 'messages' ? leads.filter(l => !l.read).length : 0;
+                return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
+                  className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all inline-flex items-center gap-2 ${
                     activeTab === tab.id
                       ? 'bg-stone-900 text-white'
                       : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 hover:border-stone-300'
                   }`}
                 >
                   {tab.label}
+                  {unread > 0 && (
+                    <span className={`inline-flex items-center justify-center text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1.5 ${activeTab === tab.id ? 'bg-white text-stone-900' : 'bg-amber-500 text-white'}`}>{unread}</span>
+                  )}
                 </button>
-              ))}
+                );
+              })}
             </div>
 
             {/* Overview Tab */}
@@ -480,6 +521,68 @@ const ProDashboard = () => {
                       </div>
                       );
                     })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Messages Tab */}
+            {activeTab === 'messages' && (
+              <div className="bg-white border border-stone-200 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <h2 className="text-lg font-bold text-stone-900">Messages</h2>
+                    <p className="text-sm text-stone-500">People who reached out through your portfolio's contact form.</p>
+                  </div>
+                  {leads.length > 0 && (
+                    <span className="text-sm text-stone-500">{leads.filter(l => !l.read).length} unread</span>
+                  )}
+                </div>
+
+                {leads.length === 0 ? (
+                  <div className="text-center py-14">
+                    <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center mx-auto mb-4">
+                      <Inbox className="w-6 h-6 text-stone-400" />
+                    </div>
+                    <p className="text-stone-900 font-semibold">No messages yet</p>
+                    <p className="text-sm text-stone-500 mt-1 max-w-sm mx-auto">When someone fills out the contact form on your published portfolio, their message lands here — and in your email inbox.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {leads.map((lead) => (
+                      <div
+                        key={lead.id}
+                        className={`border rounded-xl p-4 transition-all ${lead.read ? 'border-stone-200 bg-white' : 'border-amber-200 bg-amber-50/40'}`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              {!lead.read && <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />}
+                              <span className="font-semibold text-stone-900 truncate">{lead.sender_name}</span>
+                            </div>
+                            <a href={`mailto:${lead.sender_email}`} className="text-sm text-stone-500 hover:text-stone-900 inline-flex items-center gap-1.5 mt-0.5">
+                              <Mail className="w-3.5 h-3.5" /> {lead.sender_email}
+                            </a>
+                          </div>
+                          <span className="text-xs text-stone-400 whitespace-nowrap">{new Date(lead.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                        </div>
+                        <p className="text-sm text-stone-700 mt-3 whitespace-pre-wrap leading-relaxed">{lead.message}</p>
+                        <div className="flex items-center gap-2 mt-3">
+                          <a
+                            href={`mailto:${lead.sender_email}?subject=Re: your message`}
+                            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-stone-900 text-white hover:bg-stone-700 transition inline-flex items-center gap-1.5"
+                          >
+                            <Mail className="w-3.5 h-3.5" /> Reply
+                          </a>
+                          <button
+                            onClick={() => markLeadRead(lead.id, !lead.read)}
+                            className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-stone-200 text-stone-600 hover:bg-stone-50 transition"
+                          >
+                            {lead.read ? 'Mark as unread' : 'Mark as read'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

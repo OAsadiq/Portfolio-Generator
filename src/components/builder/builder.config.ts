@@ -79,6 +79,7 @@ const PROFESSIONAL_SECTIONS: SectionItem[] = [
   { id: 'samples',      name: 'Work',         visible: true, order: 3, icon: React.createElement(BookOpen, { className: 'w-4 h-4' }) },
   { id: 'testimonials', name: 'Testimonials', visible: true, order: 4, icon: React.createElement(MessageSquare, { className: 'w-4 h-4' }) },
   { id: 'education',    name: 'Education',    visible: true, order: 5, icon: React.createElement(GraduationCap, { className: 'w-4 h-4' }) },
+  { id: 'contact',      name: 'Contact',      visible: true, order: 6, icon: React.createElement(Mail, { className: 'w-4 h-4' }) },
 ];
 
 const MODERN_SECTIONS: SectionItem[] = [

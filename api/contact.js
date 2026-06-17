@@ -1,3 +1,10 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
+
 function enableCORS(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -18,7 +25,13 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { ownerEmail, senderName, senderEmail, message, portfolioName } = req.body || {};
+  const { ownerEmail, senderName, senderEmail, message, portfolioName, company } = req.body || {};
+
+  // Honeypot: real users never fill the hidden "company" field. Bots do.
+  // Return a success response so the bot thinks it worked, but do nothing.
+  if (company) {
+    return res.status(200).json({ success: true });
+  }
 
   if (!ownerEmail || !senderName || !senderEmail || !message) {
     return res.status(400).json({ error: 'All fields are required.' });
@@ -27,6 +40,31 @@ export default async function handler(req, res) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(senderEmail) || !emailRegex.test(ownerEmail)) {
     return res.status(400).json({ error: 'Invalid email address.' });
+  }
+
+  // ── Save the lead to the dashboard inbox ──
+  // Resolve the owning user/portfolio from the owner email. Each user has at
+  // most one portfolio, so the owner email maps to a single record.
+  try {
+    const { data: portfolio } = await supabase
+      .from('portfolios')
+      .select('id, user_id')
+      .eq('user_email', ownerEmail)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    await supabase.from('leads').insert({
+      portfolio_id: portfolio?.id || null,
+      user_id: portfolio?.user_id || null,
+      owner_email: ownerEmail,
+      sender_name: senderName,
+      sender_email: senderEmail,
+      message,
+    });
+  } catch (err) {
+    // Don't fail the request if logging the lead errors — the email still matters.
+    console.error('Lead insert error:', err);
   }
 
   const apiKey = process.env.RESEND_API_KEY;

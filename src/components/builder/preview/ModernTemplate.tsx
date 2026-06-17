@@ -268,6 +268,16 @@ export function renderModernSection(
                 {formData.email && <span className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ border: '1px solid var(--border, #e5e7eb)', color: 'var(--text-muted, #6b7280)', ...ff }}>Copy</span>}
               </div>
               <p className="text-base" style={{ color: 'var(--text-muted, #6b7280)', maxWidth: '30rem', ...ff }}>Open to freelance projects, full-time roles, and interesting conversations.</p>
+              {formData.email && (
+                <div className="flex flex-col gap-3 w-full" style={{ maxWidth: '32rem' }}>
+                  <div className={`flex gap-3 ${isMobile ? 'flex-col' : ''}`}>
+                    <input disabled placeholder="Your name" className="flex-1 px-4 py-3 rounded-lg text-sm" style={{ border: '1px solid var(--border, #e5e7eb)', background: 'var(--bg, #fff)', color: 'var(--text, #0a0a0a)', ...ff }} />
+                    <input disabled placeholder="Your email" className="flex-1 px-4 py-3 rounded-lg text-sm" style={{ border: '1px solid var(--border, #e5e7eb)', background: 'var(--bg, #fff)', color: 'var(--text, #0a0a0a)', ...ff }} />
+                  </div>
+                  <textarea disabled placeholder="Tell me about your project…" className="px-4 py-3 rounded-lg text-sm" style={{ minHeight: '7rem', resize: 'vertical', border: '1px solid var(--border, #e5e7eb)', background: 'var(--bg, #fff)', color: 'var(--text, #0a0a0a)', ...ff }} />
+                  <button disabled className="self-start px-7 py-3 rounded-lg text-sm font-semibold" style={{ background: 'var(--accent, #4f46e5)', color: '#fff', border: 'none', ...ff }}>Send message</button>
+                </div>
+              )}
               <div className="flex items-center gap-1">
                 {collectSocials(formData).map((url, i) => (
                   <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-lg" style={{ color: 'var(--text-muted, #6b7280)' }}>
