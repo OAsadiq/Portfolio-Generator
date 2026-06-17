@@ -14,6 +14,8 @@ import EditPortfolio from './pages/EditPortfolio';
 import PortfolioVisualBuilder from './components/PortfolioVisualBuilder';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import PricingPage from './pages/Pricing';
+import NicheLanding from './pages/niches/NicheLanding';
+import { NICHES } from './pages/niches/nicheConfig';
 
 function App() {
   return (
@@ -27,6 +29,11 @@ function App() {
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
+            {/* SEO niche landing pages */}
+            {NICHES.map(n => (
+              <Route key={n.slug} path={`/${n.slug}`} element={<NicheLanding config={n} />} />
+            ))}
             
             {/* Auth callback route - handles OAuth redirect */}
             <Route path="/auth/callback" element={<AuthCallback />} />

@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Don't crawl app/auth flows — no SEO value, and keeps crawl budget on landing pages
+Disallow: /dashboard
+Disallow: /builder/
+Disallow: /edit/
+Disallow: /create/
+Disallow: /success
+Disallow: /auth/
+
+Sitemap: https://porfilr.com/sitemap.xml
