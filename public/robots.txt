@@ -1,7 +1,11 @@
 User-agent: *
 Allow: /
 
-# Don't crawl app/auth flows — no SEO value, and keeps crawl budget on landing pages
+# Don't crawl app/auth flows — no SEO value, and keeps crawl budget on landing pages.
+# /templates and /create are gated routes that redirect logged-out crawlers to /login,
+# which Search Console flags as "Page with redirect" — blocking them here prevents that.
+Disallow: /templates
+Disallow: /login
 Disallow: /dashboard
 Disallow: /builder/
 Disallow: /edit/
