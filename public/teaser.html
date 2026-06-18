@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Porfilr — Teaser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --orange:#ea580c; --orange-2:#fb923c;
+    --ink:#0c0a09; --ink-2:#1c1917; --stone:#a8a29e; --stone-2:#78716c;
+    --paper:#fafaf9; --dur:20s;
+    --serif:'Playfair Display',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:#000;overflow:hidden;font-family:var(--sans)}
+  .wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  .stage{position:relative;width:1280px;height:720px;background:radial-gradient(120% 120% at 50% 0%,#1c1917 0%,#0c0a09 60%,#000 100%);overflow:hidden;border-radius:6px}
+
+  .scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:0;padding:0 80px}
+  .scene h1{font-family:var(--serif);color:#fff;font-weight:800;letter-spacing:-.02em;line-height:1.05}
+  .scene .sub{color:var(--stone);font-size:22px;margin-top:22px;font-weight:400;max-width:680px}
+  .accent{color:var(--orange-2)}
+
+  .s1{animation:s1 var(--dur) infinite}
+  .s2{animation:s2 var(--dur) infinite}
+  .s3{animation:s3 var(--dur) infinite}
+  .s4{animation:s4 var(--dur) infinite}
+  .s5{animation:s5 var(--dur) infinite}
+  .s6{animation:s6 var(--dur) infinite}
+
+  @keyframes s1{0%,1%{opacity:0;transform:translateY(14px)}4%,14%{opacity:1;transform:translateY(0)}17%{opacity:0;transform:translateY(-14px)}100%{opacity:0}}
+  @keyframes s2{0%,16%{opacity:0;transform:translateY(14px)}19%,28%{opacity:1;transform:translateY(0)}31%{opacity:0;transform:translateY(-14px)}100%{opacity:0}}
+  @keyframes s3{0%,30%{opacity:0;transform:translateY(14px)}33%,51%{opacity:1;transform:translateY(0)}54%{opacity:0;transform:translateY(-14px)}100%{opacity:0}}
+  @keyframes s4{0%,53%{opacity:0;transform:translateY(14px)}56%,67%{opacity:1;transform:translateY(0)}70%{opacity:0;transform:translateY(-14px)}100%{opacity:0}}
+  @keyframes s5{0%,69%{opacity:0;transform:translateY(14px)}72%,82%{opacity:1;transform:translateY(0)}85%{opacity:0;transform:translateY(-14px)}100%{opacity:0}}
+  @keyframes s6{0%,84%{opacity:0;transform:scale(.96)}88%,99%{opacity:1;transform:scale(1)}100%{opacity:1}}
+
+  .logo{font-family:var(--sans);font-weight:800;font-size:30px;color:#fff;letter-spacing:-.03em;margin-bottom:30px}
+  .logo b{color:var(--orange)}
+
+  .pill{display:inline-flex;align-items:center;gap:9px;border:1px solid rgba(234,88,12,.4);background:rgba(234,88,12,.1);color:var(--orange-2);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;padding:8px 16px;border-radius:100px;margin-bottom:30px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--orange-2)}
+
+  /* Builder mock (scene 3) */
+  .mock{width:920px;height:440px;background:#fff;border-radius:14px;display:grid;grid-template-columns:300px 1fr;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.5)}
+  .mock-side{background:#f5f5f4;border-right:1px solid #e7e5e4;padding:24px}
+  .mock-tabs{display:flex;gap:6px;background:#e7e5e4;padding:5px;border-radius:10px;margin-bottom:20px}
+  .mock-tab{flex:1;text-align:center;font-size:12px;font-weight:600;color:#78716c;padding:8px 0;border-radius:7px}
+  .mock-tab.on{background:#fff;color:var(--orange)}
+  .field{height:14px;background:#e7e5e4;border-radius:5px;margin-bottom:14px}
+  .field.typed{background:#fed7aa;animation:type var(--dur) infinite}
+  .field.w1{width:80%}.field.w2{width:60%}.field.w3{width:90%}
+  @keyframes type{0%,34%{width:0}40%{width:80%}100%{width:80%}}
+  .mock-main{padding:30px;display:flex;flex-direction:column;gap:14px;background:#fff}
+  .m-hero{height:30px;width:55%;background:#1c1917;border-radius:6px}
+  .m-line{height:11px;background:#e7e5e4;border-radius:5px}
+  .m-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+  .m-card{height:74px;border:1px solid #e7e5e4;border-radius:9px;background:#fafaf9;opacity:0;animation:pop var(--dur) infinite}
+  .m-card:nth-child(2){animation-delay:.15s}.m-card:nth-child(3){animation-delay:.3s}.m-card:nth-child(4){animation-delay:.45s}
+  @keyframes pop{0%,40%{opacity:0;transform:scale(.9)}46%,52%{opacity:1;transform:scale(1)}100%{opacity:0}}
+  .cursor{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--orange);opacity:.55;animation:cursor var(--dur) infinite;pointer-events:none}
+  @keyframes cursor{0%,30%{opacity:0;left:200px;top:260px}33%{opacity:.55}40%{left:200px;top:260px}48%{left:760px;top:430px;opacity:.55}54%{opacity:0}100%{opacity:0}}
+
+  /* Live portfolio (scene 4) */
+  .live{width:760px;height:430px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.5);text-align:left}
+  .live-bar{height:38px;background:#f5f5f4;border-bottom:1px solid #e7e5e4;display:flex;align-items:center;gap:7px;padding:0 14px}
+  .tl{width:11px;height:11px;border-radius:50%;background:#d6d3d1}
+  .live-url{margin-left:14px;font-size:12px;color:#78716c;background:#fff;border:1px solid #e7e5e4;border-radius:7px;padding:4px 14px}
+  .live-body{padding:34px 40px}
+  .lv-name{font-family:var(--serif);font-size:40px;font-weight:800;color:#1c1917;letter-spacing:-.02em}
+  .lv-role{color:var(--orange);font-weight:600;margin-top:4px;font-size:15px}
+  .lv-bio{height:11px;background:#e7e5e4;border-radius:5px;margin-top:20px}
+  .lv-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:24px}
+  .lv-card{height:90px;border-radius:10px;background:linear-gradient(135deg,#fef3c7,#fed7aa)}
+  .lv-card:nth-child(2){background:linear-gradient(135deg,#e0e7ff,#c7d2fe)}
+  .lv-card:nth-child(3){background:linear-gradient(135deg,#fce7f3,#fbcfe8)}
+
+  .props{display:flex;gap:26px;justify-content:center;flex-wrap:wrap}
+  .prop{display:flex;flex-direction:column;align-items:center;gap:10px;width:260px}
+  .prop .ic{width:58px;height:58px;border-radius:16px;background:rgba(234,88,12,.12);border:1px solid rgba(234,88,12,.35);display:flex;align-items:center;justify-content:center;font-size:26px}
+  .prop .t{color:#fff;font-weight:700;font-size:19px}
+  .prop .d{color:var(--stone);font-size:14px;line-height:1.5}
+
+  .progress{position:absolute;left:0;bottom:0;height:4px;background:var(--orange);width:0;animation:prog var(--dur) infinite linear}
+  @keyframes prog{0%{width:0}100%{width:100%}}
+
+  .hint{position:fixed;bottom:14px;left:0;right:0;text-align:center;color:#57534e;font-size:12px;font-family:var(--sans)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage" id="stage">
+
+    <div class="scene s1">
+      <div class="logo">Porfil<b>r</b></div>
+      <h1 style="font-size:74px">Your work,<br/>finally visible.</h1>
+    </div>
+
+    <div class="scene s2">
+      <h1 style="font-size:52px">A portfolio shouldn't<br/>take a <span class="accent">weekend.</span></h1>
+      <p class="sub">No code. No design tools. No subscriptions.</p>
+    </div>
+
+    <div class="scene s3">
+      <div class="pill"><span class="dot"></span> Build it live</div>
+      <div class="mock">
+        <div class="mock-side">
+          <div class="mock-tabs">
+            <div class="mock-tab on">Content</div>
+            <div class="mock-tab">Design</div>
+            <div class="mock-tab">Layout</div>
+          </div>
+          <div class="field typed"></div>
+          <div class="field w2"></div>
+          <div class="field w3"></div>
+          <div class="field w1"></div>
+          <div class="field w2"></div>
+        </div>
+        <div class="mock-main">
+          <div class="m-hero"></div>
+          <div class="m-line" style="width:90%"></div>
+          <div class="m-line" style="width:70%"></div>
+          <div class="m-grid">
+            <div class="m-card"></div><div class="m-card"></div>
+            <div class="m-card"></div><div class="m-card"></div>
+          </div>
+        </div>
+        <div class="cursor"></div>
+      </div>
+    </div>
+
+    <div class="scene s4">
+      <div class="live">
+        <div class="live-bar">
+          <span class="tl"></span><span class="tl"></span><span class="tl"></span>
+          <span class="live-url">porfilr.com/p/your-name</span>
+        </div>
+        <div class="live-body">
+          <div class="lv-name">Jordan Rivera</div>
+          <div class="lv-role">Product Designer & Strategist</div>
+          <div class="lv-bio" style="width:88%"></div>
+          <div class="lv-bio" style="width:64%"></div>
+          <div class="lv-grid"><div class="lv-card"></div><div class="lv-card"></div><div class="lv-card"></div></div>
+        </div>
+      </div>
+      <p class="sub" style="margin-top:26px;color:#fff;font-size:24px;font-weight:600">Live in <span class="accent">10 minutes.</span></p>
+    </div>
+
+    <div class="scene s5">
+      <div class="props">
+        <div class="prop"><div class="ic">⚡</div><div class="t">No code</div><div class="d">Fill a form, hit publish. Done.</div></div>
+        <div class="prop"><div class="ic">∞</div><div class="t">One-time $19</div><div class="d">Lifetime Pro. Never a subscription.</div></div>
+        <div class="prop"><div class="ic">✉</div><div class="t">Brings you work</div><div class="d">Built-in contact form → your inbox.</div></div>
+      </div>
+    </div>
+
+    <div class="scene s6">
+      <div class="logo" style="font-size:46px;margin-bottom:22px">Porfil<b>r</b></div>
+      <h1 style="font-size:40px;color:#fff">Your portfolio, the way it<br/>should've always been.</h1>
+      <p class="sub" style="color:var(--orange-2);font-weight:600;font-size:20px;margin-top:24px">porfilr.com</p>
+    </div>
+
+    <div class="progress"></div>
+  </div>
+</div>
+<p class="hint">Press F11 for full-screen, then screen-record the stage. Loops every 20s. Replace the demo name/colors as you like.</p>
+<script>
+  function fit(){
+    var s=document.getElementById('stage');
+    var scale=Math.min(window.innerWidth/1280,(window.innerHeight-40)/720);
+    s.style.transform='scale('+scale+')';
+  }
+  window.addEventListener('resize',fit);fit();
+</script>
+</body>
+</html>
