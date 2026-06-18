@@ -95,6 +95,10 @@ async function handleCreateCheckoutSession({ priceId, userId, userEmail }, res) 
 }
 
 async function handleCreateTemplateCheckout({ priceId, templateId, userId, userEmail }, res) {
+    // TODO(kits): honor referral kit credit here. Before creating the session, read
+    // referrals.kit_credit for this userId; if > 0, apply it as a free unlock or a
+    // Stripe discount/coupon, then decrement kit_credit on success (in the webhook's
+    // premium_template branch). Earned via the referral hook (1 paid referral = 1 kit).
     try {
         const session = await stripe.checkout.sessions.create({
             mode: 'payment',
