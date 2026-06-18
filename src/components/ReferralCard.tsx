@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { Copy, Check, Gift, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
-const GOAL = 3; // referrals that unlock free Pro
+const PRO_GOAL = 3; // referrals that unlock free Pro (then 1 more, while Pro, unlocks a kit)
 
 export default function ReferralCard() {
-  const { user } = useAuth();
+  const { user, isPro } = useAuth();
   const [code, setCode] = useState<string | null>(null);
   const [count, setCount] = useState(0);
   const [kitCredit, setKitCredit] = useState(0);
@@ -40,8 +39,10 @@ export default function ReferralCard() {
   if (!code) return null;
 
   const link = `${window.location.origin}/?ref=${code}`;
-  const pct = Math.min(100, Math.round((Math.min(count, GOAL) / GOAL) * 100));
-  const remaining = Math.max(0, GOAL - count);
+  // Non-Pro users work toward free Pro (at PRO_GOAL referrals).
+  const proPct = proUnlocked ? 100 : Math.min(100, Math.round((Math.min(count, PRO_GOAL) / PRO_GOAL) * 100));
+  const proRemaining = Math.max(0, PRO_GOAL - count);
+  const kitEarned = kitCredit > 0;
 
   return (
     <div className="bg-gradient-to-br from-stone-900 to-stone-800 text-white rounded-2xl p-6 mb-8">
@@ -51,12 +52,19 @@ export default function ReferralCard() {
             <Gift className="w-5 h-5 text-orange-400" /> Refer & earn
           </h2>
           <p className="text-stone-300 text-sm mt-0.5">
-            Friends who buy Pro through your link earn you rewards — <span className="font-semibold text-white">1 = a free kit, 3 = Pro free.</span>
+            {isPro
+              ? <>Refer a friend who buys Pro and you'll earn a <span className="font-semibold text-white">free kit.</span></>
+              : <>Friends who buy Pro through your link earn rewards — <span className="font-semibold text-white">{PRO_GOAL} = free Pro, then 1 more = a free kit.</span></>}
           </p>
         </div>
-        {proUnlocked && (
+        {!isPro && proUnlocked && (
           <span className="flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
             <Sparkles className="w-3.5 h-3.5" /> Pro unlocked
+          </span>
+        )}
+        {isPro && kitEarned && (
+          <span className="flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
+            <Sparkles className="w-3.5 h-3.5" /> Kit earned
           </span>
         )}
       </div>
@@ -73,18 +81,26 @@ export default function ReferralCard() {
         </button>
       </div>
 
-      {/* Progress */}
-      <div className="flex items-center justify-between text-xs text-stone-300 mb-1.5">
-        <span>{count} referral{count === 1 ? '' : 's'}</span>
-        <span>{proUnlocked ? 'Goal reached 🎉' : `${remaining} more for free Pro`}</span>
-      </div>
-      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-        <div className="h-full bg-orange-500 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
-      </div>
+      {/* Non-Pro: progress toward free Pro */}
+      {!isPro && (
+        <>
+          <div className="flex items-center justify-between text-xs text-stone-300 mb-1.5">
+            <span>{count} referral{count === 1 ? '' : 's'}</span>
+            <span>{proUnlocked ? 'Pro unlocked 🎉' : `${proRemaining} more for free Pro`}</span>
+          </div>
+          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+            <div className="h-full bg-orange-500 rounded-full transition-all duration-500" style={{ width: `${proPct}%` }} />
+          </div>
+        </>
+      )}
 
-      {kitCredit > 0 && !proUnlocked && (
-        <p className="text-emerald-300 text-xs mt-3 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5" /> You've earned {kitCredit} free kit credit — redeemable when kits launch.
+      {/* Pro: kit status (no bar — the kit triggers on your next qualifying referral) */}
+      {isPro && (
+        <p className="text-stone-300 text-sm flex items-center gap-1.5">
+          <Sparkles className="w-4 h-4 text-orange-400" />
+          {kitEarned
+            ? <span className="text-emerald-300">You've earned a free kit — redeemable when kits launch.</span>
+            : <>Your next referral who buys Pro unlocks a free kit.</>}
         </p>
       )}
     </div>

@@ -227,9 +227,11 @@ async function handleCheckoutCompleted(session) {
 }
 
 // ── Referral rewards ──
-// Ladder: 1 qualified referral → free kit credit; 3 → Pro unlocked free.
-// "Qualified" = the referred friend completed a Pro purchase (this function's trigger).
-const REFERRALS_FOR_KIT = 1;
+// "Qualified" referral = the referred friend completed a Pro purchase (this fn's trigger).
+// Ladder:
+//   • Not yet Pro: 3 referrals → Pro unlocked free.
+//   • Already Pro (paid OR referral-unlocked): the first qualifying referral while Pro → 1 free kit.
+//   • Kit is capped at 1 forever. So a free user gets Pro at #3, then a kit at #4.
 const REFERRALS_FOR_PRO = 3;
 
 async function rewardReferrerForProPurchase(buyerUserId) {
@@ -250,17 +252,30 @@ async function rewardReferrerForProPurchase(buyerUserId) {
     .maybeSingle();
   if (!refRow) return;
 
+  // Was the referrer already Pro *before* this referral? (referral-unlocked or a paid purchase)
+  let wasPro = !!refRow.pro_unlocked;
+  if (!wasPro) {
+    const { data: subs } = await supabase
+      .from('subscriptions')
+      .select('status, plan')
+      .eq('user_id', referrerId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    const sub = subs && subs[0];
+    wasPro = sub?.status === 'active' && sub?.plan === 'pro';
+  }
+
   const newCount = (refRow.pro_referrals || 0) + 1;
   const update = { pro_referrals: newCount };
 
-  if (newCount >= REFERRALS_FOR_KIT && (refRow.kit_credit || 0) < 1) {
-    update.kit_credit = 1;
-  }
-
   let grantPro = false;
-  if (newCount >= REFERRALS_FOR_PRO && !refRow.pro_unlocked) {
+  if (!wasPro && newCount >= REFERRALS_FOR_PRO && !refRow.pro_unlocked) {
+    // Crossing the Pro threshold — grant Pro (no kit this round; that needs one more).
     update.pro_unlocked = true;
     grantPro = true;
+  } else if (wasPro && (refRow.kit_credit || 0) < 1) {
+    // Already Pro → this referral earns the one-time kit credit.
+    update.kit_credit = 1;
   }
 
   await supabase.from('referrals').update(update).eq('user_id', referrerId);

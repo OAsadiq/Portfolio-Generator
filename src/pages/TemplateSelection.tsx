@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import TutorialTour, { TourStep } from "../components/tutorial/TutorialTour";
+import ReferralCard from "../components/ReferralCard";
 
 const KIT_OPTIONS = ["Photographer", "Developer / Engineer", "Designer", "Real Estate", "Consultant / Coach", "Other"];
 
@@ -343,7 +344,7 @@ const TemplateSelection = () => {
         )}
 
         {/* Header */}
-        <div className="mb-10">
+        <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-stone-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
             Choose your template.
           </h1>
@@ -351,6 +352,9 @@ const TemplateSelection = () => {
             {isPro ? "All templates unlocked." : "Start free with Minimal. Upgrade any time for Pro templates."}
           </p>
         </div>
+
+        {/* Refer & earn — free users earn their way to Pro (the dashboard is Pro-only). */}
+        {!isPro && <ReferralCard />}
 
         {/* Existing portfolio block */}
         {hasPortfolio && existingPortfolio && (
