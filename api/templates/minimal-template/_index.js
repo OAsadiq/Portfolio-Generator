@@ -744,6 +744,7 @@ const minimalTemplate = {
                   <input type="text" name="senderName" placeholder="Your name" required />
                   <input type="email" name="senderEmail" placeholder="Your email" required />
                   <textarea name="message" placeholder="Tell me about your project..." required></textarea>
+                  <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" />
                   <button type="submit" id="submitBtn">Send message</button>
                   <div class="form-msg" id="formMsg"></div>
                 </form>
@@ -779,6 +780,7 @@ const minimalTemplate = {
                     senderName: fd.get('senderName'),
                     senderEmail: fd.get('senderEmail'),
                     message: fd.get('message'),
+                    company: fd.get('company'),
                   })
                 });
                 const data = await res.json();
