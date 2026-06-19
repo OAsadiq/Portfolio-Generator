@@ -31,12 +31,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Privacy-friendly analytics by Plausible -->
-    <script async src="https://plausible.io/js/pa-zDaoWYhPBUsOStd6GjG2Y.js"></script>
-    <script>
-      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-      plausible.init()
-    </script>
+    <!-- Free, privacy-friendly pageview analytics by Cloudflare Web Analytics.
+         Create a free token at: Cloudflare dashboard → Analytics & Logs → Web Analytics
+         → Add a site (works with the JS beacon even if the domain isn't proxied through Cloudflare),
+         then replace YOUR_CLOUDFLARE_TOKEN below. Activity/funnel events are tracked separately
+         via Supabase (see src/lib/track.ts). -->
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "YOUR_CLOUDFLARE_TOKEN"}'></script>
   </head>
   <body>
     <div id="root"></div>

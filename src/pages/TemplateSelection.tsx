@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import TutorialTour, { TourStep } from "../components/tutorial/TutorialTour";
 import ReferralCard from "../components/ReferralCard";
+import { track } from "../lib/track";
 
 const KIT_OPTIONS = ["Photographer", "Developer / Engineer", "Designer", "Real Estate", "Consultant / Coach", "Other"];
 
@@ -253,6 +254,7 @@ const TemplateSelection = () => {
         kit: waitlistKit,
       });
       if (error) throw error;
+      track('waitlist_joined', { kit: waitlistKit });
       setWaitlistStatus('done');
     } catch (err) {
       console.error('Waitlist error:', err);
@@ -267,8 +269,10 @@ const TemplateSelection = () => {
     if (!canSelectTemplate(templateId)) {
       setAttemptedTemplate(templates.find(t => t.id === templateId) || null);
       setShowUpgradeModal(true);
+      track('upgrade_prompt_shown', { templateId, source: 'template_lock' });
       return;
     }
+    track('template_selected', { templateId });
     try {
       setSelectedLoading(templateId);
       const selected = templates.find(t => t.id === templateId);

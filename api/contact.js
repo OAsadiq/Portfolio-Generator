@@ -117,8 +117,14 @@ export default async function handler(req, res) {
       message,
       ip,
     });
+
+    await supabase.from('events').insert({
+      name: 'contact_submitted',
+      props: { portfolioName: portfolioName || null },
+      user_id: portfolio?.user_id || null,
+    });
   } catch (err) {
-    // Don't fail the request if logging the lead errors — the email still matters.
+    // Don't fail the request if logging the lead/event errors — the email still matters.
     console.error('Lead insert error:', err);
   }
 

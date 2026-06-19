@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
+import { track } from "../lib/track";
 
 const Success = () => {
     const [searchParams] = useSearchParams();
@@ -12,6 +13,7 @@ const Success = () => {
     const [countdown, setCountdown] = useState(5);
     const [verifying, setVerifying] = useState(true);
     const [subscriptionActive, setSubscriptionActive] = useState(false);
+    const purchaseTracked = useRef(false);
 
     useEffect(() => {
         if (!sessionId) {
@@ -31,6 +33,7 @@ const Success = () => {
                 if (!error && data && data.status === 'active' && data.plan === 'pro') {
                     setSubscriptionActive(true);
                     setVerifying(false);
+                    if (!purchaseTracked.current) { purchaseTracked.current = true; track('pro_purchased', { sessionId }); }
                 }
             } catch (err) {
                 console.error('Error checking subscription:', err);

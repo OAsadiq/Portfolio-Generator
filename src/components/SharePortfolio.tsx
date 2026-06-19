@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
+import { track } from '../lib/track';
 
 /**
  * Frictionless share prompt shown at the "your portfolio is live" moment.
@@ -31,6 +32,7 @@ export default function SharePortfolio({ url, compact = false }: { url: string; 
             href={t.href}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => track('share_clicked', { target: t.name })}
             title={`Share on ${t.name}`}
             className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white border border-stone-200 text-stone-600 hover:text-stone-900 hover:border-stone-300 transition text-sm font-medium"
           >
@@ -39,7 +41,7 @@ export default function SharePortfolio({ url, compact = false }: { url: string; 
           </a>
         ))}
         <button
-          onClick={() => { navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); }}
+          onClick={() => { navigator.clipboard.writeText(url); setCopied(true); track('share_clicked', { target: 'copy' }); setTimeout(() => setCopied(false), 1800); }}
           title="Copy link"
           className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white border border-stone-200 text-stone-600 hover:text-stone-900 hover:border-stone-300 transition text-sm font-medium"
         >

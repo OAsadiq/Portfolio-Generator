@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Copy, Check, Gift, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { track } from '../lib/track';
 
 const PRO_GOAL = 3; // referrals that unlock free Pro (then 1 more, while Pro, unlocks a kit)
 
@@ -73,7 +74,7 @@ export default function ReferralCard() {
       <div className="flex items-center gap-1.5 bg-white/10 rounded-xl pl-3 pr-1.5 py-1.5 mb-4">
         <span className="flex-1 text-sm text-stone-200 font-medium truncate">{link.replace(/^https?:\/\//, '')}</span>
         <button
-          onClick={() => { navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1800); }}
+          onClick={() => { navigator.clipboard.writeText(link); setCopied(true); track('referral_copied', { isPro }); setTimeout(() => setCopied(false), 1800); }}
           className="flex items-center gap-1.5 bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition"
         >
           {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

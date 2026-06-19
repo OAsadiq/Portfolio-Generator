@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { X, Check, Eye, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SharePortfolio from '../../SharePortfolio';
+import { track } from '../../../lib/track';
 
 interface Props {
   isOpen: boolean;
@@ -10,6 +12,11 @@ interface Props {
 
 export default function SuccessModal({ isOpen, portfolioSlug, onClose }: Props) {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isOpen && portfolioSlug) track('portfolio_saved', { tier: 'pro' });
+  }, [isOpen, portfolioSlug]);
+
   if (!isOpen) return null;
 
   return (

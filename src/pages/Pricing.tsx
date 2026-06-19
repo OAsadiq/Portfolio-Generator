@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import Navbar from "../components/Navbar";
+import { track } from "../lib/track";
 
 const CHECK = (
   <svg className="w-4 h-4 text-orange-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,6 +38,7 @@ const PricingPage = () => {
     try {
       const priceId = import.meta.env.VITE_STRIPE_PRO_PRICE_ID;
       if (!priceId) throw new Error('Please contact support.');
+      track('checkout_started', { source: 'pricing_page' });
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/stripe/actions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

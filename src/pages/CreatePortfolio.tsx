@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import PortfolioVisualBuilder from "../components/PortfolioVisualBuilder.tsx";
 import SharePortfolio from "../components/SharePortfolio";
+import { track } from "../lib/track";
 
 interface TemplateField {
   name: string;
@@ -140,6 +141,7 @@ const CreatePortfolio = () => {
         throw new Error(data.error || "Something went wrong. Please try again.");
       }
       setPortfolioSlug(data.portfolioSlug);
+      track('portfolio_published', { templateId, tier: 'free' });
     } catch (err: any) {
       setError(err.message);
     } finally {
