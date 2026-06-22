@@ -17,6 +17,9 @@
       "memory": 1024
     }
   },
+  "crons": [
+    { "path": "/api/notify/domain", "schedule": "0 7 * * *" }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
