@@ -231,10 +231,10 @@ const PricingPage = () => {
                     {tableRows.map((row, i) => (
                       <tr key={i} className="hover:bg-stone-50 transition">
                         <td className="py-3 px-4 text-stone-700 text-xs font-medium sticky left-0 bg-white">{row.label}</td>
-                        <td className="py-3 px-4 text-center">{typeof row.porfilr === 'string' ? <span className="text-stone-600 text-xs">{row.porfilr}</span> : row.porfilr}</td>
-                        <td className="py-3 px-4 text-center">{typeof row.sq === 'string' ? <span className="text-stone-400 text-xs">{row.sq}</span> : row.sq}</td>
-                        <td className="py-3 px-4 text-center">{typeof row.wp === 'string' ? <span className="text-stone-400 text-xs">{row.wp}</span> : row.wp}</td>
-                        <td className="py-3 px-4 text-center">{typeof row.gd === 'string' ? <span className="text-stone-400 text-xs">{row.gd}</span> : row.gd}</td>
+                        <td className="py-3 px-4"><div className="flex items-center justify-center min-h-[20px]">{typeof row.porfilr === 'string' ? <span className="text-stone-600 text-xs">{row.porfilr}</span> : row.porfilr}</div></td>
+                        <td className="py-3 px-4"><div className="flex items-center justify-center min-h-[20px]">{typeof row.sq === 'string' ? <span className="text-stone-400 text-xs">{row.sq}</span> : row.sq}</div></td>
+                        <td className="py-3 px-4"><div className="flex items-center justify-center min-h-[20px]">{typeof row.wp === 'string' ? <span className="text-stone-400 text-xs">{row.wp}</span> : row.wp}</div></td>
+                        <td className="py-3 px-4"><div className="flex items-center justify-center min-h-[20px]">{typeof row.gd === 'string' ? <span className="text-stone-400 text-xs">{row.gd}</span> : row.gd}</div></td>
                       </tr>
                     ))}
                   </tbody>
