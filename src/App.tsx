@@ -16,11 +16,13 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import PricingPage from './pages/Pricing';
 import NicheLanding from './pages/niches/NicheLanding';
 import { NICHES } from './pages/niches/nicheConfig';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <div className="min-h-screen bg-stone-50">
           <Routes>
             {/* Public routes */}

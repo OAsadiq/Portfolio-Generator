@@ -4,6 +4,10 @@ Launch date: **Tuesday, June 30, 2026**. Posting starts Fri Jun 19.
 Brand accounts = home base. Personal accounts = amplify everything (build-in-public).
 Link designer/dev/etc. posts to the matching niche page, not the homepage.
 
+NOTE: the site is already LIVE during the tease. Tease phase (Jun 19–28) uses an
+"early users + feedback" angle (humble ask, invites replies). Launch day (Jun 30)
+flips to full confidence ("it's live") — drop the feedback framing then.
+
 Niche landing pages:
 - /portfolio-website-for-graphic-designers
 - /portfolio-website-for-developers
@@ -39,22 +43,22 @@ porfilr.com
 ## Fri Jun 19 — X (personal first, then brand RT) — text
 After losing one too many gigs because "a Google Doc isn't a portfolio," I spent months building the fix.
 
-Porfilr launches June 30. A portfolio that gets you hired — free, no code, live in 10 minutes.
+It's quietly live now — and I'm looking for early users to try it and tell me what's missing before I launch it properly on June 30.
 
-Follow @porfilr for the build. 👀
+Build one free → porfilr.com (be brutally honest 🙏)
 
 ## Sat Jun 20 — IG + X — Asset: VISION (5963)
 **X:**
 A world where the best work wins — not the best presentation budget.
 
-That's what we're building. Porfilr, June 30. 🟠
+That's what we're building. It's live early — try it and tell me what's missing → porfilr.com 🟠
 
 **IG caption:**
 Talented people lose opportunities every day — not because their work isn't good enough, but because their presentation isn't.
 
 We're building a world where every independent creator can show up online with the same credibility as someone with a full design team behind them.
 
-This is the Porfilr vision. Launching June 30.
+This is the Porfilr vision. It's live early and I want your honest take before the June 30 launch — link in bio, go break it. 🟠
 —
 #buildinpublic #freelance #portfolio #personalbranding
 
@@ -62,14 +66,14 @@ This is the Porfilr vision. Launching June 30.
 **X:**
 Our mission: make professional visibility accessible to every freelancer — regardless of skill, budget, or background.
 
-Your work deserves to be seen. June 30.
+Your work deserves to be seen. It's live early → porfilr.com (tell me what you'd change before June 30)
 
 **IG caption:**
 Our mission is simple: professional visibility for every freelancer — no matter your technical skill, your budget, or your background.
 
 Your work deserves to be seen. Porfilr makes sure it is.
 
-8 days. 🟠
+It's live early and I'm collecting honest feedback before the June 30 launch — try it (link in bio) and tell me what would make it a no-brainer for you. 🟠
 —
 #freelancer #mission #portfolio #creators
 
@@ -86,7 +90,7 @@ Here's why that moment made me build Porfilr 🧵
 
 5/ Free to start. Pro is a one-time $19 — not a subscription. It even has a built-in contact form so leads come straight to you.
 
-6/ Launching June 30. If you've ever sent a Google Doc as a "portfolio," this is for you. Follow @porfilr 🟠
+6/ It's live early. If you've ever sent a Google Doc as a "portfolio," go build one and tell me what's missing before I launch properly on June 30 → porfilr.com 🟠
 
 ---
 
@@ -98,7 +102,7 @@ Stop sending Google Docs.
 
 You're great at what you do. Your portfolio should be too.
 
-Porfilr — June 30. 🟠
+It's live (early access before the June 30 launch) → porfilr.com — go try it 🟠
 
 **IG caption:**
 Stop sending Google Docs. 🛑
@@ -107,7 +111,7 @@ You're great at what you do — your portfolio should be too.
 
 A Google Doc isn't a portfolio. A LinkedIn page isn't a portfolio. Porfilr is — live in 10 minutes, no code, no designer, no $300/year platform fees.
 
-Launching June 30. Save this. 🟠
+It's open for early users now (link in bio) — build one and tell me what you think before the June 30 launch. Save this. 🟠
 —
 #freelance #portfolio #freelancer #graphicdesign #personalbranding
 
@@ -115,7 +119,7 @@ Launching June 30. Save this. 🟠
 **X:**
 Porfilr is a portfolio builder for freelancers who do great work but have no clean way to show it.
 
-Live June 30. Get notified → porfilr.com
+It's live in early access — try it and tell me what's missing before June 30 → porfilr.com
 
 **IG caption:**
 What is Porfilr? 👇
@@ -126,7 +130,7 @@ We built it because talented people keep losing opportunities. Not because their
 
 Live in 10 minutes. No code. No designer. No expensive platform fees.
 
-Launching June 30 → link in bio to get notified.
+It's open for early users now (link in bio) — I'm reading every piece of feedback before the June 30 launch.
 —
 #freelancer #portfolio #buildinpublic #creators
 
@@ -136,7 +140,7 @@ Pick a template, make it yours in minutes.
 
 Every template is designed to look professional out of the box — no design skills needed.
 
-Porfilr, June 30. porfilr.com
+Try it free → porfilr.com (early access before June 30)
 
 **IG caption:**
 Pick a template. Make it yours. In minutes. ⏱️
@@ -145,7 +149,7 @@ Every Porfilr template is designed to look professional straight out of the box 
 
 Designers, developers, photographers, writers — there's one for you.
 
-June 30. 🟠
+Open for early users now — build yours and tell me what you'd add (link in bio). 🟠
 —
 #designportfolio #freelance #portfolio #graphicdesigner
 
@@ -159,7 +163,7 @@ From zero to live portfolio in 3 steps 👇
 
 That's it. No code, no hosting, no weekend lost to setup. A real, shareable portfolio link in about 10 minutes.
 
-Launching June 30. 🟠
+It's live in early access — try the 3 steps yourself and tell me where it trips up (link in bio). June 30 is the big one. 🟠
 —
 #portfolio #freelance #buildinpublic #nocode
 
@@ -169,14 +173,14 @@ Start free. Upgrade when you're ready.
 
 Build & publish for $0. Pro is a one-time $19 — custom domain + analytics, yours forever. No subscription.
 
-Porfilr launches in 2 days. 👀
+It's live now (early access) → porfilr.com. Big launch in 2 days. 👀
 
 **IG caption:**
 Start free. Upgrade when you're ready. 🟠
 
 Build and publish your portfolio for $0. When you want more — a custom domain, analytics, premium templates — Pro is a one-time $19. Not a subscription. Yours forever.
 
-2 days to launch. 👀
+Open for early users now (link in bio). 2 days to the big launch. 👀
 —
 #freelance #portfolio #saas #personalbranding
 
