@@ -173,7 +173,7 @@ const PricingPage = () => {
               <ul className="space-y-3 mb-8">
                 {[
                   "Everything in Free, plus:",
-                  "All premium templates (Modern, Professional)",
+                  "All premium templates",
                   "Custom domain support (yourname.com)",
                   "Portfolio view analytics",
                   'Remove "Made with Porfilr" branding',

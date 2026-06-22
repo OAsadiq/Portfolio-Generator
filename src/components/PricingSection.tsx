@@ -137,10 +137,11 @@ const PricingSection = () => {
             <p className="text-stone-400 text-sm mb-6">For creators who want their own domain and deeper analytics.</p>
             <ul className="space-y-3 mb-8">
               {[
-                "Everything in Free",
-                "All 3 premium templates",
-                "Custom domain (yourname.com)",
-                "Portfolio analytics",
+                "Everything in Free, plus:",
+                "All premium templates",
+                "Custom domain support (yourname.com)",
+                "Portfolio view analytics",
+                'Remove "Made with Porfilr" branding',
                 "Priority support",
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-sm text-stone-300">
