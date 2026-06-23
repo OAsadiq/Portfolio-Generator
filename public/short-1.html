@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Porfilr — Short 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root{ --orange:#ea580c; --orange-2:#fb923c; --dur:16s; --sans:'Inter',system-ui,sans-serif; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:#000;overflow:hidden;font-family:var(--sans)}
+  .wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  .stage{position:relative;width:1080px;height:1920px;background:radial-gradient(120% 80% at 50% 0%,#1c1917,#0c0a09 70%,#000);overflow:hidden}
+  .scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:0;padding:0 90px}
+  h1{color:#fff;font-weight:900;letter-spacing:-.02em;line-height:1.04}
+  .accent{color:var(--orange-2)}
+  .sub{color:#a8a29e;font-size:40px;font-weight:500;margin-top:30px;line-height:1.4}
+  .s1{animation:s1 var(--dur) infinite}
+  .s2{animation:s2 var(--dur) infinite}
+  .s3{animation:s3 var(--dur) infinite}
+  .s4{animation:s4 var(--dur) infinite}
+  @keyframes s1{0%,1%{opacity:0;transform:translateY(24px)}5%,26%{opacity:1;transform:translateY(0)}31%{opacity:0;transform:translateY(-24px)}100%{opacity:0}}
+  @keyframes s2{0%,31%{opacity:0;transform:translateY(24px)}35%,52%{opacity:1;transform:translateY(0)}57%{opacity:0;transform:translateY(-24px)}100%{opacity:0}}
+  @keyframes s3{0%,57%{opacity:0;transform:translateY(24px)}61%,80%{opacity:1;transform:translateY(0)}85%{opacity:0;transform:translateY(-24px)}100%{opacity:0}}
+  @keyframes s4{0%,85%{opacity:0;transform:scale(.94)}89%,99%{opacity:1;transform:scale(1)}100%{opacity:1}}
+  .logo{font-weight:800;font-size:56px;color:#fff;letter-spacing:-.03em;margin-bottom:36px}
+  .logo b{color:var(--orange)}
+  .doc{width:560px;height:360px;background:#fff;border-radius:18px;margin-top:50px;padding:40px;text-align:left;transform:rotate(-3deg);box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .doc .ln{height:18px;background:#e7e5e4;border-radius:6px;margin-bottom:18px}
+  .doc .red{position:absolute}
+  .stamp{display:inline-block;margin-top:40px;border:5px solid #ef4444;color:#ef4444;font-weight:900;font-size:48px;padding:10px 28px;border-radius:14px;transform:rotate(-8deg);text-transform:uppercase}
+  .site{width:600px;height:380px;background:#fff;border-radius:20px;margin-top:50px;overflow:hidden;text-align:left;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .site .bar{height:46px;background:#f5f5f4;display:flex;align-items:center;gap:9px;padding:0 18px;border-bottom:1px solid #e7e5e4}
+  .site .tl{width:13px;height:13px;border-radius:50%;background:#d6d3d1}
+  .site .body{padding:36px 40px}
+  .site .nm{font-size:46px;font-weight:900;color:#1c1917}
+  .site .rl{color:var(--orange);font-weight:700;font-size:22px;margin-top:6px}
+  .site .g{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:28px}
+  .site .c{height:90px;border-radius:12px;background:linear-gradient(135deg,#fef3c7,#fed7aa)}
+  .site .c:nth-child(2){background:linear-gradient(135deg,#e0e7ff,#c7d2fe)}
+  .site .c:nth-child(3){background:linear-gradient(135deg,#fce7f3,#fbcfe8)}
+  .pill{display:inline-block;margin-top:44px;background:#fff;color:#0c0a09;font-weight:800;font-size:44px;padding:22px 50px;border-radius:100px}
+  .progress{position:absolute;left:0;bottom:0;height:8px;background:var(--orange);width:0;animation:prog var(--dur) infinite linear}
+  @keyframes prog{0%{width:0}100%{width:100%}}
+  .hint{position:fixed;bottom:12px;left:0;right:0;text-align:center;color:#57534e;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage" id="stage">
+
+    <div class="scene s1">
+      <h1 style="font-size:104px">Stop sending<br/><span class="accent">Google Docs</span><br/>as your portfolio.</h1>
+    </div>
+
+    <div class="scene s2">
+      <h1 style="font-size:78px">A doc isn't<br/>a portfolio.</h1>
+      <div class="doc">
+        <div class="ln" style="width:70%"></div>
+        <div class="ln" style="width:90%"></div>
+        <div class="ln" style="width:55%"></div>
+        <div class="ln" style="width:80%"></div>
+        <div class="stamp">Nope</div>
+      </div>
+    </div>
+
+    <div class="scene s3">
+      <h1 style="font-size:74px">Porfilr makes it<br/><span class="accent">a real site.</span></h1>
+      <div class="site">
+        <div class="bar"><span class="tl"></span><span class="tl"></span><span class="tl"></span></div>
+        <div class="body">
+          <div class="nm">Jordan Rivera</div>
+          <div class="rl">Product Designer</div>
+          <div class="g"><div class="c"></div><div class="c"></div><div class="c"></div></div>
+        </div>
+      </div>
+      <p class="sub">No code · live in 10 minutes</p>
+    </div>
+
+    <div class="scene s4">
+      <div class="logo" style="font-size:72px">Porfil<b>r</b></div>
+      <h1 style="font-size:64px">Build yours free.</h1>
+      <span class="pill">porfilr.com</span>
+    </div>
+
+    <div class="progress"></div>
+  </div>
+</div>
+<p class="hint">Phone screen-size. Press F11, screen-record one loop (~16s), crop to the stage. Loops forever.</p>
+<script>
+  function fit(){ var s=document.getElementById('stage'); s.style.transform='scale('+Math.min(window.innerWidth/1080,(window.innerHeight-30)/1920)+')'; }
+  window.addEventListener('resize',fit);fit();
+</script>
+</body>
+</html>
