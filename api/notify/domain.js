@@ -61,9 +61,9 @@ async function buildEmail(payload) {
     return messages;
   }
 
-  // ── New portfolio published ──
+  // ── New portfolio published → admin notice + "you're live" email to the user ──
   if (table === 'portfolios' && type === 'INSERT') {
-    return [{
+    const messages = [{
       to: ADMIN_EMAIL,
       subject: `🚀 New portfolio: ${record.user_name || record.slug}`,
       html: shell('🚀 New portfolio published', 'A user just published a portfolio.', [
@@ -73,6 +73,15 @@ async function buildEmail(payload) {
         ['Live URL', record.slug ? `porfilr.com/p/${record.slug}` : null],
       ], '#ea580c'),
     }];
+
+    if (record.user_email && record.slug) {
+      messages.push({
+        to: record.user_email,
+        subject: '🎉 Your portfolio is live',
+        html: portfolioLiveEmail(record.user_name, record.slug),
+      });
+    }
+    return messages;
   }
 
   // ── New Pro purchase / referral-unlock ──
@@ -130,6 +139,105 @@ function welcomeEmail(name) {
       </div>
       <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;">You're receiving this because you signed up at porfilr.com</p>
     </div>`;
+}
+
+// ── "Your portfolio is live" email sent when a user publishes ──
+function portfolioLiveEmail(name, slug) {
+  const first = (name || '').split(' ')[0] || 'there';
+  const url = `https://porfilr.com/p/${slug}`;
+  const display = `porfilr.com/p/${slug}`;
+  return `
+    <div style="font-family:Inter,sans-serif;max-width:600px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
+      <div style="background:#fff;border-radius:12px;padding:36px;border:1px solid #e2e8f0;">
+        <p style="font-size:22px;font-weight:800;color:#0f172a;margin:0 0 4px;">Porfil<span style="color:#ea580c;">r</span></p>
+        <h1 style="font-size:24px;color:#0f172a;margin:18px 0 10px;">It's live, ${first} 🎉</h1>
+        <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 20px;">
+          Your portfolio is published and ready to share. Here's your link:
+        </p>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:15px;font-weight:600;color:#0f172a;">${display}</div>
+        <a href="${url}" style="display:inline-block;background:#0f172a;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">View my portfolio →</a>
+        <p style="color:#475569;font-size:15px;line-height:1.7;margin:24px 0 8px;font-weight:600;">Now put it to work:</p>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:8px;">
+          <tr><td style="padding:6px 0;color:#475569;font-size:14px;">• Drop the link in your email signature, LinkedIn, and Instagram bio</td></tr>
+          <tr><td style="padding:6px 0;color:#475569;font-size:14px;">• Send it with your next pitch instead of a Google Doc</td></tr>
+          <tr><td style="padding:6px 0;color:#475569;font-size:14px;">• Enquiries from your contact form land straight in your inbox</td></tr>
+        </table>
+        <p style="color:#64748b;font-size:13px;line-height:1.7;margin:20px 0 0;">
+          You can edit any detail anytime from your account. Want a custom domain (yourname.com) and analytics? Pro is a one-time $19.
+        </p>
+        <p style="color:#64748b;font-size:14px;line-height:1.7;margin:20px 0 0;">— Sadiq, founder of Porfilr</p>
+      </div>
+      <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;">Sent because you published a portfolio at porfilr.com</p>
+    </div>`;
+}
+
+// ── Re-engagement nudge for users who signed up but never published ──
+function nudgeEmail(name) {
+  const first = (name || '').split(' ')[0] || 'there';
+  return `
+    <div style="font-family:Inter,sans-serif;max-width:600px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
+      <div style="background:#fff;border-radius:12px;padding:36px;border:1px solid #e2e8f0;">
+        <p style="font-size:22px;font-weight:800;color:#0f172a;margin:0 0 4px;">Porfil<span style="color:#ea580c;">r</span></p>
+        <h1 style="font-size:24px;color:#0f172a;margin:18px 0 10px;">Your portfolio is one step away, ${first}</h1>
+        <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 20px;">
+          You signed up — but haven't published your portfolio yet. It only takes about 10 minutes: pick a template, add your work, hit publish. You'll have a clean, shareable link you can put on every pitch and application.
+        </p>
+        <a href="https://porfilr.com/templates" style="display:inline-block;background:#ea580c;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">Finish my portfolio →</a>
+        <p style="color:#64748b;font-size:13px;line-height:1.7;margin:24px 0 0;">
+          Free to start, no code, no designer. Stuck on something? Just reply — I'll help.
+        </p>
+        <p style="color:#64748b;font-size:14px;line-height:1.7;margin:20px 0 0;">— Sadiq, founder of Porfilr</p>
+      </div>
+      <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;">You're receiving this because you signed up at porfilr.com</p>
+    </div>`;
+}
+
+// ── Find signups with no portfolio (≥1 day old, not yet nudged) and email them once ──
+async function sendPublishNudges(apiKey) {
+  const now = Date.now();
+  const olderThan1d = new Date(now - 24 * 60 * 60 * 1000).toISOString();
+  const within7d = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data: candidates } = await supabase
+    .from('referrals')
+    .select('user_id')
+    .is('nudged_at', null)
+    .lt('created_at', olderThan1d)
+    .gt('created_at', within7d)
+    .limit(50);
+
+  if (!candidates || candidates.length === 0) return 0;
+
+  const ids = candidates.map(c => c.user_id);
+  const { data: withPortfolio } = await supabase.from('portfolios').select('user_id').in('user_id', ids);
+  const hasPortfolio = new Set((withPortfolio || []).map(p => p.user_id));
+
+  let sent = 0;
+  for (const c of candidates) {
+    const stamp = new Date().toISOString();
+    // Already published → just mark so we stop checking them.
+    if (hasPortfolio.has(c.user_id)) {
+      await supabase.from('referrals').update({ nudged_at: stamp }).eq('user_id', c.user_id);
+      continue;
+    }
+    let email = null, name = null;
+    try {
+      const { data } = await supabase.auth.admin.getUserById(c.user_id);
+      email = data?.user?.email || null;
+      name = data?.user?.user_metadata?.full_name || null;
+    } catch { /* no email — still mark below to avoid re-looping */ }
+
+    if (email) {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: FROM, to: email, subject: 'Your Porfilr portfolio is one step away', html: nudgeEmail(name) }),
+      });
+      sent++;
+    }
+    await supabase.from('referrals').update({ nudged_at: stamp }).eq('user_id', c.user_id);
+  }
+  return sent;
 }
 
 // ── Daily digest (triggered by a Vercel Cron GET) ──
@@ -197,7 +305,12 @@ export default async function handler(req, res) {
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ from: FROM, to: ADMIN_EMAIL, subject: digest.subject, html: digest.html }),
       });
-      return res.status(200).json({ ok: true });
+
+      // Re-engagement nudges (never let this break the digest).
+      let nudged = 0;
+      try { nudged = await sendPublishNudges(apiKey); } catch (e) { console.error('Nudge error:', e); }
+
+      return res.status(200).json({ ok: true, nudged });
     } catch (err) {
       console.error('Digest error:', err);
       return res.status(500).json({ error: err.message });
