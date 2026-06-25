@@ -30,3 +30,6 @@ dist-ssr
 .env.local
 .env.development
 .env.production
+
+# Throwaway local test scripts
+_test-*.mjs

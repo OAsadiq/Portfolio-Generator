@@ -45,3 +45,20 @@ select,
 .background-layer * {
   pointer-events: none !important;
 }
+
+/* Tailwind v4 preflight sets buttons to cursor:default — restore the pointer
+   on all interactive elements, and show not-allowed on disabled ones. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+a[href],
+label[for],
+select,
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"],
+.cursor-not-allowed {
+  cursor: not-allowed;
+}

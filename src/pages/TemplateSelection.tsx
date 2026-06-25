@@ -316,7 +316,12 @@ const TemplateSelection = () => {
 
       {/* Top bar */}
       <div className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
-        <Link to="/"><Logo size={28} /></Link>
+        <div className="flex items-center gap-4">
+          <Link to="/"><Logo size={28} /></Link>
+          <Link to="/" className="text-stone-500 hover:text-stone-800 text-sm transition">
+            ← Back to Home
+          </Link>
+        </div>
         {user && (
           <span className="text-stone-400 text-sm">{user.email}</span>
         )}
