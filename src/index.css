@@ -1,5 +1,10 @@
 @import "tailwindcss";
-@import "@fontsource/poppins";  
+@import "@fontsource/poppins";
+
+/* Tailwind v4 gates hover styles behind @media (hover: hover), so they stop
+   working on touch-capable devices (e.g. touchscreen laptops). Redefine the
+   hover variant so hover: utilities apply on any :hover, like Tailwind v3. */
+@custom-variant hover (&:hover);
 
 @keyframes slideDown {
   from {
@@ -31,8 +36,7 @@ input,
 textarea,
 select,
 .interactive,
-[role="button"],
-.hover\:* {
+[role="button"] {
   pointer-events: auto !important;
 }
 
