@@ -35,7 +35,7 @@ async function buildEmail(payload) {
   const record = payload?.record || {};
   const old = payload?.old_record || {};
 
-  // ── New signup (referrals row is created once per user on first login) ──
+  // ── New signup → admin notice + welcome email to the new user ──
   if (table === 'referrals' && type === 'INSERT') {
     let email = null, name = null;
     try {
@@ -43,7 +43,9 @@ async function buildEmail(payload) {
       email = data?.user?.email || null;
       name = data?.user?.user_metadata?.full_name || null;
     } catch { /* fall through with what we have */ }
-    return {
+
+    const messages = [{
+      to: ADMIN_EMAIL,
       subject: `🎉 New Porfilr signup${email ? `: ${email}` : ''}`,
       html: shell('🎉 New signup', 'Someone just created a Porfilr account.', [
         ['Name', name],
@@ -51,12 +53,18 @@ async function buildEmail(payload) {
         ['User ID', record.user_id],
         ['Referral code', record.code],
       ], '#0d9488'),
-    };
+    }];
+
+    if (email) {
+      messages.push({ to: email, subject: 'Welcome to Porfilr 🟠 — let’s get your portfolio live', html: welcomeEmail(name) });
+    }
+    return messages;
   }
 
   // ── New portfolio published ──
   if (table === 'portfolios' && type === 'INSERT') {
-    return {
+    return [{
+      to: ADMIN_EMAIL,
       subject: `🚀 New portfolio: ${record.user_name || record.slug}`,
       html: shell('🚀 New portfolio published', 'A user just published a portfolio.', [
         ['Name', record.user_name],
@@ -64,34 +72,64 @@ async function buildEmail(payload) {
         ['Template', record.template_id],
         ['Live URL', record.slug ? `porfilr.com/p/${record.slug}` : null],
       ], '#ea580c'),
-    };
+    }];
   }
 
   // ── New Pro purchase / referral-unlock ──
   if (table === 'subscriptions' && type === 'INSERT' && record.plan === 'pro' && record.status === 'active') {
-    return {
+    return [{
+      to: ADMIN_EMAIL,
       subject: '💰 New Pro user',
       html: shell('💰 New Pro user', 'Someone just unlocked Pro (purchase or referral reward).', [
         ['User ID', record.user_id],
         ['Plan', record.plan],
         ['Status', record.status],
       ], '#16a34a'),
-    };
+    }];
   }
 
   // ── Existing: custom domain newly set (UPDATE) ──
   if (table === 'portfolios' && type === 'UPDATE' && record.custom_domain && record.custom_domain !== old.custom_domain) {
-    return {
+    return [{
+      to: ADMIN_EMAIL,
       subject: `🌐 New custom domain request: ${record.custom_domain}`,
       html: shell('🌐 New custom domain request', 'A Pro user added a custom domain. Add it in Vercel → Settings → Domains.', [
         ['Domain', record.custom_domain],
         ['Portfolio', `${record.user_name || ''} (porfilr.com/p/${record.slug})`],
         ['User email', record.user_email],
       ], '#0f172a'),
-    };
+    }];
   }
 
-  return null; // nothing to notify for this event
+  return []; // nothing to notify for this event
+}
+
+// ── Welcome email sent to a brand-new user ──
+function welcomeEmail(name) {
+  const first = (name || '').split(' ')[0] || 'there';
+  return `
+    <div style="font-family:Inter,sans-serif;max-width:600px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
+      <div style="background:#fff;border-radius:12px;padding:36px;border:1px solid #e2e8f0;">
+        <p style="font-size:22px;font-weight:800;color:#0f172a;margin:0 0 4px;">Porfil<span style="color:#ea580c;">r</span></p>
+        <h1 style="font-size:24px;color:#0f172a;margin:18px 0 10px;">Welcome, ${first} 👋</h1>
+        <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 20px;">
+          You're in. Porfilr turns your work into a clean, professional portfolio — live in about 10 minutes, no code required. Here's how to get yours up:
+        </p>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+          <tr><td style="padding:8px 0;color:#0f172a;font-size:15px;"><strong>1.</strong> Pick a template</td></tr>
+          <tr><td style="padding:8px 0;color:#0f172a;font-size:15px;"><strong>2.</strong> Add your work &amp; details</td></tr>
+          <tr><td style="padding:8px 0;color:#0f172a;font-size:15px;"><strong>3.</strong> Hit publish — you're live</td></tr>
+        </table>
+        <a href="https://porfilr.com/templates" style="display:inline-block;background:#ea580c;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">Build my portfolio →</a>
+        <p style="color:#64748b;font-size:13px;line-height:1.7;margin:24px 0 0;">
+          It's free to start. When you're ready for a custom domain and analytics, Pro is a one-time $19 — no subscription.
+        </p>
+        <p style="color:#64748b;font-size:14px;line-height:1.7;margin:20px 0 0;">
+          Reply to this email anytime — I read every one.<br/>— Sadiq, founder of Porfilr
+        </p>
+      </div>
+      <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;">You're receiving this because you signed up at porfilr.com</p>
+    </div>`;
 }
 
 // ── Daily digest (triggered by a Vercel Cron GET) ──
@@ -169,16 +207,18 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   try {
-    const email = await buildEmail(req.body);
-    if (!email) return res.status(200).json({ skipped: true });
+    const messages = await buildEmail(req.body);
+    if (!messages || messages.length === 0) return res.status(200).json({ skipped: true });
 
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: FROM, to: ADMIN_EMAIL, subject: email.subject, html: email.html }),
-    });
+    await Promise.all(messages.map(m =>
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: FROM, to: m.to, subject: m.subject, html: m.html }),
+      })
+    ));
 
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({ ok: true, sent: messages.length });
   } catch (err) {
     console.error('Notify error:', err);
     return res.status(500).json({ error: err.message });
