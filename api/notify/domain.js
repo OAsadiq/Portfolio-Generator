@@ -56,7 +56,7 @@ async function buildEmail(payload) {
     }];
 
     if (email) {
-      messages.push({ to: email, subject: 'Welcome to Porfilr 🟠 — let’s get your portfolio live', html: welcomeEmail(name) });
+      messages.push({ to: email, subject: 'Welcome to Porfilr — let’s get your portfolio live', html: welcomeEmail(name) });
     }
     return messages;
   }
@@ -125,7 +125,7 @@ function welcomeEmail(name) {
           It's free to start. When you're ready for a custom domain and analytics, Pro is a one-time $19 — no subscription.
         </p>
         <p style="color:#64748b;font-size:14px;line-height:1.7;margin:20px 0 0;">
-          Reply to this email anytime — I read every one.<br/>— Sadiq, founder of Porfilr
+          Reply to this email anytime — I read every one.<br/>— Sadiq,<br/>Founder of Porfilr
         </p>
       </div>
       <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;">You're receiving this because you signed up at porfilr.com</p>
