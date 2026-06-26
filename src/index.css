@@ -40,6 +40,17 @@ select,
   pointer-events: auto !important;
 }
 
+/* Tailwind v4 sets buttons to cursor:default — restore the pointer on interactive elements. */
+button:not(:disabled),
+[role="button"]:not(:disabled),
+summary,
+label[for] {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+
 .fixed.inset-0.pointer-events-none *,
 .fixed.pointer-events-none * {
   pointer-events: none !important;

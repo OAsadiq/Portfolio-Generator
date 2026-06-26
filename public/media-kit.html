@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Porfilr — Media Kit</title>
+<meta name="robots" content="noindex" />
+<link rel="icon" type="image/png" href="/assets/porfilr-logo-orange-128.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{ --orange:#ea580c; --orange-2:#fb923c; --ink:#0c0a09; --ink-2:#1c1917; --paper:#fafaf9; --muted:#a8a29e; --line:#292524; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--ink);color:var(--paper);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:64px 24px 96px}
+  .serif{font-family:'Playfair Display',Georgia,serif}
+  h1{font-size:clamp(40px,7vw,68px);font-weight:800;letter-spacing:-.02em;line-height:1.05}
+  h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--orange-2);margin:64px 0 20px}
+  h3{font-size:18px;font-weight:700;margin-bottom:8px}
+  p{color:#d6d3d1}
+  a{color:var(--orange-2)}
+  .kicker{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(234,88,12,.4);background:rgba(234,88,12,.1);color:var(--orange-2);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.16em;padding:7px 14px;border-radius:100px;margin-bottom:28px}
+  .lede{font-size:20px;color:#e7e5e4;margin-top:20px;max-width:620px}
+  .card{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:24px}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:680px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}}
+  .copyblock{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:20px;color:#e7e5e4;font-size:15px;margin-bottom:14px;position:relative}
+  .copyblock .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;display:block}
+  .swatch{border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer}
+  .swatch .chip{height:84px}
+  .swatch .meta{padding:10px 12px;font-size:13px}
+  .swatch .meta b{display:block}
+  .swatch .meta span{color:var(--muted);font-size:12px}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;font-weight:700;font-size:14px;padding:11px 20px;border-radius:10px;text-decoration:none}
+  .btn.alt{background:transparent;border:1px solid var(--line);color:var(--paper)}
+  .asset{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--ink-2)}
+  .asset .pv{height:150px;display:flex;align-items:center;justify-content:center;background:#000}
+  .asset .pv.light{background:#fafaf9}
+  .asset img{max-width:80%;max-height:80%;object-fit:contain}
+  .asset .ft{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+  .shot{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .shot img{width:100%;display:block}
+  .facts td{padding:12px 0;border-bottom:1px solid var(--line);font-size:15px;vertical-align:top}
+  .facts td:first-child{color:var(--muted);width:160px}
+  .do{color:#86efac}.dont{color:#fca5a5}
+  .li{padding:6px 0;color:#d6d3d1;font-size:15px}
+  .foot{margin-top:80px;padding-top:28px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;text-align:center}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#fff;color:#0c0a09;font-weight:600;font-size:14px;padding:10px 18px;border-radius:100px;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <span class="kicker"><img src="/assets/porfilr-logo-orange-128.png" width="16" height="16" alt=""> Press &amp; Media Kit</span>
+  <h1 class="serif">Porfil<span style="color:var(--orange)">r</span></h1>
+  <p class="lede">Porfilr helps freelancers and creators build a professional portfolio website in about 10 minutes — no code, no designer. <em style="color:#fff">Your work, finally visible.</em></p>
+  <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap">
+    <a class="btn" href="https://porfilr.com">Visit porfilr.com →</a>
+    <a class="btn alt" href="#assets">Download assets</a>
+  </div>
+
+  <h2>About</h2>
+  <div class="copyblock">
+    <span class="lbl">One-liner</span>
+    Porfilr is a no-code portfolio builder for freelancers and creators.
+  </div>
+  <div class="copyblock">
+    <span class="lbl">Short (≈40 words)</span>
+    Porfilr turns your work into a clean, professional portfolio website in about 10 minutes — no code, no designer, no expensive monthly fees. Built for freelancers, designers, developers, photographers, and writers who need a credible way to show what they do.
+  </div>
+  <div class="copyblock">
+    <span class="lbl">Long (≈90 words)</span>
+    Talented people lose opportunities every day — not because their work isn't good enough, but because their presentation isn't. A Google Doc isn't a portfolio. A LinkedIn page isn't a portfolio. Porfilr is. Pick a template, add your work, and publish — you're live in about ten minutes with a clean, shareable link and a built-in contact form that sends enquiries straight to your inbox. Free to start; Pro is a one-time $19 (custom domain, analytics, premium templates) — never a subscription. Porfilr makes professional visibility accessible to every independent creator, regardless of skill or budget.
+  </div>
+
+  <h2>Brand colors</h2>
+  <p style="margin-bottom:18px">Click any swatch to copy its hex.</p>
+  <div class="grid g4">
+    <div class="swatch" data-hex="#ea580c"><div class="chip" style="background:#ea580c"></div><div class="meta"><b>Orange</b><span>#ea580c</span></div></div>
+    <div class="swatch" data-hex="#fb923c"><div class="chip" style="background:#fb923c"></div><div class="meta"><b>Orange light</b><span>#fb923c</span></div></div>
+    <div class="swatch" data-hex="#0c0a09"><div class="chip" style="background:#0c0a09;border-bottom:1px solid #292524"></div><div class="meta"><b>Ink</b><span>#0c0a09</span></div></div>
+    <div class="swatch" data-hex="#fafaf9"><div class="chip" style="background:#fafaf9"></div><div class="meta"><b>Paper</b><span>#fafaf9</span></div></div>
+  </div>
+
+  <h2>Typography</h2>
+  <div class="grid g2">
+    <div class="card"><h3 class="serif" style="font-size:30px">Playfair Display</h3><p>Display / headlines. Weights 700–800.</p></div>
+    <div class="card"><h3 style="font-size:30px;font-weight:800">Inter</h3><p>Body &amp; UI. Weights 400–800.</p></div>
+  </div>
+
+  <h2 id="assets">Logo</h2>
+  <p style="margin-bottom:18px">Always keep clear space around the mark. Don't recolor, stretch, or add effects.</p>
+  <div class="grid g3">
+    <div class="asset"><div class="pv"><img src="/assets/porfilr-logo-orange-128.png" alt="Porfilr orange logo"></div><div class="ft"><span>Orange mark</span><a href="/assets/porfilr-logo-orange-128.png" download>Download</a></div></div>
+    <div class="asset"><div class="pv light"><img src="/assets/porfilr-logo-dark-512.png" alt="Porfilr dark logo"></div><div class="ft"><span>Dark mark</span><a href="/assets/porfilr-logo-dark-512.png" download>Download</a></div></div>
+    <div class="asset"><div class="pv"><img src="/assets/og-image.png" alt="Porfilr social image"></div><div class="ft"><span>Social image</span><a href="/assets/og-image.png" download>Download</a></div></div>
+  </div>
+
+  <h2>Product screenshots</h2>
+  <div class="grid g2">
+    <div class="shot"><img src="/images/minimal-template.jpg" alt="Minimal template"></div>
+    <div class="shot"><img src="/images/professional-template.jpg" alt="Professional template"></div>
+  </div>
+
+  <h2>Campaign graphics</h2>
+  <div class="card">
+    <p>Brand promo graphics and the launch teaser live in a shared folder: <a href="REPLACE_WITH_YOUR_GOOGLE_DRIVE_LINK">[paste your Google Drive / Dropbox link here]</a>.</p>
+  </div>
+
+  <h2>Fast facts</h2>
+  <table style="width:100%;border-collapse:collapse" class="facts">
+    <tr><td>Product</td><td>Porfilr — no-code portfolio builder</td></tr>
+    <tr><td>Tagline</td><td>Your work, finally visible.</td></tr>
+    <tr><td>Audience</td><td>Freelancers, designers, developers, photographers, writers</td></tr>
+    <tr><td>Pricing</td><td>Free to start · Pro is a one-time $19 (no subscription)</td></tr>
+    <tr><td>Website</td><td><a href="https://porfilr.com">porfilr.com</a></td></tr>
+    <tr><td>Founder</td><td>Sadiq</td></tr>
+    <tr><td>Contact</td><td><a href="mailto:support@porfilr.com">support@porfilr.com</a></td></tr>
+  </table>
+
+  <h2>Voice &amp; usage</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3 class="do">Do</h3>
+      <div class="li">• Confident, clean, a little bold</div>
+      <div class="li">• Spell it "Porfilr" with a lowercase orange "r"</div>
+      <div class="li">• Dark backgrounds + white text + orange accents</div>
+      <div class="li">• Lead with the hook / the value</div>
+    </div>
+    <div class="card">
+      <h3 class="dont">Don't</h3>
+      <div class="li">• No corporate / salesy tone</div>
+      <div class="li">• Don't recolor or distort the logo</div>
+      <div class="li">• Don't misspell "Porfilr" or "porfilr.com"</div>
+      <div class="li">• Don't bury the message behind long intros</div>
+    </div>
+  </div>
+
+  <div class="foot">Porfilr Media Kit · porfilr.com · Questions? support@porfilr.com</div>
+</div>
+
+<div class="toast" id="toast">Copied</div>
+<script>
+  var toast=document.getElementById('toast');
+  document.querySelectorAll('.swatch').forEach(function(s){
+    s.addEventListener('click',function(){
+      navigator.clipboard.writeText(s.getAttribute('data-hex'));
+      toast.textContent='Copied '+s.getAttribute('data-hex');
+      toast.classList.add('on');setTimeout(function(){toast.classList.remove('on')},1400);
+    });
+  });
+</script>
+</body>
+</html>
