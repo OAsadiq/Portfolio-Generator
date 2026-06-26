@@ -44,6 +44,12 @@
   .asset .ft{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font-size:13px}
   .shot{border:1px solid var(--line);border-radius:14px;overflow:hidden}
   .shot img{width:100%;display:block}
+  .browser{display:flex;align-items:center;gap:7px;padding:10px 14px;background:#1c1917;border-bottom:1px solid var(--line)}
+  .browser .bd{width:11px;height:11px;border-radius:50%;background:#44403c}
+  .browser .burl{margin-left:10px;font-size:12px;color:var(--muted)}
+  .browser .bopen{margin-left:auto;font-size:12px;font-weight:600}
+  .pvframe{height:360px;overflow:hidden;background:#fff;position:relative}
+  .pvframe iframe{width:1280px;height:1600px;border:0;transform:scale(.65);transform-origin:top left;pointer-events:none}
   .facts td{padding:12px 0;border-bottom:1px solid var(--line);font-size:15px;vertical-align:top}
   .facts td:first-child{color:var(--muted);width:160px}
   .do{color:#86efac}.dont{color:#fca5a5}
@@ -101,15 +107,26 @@
     <div class="asset"><div class="pv"><img src="/assets/og-image.png" alt="Porfilr social image"></div><div class="ft"><span>Social image</span><a href="/assets/og-image.png" download>Download</a></div></div>
   </div>
 
-  <h2>Product screenshots</h2>
-  <div class="grid g2">
-    <div class="shot"><img src="/images/minimal-template.jpg" alt="Minimal template"></div>
-    <div class="shot"><img src="/images/professional-template.jpg" alt="Professional template"></div>
+  <h2>Live template previews</h2>
+  <p style="margin-bottom:18px">These are the real, rendered templates (always current). Open any to view full-screen, or grab frames for video.</p>
+  <div class="grid" style="gap:20px">
+    <div class="shot">
+      <div class="browser"><span class="bd"></span><span class="bd"></span><span class="bd"></span><span class="burl">porfilr.com — Minimal</span><a class="bopen" href="/templates/minimal-template/preview.html" target="_blank">Open ↗</a></div>
+      <div class="pvframe"><iframe src="/templates/minimal-template/preview.html" loading="lazy" title="Minimal template"></iframe></div>
+    </div>
+    <div class="shot">
+      <div class="browser"><span class="bd"></span><span class="bd"></span><span class="bd"></span><span class="burl">porfilr.com — Modern</span><a class="bopen" href="/templates/modern-writer-template/preview.html" target="_blank">Open ↗</a></div>
+      <div class="pvframe"><iframe src="/templates/modern-writer-template/preview.html" loading="lazy" title="Modern template"></iframe></div>
+    </div>
+    <div class="shot">
+      <div class="browser"><span class="bd"></span><span class="bd"></span><span class="bd"></span><span class="burl">porfilr.com — Professional</span><a class="bopen" href="/templates/professional-writer-template/preview.html" target="_blank">Open ↗</a></div>
+      <div class="pvframe"><iframe src="/templates/professional-writer-template/preview.html" loading="lazy" title="Professional template"></iframe></div>
+    </div>
   </div>
 
   <h2>Campaign graphics</h2>
   <div class="card">
-    <p>Brand promo graphics and the launch teaser live in a shared folder: <a href="REPLACE_WITH_YOUR_GOOGLE_DRIVE_LINK">[paste your Google Drive / Dropbox link here]</a>.</p>
+    <p>Brand promo graphics and the launch teaser live in a shared folder: <a href="https://drive.google.com/drive/folders/1gjz_aWkKaaSLWVPV9jpYbPftY4oPKB2p?usp=sharing" target="_blank">open the Google Drive folder →</a></p>
   </div>
 
   <h2>Fast facts</h2>
