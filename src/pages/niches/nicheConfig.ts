@@ -263,6 +263,128 @@ export const NICHES: NicheConfig[] = [
       },
     ],
   },
+
+  {
+    slug: 'portfolio-website-for-videographers',
+    niche: 'Videographers',
+    seoTitle: 'Portfolio Website for Videographers — One Link, No File Transfers | Porfilr',
+    seoDescription:
+      'Build a video portfolio website that makes creative directors stop scrolling. Curate your best work into one seamless showcase — no code, no bulky file transfers. Free to start.',
+    h1: 'A video portfolio that makes directors stop scrolling.',
+    subhead:
+      'Stop sending scattered YouTube links and bulky file transfers. Curate your best work into one seamless showcase and share a single link that proves your cinematic vision and technical skill.',
+    benefits: [
+      {
+        title: 'One link, not ten',
+        body: 'Replace a mess of YouTube links and WeTransfers with one clean URL that shows your reel and best projects in seconds.',
+      },
+      {
+        title: 'Show the vision, not the files',
+        body: 'A curated, cinematic showcase that lets your eye and craft land immediately — no downloads, no waiting.',
+      },
+      {
+        title: 'Built to get you booked',
+        body: 'A built-in contact form sends enquiries straight to your inbox, so a director who loves your reel can reach you instantly.',
+      },
+    ],
+    essentials: [
+      {
+        title: 'Lead with your reel',
+        body: 'Open with a tight highlight reel of your strongest 60–90 seconds. It decides whether they keep watching.',
+      },
+      {
+        title: 'A focused selection of projects',
+        body: 'Show a few complete pieces with context — the brief, your role, the result — not your entire archive.',
+      },
+      {
+        title: 'Embeds that just play',
+        body: 'Link or embed work so it plays smoothly on any device, with no downloads or broken file links.',
+      },
+      {
+        title: 'A clear way to book you',
+        body: 'Services, availability, and a contact form remove the friction between “love this” and “let’s shoot.”',
+      },
+    ],
+    faq: [
+      {
+        q: 'Can I embed videos from YouTube or Vimeo?',
+        a: 'Yes. You can link out to your hosted videos so they play in one clean showcase, instead of sending separate links or large files.',
+      },
+      {
+        q: 'Do I need editing or web skills?',
+        a: 'No. Pick a template, add your work, and publish — Porfilr builds a polished, responsive video portfolio for you. No code required.',
+      },
+      {
+        q: 'How much does it cost?',
+        a: 'You can build and publish for free. Pro — all premium templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
+      },
+      {
+        q: 'How is this better than sending YouTube links?',
+        a: 'A folder of links makes a client do the work. Porfilr gives you one professional page that presents your reel and projects in order, with a contact form built in — far more likely to get you booked.',
+      },
+    ],
+  },
+
+  {
+    slug: 'portfolio-website-for-traders',
+    niche: 'Traders',
+    seoTitle: 'Portfolio Website for Traders — Share a Verified Track Record | Porfilr',
+    seoDescription:
+      'Stop sending messy screenshots. Organize your verified performance and strategy into one clean link that builds instant trust with investors. No code, free to start.',
+    h1: 'A track record that proves your consistency.',
+    subhead:
+      'Stop sending messy screenshots. Organize your verified performance and strategy into one clean, professional link that builds instant trust with investors and prop firms.',
+    benefits: [
+      {
+        title: 'Trust at a glance',
+        body: 'A clean, organized page beats a folder of cropped screenshots — it signals you’re a professional, not a gambler.',
+      },
+      {
+        title: 'Your numbers, presented well',
+        body: 'Lay out your performance, strategy, and risk approach in one place anyone can read in seconds.',
+      },
+      {
+        title: 'One link for every conversation',
+        body: 'Send the same professional link to investors, prop firms, and your audience — no more scattered images.',
+      },
+    ],
+    essentials: [
+      {
+        title: 'Verified performance up front',
+        body: 'Lead with your key metrics and a link to your verified track record (MyfxBook, broker statement, etc.) so the numbers are credible.',
+      },
+      {
+        title: 'A clear strategy summary',
+        body: 'A short, plain explanation of how you trade and how you manage risk builds more trust than raw P&L alone.',
+      },
+      {
+        title: 'Proof, not just claims',
+        body: 'Link to verifiable sources and add context. Credibility is the whole game when someone’s deciding whether to back you.',
+      },
+      {
+        title: 'An easy way to reach you',
+        body: 'A contact form so an interested investor or firm can start the conversation without hunting for your DMs.',
+      },
+    ],
+    faq: [
+      {
+        q: 'Can I link my verified track record?',
+        a: 'Yes. You can link out to verified statements or third-party tracking (broker statements, MyfxBook, etc.) so investors can confirm your numbers.',
+      },
+      {
+        q: 'Do I need any technical skills?',
+        a: 'No. Add your details, performance, and strategy, then publish — Porfilr builds a clean, professional, responsive page for you. No code.',
+      },
+      {
+        q: 'How much does it cost?',
+        a: 'You can build and publish for free. Pro — all premium templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
+      },
+      {
+        q: 'Why not just send screenshots?',
+        a: 'Screenshots are easy to fake and hard to follow. A clean page that links to verified results builds far more trust with investors and prop firms.',
+      },
+    ],
+  },
 ];
 
 export const getNiche = (slug: string) => NICHES.find(n => n.slug === slug);

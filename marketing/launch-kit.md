@@ -1,11 +1,11 @@
 # Porfilr — Launch Campaign Kit
 
-Launch date: **Tuesday, June 30, 2026**. Posting starts Fri Jun 19.
+Launch date: **Thursday, July 2, 2026** (moved from Jun 30 → a day the founder is free to engage all day). Posting starts Fri Jun 19.
 Brand accounts = home base. Personal accounts = amplify everything (build-in-public).
 Link designer/dev/etc. posts to the matching niche page, not the homepage.
 
 NOTE: the site is already LIVE during the tease. Tease phase (Jun 19–28) uses an
-"early users + feedback" angle (humble ask, invites replies). Launch day (Jun 30)
+"early users + feedback" angle (humble ask, invites replies). Launch day (Thu Jul 2)
 flips to full confidence ("it's live") — drop the feedback framing then.
 
 Niche landing pages:
@@ -43,7 +43,7 @@ porfilr.com
 ## Fri Jun 19 — X (personal first, then brand RT) — text
 After losing one too many gigs because "a Google Doc isn't a portfolio," I spent months building the fix.
 
-It's quietly live now — and I'm looking for early users to try it and tell me what's missing before I launch it properly on June 30.
+It's quietly live now — and I'm looking for early users to try it and tell me what's missing before I launch it properly on July 2.
 
 Build one free → porfilr.com (be brutally honest 🙏)
 
@@ -58,7 +58,7 @@ Talented people lose opportunities every day — not because their work isn't go
 
 We're building a world where every independent creator can show up online with the same credibility as someone with a full design team behind them.
 
-This is the Porfilr vision. It's live early and I want your honest take before the June 30 launch — link in bio, go break it. 🟠
+This is the Porfilr vision. It's live early and I want your honest take before the July 2 launch — link in bio, go break it. 🟠
 —
 #buildinpublic #freelance #portfolio #personalbranding
 
@@ -66,14 +66,14 @@ This is the Porfilr vision. It's live early and I want your honest take before t
 **X:**
 Our mission: make professional visibility accessible to every freelancer — regardless of skill, budget, or background.
 
-Your work deserves to be seen. It's live early → porfilr.com (tell me what you'd change before June 30)
+Your work deserves to be seen. It's live early → porfilr.com (tell me what you'd change before July 2)
 
 **IG caption:**
 Our mission is simple: professional visibility for every freelancer — no matter your technical skill, your budget, or your background.
 
 Your work deserves to be seen. Porfilr makes sure it is.
 
-It's live early and I'm collecting honest feedback before the June 30 launch — try it (link in bio) and tell me what would make it a no-brainer for you. 🟠
+It's live early and I'm collecting honest feedback before the July 2 launch — try it (link in bio) and tell me what would make it a no-brainer for you. 🟠
 —
 #freelancer #mission #portfolio #creators
 
@@ -90,7 +90,7 @@ Here's why that moment made me build Porfilr 🧵
 
 5/ Free to start. Pro is a one-time $19 — not a subscription. It even has a built-in contact form so leads come straight to you.
 
-6/ It's live early. If you've ever sent a Google Doc as a "portfolio," go build one and tell me what's missing before I launch properly on June 30 → porfilr.com 🟠
+6/ It's live early. If you've ever sent a Google Doc as a "portfolio," go build one and tell me what's missing before I launch properly on July 2 → porfilr.com 🟠
 
 ---
 
@@ -102,7 +102,7 @@ Stop sending Google Docs.
 
 You're great at what you do. Your portfolio should be too.
 
-It's live (early access before the June 30 launch) → porfilr.com — go try it 🟠
+It's live (early access before the July 2 launch) → porfilr.com — go try it 🟠
 
 **IG caption:**
 Stop sending Google Docs. 🛑
@@ -111,7 +111,7 @@ You're great at what you do — your portfolio should be too.
 
 A Google Doc isn't a portfolio. A LinkedIn page isn't a portfolio. Porfilr is — live in 10 minutes, no code, no designer, no $300/year platform fees.
 
-It's open for early users now (link in bio) — build one and tell me what you think before the June 30 launch. Save this. 🟠
+It's open for early users now (link in bio) — build one and tell me what you think before the July 2 launch. Save this. 🟠
 —
 #freelance #portfolio #freelancer #graphicdesign #personalbranding
 
@@ -119,7 +119,7 @@ It's open for early users now (link in bio) — build one and tell me what you t
 **X:**
 Porfilr is a portfolio builder for freelancers who do great work but have no clean way to show it.
 
-It's live in early access — try it and tell me what's missing before June 30 → porfilr.com
+It's live in early access — try it and tell me what's missing before July 2 → porfilr.com
 
 **IG caption:**
 What is Porfilr? 👇
@@ -130,7 +130,7 @@ We built it because talented people keep losing opportunities. Not because their
 
 Live in 10 minutes. No code. No designer. No expensive platform fees.
 
-It's open for early users now (link in bio) — I'm reading every piece of feedback before the June 30 launch.
+It's open for early users now (link in bio) — I'm reading every piece of feedback before the July 2 launch.
 —
 #freelancer #portfolio #buildinpublic #creators
 
@@ -140,7 +140,7 @@ Pick a template, make it yours in minutes.
 
 Every template is designed to look professional out of the box — no design skills needed.
 
-Try it free → porfilr.com (early access before June 30)
+Try it free → porfilr.com (early access before July 2)
 
 **IG caption:**
 Pick a template. Make it yours. In minutes. ⏱️
@@ -153,7 +153,10 @@ Open for early users now — build yours and tell me what you'd add (link in bio
 —
 #designportfolio #freelance #portfolio #graphicdesigner
 
-## Sat Jun 27 — IG carousel — NEW how-it-works / screenshots
+## Sat Jun 27 — IG carousel — how-it-works / screenshots
+NOTE: if the how-it-works graphic isn't ready, SWAP this slot for an unused existing
+graphic (or repost "Stop sending Google Docs"). Don't post a placeholder. The
+how-it-works graphic also fits the launch carousel + PH gallery, so use it whenever ready.
 **Caption:**
 From zero to live portfolio in 3 steps 👇
 
@@ -163,7 +166,7 @@ From zero to live portfolio in 3 steps 👇
 
 That's it. No code, no hosting, no weekend lost to setup. A real, shareable portfolio link in about 10 minutes.
 
-It's live in early access — try the 3 steps yourself and tell me where it trips up (link in bio). June 30 is the big one. 🟠
+It's live in early access — try the 3 steps yourself and tell me where it trips up (link in bio). July 2 is the big one. 🟠
 —
 #portfolio #freelance #buildinpublic #nocode
 
@@ -173,14 +176,14 @@ Start free. Upgrade when you're ready.
 
 Build & publish for $0. Pro is a one-time $19 — custom domain + analytics, yours forever. No subscription.
 
-It's live now (early access) → porfilr.com. Big launch in 2 days. 👀
+It's live now (early access) → porfilr.com. Big launch Thursday. 👀
 
 **IG caption:**
 Start free. Upgrade when you're ready. 🟠
 
 Build and publish your portfolio for $0. When you want more — a custom domain, analytics, premium templates — Pro is a one-time $19. Not a subscription. Yours forever.
 
-Open for early users now (link in bio). 2 days to the big launch. 👀
+Open for early users now (link in bio). Big launch Thursday. 👀
 —
 #freelance #portfolio #saas #personalbranding
 
@@ -188,7 +191,9 @@ Open for early users now (link in bio). 2 days to the big launch. 👀
 
 # PHASE 3 — LAUNCH
 
-## Mon Jun 29 — All accounts — TEASER VIDEO + "tomorrow"
+## Wed Jul 1 — All accounts — TEASER VIDEO + "tomorrow"
+(If the launch video isn't ready, post a strong still/graphic instead — the video is
+optional and can follow a day or two after launch. Don't let it block the launch.)
 **X:**
 Tomorrow. 🟠
 
@@ -206,9 +211,9 @@ Porfilr goes live. A portfolio that gets you hired — free, no code, live in 10
 Turn on notifications. See you at launch. 🚀
 [attach teaser video]
 
-## Tue Jun 30 — LAUNCH DAY 🚀
+## Thu Jul 2 — LAUNCH DAY 🚀 (founder's free day — be present all day)
 
-**Product Hunt:** ship at 12:01 AM PST. (Full PH kit below.)
+**Product Hunt:** ship at 12:01 AM PST (≈8:01 AM WAT). (Full PH kit below.)
 
 **X — main launch post (pin it):**
 Porfilr is live. 🟠
@@ -246,21 +251,96 @@ If you're a freelancer, designer, dev, or writer — this is for you. Would mean
 
 ---
 
-# PHASE 4 — SUSTAIN (Jul 1+)
+# PHASE 4 — SUSTAIN (Jul 3+)
 
-## Wed Jul 1 — X + personal — recap/momentum
+## Fri Jul 3 — X + personal — recap/momentum
 24 hours since launch. 🟠
 
 [X] signups · [Y] portfolios published · [Z] on Product Hunt.
 
 Thank you. This is just the start. If you haven't yet → porfilr.com
 
-## Jul 2+ — rotate
+## Jul 4+ — rotate
 - Niche graphics → link to the matching niche page (designer post → /portfolio-website-for-graphic-designers)
 - Real user portfolios (with permission) as social proof
 - Testimonials as they come in
 - Feature spotlights (contact form, custom domain, analytics)
 - Behind-the-scenes / build-in-public updates
+
+---
+
+# POST-LAUNCH NICHE POSTS (new graphics)
+Confident framing (it's live). Each links to its matching niche page:
+- /portfolio-website-for-traders
+- /portfolio-website-for-videographers
+- /portfolio-website-for-developers
+- /portfolio-website-for-writers
+
+## Traders — "Professional track record" graphic
+**X:**
+Traders: stop sending messy screenshots.
+
+Turn your verified track record into one clean link that builds instant trust with investors. Live in 10 minutes, no code.
+
+→ porfilr.com/portfolio-website-for-traders
+
+**IG:**
+For traders 📈
+
+Messy screenshots don't build trust — a clean track record does. Organize your verified performance and strategy metrics into one professional link you can send any investor.
+
+No code. Live in 10 minutes. Free to start.
+→ porfilr.com (link in bio)
+—
+#trading #forex #tradingjournal #portfolio
+
+## Videographers — "stop scrolling" graphic
+**X:**
+Videographers: stop sending scattered YouTube links and bulky file transfers.
+
+One seamless showcase that makes creative directors stop scrolling. → porfilr.com/portfolio-website-for-videographers
+
+**IG:**
+For videographers 🎬
+
+Scattered YouTube links and WeTransfers don't prove your vision. Curate your best work into one seamless showcase and share a single link that shows your cinematic eye and technical skill.
+
+Live in 10 minutes, no code.
+→ porfilr.com (link in bio)
+—
+#videography #filmmaker #videoeditor #portfolio
+
+## Developers — "without the weekend build" graphic
+**X:**
+Developers: skip the weekend Next.js build.
+
+Fill in your projects, link your GitHub, ship a sharp portfolio in 10 minutes. One URL for every application and recruiter DM.
+
+→ porfilr.com/portfolio-website-for-developers
+
+**IG:**
+For developers 👨‍💻
+
+You could spend a weekend hand-rolling a portfolio site… or fill in your projects, link your GitHub, and ship a sharp one in 10 minutes. One URL for every application and recruiter DM.
+
+→ link in bio
+—
+#webdev #developer #coding #portfolio
+
+## Writers — "Editors and Clients take seriously" graphic
+**X:**
+Writers: stop pasting Google Docs into pitches.
+
+Organize your best clips on a clean site editors and clients take seriously. → porfilr.com/portfolio-website-for-writers
+
+**IG:**
+For writers ✍️
+
+A Google Doc link doesn't earn trust. Put your best clips on a clean, professional site and share one link that makes editors and clients take you seriously — and reply faster.
+
+→ link in bio
+—
+#writing #freelancewriter #copywriter #portfolio
 
 ---
 
