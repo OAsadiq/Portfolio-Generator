@@ -16,6 +16,64 @@ Niche landing pages:
 
 ---
 
+## Video posting sequence
+
+Raw videos → TikTok + Reels + Shorts. Polished → IG / X. All vertical 9:16, captions on,
+hook in 2s, trending sound on the TikTok-native ones. One video per posting day (don't dump).
+Pin your best one to the top of each profile. Reply to early comments (first 30 min).
+
+**Pre-launch (now → Jul 1) — warm up the account**
+1. Founder POV (you, phone) → TikTok + personal. POST FIRST. (Script below.)
+2. POV / pain short → TikTok.
+3. Build-demo (real screen-recording of the app, sped up) → TikTok + Reels.
+
+**Launch day (Jul 2)**
+4. Intro / brand teaser (editor's polished one) → IG (pinned), X, personal — the centerpiece.
+
+**Post-launch (Jul 3+) — rotate, one per posting day**
+5. Tips short → then the niche-angle shorts (traders / videographers / devs / writers).
+
+Repurpose each video to all 3 platforms (upload natively, no watermark — use CapCut/SnapTik).
+
+---
+
+## Founder video script (POV #4 — film this yourself, ~25–30s)
+
+Raw, phone, talking to camera. Don't read it word-for-word — say it in your own words.
+No editing needed (editor can add captions after if you want). This warms up the account
+before launch.
+
+[0–3s] HOOK (say it straight to camera):
+"I'm launching my startup in a few days, and honestly I'm nervous."
+
+[3–12s]:
+"For years I watched talented freelancers — including me — lose work. Not because the work
+was bad, but because all we could send was a messy Google Doc or a dead link. A doc isn't a
+portfolio."
+
+[12–22s]:
+"So I spent months building the thing I wish existed. It's called Porfilr — you pick a
+template, add your work, and publish a real portfolio in about 10 minutes. No code. Free to
+start."
+
+[22–30s]:
+"It goes live July 2. If you've ever struggled to show your work, follow along — I'll be
+sharing the whole launch. 🟠"
+
+**On-screen text (add as captions):** "launching my startup 😬" → "a Google Doc isn't a
+portfolio" → "so I built Porfilr" → "live July 2 — follow along"
+
+**Caption to post with it:**
+Building in public 🟠 Launching Porfilr on July 2 — a portfolio that gets you hired in 10 min, no code. Follow the journey. porfilr.com
+#buildinpublic #startup #founder #freelance #fyp
+
+**Tips:**
+- Look at the camera, not yourself. Good light (face a window).
+- First line is everything — say the hook with energy, no long intro.
+- One take, imperfect, is fine. Authentic > polished here.
+
+---
+
 ## Bios (set these first)
 
 **X bio:**
