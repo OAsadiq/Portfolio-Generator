@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Alex Rivera — Product Designer & Developer</title>
-  <meta name="description" content="I design and build digital products at the intersection of craft and engineering. I care about clean systems, clear writing, and details that make things feel e" />
-  <meta name="author" content="Alex Rivera" />
-  <meta property="og:title" content="Alex Rivera — Product Designer & Developer" />
-  <meta property="og:description" content="I design and build digital products at the intersection of craft and engineering. I care about clean systems, clear writing, and details that make things feel e" />
+  <title>Jordan Williams — Product Designer & Strategist</title>
+  <meta name="description" content="I help teams turn complex problems into clear, intuitive products. Ten years across fintech, healthtech, and SaaS — from first sketch to shipped feature." />
+  <meta name="author" content="Jordan Williams" />
+  <meta property="og:title" content="Jordan Williams — Product Designer & Strategist" />
+  <meta property="og:description" content="I help teams turn complex problems into clear, intuitive products. Ten years across fintech, healthtech, and SaaS — from first sketch to shipped feature." />
   <meta property="og:type" content="profile" />
   <meta name="twitter:card" content="summary" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23ea580c'/%3E%3Crect x='6' y='7' width='7' height='26' rx='1.5' fill='white' transform='rotate(-8 9.5 20)'/%3E%3Crect x='19' y='7' width='7' height='19' rx='1.5' fill='white' transform='rotate(-8 22.5 16.5)'/%3E%3Crect x='6' y='7' width='20' height='7' rx='1.5' fill='white' transform='rotate(-8 16 10.5)'/%3E%3Crect x='6' y='17' width='15' height='6' rx='1.5' fill='white' transform='rotate(-8 13.5 20)'/%3E%3C/svg%3E" />
@@ -16,8 +16,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root[data-theme="light"] { --accent: #4f46e5; --bg: #ffffff; --bg-2: #f7f7f7; --text: #0a0a0a; --text-2: #6b7280; --border: #e5e7eb; }
-    :root[data-theme="dark"] { --accent: #4f46e5; --bg: #0a0a0a; --bg-2: #141414; --text: #f5f5f5; --text-2: #9ca3af; --border: #262626; }
+    :root[data-theme="light"] { --accent: #475569; --bg: #ffffff; --bg-2: #f7f7f7; --text: #0a0a0a; --text-2: #6b7280; --border: #e5e7eb; }
+    :root[data-theme="dark"] { --accent: #475569; --bg: #0a0a0a; --bg-2: #141414; --text: #f5f5f5; --text-2: #9ca3af; --border: #262626; }
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; transition: background .2s, color .2s; }
     .container { max-width: 1080px; margin: 0 auto; padding: 0 2rem; }
@@ -151,6 +151,20 @@
     .copy-btn { font-size: .8125rem; font-weight: 500; padding: .4rem .8rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-2); cursor: pointer; transition: all .15s; }
     .copy-btn:hover { color: var(--text); border-color: var(--text-2); }
     .contact-sub { font-size: 1rem; color: var(--text-2); line-height: 1.6; max-width: 480px; }
+    .contact-form { display: flex; flex-direction: column; gap: .85rem; width: 100%; max-width: 520px; margin-top: .5rem; }
+    .contact-form .cf-row { display: flex; gap: .85rem; }
+    .contact-form .cf-row > * { flex: 1; }
+    .contact-form input, .contact-form textarea { width: 100%; padding: .85rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: .95rem; font-family: inherit; transition: border-color .15s; }
+    .contact-form input:focus, .contact-form textarea:focus { outline: none; border-color: var(--accent); }
+    .contact-form textarea { resize: vertical; min-height: 120px; }
+    .cf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    .contact-form button { align-self: flex-start; padding: .85rem 1.75rem; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-size: .95rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity .15s, transform .15s; }
+    .contact-form button:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+    .contact-form button:disabled { opacity: .5; cursor: not-allowed; }
+    .cf-msg { font-size: .9rem; min-height: 1.2em; }
+    .cf-msg.success { color: #16a34a; }
+    .cf-msg.error { color: #dc2626; }
+    @media (max-width: 560px) { .contact-form .cf-row { flex-direction: column; } }
 
     /* Modals + lightbox */
     .modal, .lightbox { display: none; position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center; padding: 1.5rem; }
@@ -197,13 +211,13 @@
 </head>
 <body>
   <nav class="site-nav">
-    <a href="#" class="nav-name">Alex Rivera</a>
-    <div class="nav-center"><a href="#services" class="nav-link" data-target="services">Services</a><a href="#skills" class="nav-link" data-target="skills">Skills</a><a href="#work" class="nav-link" data-target="work">Work</a><a href="#testimonials" class="nav-link" data-target="testimonials">Reviews</a><a href="#contact" class="nav-link" data-target="contact">Contact</a></div>
+    <a href="#" class="nav-name">Jordan Williams</a>
+    <div class="nav-center"><a href="#services" class="nav-link" data-target="services">Services</a><a href="#skills" class="nav-link" data-target="skills">Skills</a><a href="#work" class="nav-link" data-target="work">Work</a><a href="#contact" class="nav-link" data-target="contact">Contact</a></div>
     <div class="nav-right">
       <div class="social-icons">
-    <a href="https://linkedin.com" target="_blank" rel="noopener" class="social-icon-link" title="linkedin"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
-    <a href="https://twitter.com" target="_blank" rel="noopener" class="social-icon-link" title="twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-    <a href="https://github.com" target="_blank" rel="noopener" class="social-icon-link" title="github"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></a></div>
+    <a href="https://linkedin.com/in/jordanwilliams" target="_blank" rel="noopener" class="social-icon-link" title="linkedin"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
+    <a href="https://twitter.com/jordanwilliams" target="_blank" rel="noopener" class="social-icon-link" title="twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a href="https://dribbble.com/jordanwilliams" target="_blank" rel="noopener" class="social-icon-link" title="dribbble"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12c6.627 0 12-5.373 12-12S18.627 0 12 0zm9.568 5.302c1.4 1.5 2.252 3.498 2.273 5.668-.337-.063-3.717-.755-7.124-.326-.075-.165-.15-.33-.226-.495-.21-.495-.435-.99-.66-1.47 3.78-1.54 5.49-3.766 5.467-3.847.09-.05.18-.1.27-.15zm-9.568 1.394c2.34 0 4.484.87 6.12 2.296-.165.255-2.49 2.295-6.12 3.66-1.395-2.55-2.94-4.65-3.18-4.965 1.005-.51 2.13-.99 3.18-.99zM5.79 8.07c.225.3 1.74 2.385 3.15 4.875-3.99 1.065-7.515 1.05-7.89 1.05-.015-.06-.015-.12-.015-.18 0-2.52 1.71-4.74 4.755-5.745zM2.4 12.18v.15c.375.015 4.5.105 8.745-1.155.255.495.495.99.72 1.485-.105.03-.21.06-.315.09-4.41 1.425-6.75 5.31-6.945 5.64C3.33 16.5 2.4 14.43 2.4 12.18zm9.6 9.42c-2.07 0-3.975-.705-5.49-1.89.15-.315 1.86-3.6 6.69-5.295.015 0 .03-.015.045-.015 1.2 3.105 1.695 5.715 1.815 6.45-.93.39-1.965.6-3.06.6zm5.085-1.605c-.09-.51-.555-3-1.665-6.06 3.21-.51 6.015.33 6.36.435-.45 2.835-2.085 5.28-4.38 6.825z"/></svg></a></div>
       <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
         <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -211,142 +225,127 @@
     </div>
   </nav>
   <div class="page">
-
+    
   <section class="hero" id="hero">
     <div class="container">
       <div class="hero-inner">
         <div class="hero-text">
-          <span class="avail"><span class="avail-dot"></span>Available for work</span>
-          <span class="hero-label">Product Designer & Developer</span>
-          <h1 class="hero-name">Alex Rivera</h1>
-          <p class="hero-bio">I design and build digital products at the intersection of craft and engineering. I care about clean systems, clear writing, and details that make things feel effortless.</p>
+          <span class="avail"><span class="avail-dot"></span>Available for new projects</span>
+          <span class="hero-label">Product Designer & Strategist</span>
+          <h1 class="hero-name">Jordan Williams</h1>
+          <p class="hero-bio">I help teams turn complex problems into clear, intuitive products. Ten years across fintech, healthtech, and SaaS — from first sketch to shipped feature.</p>
           <div class="hero-cta">
             <a href="#work" class="btn btn-primary">View Work</a>
-            <a href="mailto:alex@example.com" class="btn btn-outline">Get in touch ↗</a>
+            <a href="mailto:hello@jordanwilliams.com" class="btn btn-outline">Get in touch ↗</a>
+            <a href="https://example.com/cv.pdf" target="_blank" rel="noopener" class="btn btn-ghost">Resume ↓</a>
           </div>
         </div>
-        <div class="hero-avatar"><div class="hero-avatar-letter">A</div></div>
+        <div class="hero-avatar"><div class="hero-avatar-letter">J</div></div>
       </div>
     </div>
   </section>
   <section class="stats-section reveal" id="stats">
-    <div class="container"><div class="stats-grid"><div class="stat"><div class="stat-value">8yrs</div><div class="stat-label">Experience</div></div><div class="stat"><div class="stat-value">120+</div><div class="stat-label">Projects shipped</div></div><div class="stat"><div class="stat-value">30</div><div class="stat-label">Happy clients</div></div></div></div>
+    <div class="container"><div class="stats-grid"><div class="stat"><div class="stat-value">10+</div><div class="stat-label">Years experience</div></div><div class="stat"><div class="stat-value">40+</div><div class="stat-label">Products shipped</div></div><div class="stat"><div class="stat-value">200k</div><div class="stat-label">Users reached</div></div></div></div>
   </section>
   <section class="trusted-section reveal" id="trusted-by">
     <div class="container"><div class="trusted-inner">
       <span class="trusted-label">Trusted by</span>
-      <div class="trusted-names"><span class="client-name">Stripe</span><span class="client-name">Figma</span><span class="client-name">Linear</span><span class="client-name">Vercel</span><span class="client-name">Notion</span></div>
+      <div class="trusted-names"><span class="client-name">Finto</span><span class="client-name">Healthly</span><span class="client-name">Acme</span><span class="client-name">Northwind</span><span class="client-name">Globex</span></div>
     </div></div>
   </section>
   <section class="section reveal" id="about">
-    <div class="container"><div class="section-header"><span class="section-num">01</span><h2 class="section-title">About</h2></div><p class="about-text">I design and build digital products at the intersection of craft and engineering. I care about clean systems, clear writing, and details that make things feel effortless.</p></div>
+    <div class="container"><div class="section-header"><span class="section-num">01</span><h2 class="section-title">About</h2></div><p class="about-text">I help teams turn complex problems into clear, intuitive products. Ten years across fintech, healthtech, and SaaS — from first sketch to shipped feature.</p></div>
   </section>
   <section class="section reveal" id="services">
     <div class="container"><div class="section-header"><span class="section-num">02</span><h2 class="section-title">What I Do</h2></div><div class="services-grid">
     <div class="service-card">
       <span class="service-num">01</span>
       <h3 class="service-title">Product Design</h3>
-      <p class="service-desc">End-to-end design — from research and wireframes to polished, shippable interfaces.</p>
+      <p class="service-desc">End-to-end design from research to shipped UI.</p>
     </div>
     <div class="service-card">
       <span class="service-num">02</span>
-      <h3 class="service-title">Development</h3>
-      <p class="service-desc">Production React & TypeScript with clean, maintainable systems.</p>
+      <h3 class="service-title">Design Systems</h3>
+      <p class="service-desc">Scalable component libraries your team can build on.</p>
     </div>
     <div class="service-card">
       <span class="service-num">03</span>
-      <h3 class="service-title">Consulting</h3>
-      <p class="service-desc">Design audits, strategy, and hands-on help to level up your product.</p>
+      <h3 class="service-title">UX Strategy</h3>
+      <p class="service-desc">Turning business goals into clear product direction.</p>
     </div></div></div>
   </section>
   <section class="section reveal" id="skills">
-    <div class="container"><div class="section-header"><span class="section-num">03</span><h2 class="section-title">Skills & Tools</h2></div><div class="skills-wrap"><span class="skill-pill">Product Design</span><span class="skill-pill">UX Research</span><span class="skill-pill">Figma</span><span class="skill-pill">React</span><span class="skill-pill">TypeScript</span><span class="skill-pill">Design Systems</span></div></div>
+    <div class="container"><div class="section-header"><span class="section-num">03</span><h2 class="section-title">Skills & Tools</h2></div><div class="skills-wrap"><span class="skill-pill">UX Strategy</span><span class="skill-pill">Prototyping</span><span class="skill-pill">Design Systems</span><span class="skill-pill">User Research</span><span class="skill-pill">Figma</span><span class="skill-pill">Design Ops</span></div></div>
   </section>
   <section class="section reveal" id="work">
     <div class="container"><div class="section-header"><span class="section-num">04</span><h2 class="section-title">Selected Work</h2><span class="section-count">2 projects</span></div><div class="work-grid">
     <article class="project-card">
       <div class="project-media">
         <div class="project-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-        <div class="project-overlay"><button class="proj-btn proj-btn--detail" onclick="openModal(1)">View details</button></div>
+        
       </div>
       <div class="project-body">
         <div class="project-meta">
-          <span class="project-client">Stripe</span>
-          <span class="meta-sep">·</span>
-          <span class="project-role">Lead Designer</span>
+          <span class="project-client">Finto</span>
+          
+          
         </div>
-        <h3 class="project-title">Checkout Redesign</h3>
-        <p class="project-desc">Rebuilt the core checkout flow, cutting drop-off and lifting conversion across three markets.</p>
-        <div class="project-tags"><span class="tag">Product Design</span><span class="tag">UX</span></div>
+        <h3 class="project-title">Checkout redesign</h3>
+        
+        
       </div>
     </article>
     <article class="project-card">
       <div class="project-media">
         <div class="project-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-        <div class="project-overlay"><button class="proj-btn proj-btn--detail" onclick="openModal(2)">View details</button></div>
+        
       </div>
       <div class="project-body">
         <div class="project-meta">
-          <span class="project-client">Luma</span>
-          <span class="meta-sep">·</span>
-          <span class="project-role">Designer & Engineer</span>
+          <span class="project-client">Healthly</span>
+          
+          
         </div>
-        <h3 class="project-title">Design System</h3>
-        <p class="project-desc">Built the component library and token pipeline powering every product surface.</p>
-        <div class="project-tags"><span class="tag">Design Systems</span><span class="tag">React</span></div>
+        <h3 class="project-title">Design system</h3>
+        
+        
       </div>
     </article></div></div>
   </section>
-  <section class="section reveal" id="testimonials">
-    <div class="container"><div class="section-header"><span class="section-num">05</span><h2 class="section-title">Testimonials</h2></div><div class="testi-grid">
-    <blockquote class="testi-card">
-      <p class="testi-quote">"Alex shipped more polish in a month than we'd managed in a year. The redesign paid for itself almost immediately."</p>
-      <footer class="testi-footer"><div class="testi-avatar-letter">M</div><div class="testi-info"><strong>Maya Chen</strong><span>CPO, Flowbase</span></div></footer>
-    </blockquote>
-    <blockquote class="testi-card">
-      <p class="testi-quote">"Rare blend of designer and engineer. Fast, thoughtful, and always ships what they promise."</p>
-      <footer class="testi-footer"><div class="testi-avatar-letter">J</div><div class="testi-info"><strong>James Okafor</strong><span>Founder, Stackwise</span></div></footer>
-    </blockquote></div></div>
-  </section>
   <section class="section reveal" id="contact">
-    <div class="container"><div class="section-header"><span class="section-num">06</span><h2 class="section-title">Get In Touch</h2></div>
+    <div class="container"><div class="section-header"><span class="section-num">05</span><h2 class="section-title">Get In Touch</h2></div>
       <div class="contact-inner">
         <div class="contact-email-row">
-          <a href="mailto:alex@example.com" class="contact-email">alex@example.com</a>
-          <button class="copy-btn" onclick="copyEmail(this, 'alex@example.com')">Copy</button>
+          <a href="mailto:hello@jordanwilliams.com" class="contact-email">hello@jordanwilliams.com</a>
+          <button class="copy-btn" onclick="copyEmail(this, 'hello@jordanwilliams.com')">Copy</button>
         </div>
         <p class="contact-sub">Open to freelance projects, full-time roles, and interesting conversations.</p>
+        
+        <form class="contact-form" id="contactForm">
+          <div class="cf-row">
+            <input type="text" name="senderName" placeholder="Your name" required />
+            <input type="email" name="senderEmail" placeholder="Your email" required />
+          </div>
+          <textarea name="message" placeholder="Tell me about your project…" required></textarea>
+          <input type="text" name="company" class="cf-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <button type="submit" id="cfSubmit">Send message</button>
+          <div class="cf-msg" id="cfMsg"></div>
+        </form>
         <div class="social-icons social-icons--inline">
-    <a href="https://linkedin.com" target="_blank" rel="noopener" class="social-icon-link" title="linkedin"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
-    <a href="https://twitter.com" target="_blank" rel="noopener" class="social-icon-link" title="twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-    <a href="https://github.com" target="_blank" rel="noopener" class="social-icon-link" title="github"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></a></div>
+    <a href="https://linkedin.com/in/jordanwilliams" target="_blank" rel="noopener" class="social-icon-link" title="linkedin"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
+    <a href="https://twitter.com/jordanwilliams" target="_blank" rel="noopener" class="social-icon-link" title="twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a href="https://dribbble.com/jordanwilliams" target="_blank" rel="noopener" class="social-icon-link" title="dribbble"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12c6.627 0 12-5.373 12-12S18.627 0 12 0zm9.568 5.302c1.4 1.5 2.252 3.498 2.273 5.668-.337-.063-3.717-.755-7.124-.326-.075-.165-.15-.33-.226-.495-.21-.495-.435-.99-.66-1.47 3.78-1.54 5.49-3.766 5.467-3.847.09-.05.18-.1.27-.15zm-9.568 1.394c2.34 0 4.484.87 6.12 2.296-.165.255-2.49 2.295-6.12 3.66-1.395-2.55-2.94-4.65-3.18-4.965 1.005-.51 2.13-.99 3.18-.99zM5.79 8.07c.225.3 1.74 2.385 3.15 4.875-3.99 1.065-7.515 1.05-7.89 1.05-.015-.06-.015-.12-.015-.18 0-2.52 1.71-4.74 4.755-5.745zM2.4 12.18v.15c.375.015 4.5.105 8.745-1.155.255.495.495.99.72 1.485-.105.03-.21.06-.315.09-4.41 1.425-6.75 5.31-6.945 5.64C3.33 16.5 2.4 14.43 2.4 12.18zm9.6 9.42c-2.07 0-3.975-.705-5.49-1.89.15-.315 1.86-3.6 6.69-5.295.015 0 .03-.015.045-.015 1.2 3.105 1.695 5.715 1.815 6.45-.93.39-1.965.6-3.06.6zm5.085-1.605c-.09-.51-.555-3-1.665-6.06 3.21-.51 6.015.33 6.36.435-.45 2.835-2.085 5.28-4.38 6.825z"/></svg></a></div>
       </div>
     </div>
   </section>
   <footer class="site-footer" id="footer">
     <div class="container"><div class="footer-inner">
-      <span>© 2026 Alex Rivera</span>
+      <span>© 2026 Jordan Williams</span>
       <span>Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></span>
     </div></div>
   </footer>
   </div>
-
-  <div id="modal-1" class="modal" role="dialog" aria-modal="true">
-    <div class="modal-backdrop" onclick="closeModal(1)"></div>
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal(1)" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-      <h2 class="modal-title">Checkout Redesign</h2>
-      <div class="modal-sections"><div class="modal-section"><h4>Challenge</h4><p>The existing checkout had a 68% mobile abandonment rate and felt disconnected from the rest of the product.</p></div><div class="modal-section"><h4>Approach</h4><p>Unified the visual language, reduced the flow from 7 steps to 3, and added inline validation.</p></div><div class="modal-section"><h4>Results</h4><p>34% drop in abandonment and an 18% lift in conversion within the first quarter.</p></div></div>
-    </div>
-  </div>
-  <div id="modal-2" class="modal" role="dialog" aria-modal="true">
-    <div class="modal-backdrop" onclick="closeModal(2)"></div>
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal(2)" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-      <h2 class="modal-title">Design System</h2>
-      <div class="modal-sections"><div class="modal-section"><h4>Challenge</h4><p>Teams were rebuilding the same components inconsistently.</p></div><div class="modal-section"><h4>Approach</h4><p>Created a single source of truth with tokens exported to code automatically.</p></div><div class="modal-section"><h4>Results</h4><p>Cut design-to-code QA by 90% across six product teams.</p></div></div>
-    </div>
-  </div>
+  
   <div id="lightbox" class="lightbox" onclick="closeLightbox()"><div class="lightbox-backdrop"></div><div class="lightbox-img"><img id="lightbox-img" src="" alt="" /></div></div>
   <script>
     (function(){ var s = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-theme', s); })();
@@ -357,18 +356,40 @@
     function closeLightbox(){ document.getElementById('lightbox').classList.remove('is-open'); document.body.style.overflow = ''; }
     function copyEmail(btn, email){ navigator.clipboard.writeText(email).then(function(){ var t = btn.textContent; btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = t; }, 1500); }); }
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ document.querySelectorAll('.modal.is-open, .lightbox.is-open').forEach(function(m){ m.classList.remove('is-open'); }); document.body.style.overflow = ''; } });
+    // Scroll reveal
     (function(){
       var els = document.querySelectorAll('.reveal');
       if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(function(el){ el.classList.add('in'); }); return; }
       var io = new IntersectionObserver(function(entries){ entries.forEach(function(en){ if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } }); }, { threshold: 0.12 });
       els.forEach(function(el){ io.observe(el); });
     })();
+    // Active nav highlight
     (function(){
       var links = document.querySelectorAll('.nav-link'); if (!links.length || !('IntersectionObserver' in window)) return;
       var map = {}; links.forEach(function(l){ map[l.getAttribute('data-target')] = l; });
       var io = new IntersectionObserver(function(entries){ entries.forEach(function(en){ var l = map[en.target.id]; if (l && en.isIntersecting){ links.forEach(function(x){ x.classList.remove('active'); }); l.classList.add('active'); } }); }, { rootMargin: '-45% 0px -50% 0px' });
       Object.keys(map).forEach(function(id){ var s = document.getElementById(id); if (s) io.observe(s); });
     })();
+    // Contact form
+    (function(){
+      var form = document.getElementById('contactForm'); if (!form) return;
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        var btn = document.getElementById('cfSubmit'), msg = document.getElementById('cfMsg'), fd = new FormData(this);
+        btn.disabled = true; btn.textContent = 'Sending…'; msg.className = 'cf-msg'; msg.textContent = '';
+        try {
+          var res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+            ownerEmail: "hello@jordanwilliams.com", portfolioName: "Jordan Williams",
+            senderName: fd.get('senderName'), senderEmail: fd.get('senderEmail'), message: fd.get('message'), company: fd.get('company')
+          }) });
+          var data = await res.json();
+          if (data.success) { msg.textContent = 'Message sent — I\'ll be in touch soon.'; msg.className = 'cf-msg success'; this.reset(); }
+          else { msg.textContent = data.error || 'Something went wrong. Please try again.'; msg.className = 'cf-msg error'; }
+        } catch { msg.textContent = 'Something went wrong. Please try again.'; msg.className = 'cf-msg error'; }
+        finally { btn.disabled = false; btn.textContent = 'Send message'; }
+      });
+    })();
   </script>
+  <script type="application/json" id="portfolio-data">{"formData":{"fullName":"Jordan Williams","role":"Product Designer & Strategist","headline":"Product Designer & Strategist","bio":"I help teams turn complex problems into clear, intuitive products. Ten years across fintech, healthtech, and SaaS — from first sketch to shipped feature.","profileImage":"","email":"hello@jordanwilliams.com","location":"Lisbon, Portugal","primaryColor":"#475569","accentColor":"#1e293b","statement":"Design that earns its keep.","availability":"true","availabilityText":"Available for new projects","resumeUrl":"https://example.com/cv.pdf","layout":"stacked","social1":"https://linkedin.com/in/jordanwilliams","social2":"https://twitter.com/jordanwilliams","social3":"https://dribbble.com/jordanwilliams","linkedin":"https://linkedin.com/in/jordanwilliams","twitter":"https://twitter.com/jordanwilliams","skill1":"UX Strategy","skill2":"Prototyping","skill3":"Design Systems","skill4":"User Research","skill5":"Figma","skill6":"Design Ops","stat1Value":"10+","stat1Label":"Years experience","stat2Value":"40+","stat2Label":"Products shipped","stat3Value":"200k","stat3Label":"Users reached","clients":"Finto, Healthly, Acme, Northwind, Globex","service1Title":"Product Design","service1Desc":"End-to-end design from research to shipped UI.","service2Title":"Design Systems","service2Desc":"Scalable component libraries your team can build on.","service3Title":"UX Strategy","service3Desc":"Turning business goals into clear product direction.","experience1Role":"Lead Product Designer","experience1Company":"Finto","experience1Period":"2021 — Present","experience1Description":"Led design for a payments platform used by 200k+ businesses.","experience2Role":"Senior Designer","experience2Company":"Healthly","experience2Period":"2018 — 2021","experience2Description":"Shipped the patient onboarding flow that lifted activation 34%.","sample1Title":"Checkout redesign","sample1Desc":"Rebuilt the checkout flow and lifted conversion 18%.","sample2Title":"Design system","sample2Desc":"A 60-component library adopted across 4 product teams.","sample3Title":"Mobile onboarding","sample3Desc":"A guided first-run that cut drop-off in half.","case1Title":"Checkout redesign","case1Desc":"Rebuilt the checkout flow and lifted conversion 18%.","case1Client":"Finto","case2Title":"Design system","case2Desc":"A 60-component library adopted across 4 product teams.","case2Client":"Healthly","testimonial1Quote":"Jordan is the rare designer who thinks like a strategist. A joy to work with.","testimonial1Name":"Sam Carter","testimonial1Role":"VP Product, Finto","testimonial2Quote":"Shipped faster and cleaner than any designer we’ve worked with.","testimonial2Name":"Priya Shah","testimonial2Role":"CEO, Healthly","edu1Title":"BFA, Graphic Design","edu1School":"Rhode Island School of Design","edu1Year":"2014","edu2Title":"Interaction Design Certificate","edu2School":"IDEO U","edu2Year":"2017"},"sections":[{"id":"hero","enabled":true,"order":0},{"id":"stats","enabled":true,"order":1},{"id":"trusted-by","enabled":true,"order":2},{"id":"about","enabled":true,"order":3},{"id":"services","enabled":true,"order":4},{"id":"skills","enabled":true,"order":5},{"id":"case-studies","enabled":true,"order":6},{"id":"gallery","enabled":true,"order":7},{"id":"testimonials","enabled":true,"order":8},{"id":"contact","enabled":true,"order":9},{"id":"footer","enabled":true,"order":10}]}</script>
 </body>
 </html>
