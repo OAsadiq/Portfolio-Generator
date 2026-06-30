@@ -99,6 +99,7 @@ export default async function handler(req, res) {
   // ── Save the lead to the dashboard inbox ──
   // Resolve the owning user/portfolio from the owner email. Each user has at
   // most one portfolio, so the owner email maps to a single record.
+  let ownerIsPro = false;
   try {
     const { data: portfolio } = await supabase
       .from('portfolios')
@@ -107,6 +108,18 @@ export default async function handler(req, res) {
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
+
+    // Is the owner on Pro? (Free owners can't see the dashboard inbox — we upsell them.)
+    if (portfolio?.user_id) {
+      const { data: subs } = await supabase
+        .from('subscriptions')
+        .select('status, plan')
+        .eq('user_id', portfolio.user_id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      const sub = subs && subs[0];
+      ownerIsPro = sub?.status === 'active' && sub?.plan === 'pro';
+    }
 
     await supabase.from('leads').insert({
       portfolio_id: portfolio?.id || null,
@@ -145,8 +158,12 @@ export default async function handler(req, res) {
         <div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:24px;">
           <p style="margin:0;color:#0f172a;line-height:1.7;white-space:pre-wrap;">${escapeHtml(message)}</p>
         </div>
-        <a href="https://porfilr.com" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">View your Porfilr portfolio</a>
+        <a href="https://porfilr.com${ownerIsPro ? '/dashboard' : ''}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">${ownerIsPro ? 'Open your messages' : 'View your Porfilr portfolio'}</a>
       </div>
+      ${ownerIsPro ? '' : `
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:18px 20px;margin-top:16px;">
+        <p style="margin:0;color:#9a3412;font-size:14px;line-height:1.6;"><strong>Tip:</strong> Upgrade to Pro to see every message in one dashboard inbox (plus a custom domain &amp; analytics) — a one-time $19. <a href="https://porfilr.com/pricing" style="color:#ea580c;font-weight:600;">See Pro →</a></p>
+      </div>`}
       <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;">Sent via <a href="https://porfilr.com" style="color:#2563eb;">Porfilr</a></p>
     </div>
   `;
