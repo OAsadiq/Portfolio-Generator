@@ -15,10 +15,6 @@ const Footer = () => {
             <p className="text-stone-500 text-sm">Your work, finally visible.</p>
           </div>
 
-          <a href="https://fazier.com/launches/porfilr.com" target="_blank">
-            <img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=dark" width={20} alt="Fazier badge" />
-          </a>
-
           {/* Links */}
           <div className="flex flex-wrap gap-6 text-sm">
             <Link to="/" className="hover:text-white transition">Home</Link>
