@@ -15,13 +15,13 @@ function sessionId(): string {
   }
 }
 
-// Capture the campaign source ONCE per session, on first landing, and persist it.
-// This way a signup/publish that happens minutes later still carries the utm/referrer
-// that first brought the visitor in (e.g. the X ad), so we can attribute conversions.
-function attribution(): Record<string, any> {
+// Capture campaign source (utm_* + external referrer) EAGERLY on first page load,
+// before the URL params are lost to navigation. Call this once at app startup.
+// First meaningful touch wins — we only persist when there's actual attribution data,
+// so a later ad visit can still be captured if the first visit was a bare URL.
+export function captureAttribution(): void {
   try {
-    const stored = localStorage.getItem('porfilr_attr');
-    if (stored) return JSON.parse(stored);
+    if (localStorage.getItem('porfilr_attr')) return; // already captured — first touch wins
 
     const params = new URLSearchParams(window.location.search);
     const attr: Record<string, any> = {};
@@ -29,13 +29,19 @@ function attribution(): Record<string, any> {
       const v = params.get(k);
       if (v) attr[k] = v;
     }
-    // Only record a referrer if it's external (not our own site).
     const ref = document.referrer;
     if (ref && !ref.includes(window.location.hostname)) attr.referrer = ref;
 
-    // Persist even if empty, so we capture the FIRST touch and don't overwrite it later.
-    localStorage.setItem('porfilr_attr', JSON.stringify(attr));
-    return attr;
+    // Only store if we actually found a source, so a bare visit doesn't lock in "{}"
+    // and block a later ad click from being captured.
+    if (Object.keys(attr).length) localStorage.setItem('porfilr_attr', JSON.stringify(attr));
+  } catch { /* ignore */ }
+}
+
+function attribution(): Record<string, any> {
+  try {
+    const stored = localStorage.getItem('porfilr_attr');
+    return stored ? JSON.parse(stored) : {};
   } catch {
     return {};
   }
