@@ -63,12 +63,23 @@ async function buildEmail(payload) {
 
   // ── New portfolio published → admin notice + "you're live" email to the user ──
   if (table === 'portfolios' && type === 'INSERT') {
+    // The portfolio's user_email is the CONTACT email the user typed (can be a typo).
+    // Look up their real account/login email so the admin notice shows both.
+    let accountEmail = null;
+    if (record.user_id) {
+      try {
+        const { data } = await supabase.auth.admin.getUserById(record.user_id);
+        accountEmail = data?.user?.email || null;
+      } catch { /* fall through */ }
+    }
+
     const messages = [{
       to: ADMIN_EMAIL,
       subject: `🚀 New portfolio: ${record.user_name || record.slug}`,
       html: shell('🚀 New portfolio published', 'A user just published a portfolio.', [
         ['Name', record.user_name],
-        ['Email', record.user_email],
+        ['Account email', accountEmail],
+        ['Contact email', record.user_email],
         ['Template', record.template_id],
         ['Live URL', record.slug ? `porfilr.com/p/${record.slug}` : null],
       ], '#ea580c'),

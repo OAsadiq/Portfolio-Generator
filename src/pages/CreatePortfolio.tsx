@@ -7,6 +7,7 @@ import { supabase } from "../lib/supabase";
 import PortfolioVisualBuilder from "../components/PortfolioVisualBuilder.tsx";
 import SharePortfolio from "../components/SharePortfolio";
 import { track } from "../lib/track";
+import { suggestEmailFix } from "../lib/emailTypo";
 
 interface TemplateField {
   name: string;
@@ -414,6 +415,19 @@ const CreatePortfolio = () => {
                           placeholder={field.placeholder}
                           className="w-full bg-stone-50 border border-stone-200 text-stone-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 placeholder:text-stone-300 transition"
                         />
+                      )}
+                      {(field.type === "email" || field.name === "email") && suggestEmailFix(String(formData[field.name] || "")) && (
+                        <p className="text-xs text-orange-600 mt-1.5">
+                          Did you mean{" "}
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, [field.name]: suggestEmailFix(String(formData[field.name] || "")) }))}
+                            className="underline font-semibold"
+                          >
+                            {suggestEmailFix(String(formData[field.name] || ""))}
+                          </button>
+                          ?
+                        </p>
                       )}
                     </div>
                   ))}

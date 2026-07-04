@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { User, Globe, Mail, Sparkles, BookOpen, MessageSquare, FileText, Plus, Trash2, Edit2, Check, Upload, TrendingUp, Briefcase, Building2, Image as ImageIcon, GraduationCap } from 'lucide-react';
 import { SKILL_OPTIONS, getTemplateConfig } from '../builder.config';
 import { SocialIcon } from '../preview/socialIcons';
+import { suggestEmailFix } from '../../../lib/emailTypo';
 
 interface Props {
   formData: Record<string, string>;
@@ -174,6 +175,14 @@ export default function ContentTab({
           <p className={SECTION_HDR}><Mail className="w-3.5 h-3.5" />Contact</p>
           <label className={LABEL}>Email Address</label>
           <input type="email" value={formData.email || ''} onChange={e => onChange('email', e.target.value)} className={INPUT} placeholder="your@email.com" />
+          {suggestEmailFix(formData.email || '') && (
+            <p className="text-xs text-orange-600 mt-1.5">
+              Did you mean{' '}
+              <button type="button" onClick={() => onChange('email', suggestEmailFix(formData.email || '') as string)} className="underline font-semibold">
+                {suggestEmailFix(formData.email || '')}
+              </button>?
+            </p>
+          )}
         </div>
       )}
 

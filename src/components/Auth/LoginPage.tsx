@@ -179,12 +179,12 @@ const LoginPage = () => {
               <Logo size={52} showWordmark={false} />
             </div>
             <h1 className="text-2xl font-bold text-stone-900 mb-1">
-              {otpSent ? (isNewUser ? 'Check Your Email' : 'Welcome Back') : 'Welcome to Porfilr'}
+              {otpSent ? (isNewUser ? 'Check Your Email' : 'Welcome Back') : 'Build your portfolio, free'}
             </h1>
             <p className="text-stone-500 text-sm">
               {otpSent
                 ? (isNewUser ? 'Verify your email to complete signup' : `We sent a code to ${email}`)
-                : 'Sign in or create an account'
+                : 'Create your account to start — no card, live in ~10 minutes.'
               }
             </p>
           </div>
