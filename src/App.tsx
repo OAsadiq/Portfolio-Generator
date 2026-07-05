@@ -41,11 +41,9 @@ function App() {
             <Route path="/auth/callback" element={<AuthCallback />} />
             
             {/* Protected routes */}
-            <Route path="/templates" element={
-              <ProtectedRoute>
-                <TemplateSelection />
-              </ProtectedRoute>
-            } />
+            {/* Public so visitors can browse/preview templates before signing up.
+                The "Use this" action gates on login (via /create being protected). */}
+            <Route path="/templates" element={<TemplateSelection />} />
             <Route path="/create/:templateId" element={
               <ProtectedRoute>
                 <CreatePortfolio />

@@ -224,11 +224,9 @@ const TemplateSelection = () => {
       try {
         setLoading(true);
         setError(null);
-        const token = session?.access_token;
-        if (!token) { setError("Please log in to view templates"); setLoading(false); return; }
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        });
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`, { headers });
         if (!res.ok) { const d = await res.json(); throw new Error(d.error || `Failed (${res.status})`); }
         const data = await res.json();
         const list = data.templates || data;
@@ -245,7 +243,7 @@ const TemplateSelection = () => {
   }, [user, checkPortfolio, checkSubscription, session]);
 
   const submitWaitlist = async () => {
-    if (!user) return;
+    if (!user) { navigate('/login', { state: { from: { pathname: '/templates' } } }); return; }
     setWaitlistStatus('saving');
     try {
       const { error } = await supabase.from('kit_waitlist').insert({
@@ -271,6 +269,14 @@ const TemplateSelection = () => {
   const canSelectTemplate = (id: string) => isPro || id === "minimal-template";
 
   const handleSelect = async (templateId: string) => {
+    // Logged-out visitors: remember the choice, send to login, then continue to /create.
+    if (!user) {
+      const selected = templates.find(t => t.id === templateId);
+      if (selected) localStorage.setItem("selectedTemplate", JSON.stringify(selected));
+      track('template_selected', { templateId, loggedOut: true });
+      navigate('/login', { state: { from: { pathname: `/create/${templateId}` } } });
+      return;
+    }
     if (!canSelectTemplate(templateId)) {
       setAttemptedTemplate(templates.find(t => t.id === templateId) || null);
       setShowUpgradeModal(true);
@@ -327,8 +333,12 @@ const TemplateSelection = () => {
             ← Back to Home
           </Link>
         </div>
-        {user && (
+        {user ? (
           <span className="text-stone-400 text-sm">{user.email}</span>
+        ) : (
+          <Link to="/login" className="bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+            Sign in
+          </Link>
         )}
       </div>
 
@@ -368,7 +378,7 @@ const TemplateSelection = () => {
         </div>
 
         {/* Refer & earn — free users earn their way to Pro (the dashboard is Pro-only). */}
-        {!isPro && <ReferralCard />}
+        {user && !isPro && <ReferralCard />}
 
         {/* Existing portfolio block */}
         {hasPortfolio && existingPortfolio && (
