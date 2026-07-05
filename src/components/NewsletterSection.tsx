@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef } from "react";
 import { supabase } from "../lib/supabase";
+import { track } from "../lib/track";
 
 const DISPOSABLE_DOMAINS = ["tempmail.com","guerrillamail.com","10minutemail.com","throwaway.email","mailinator.com","yopmail.com","temp-mail.org","getnada.com","maildrop.cc","trashmail.com"];
 
@@ -52,6 +53,7 @@ const NewsletterSection = () => {
       } else {
         setSubmitMessage("Subscribed! You'll hear from us soon.");
         setFormData({ firstName: "", email: "" });
+        track("newsletter_subscribed", { source: "website" });
       }
     } catch (err: any) {
       setSubmitMessage(err.message || "Please try again later.");

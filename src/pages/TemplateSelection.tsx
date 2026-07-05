@@ -254,6 +254,11 @@ const TemplateSelection = () => {
         kit: waitlistKit,
       });
       if (error) throw error;
+      // Also add them to the marketing list (waitlist = an opt-in). Ignore duplicates.
+      if (user.email) {
+        await supabase.from('newsletter_subscribers')
+          .insert({ email: user.email.toLowerCase().trim(), source: 'kit_waitlist', is_active: true });
+      }
       track('waitlist_joined', { kit: waitlistKit });
       setWaitlistStatus('done');
     } catch (err) {
