@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Undo, Redo, Palette, Type, Layout, Settings, Monitor, Tablet, Smartphone, AlertCircle, X, Check } from 'lucide-react';
 import { useBuilderState } from './useBuilderState';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from '../../lib/supabase';
 import { track } from '../../lib/track';
 import DesignTab from './tabs/DesignTab';
@@ -38,6 +38,8 @@ interface Props {
 
 export default function PortfolioBuilder({ onCancel }: Props) {
   const state = useBuilderState(onCancel);
+  const navigate = useNavigate();
+  const goBack = () => { if (onCancel) onCancel(); else navigate('/'); };
   const [remEmail, setRemEmail] = useState('');
   const [remStatus, setRemStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
 
@@ -53,6 +55,8 @@ export default function PortfolioBuilder({ onCancel }: Props) {
         template_id: state.selectedTemplate,
       });
       if (error) throw error;
+      // Also add them to the marketing list (they gave us their email). Ignore duplicates.
+      await supabase.from('newsletter_subscribers').insert({ email, source: 'desktop_reminder', is_active: true });
       setRemStatus('done');
       track('desktop_link_requested', { template: state.selectedTemplate });
     } catch {
@@ -87,7 +91,7 @@ export default function PortfolioBuilder({ onCancel }: Props) {
                 <Check className="w-6 h-6 text-emerald-600" />
               </div>
               <p className="text-stone-600 text-sm mb-6 leading-relaxed">Link sent! Check your email and open it on a laptop or desktop to finish building.</p>
-              <button onClick={onCancel} className="w-full border border-stone-200 hover:bg-stone-50 text-stone-700 px-6 py-3 rounded-xl font-medium transition text-sm">
+              <button onClick={goBack} className="w-full border border-stone-200 hover:bg-stone-50 text-stone-700 px-6 py-3 rounded-xl font-medium transition text-sm">
                 Go Back
               </button>
             </>
@@ -106,7 +110,7 @@ export default function PortfolioBuilder({ onCancel }: Props) {
               <button onClick={sendDesktopLink} disabled={remStatus === 'saving'} className="w-full bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-xl font-semibold transition text-sm disabled:opacity-50 mb-2">
                 {remStatus === 'saving' ? 'Sending…' : 'Email me the link'}
               </button>
-              <button onClick={onCancel} className="w-full text-stone-400 hover:text-stone-600 px-6 py-2 rounded-xl font-medium transition text-sm">
+              <button onClick={goBack} className="w-full text-stone-400 hover:text-stone-600 px-6 py-2 rounded-xl font-medium transition text-sm">
                 Go Back
               </button>
             </>

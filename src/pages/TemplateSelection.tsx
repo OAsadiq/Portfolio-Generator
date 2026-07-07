@@ -321,22 +321,23 @@ const TemplateSelection = () => {
   return (
     <div className="min-h-screen bg-stone-50">
 
-      {!loading && templates.length > 0 && (
-        <TutorialTour steps={TEMPLATE_TOUR} storageKey={`porfilr_tour_templates_v1_${user?.id || 'anon'}`} />
+      {!loading && templates.length > 0 && user && (
+        <TutorialTour steps={TEMPLATE_TOUR} storageKey={`porfilr_tour_templates_v1_${user.id}`} />
       )}
 
       {/* Top bar */}
-      <div className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link to="/"><Logo size={28} /></Link>
-          <Link to="/" className="text-stone-500 hover:text-stone-800 text-sm transition">
-            ← Back to Home
+      <div className="bg-white border-b border-stone-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+          <Link to="/" className="flex-shrink-0"><Logo size={28} /></Link>
+          <Link to="/" className="text-stone-500 hover:text-stone-800 text-sm transition whitespace-nowrap">
+            <span className="hidden sm:inline">← Back to Home</span>
+            <span className="sm:hidden">← Home</span>
           </Link>
         </div>
         {user ? (
-          <span className="text-stone-400 text-sm">{user.email}</span>
+          <span className="text-stone-400 text-sm truncate hidden sm:inline">{user.email}</span>
         ) : (
-          <Link to="/login" className="bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+          <Link to="/login" className="flex-shrink-0 bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
             Sign in
           </Link>
         )}

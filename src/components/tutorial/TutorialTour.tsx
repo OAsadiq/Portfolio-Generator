@@ -32,10 +32,12 @@ export default function TutorialTour({ steps, storageKey, accent = '#ea580c', sh
 
   const step = steps[index];
 
-  // Auto-run once on first visit.
+  // Auto-run exactly once, on desktop only.
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (window.innerWidth < 768) return; // skip on mobile — the spotlight is janky on small screens
     if (!localStorage.getItem(storageKey)) {
+      localStorage.setItem(storageKey, '1'); // mark seen immediately so it never re-shows, even if not finished
       const t = setTimeout(() => { setIndex(0); setOpen(true); }, 600);
       return () => clearTimeout(t);
     }
@@ -103,7 +105,7 @@ export default function TutorialTour({ steps, storageKey, accent = '#ea580c', sh
       {showLauncher && (
         <button
           onClick={start}
-          className="fixed bottom-5 right-5 z-[9998] w-11 h-11 rounded-full bg-white border border-stone-200 shadow-lg flex items-center justify-center text-stone-500 hover:text-stone-900 hover:border-stone-300 transition"
+          className="fixed bottom-5 right-5 z-[9998] w-11 h-11 rounded-full bg-white border border-stone-200 shadow-lg hidden md:flex items-center justify-center text-stone-500 hover:text-stone-900 hover:border-stone-300 transition"
           title="Show tutorial"
           aria-label="Show tutorial"
         >
