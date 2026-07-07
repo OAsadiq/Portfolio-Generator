@@ -144,6 +144,9 @@ const Navbar = () => {
               <Link to="/dashboard" className="block text-center border border-stone-200 py-2.5 rounded-lg text-stone-700 text-sm font-medium hover:bg-stone-50 transition" onClick={() => setMobileOpen(false)}>
                 Dashboard
               </Link>
+              <Link to="/templates" className="block text-center border border-stone-200 py-2.5 rounded-lg text-stone-700 text-sm font-medium hover:bg-stone-50 transition" onClick={() => setMobileOpen(false)}>
+                Templates
+              </Link>
               <button onClick={() => { handleSignOut(); setMobileOpen(false); }} className="w-full text-center bg-red-50 border border-red-200 py-2.5 rounded-lg text-red-500 text-sm font-medium transition">
                 Sign Out
               </button>
