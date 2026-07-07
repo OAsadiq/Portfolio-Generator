@@ -1,6 +1,9 @@
-import { Undo, Redo, Palette, Type, Layout, Settings, Monitor, Tablet, Smartphone, AlertCircle, X } from 'lucide-react';
+import { useState } from 'react';
+import { Undo, Redo, Palette, Type, Layout, Settings, Monitor, Tablet, Smartphone, AlertCircle, X, Check } from 'lucide-react';
 import { useBuilderState } from './useBuilderState';
 import { Link } from "react-router-dom";
+import { supabase } from '../../lib/supabase';
+import { track } from '../../lib/track';
 import DesignTab from './tabs/DesignTab';
 import ContentTab from './tabs/ContentTab';
 import LayoutTab from './tabs/LayoutTab';
@@ -35,6 +38,27 @@ interface Props {
 
 export default function PortfolioBuilder({ onCancel }: Props) {
   const state = useBuilderState(onCancel);
+  const [remEmail, setRemEmail] = useState('');
+  const [remStatus, setRemStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
+
+  const sendDesktopLink = async () => {
+    const email = remEmail.toLowerCase().trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setRemStatus('error'); return; }
+    setRemStatus('saving');
+    try {
+      // A DB webhook on this table fires the "finish on desktop" email (via /api/notify/domain).
+      const { error } = await supabase.from('desktop_reminders').insert({
+        email,
+        resume_url: typeof window !== 'undefined' ? window.location.href : null,
+        template_id: state.selectedTemplate,
+      });
+      if (error) throw error;
+      setRemStatus('done');
+      track('desktop_link_requested', { template: state.selectedTemplate });
+    } catch {
+      setRemStatus('error');
+    }
+  };
 
   // ── Loading ──────────────────────────────────────────
   if (state.loading) {
@@ -56,11 +80,37 @@ export default function PortfolioBuilder({ onCancel }: Props) {
           <div className="w-14 h-14 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-5">
             <Monitor className="w-7 h-7 text-orange-600" />
           </div>
-          <h2 className="text-xl font-bold text-stone-900 mb-2">Desktop required</h2>
-          <p className="text-stone-500 text-sm mb-6 leading-relaxed">The Visual Portfolio Builder works best on larger screens. Please switch to a desktop or laptop.</p>
-          <button onClick={onCancel} className="w-full bg-stone-900 hover:bg-stone-700 text-white px-6 py-3 rounded-xl font-semibold transition text-sm">
-            Go Back
-          </button>
+          <h2 className="text-xl font-bold text-stone-900 mb-2">Best built on desktop</h2>
+          {remStatus === 'done' ? (
+            <>
+              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto my-4">
+                <Check className="w-6 h-6 text-emerald-600" />
+              </div>
+              <p className="text-stone-600 text-sm mb-6 leading-relaxed">Link sent! Check your email and open it on a laptop or desktop to finish building.</p>
+              <button onClick={onCancel} className="w-full border border-stone-200 hover:bg-stone-50 text-stone-700 px-6 py-3 rounded-xl font-medium transition text-sm">
+                Go Back
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-stone-500 text-sm mb-5 leading-relaxed">This template's editor needs a bigger screen. Pop in your email and we'll send you a link to finish on desktop — nothing's lost.</p>
+              <input
+                type="email"
+                value={remEmail}
+                onChange={(e) => { setRemEmail(e.target.value); if (remStatus === 'error') setRemStatus('idle'); }}
+                placeholder="you@example.com"
+                disabled={remStatus === 'saving'}
+                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 transition mb-2"
+              />
+              {remStatus === 'error' && <p className="text-red-500 text-xs mb-2">Enter a valid email and try again.</p>}
+              <button onClick={sendDesktopLink} disabled={remStatus === 'saving'} className="w-full bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-xl font-semibold transition text-sm disabled:opacity-50 mb-2">
+                {remStatus === 'saving' ? 'Sending…' : 'Email me the link'}
+              </button>
+              <button onClick={onCancel} className="w-full text-stone-400 hover:text-stone-600 px-6 py-2 rounded-xl font-medium transition text-sm">
+                Go Back
+              </button>
+            </>
+          )}
         </div>
       </div>
     );

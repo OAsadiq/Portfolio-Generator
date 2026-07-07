@@ -95,6 +95,15 @@ async function buildEmail(payload) {
     return messages;
   }
 
+  // ── Mobile visitor asked for a "finish on desktop" link → email it to them ──
+  if (table === 'desktop_reminders' && type === 'INSERT' && record.email) {
+    return [{
+      to: record.email,
+      subject: 'Finish building your Porfilr portfolio on desktop',
+      html: desktopLinkEmail(record.resume_url),
+    }];
+  }
+
   // ── New Pro purchase / referral-unlock ──
   if (table === 'subscriptions' && type === 'INSERT' && record.plan === 'pro' && record.status === 'active') {
     return [{
@@ -179,6 +188,25 @@ function portfolioLiveEmail(name, slug) {
         <p style="color:#64748b;font-size:14px;line-height:1.7;margin:20px 0 0;">— Sadiq, founder of Porfilr</p>
       </div>
       <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;">Sent because you published a portfolio at porfilr.com</p>
+    </div>`;
+}
+
+// ── "Finish on desktop" link for a mobile visitor who hit the Pro builder ──
+function desktopLinkEmail(resumeUrl) {
+  const url = resumeUrl && /^https?:\/\//.test(resumeUrl) ? resumeUrl : 'https://porfilr.com/templates';
+  return `
+    <div style="font-family:Inter,sans-serif;max-width:600px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
+      <div style="background:#fff;border-radius:12px;padding:36px;border:1px solid #e2e8f0;">
+        <p style="font-size:22px;font-weight:800;color:#0f172a;margin:0 0 4px;">Porfil<span style="color:#ea580c;">r</span></p>
+        <h1 style="font-size:24px;color:#0f172a;margin:18px 0 10px;">Pick up where you left off 💻</h1>
+        <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 20px;">
+          You started building on your phone — the editor for this template works best on a bigger screen. Open this link on a laptop or desktop and finish your portfolio in a few minutes:
+        </p>
+        <a href="${url}" style="display:inline-block;background:#ea580c;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">Continue on desktop →</a>
+        <p style="color:#64748b;font-size:13px;line-height:1.7;margin:24px 0 0;">Tip: bookmark porfilr.com so it's easy to find when you're back at your computer.</p>
+        <p style="color:#64748b;font-size:14px;line-height:1.7;margin:20px 0 0;">— Sadiq, founder of Porfilr</p>
+      </div>
+      <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;">You asked us to email you this link from porfilr.com</p>
     </div>`;
 }
 
