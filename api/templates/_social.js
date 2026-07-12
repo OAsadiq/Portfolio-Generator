@@ -52,11 +52,29 @@ export function socialIconSvg(url, size = 18) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor">${BRAND[key] || STROKE.website}</svg>`;
 }
 
-// Collects every social URL the user has set — the new generic list (social1..social10)
-// plus the legacy named fields, deduped, for backward compatibility.
+// Validates + normalizes a social value. Returns a clickable URL, or null if the
+// value isn't a real link (e.g. "nil", "N/A", a bare word). Also adds a protocol
+// so bare domains ("linkedin.com/in/x") don't become broken relative links.
+const JUNK = new Set(['nil', 'n/a', 'na', 'none', 'null', 'undefined', '-', '—', '.', 'no', 'nan']);
+export function cleanUrl(v) {
+  const t = String(v || '').trim();
+  if (!t) return null;
+  const low = t.toLowerCase();
+  if (JUNK.has(low)) return null;
+  if (low.startsWith('mailto:')) return t;
+  // bare email → mailto:
+  if (t.includes('@') && !t.includes('/') && !t.includes(' ') && t.includes('.')) return 'mailto:' + t;
+  // must look like a URL: a dot (domain) and no spaces
+  if (t.includes(' ') || !t.includes('.')) return null;
+  if (low.startsWith('http://') || low.startsWith('https://')) return t;
+  return 'https://' + t;
+}
+
+// Collects every valid social URL the user has set — the new generic list
+// (social1..social10) plus the legacy named fields, cleaned, normalized, deduped.
 export function collectSocials(data) {
   const urls = [];
-  const push = v => { const t = String(v || '').trim(); if (t) urls.push(t); };
+  const push = v => { const c = cleanUrl(v); if (c) urls.push(c); };
   push(data.linkedin); push(data.twitter); push(data.github); push(data.instagram); push(data.website);
   for (let i = 1; i <= 10; i++) push(data[`social${i}`]);
   return [...new Set(urls)];
