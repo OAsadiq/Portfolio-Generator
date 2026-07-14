@@ -72,8 +72,10 @@ const data = {
 
   // trader
   headline: 'Forex Trader • FTMO Funded',
+  propFirm: 'FTMO Funded • $200K',
   returnPct: '+142%', winRate: '68%', profitFactor: '2.4', maxDrawdown: '8.2%', tradingSince: '3 years',
   verificationUrl: 'https://www.myfxbook.com/members/jordan',
+  proofImage: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260"><rect width="900" height="260" fill="#141418"/><text x="30" y="50" fill="#9a9aa5" font-family="monospace" font-size="15">Account #482910 — Verified Statement</text><text x="30" y="95" fill="#f5f5f7" font-family="monospace" font-size="15">Closed P/L ............ +$28,420.00</text><text x="30" y="130" fill="#22c55e" font-family="monospace" font-size="15">Return ............... +142.0%</text><text x="30" y="165" fill="#f5f5f7" font-family="monospace" font-size="15">Win rate ............. 68%</text><text x="30" y="200" fill="#f87171" font-family="monospace" font-size="15">Max drawdown ......... 8.2%</text></svg>'),
   markets: 'Forex, Indices, Crypto',
   strategy: 'Swing trading major forex pairs and indices on the 4H timeframe. My edge is disciplined trend continuation setups with strict risk-defined entries — no averaging down, no revenge trading.',
   riskProfile: 'Max 1% risk per trade, hard stop on every position, and a 5% daily loss limit. Capital preservation comes before returns — that consistency is what keeps me funded.',
