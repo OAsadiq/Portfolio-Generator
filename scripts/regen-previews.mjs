@@ -2,10 +2,13 @@
 // from the live templates, so the marketing previews always match the real
 // templates (sections, contact form, etc.).
 //   Run: node scripts/regen-previews.mjs
-import { writeFileSync } from 'fs';
+import { writeFileSync, mkdirSync } from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 import minimal from '../api/templates/minimal-template/_index.js';
 import modern from '../api/templates/modern-writer-template/_index.js';
 import professional from '../api/templates/professional-writer-template/_index.js';
+import trader from '../api/templates/trader-template/_index.js';
 
 // Superset of fields — each template reads the ones it uses and ignores the rest.
 const data = {
@@ -66,17 +69,27 @@ const data = {
   // education (professional)
   edu1Title: 'BFA, Graphic Design', edu1School: 'Rhode Island School of Design', edu1Year: '2014',
   edu2Title: 'Interaction Design Certificate', edu2School: 'IDEO U', edu2Year: '2017',
+
+  // trader
+  headline: 'Forex Trader • FTMO Funded',
+  returnPct: '+142%', winRate: '68%', profitFactor: '2.4', maxDrawdown: '8.2%', tradingSince: '3 years',
+  verificationUrl: 'https://www.myfxbook.com/members/jordan',
+  markets: 'Forex, Indices, Crypto',
+  strategy: 'Swing trading major forex pairs and indices on the 4H timeframe. My edge is disciplined trend continuation setups with strict risk-defined entries — no averaging down, no revenge trading.',
+  riskProfile: 'Max 1% risk per trade, hard stop on every position, and a 5% daily loss limit. Capital preservation comes before returns — that consistency is what keeps me funded.',
 };
 
 const templates = [
   ['minimal-template', minimal],
   ['modern-writer-template', modern],
   ['professional-writer-template', professional],
+  ['trader-template', trader],
 ];
 
 for (const [id, tpl] of templates) {
   const html = tpl.generateHTML(data, []);
-  const dest = new URL(`../public/templates/${id}/preview.html`, import.meta.url);
+  const dest = fileURLToPath(new URL(`../public/templates/${id}/preview.html`, import.meta.url));
+  mkdirSync(dirname(dest), { recursive: true });
   writeFileSync(dest, html, 'utf8');
   console.log(`${id}: ${html.length} chars · contact form: ${html.includes('id="contactForm"')}`);
 }
