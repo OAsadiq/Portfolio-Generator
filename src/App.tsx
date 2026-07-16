@@ -11,6 +11,7 @@ import Home from './pages/Home';
 import Success from './pages/Success';
 import ProDashboard from './pages/ProDashboard';
 import EditPortfolio from './pages/EditPortfolio';
+import TradeJournal from './pages/TradeJournal';
 import PortfolioVisualBuilder from './components/PortfolioVisualBuilder';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import PricingPage from './pages/Pricing';
@@ -67,6 +68,11 @@ function App() {
             <Route path="/builder/:slug" element={
               <ProtectedRoute>
                 <PortfolioVisualBuilder />
+              </ProtectedRoute>
+            } />
+            <Route path="/journal/:slug" element={
+              <ProtectedRoute>
+                <TradeJournal />
               </ProtectedRoute>
             } />
 

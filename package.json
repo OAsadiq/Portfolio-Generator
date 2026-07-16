@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "node --test api/_lib/*.test.js",
     "type-check": "tsc --noEmit",
     "build": "vite build",
     "lint": "eslint .",

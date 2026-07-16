@@ -20,7 +20,13 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* The trade-journal metric maths is shared: the server computes it for published
+       pages, and the journal UI computes the same preview locally. It lives in
+       api/_lib/metrics.js (tested by npm test) and is imported by both, so the preview
+       can never drift from the numbers a trader actually publishes. */
+    "allowJs": true
   },
-  "include": ["src"]
+  "include": ["src", "api/_lib/metrics.js"]
 }
