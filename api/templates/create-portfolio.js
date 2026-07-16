@@ -152,7 +152,9 @@ export default async function handler(req, res) {
 
         const slug = await generateUniqueSlug(userName, user.id);
 
-        const finalHTML = template.generateHTML(formData, sections);
+        // A brand-new portfolio has no journal yet (journal_enabled defaults to false),
+        // so live metrics stay off until the trader turns them on and republishes.
+        const finalHTML = template.generateHTML(formData, sections, { slug, journalEnabled: false, metricsCache: null });
 
         const filePath = `portfolios/${slug}.html`;
 

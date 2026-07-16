@@ -176,11 +176,22 @@ A **Trades** tab in the builder for trader-template portfolios:
 3. ~~CRUD routes~~ — **dropped**, see §4. Builder talks to Supabase directly under RLS.
 4. ~~`GET /api/track-record`~~ — **done** → `api/track-record.js`
    (syntax/import verified only; not yet exercised against a live DB or deploy)
-5. **NEXT:** Builder Trades tab (log form + table + live metrics preview)
-6. Wire the template's live metrics section + baked-in fallback
-7. SVG equity curve (replaces the uploaded chart image)
+5. ~~Journal UI~~ — **done** → `src/pages/TradeJournal.tsx` at `/journal/:slug`, linked from
+   the dashboard. Not a builder tab: trades need a saved portfolio, and traders log far
+   more often than they edit copy.
+6. ~~Live metrics on the page + baked-in fallback~~ — **done**. `generateHTML` takes a
+   third arg `{ slug, journalEnabled, metricsCache }`; publish bakes the last-known
+   numbers in and the page refreshes them from `/api/track-record` at view time.
+   Toggling the journal republishes automatically (the script is baked at publish, so
+   the DB column alone would change nothing).
+   Also done: **"Updated X ago"** stamp (hidden when stale) + **total trades** metric.
+7. **NEXT:** SVG equity curve generated from the journal (replaces the uploaded image)
 8. CSV import — the adoption unlock, don't under-scope
-9. "Updated X ago" + total-trades metric on the page
+
+**Nothing below is verified against a running app** — the dev server is blocked by
+Windows Controlled Folder Access (repo lives under Documents). All of it is
+type-checked, and the metric maths is unit- and mutation-tested, but no click has
+touched the journal, the route, or the live page.
 
 Ships useful at step 5 (a trader gets a private journal), and becomes the differentiator
 at step 6.

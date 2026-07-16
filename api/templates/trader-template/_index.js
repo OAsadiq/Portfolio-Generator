@@ -55,7 +55,10 @@ const traderTemplate = {
     { name: 'disclaimerText', label: 'Risk Disclaimer (leave blank for the default)', type: 'textarea' },
   ],
 
-  generateHTML: (data, sections = []) => {
+  // `meta` carries publish-time context the form data doesn't have:
+  //   { slug, journalEnabled, metricsCache }
+  // Other templates take (data, sections) and simply ignore a third argument.
+  generateHTML: (data, sections = [], meta = {}) => {
     const name = esc(data.fullName || 'Your Name');
     const headline = esc(data.headline || 'Trader');
     const propFirm = esc(data.propFirm || '');
@@ -73,26 +76,56 @@ const traderTemplate = {
     const markets = String(data.markets || '').split(',').map(m => m.trim()).filter(Boolean);
     const disclaimer = esc(data.disclaimerText || 'Trading involves substantial risk of loss and is not suitable for every investor. Results shown are self-reported by the account holder. Past performance is not indicative of future results.');
 
-    const metrics = [
-      ['Total return', data.returnPct, 'pos'],
-      ['Win rate', data.winRate, ''],
-      ['Profit factor', data.profitFactor, ''],
-      ['Max drawdown', data.maxDrawdown, 'neg'],
-      ['Track record', data.tradingSince, ''],
-    ].filter(m => m[1]);
+    // ── Track record: typed figures, or live ones from the trade journal ──────
+    // When the journal is on we publish the numbers Porfilr computed from logged
+    // trades, baked in at publish time and refreshed at view time. The baked values
+    // are the floor: if the fetch fails, the page still shows real numbers rather
+    // than dashes. Each cell carries data-metric so the script can update in place.
+    const journalOn = !!(meta && meta.journalEnabled && meta.slug);
+    const cache = (meta && meta.metricsCache) || {};
+    const signed = (v) => (v === null || v === undefined ? null : `${v > 0 ? '+' : ''}${v}%`);
+    const plain  = (v, suffix = '') => (v === null || v === undefined ? null : `${v}${suffix}`);
 
-    // The track-record card is the centrepiece: the first metric is featured large,
-    // the rest fill a grid beneath it. Works with 1 metric or 5.
+    // [label, value, colourClass, metricKey]
+    // Live value wins; the trader's typed figure is the fallback while the journal is
+    // still empty. Never invent a value — an absent metric is dropped entirely.
+    const metricRows = journalOn
+      ? [
+          ['Total return',  signed(cache.totalReturnPct)      ?? data.returnPct,    'pos', 'totalReturnPct'],
+          ['Win rate',      plain(cache.winRate, '%')         ?? data.winRate,      '',    'winRate'],
+          ['Profit factor', plain(cache.profitFactor)         ?? data.profitFactor, '',    'profitFactor'],
+          ['Max drawdown',  plain(cache.maxDrawdownPct, '%')  ?? data.maxDrawdown,  'neg', 'maxDrawdownPct'],
+          ['Trades',        plain(cache.totalTrades),                               '',    'totalTrades'],
+          ['Track record',  cache.trackRecordLabel            ?? data.tradingSince, '',    'trackRecordLabel'],
+        ]
+      : [
+          ['Total return', data.returnPct,    'pos', ''],
+          ['Win rate',     data.winRate,      '',    ''],
+          ['Profit factor', data.profitFactor,'',    ''],
+          ['Max drawdown', data.maxDrawdown,  'neg', ''],
+          ['Track record', data.tradingSince, '',    ''],
+        ];
+    const metrics = metricRows.filter(m => m[1] !== null && m[1] !== undefined && m[1] !== '');
+
+    const attr = (key) => (key ? ` data-metric="${key}"` : '');
+
+    // The one line a screenshot can never claim. Hidden when the journal has gone
+    // stale — "updated 8 months ago" damages a trader more than saying nothing.
+    const stamp = journalOn
+      ? `<span class="tr-stamp" id="trStamp" hidden>Updated <span id="trStampVal"></span></span>`
+      : '';
+
+    // The first metric is featured large, the rest fill a grid. Works with 1 or 6.
     const [feat, ...rest] = metrics;
     const trackCard = metrics.length ? `
         <div class="tr-card">
-          <div class="tr-head"><span class="tr-head-label">Track record</span></div>
+          <div class="tr-head"><span class="tr-head-label">Track record</span>${stamp}</div>
           <div class="tr-feature">
-            <div class="tr-feature-val ${feat[2]}">${esc(feat[1])}</div>
+            <div class="tr-feature-val ${feat[2]}"${attr(feat[3])}>${esc(feat[1])}</div>
             <div class="tr-feature-label">${esc(feat[0])}</div>
           </div>
-          ${rest.length ? `<div class="tr-grid">${rest.map(([label, val, cls]) =>
-            `<div class="tr-cell"><div class="tr-cell-val ${cls}">${esc(val)}</div><div class="tr-cell-label">${esc(label)}</div></div>`
+          ${rest.length ? `<div class="tr-grid">${rest.map(([label, val, cls, key]) =>
+            `<div class="tr-cell"><div class="tr-cell-val ${cls}"${attr(key)}>${esc(val)}</div><div class="tr-cell-label">${esc(label)}</div></div>`
           ).join('')}</div>` : ''}
         </div>` : '';
 
@@ -260,6 +293,9 @@ const traderTemplate = {
     .hero.solo .tr-card{margin-top:44px;width:100%;text-align:left}
     .tr-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px 13px}
     .tr-head-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.19em;color:var(--dim)}
+    .tr-stamp{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;color:var(--pos);letter-spacing:.02em}
+    .tr-stamp::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--pos);box-shadow:0 0 8px var(--pos)}
+    .tr-stamp[hidden]{display:none}
     .tr-feature{background:rgba(255,255,255,.022);border:1px solid var(--line);border-radius:18px;padding:30px 24px 26px;text-align:center}
     .tr-feature-val{font-size:clamp(46px,6vw,62px);font-weight:800;letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums}
     .tr-feature-val.pos{color:var(--pos);text-shadow:0 0 44px rgba(34,197,94,.34)}
@@ -367,6 +403,64 @@ ${body}
   </div>
 
   <footer>Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></footer>
+
+  ${journalOn ? `<script>
+    // Live track record. The numbers already on the page were computed at publish
+    // time; this refreshes them. Every failure path is silent and leaves the baked-in
+    // values in place — a stale-but-real number beats a broken metrics card, which is
+    // the single worst thing this page could show an investor.
+    (function(){
+      var SLUG = ${JSON.stringify(String(meta.slug || ''))};
+      if (!SLUG) return;
+
+      function ago(iso){
+        var s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+        if (!isFinite(s) || s < 0) return null;
+        if (s < 3600)  { var m = Math.floor(s/60);    return m <= 1 ? 'just now' : m + ' minutes ago'; }
+        if (s < 86400) { var h = Math.floor(s/3600);  return h === 1 ? '1 hour ago'  : h + ' hours ago'; }
+        var d = Math.floor(s/86400);
+        if (d === 1)  return 'yesterday';
+        if (d < 31)   return d + ' days ago';
+        var mo = Math.floor(d/30);
+        return mo === 1 ? '1 month ago' : mo + ' months ago';
+      }
+
+      function put(key, val, cls){
+        var el = document.querySelector('[data-metric="' + key + '"]');
+        if (!el) return;
+        // Null means "we can't state this honestly" — leave whatever is there rather
+        // than blanking a real number.
+        if (val === null || val === undefined) return;
+        el.textContent = val;
+        if (cls) { el.classList.remove('pos','neg'); el.classList.add(cls); }
+      }
+
+      fetch('/api/track-record?slug=' + encodeURIComponent(SLUG))
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(d){
+          if (!d || !d.metrics) return;
+          var m = d.metrics;
+          if (m.totalReturnPct !== null && m.totalReturnPct !== undefined) {
+            put('totalReturnPct', (m.totalReturnPct > 0 ? '+' : '') + m.totalReturnPct + '%',
+                m.totalReturnPct >= 0 ? 'pos' : 'neg');
+          }
+          if (m.winRate !== null && m.winRate !== undefined) put('winRate', m.winRate + '%');
+          if (m.profitFactor !== null && m.profitFactor !== undefined) put('profitFactor', String(m.profitFactor));
+          if (m.maxDrawdownPct !== null && m.maxDrawdownPct !== undefined) put('maxDrawdownPct', m.maxDrawdownPct + '%');
+          if (m.totalTrades !== null && m.totalTrades !== undefined) put('totalTrades', String(m.totalTrades));
+          if (m.trackRecordLabel) put('trackRecordLabel', m.trackRecordLabel);
+
+          // Only claim freshness when it's true and recent.
+          if (!d.stale && d.lastTradeAt) {
+            var label = ago(d.lastTradeAt);
+            var stamp = document.getElementById('trStamp');
+            var val = document.getElementById('trStampVal');
+            if (label && stamp && val) { val.textContent = label; stamp.hidden = false; }
+          }
+        })
+        .catch(function(){ /* keep the published numbers */ });
+    })();
+  </script>` : ''}
 
   <script>
     (function(){

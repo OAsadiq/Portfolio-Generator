@@ -52,7 +52,13 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Template not found" });
     }
 
-    const generatedHtml = template.generateHTML(formData, sections);
+    // Bake the last-known metrics into the HTML so a published page always has real
+    // numbers to fall back on if the live fetch fails.
+    const generatedHtml = template.generateHTML(formData, sections, {
+      slug,
+      journalEnabled: !!portfolio.journal_enabled,
+      metricsCache: portfolio.metrics_cache || null,
+    });
 
     const filePath = `portfolios/${slug}.html`;
     

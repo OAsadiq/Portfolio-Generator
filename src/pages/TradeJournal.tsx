@@ -68,6 +68,7 @@ const TradeJournal = () => {
 
   const [balanceInput, setBalanceInput] = useState('');
   const [savingBalance, setSavingBalance] = useState(false);
+  const [togglingJournal, setTogglingJournal] = useState(false);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -83,7 +84,9 @@ const TradeJournal = () => {
     try {
       const { data: p, error: pErr } = await supabase
         .from('portfolios')
-        .select('id, slug, user_id, template_id, starting_balance, journal_enabled')
+        // form_data/sections are needed to republish the page when the journal is
+        // toggled — the live-metrics script is baked in at publish time.
+        .select('id, slug, user_id, template_id, starting_balance, journal_enabled, form_data, sections')
         .eq('slug', slug)
         .maybeSingle();
 
@@ -144,23 +147,58 @@ const TradeJournal = () => {
     }
   };
 
+  /**
+   * Republish the static page. The live-metrics script and the fallback numbers are
+   * baked in at publish time, so flipping journal_enabled in the database does nothing
+   * to the page until it's regenerated. Without this the toggle would silently lie.
+   */
+  const republish = async (p: any) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) throw new Error('Session expired — sign in again.');
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates/update-portfolio`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({
+        slug: p.slug,
+        templateId: p.template_id,
+        formData: p.form_data || {},
+        sections: p.sections || [],
+      }),
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.error || 'Could not update your published page.');
+    }
+  };
+
   const toggleJournal = async () => {
     const next = !portfolio.journal_enabled;
     if (next && !(portfolio.starting_balance > 0)) {
       showToast('Set your starting balance first.');
       return;
     }
+    setTogglingJournal(true);
     try {
+      // Order matters: the column must be committed before republishing, because the
+      // publish route reads journal_enabled to decide whether to bake in the script.
       const { error: e } = await supabase
         .from('portfolios')
         .update({ journal_enabled: next })
         .eq('id', portfolio.id);
       if (e) throw e;
-      setPortfolio({ ...portfolio, journal_enabled: next });
+
+      const updated = { ...portfolio, journal_enabled: next };
+      setPortfolio(updated);
+      await republish(updated);
+
       track('journal_toggled', { enabled: next, slug });
-      showToast(next ? 'Live track record is now on your page.' : 'Live track record hidden.');
+      showToast(next ? 'Live track record is live on your page.' : 'Live track record removed from your page.');
     } catch (e: any) {
-      showToast(e.message || 'Could not update.');
+      // The column may have flipped while the republish failed — say so plainly rather
+      // than let them believe their page changed when it didn't.
+      showToast(e.message || 'Could not update your page. Try again.');
+    } finally {
+      setTogglingJournal(false);
     }
   };
 
@@ -329,14 +367,16 @@ const TradeJournal = () => {
             <div>
               <p className="text-sm font-semibold text-stone-900">Show live track record on my page</p>
               <p className="text-stone-500 text-xs mt-0.5">
-                {hasBalance
-                  ? 'Your metrics update on your published page as you log trades.'
-                  : 'Set a starting balance first.'}
+                {togglingJournal
+                  ? 'Updating your published page…'
+                  : hasBalance
+                    ? 'Your metrics update on your published page as you log trades, and it shows when you last traded.'
+                    : 'Set a starting balance first.'}
               </p>
             </div>
             <button
               onClick={toggleJournal}
-              disabled={!hasBalance}
+              disabled={!hasBalance || togglingJournal}
               className={`relative w-12 h-7 rounded-full transition flex-none disabled:opacity-40 ${
                 portfolio.journal_enabled ? 'bg-emerald-500' : 'bg-stone-300'
               }`}

@@ -81,7 +81,9 @@ const ProDashboard = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'portfolios' | 'messages' | 'templates' | 'domains' | 'billing'>('portfolios');
   const [leads, setLeads] = useState<Lead[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; slug: string; name: string } | null>(null);
+  // tradeCount is null while we're still counting — the Delete button stays disabled
+  // until we know, so nobody can destroy a trade journal before the warning appears.
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; slug: string; name: string; tradeCount: number | null } | null>(null);
 
   const [showDomainForm, setShowDomainForm] = useState(false);
   const [newDomain, setNewDomain] = useState('');
@@ -259,6 +261,20 @@ const ProDashboard = () => {
       showToast(err.message || 'Failed to delete portfolio', 'error');
       setDeleteConfirm(null);
     }
+  };
+
+  // Deleting a portfolio cascades its trades away. A page can be rebuilt in ten minutes;
+  // months of logged trades cannot — so count them before asking, and say the number.
+  const askDeletePortfolio = async (portfolio: Portfolio) => {
+    setDeleteConfirm({ id: portfolio.id, slug: portfolio.slug, name: portfolio.user_name, tradeCount: null });
+    const { count, error } = await supabase
+      .from('trades')
+      .select('id', { count: 'exact', head: true })
+      .eq('portfolio_id', portfolio.id);
+    // If the trades table isn't there yet, fall through to 0 rather than blocking the
+    // delete on a table this account may never use.
+    const resolved = error ? 0 : (count || 0);
+    setDeleteConfirm(prev => (prev && prev.id === portfolio.id ? { ...prev, tradeCount: resolved } : prev));
   };
 
   const getEditRoute = (portfolio: Portfolio) =>
@@ -536,7 +552,7 @@ const ProDashboard = () => {
                             Preview
                           </a>
                           <button
-                            onClick={() => setDeleteConfirm({ id: portfolio.id, slug: portfolio.slug, name: portfolio.user_name })}
+                            onClick={() => askDeletePortfolio(portfolio)}
                             className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg transition"
                             title="Delete"
                           >
@@ -948,15 +964,37 @@ const ProDashboard = () => {
                 <p className="text-xs text-stone-500">This action cannot be undone</p>
               </div>
             </div>
-            <p className="text-stone-600 text-sm mb-5">
+            <p className="text-stone-600 text-sm mb-4">
               Are you sure you want to delete <span className="font-semibold text-stone-900">"{deleteConfirm.name}"</span>?
             </p>
+
+            {/* The page is replaceable; the journal isn't. Name the cost before they click. */}
+            {!!deleteConfirm.tradeCount && deleteConfirm.tradeCount > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-5">
+                <p className="text-red-800 text-sm font-semibold mb-1">
+                  This also deletes your trade journal.
+                </p>
+                <p className="text-red-700 text-sm">
+                  {deleteConfirm.tradeCount} logged {deleteConfirm.tradeCount === 1 ? 'trade' : 'trades'} will be
+                  permanently deleted with this portfolio — your whole track record history. There's no way to get it back.
+                </p>
+              </div>
+            )}
+
             <div className="flex gap-3">
               <button onClick={() => setDeleteConfirm(null)} className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-2.5 px-4 rounded-xl text-sm font-semibold transition">
                 Cancel
               </button>
-              <button onClick={() => handleDeletePortfolio(deleteConfirm.id, deleteConfirm.slug)} className="flex-1 bg-red-500 hover:bg-red-400 text-white py-2.5 px-4 rounded-xl text-sm font-semibold transition">
-                Delete
+              <button
+                onClick={() => handleDeletePortfolio(deleteConfirm.id, deleteConfirm.slug)}
+                disabled={deleteConfirm.tradeCount === null}
+                className="flex-1 bg-red-500 hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2.5 px-4 rounded-xl text-sm font-semibold transition"
+              >
+                {deleteConfirm.tradeCount === null
+                  ? 'Checking…'
+                  : deleteConfirm.tradeCount > 0
+                    ? `Delete page + ${deleteConfirm.tradeCount} trades`
+                    : 'Delete'}
               </button>
             </div>
           </div>
