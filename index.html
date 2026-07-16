@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/assets/porfilr-logo-orange-128.png" />
+    <!-- type must match the file: declaring svg+xml for a .png makes the browser reject
+         it and fall back to requesting /favicon.ico, which 404s. -->
+    <link rel="icon" type="image/png" sizes="128x128" href="/assets/porfilr-logo-orange-128.png" />
+    <link rel="apple-touch-icon" href="/assets/porfilr-logo-orange-128.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Porfilr — Your work, finally visible</title>
     <meta name="description" content="Build a professional portfolio in 10 minutes. No code, no design skills needed. Made for writers, designers, and marketers who are serious about being found." />
