@@ -70,15 +70,35 @@ const data = {
   edu1Title: 'BFA, Graphic Design', edu1School: 'Rhode Island School of Design', edu1Year: '2014',
   edu2Title: 'Interaction Design Certificate', edu2School: 'IDEO U', edu2Year: '2017',
 
-  // trader
-  headline: 'Forex Trader • FTMO Funded',
-  propFirm: 'FTMO Funded • $200K',
-  returnPct: '+142%', winRate: '68%', profitFactor: '2.4', maxDrawdown: '8.2%', tradingSince: '3 years',
-  verificationUrl: 'https://www.myfxbook.com/members/jordan',
-  proofImage: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260"><rect width="900" height="260" fill="#141418"/><text x="30" y="50" fill="#9a9aa5" font-family="monospace" font-size="15">Account #482910 — Verified Statement</text><text x="30" y="95" fill="#f5f5f7" font-family="monospace" font-size="15">Closed P/L ............ +$28,420.00</text><text x="30" y="130" fill="#22c55e" font-family="monospace" font-size="15">Return ............... +142.0%</text><text x="30" y="165" fill="#f5f5f7" font-family="monospace" font-size="15">Win rate ............. 68%</text><text x="30" y="200" fill="#f87171" font-family="monospace" font-size="15">Max drawdown ......... 8.2%</text></svg>'),
-  markets: 'Forex, Indices, Crypto',
-  strategy: 'Swing trading major forex pairs and indices on the 4H timeframe. My edge is disciplined trend continuation setups with strict risk-defined entries — no averaging down, no revenge trading.',
-  riskProfile: 'Max 1% risk per trade, hard stop on every position, and a 5% daily loss limit. Capital preservation comes before returns — that consistency is what keeps me funded.',
+};
+
+// Per-template overrides, merged over the shared data above.
+//
+// These MUST NOT live in the shared object. The trader is a different person with a
+// different job — dropping `headline` in there silently overwrote it for every other
+// template (JS keeps the last duplicate key), so Modern and Professional both shipped
+// previews reading "Forex Trader • FTMO Funded". Keep identity per template.
+const overrides = {
+  'trader-template': {
+    fullName: 'Jordan Rivera',
+    headline: 'Forex Trader • 3-Year Track Record',
+    bio: 'Disciplined swing trader focused on major forex pairs and indices. Three years of consistent, risk-managed results.',
+    location: 'Lagos, Nigeria',
+    email: 'jordan@example.com',
+    // Porfilr orange — the shared slate would repaint the whole trader page.
+    primaryColor: '#ea580c',
+    propFirm: 'FTMO Funded • $200K',
+    returnPct: '+142%', winRate: '68%', profitFactor: '2.4', maxDrawdown: '8.2%', tradingSince: '3 years',
+    verificationUrl: 'https://www.myfxbook.com/members/jordan',
+    markets: 'Forex, Indices, Crypto',
+    equityCurveImage: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300"><rect width="900" height="300" fill="#0d0d10"/><polyline fill="none" stroke="#22c55e" stroke-width="3" points="20,265 110,240 200,250 290,190 380,205 470,140 560,150 650,90 740,70 830,30 880,40"/></svg>'),
+    proofImage: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260"><rect width="900" height="260" fill="#0d0d10"/><text x="30" y="50" fill="#93939f" font-family="monospace" font-size="15">Account #482910 — Broker Statement</text><text x="30" y="95" fill="#f7f7f9" font-family="monospace" font-size="15">Closed P/L ............ +$28,420.00</text><text x="30" y="130" fill="#22c55e" font-family="monospace" font-size="15">Return ............... +142.0%</text><text x="30" y="165" fill="#f7f7f9" font-family="monospace" font-size="15">Win rate ............. 68%</text><text x="30" y="200" fill="#f87171" font-family="monospace" font-size="15">Max drawdown ......... 8.2%</text></svg>'),
+    strategy: 'Swing trading major forex pairs and indices on the 4H timeframe. My edge is disciplined trend-continuation setups with strict, risk-defined entries — no averaging down, no revenge trading.',
+    riskProfile: 'Max 1% risk per trade, a hard stop on every position, and a 5% daily loss limit. Capital preservation comes before returns — that consistency is what keeps me funded.',
+    service1Title: 'Managed Accounts', service1Desc: 'I trade your capital under a transparent profit-share arrangement.',
+    service2Title: 'Signals', service2Desc: 'Real-time entries, exits, and risk levels delivered to your inbox.',
+    service3Title: '1:1 Mentorship', service3Desc: 'Learn my exact strategy and risk framework.',
+  },
 };
 
 const templates = [
@@ -89,10 +109,13 @@ const templates = [
 ];
 
 for (const [id, tpl] of templates) {
-  const html = tpl.generateHTML(data, []);
+  const templateData = { ...data, ...(overrides[id] || {}) };
+  const html = tpl.generateHTML(templateData, []);
   const dest = fileURLToPath(new URL(`../public/templates/${id}/preview.html`, import.meta.url));
   mkdirSync(dirname(dest), { recursive: true });
   writeFileSync(dest, html, 'utf8');
+  const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1] || '(no title)';
   console.log(`${id}: ${html.length} chars · contact form: ${html.includes('id="contactForm"')}`);
+  console.log(`  title: ${title}`);
 }
 console.log('Done — all previews regenerated.');

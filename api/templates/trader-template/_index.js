@@ -159,26 +159,52 @@ const traderTemplate = {
     // as a bare heading. The builder's Layout tab controls order and visibility via
     // `sections`; the hero is deliberately not toggleable (it's the page's identity,
     // and the track-record card lives inside it).
+    // Bands alternate dark → light → dark. Consecutive bands of the same tone collapse
+    // their inner padding (see CSS), so they read as one continuous region no matter
+    // how the trader reorders sections in the builder.
+    const dark  = (inner, id = '') => `<div class="band band-dark"${id ? ` id="${id}"` : ''}><div class="wrap">${inner}</div></div>`;
+    const light = (inner, id = '') => `<div class="band band-light"${id ? ` id="${id}"` : ''}><div class="wrap">${inner}</div></div>`;
+
     const blocks = {
-      proof: () => (equity || proofImg || verifyHref) ? `
-    <section class="section" id="proof">
+      // Dark: the numbers and the evidence belong to the terminal half of the page.
+      proof: () => (equity || proofImg || verifyHref) ? dark(`
       <div class="kicker">Proof</div>
       <h2>The receipts<span class="ser"> — not screenshots in a DM.</span></h2>
       ${equity ? `<div class="chart-card"><div class="chart-head">Equity curve</div><div class="chart-body"><img src="${equity}" alt="Equity curve" /></div></div>` : ''}
       ${proofImg ? `<div class="chart-card"><div class="chart-head">Statement / results</div><div class="chart-body"><img src="${proofImg}" alt="Statement / verified results" /></div></div>` : ''}
-      ${verifyHref ? `<p class="proof-note">Independently verifiable: <a href="${verifyHref}" target="_blank" rel="noopener">${esc(verifyUrl.replace(/^https?:\/\//, ''))}</a></p>` : ''}
-    </section>` : '',
+      ${verifyHref ? `<p class="proof-note">Independently verifiable: <a href="${verifyHref}" target="_blank" rel="noopener">${esc(verifyUrl.replace(/^https?:\/\//, ''))}</a></p>` : ''}`, 'proof') : '',
 
-      markets: () => markets.length ? `<section class="section"><div class="kicker">Markets</div><h2>What I trade</h2><div class="chips">${markets.map(m => `<span class="chip">${esc(m)}</span>`).join('')}</div></section>` : '',
+      // Light: the human story — how they think, how they protect money, what they sell.
+      markets: () => markets.length ? light(`
+      <div class="kicker">Markets</div>
+      <h2>What I trade</h2>
+      <div class="chips">${markets.map(m => `<span class="chip">${esc(m)}</span>`).join('')}</div>`) : '',
 
-      strategy: () => strategy ? `<section class="section"><div class="kicker">Strategy</div><h2>How I trade<span class="ser"> — and where the edge is.</span></h2><p class="prose">${strategy}</p></section>` : '',
+      strategy: () => strategy ? light(`
+      <div class="lcard">
+        <div class="lcard-head">
+          <div class="kicker">Strategy</div>
+          <h2>How I trade<span class="ser"> — and where the edge is.</span></h2>
+        </div>
+        <p class="prose">${strategy}</p>
+      </div>`) : '',
 
-      risk: () => risk ? `<section class="section"><div class="kicker">Risk management</div><h2>How I protect capital<span class="ser"> — before I grow it.</span></h2><p class="prose">${risk}</p></section>` : '',
+      risk: () => risk ? light(`
+      <div class="lcard">
+        <div class="lcard-head">
+          <div class="kicker">Risk</div>
+          <h2>How I protect capital<span class="ser"> — before I grow it.</span></h2>
+        </div>
+        <p class="prose">${risk}</p>
+      </div>`) : '',
 
-      services: () => serviceCards ? `<section class="section"><div class="kicker">Work with me</div><h2>What I offer</h2><div class="svcs">${serviceCards}</div></section>` : '',
+      services: () => serviceCards ? light(`
+      <div class="kicker">Work with me</div>
+      <h2>What I offer</h2>
+      <div class="svcs">${serviceCards}</div>`) : '',
 
-      contact: () => `
-    <section class="section" id="contact">
+      // Dark again to close — the call to action lands against the hero's weight.
+      contact: () => dark(`
       <div class="kicker">Get in touch</div>
       <h2>Let's talk<span class="ser"> — investors and clients welcome.</span></h2>
       ${email ? `
@@ -192,8 +218,7 @@ const traderTemplate = {
         <button type="submit" id="cfSubmit">Send message</button>
         <div class="cf-msg" id="cfMsg"></div>
       </form>` : ''}
-      ${socialRow}
-    </section>`,
+      ${socialRow}`, 'contact'),
     };
 
     const DEFAULT_ORDER = ['proof', 'markets', 'strategy', 'risk', 'services', 'contact'];
@@ -229,6 +254,8 @@ const traderTemplate = {
       --bg:#08080a;--bg2:#131317;--bg3:#1a1a20;--line:#26262e;--line2:#33333d;
       --text:#f7f7f9;--muted:#93939f;--dim:#63636e;
       --pos:#22c55e;--neg:#f87171;--gold:#eab308;
+      /* light band */
+      --l-bg:#f1f1f4;--l-card:#ffffff;--l-text:#0b0b0d;--l-muted:#5f5f6b;--l-dim:#8b8b96;--l-line:#e4e4ea;
       --radius:20px;
       /* accent-derived tints — plain rgba first so unsupported color-mix falls back */
       --glow:rgba(234,88,12,.13);
@@ -241,14 +268,25 @@ const traderTemplate = {
       --accent-deep:color-mix(in srgb, var(--accent) 82%, #000);
     }
     html{scroll-behavior:smooth}
-    body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;
-      background:
-        radial-gradient(80% 50% at 15% -10%, var(--glow), transparent 62%),
-        radial-gradient(60% 45% at 92% 4%, rgba(34,197,94,.07), transparent 58%),
-        var(--bg);
-      background-attachment:fixed}
+    body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;background:var(--bg)}
     .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
-    .section{padding:96px 0;border-top:1px solid var(--line)}
+
+    /* ---------- bands: dark → light → dark ---------- */
+    .band{padding:104px 0}
+    .band-dark{background:var(--bg);color:var(--text)}
+    .band-light{background:var(--l-bg);color:var(--l-text)}
+    /* The hero's glow belongs to the hero, not to every dark band below it. */
+    .band-hero{background:
+      radial-gradient(80% 55% at 12% -12%, var(--glow), transparent 62%),
+      radial-gradient(58% 46% at 94% 2%, rgba(34,197,94,.07), transparent 58%),
+      var(--bg)}
+    /* Sections are reorderable, so two bands of the same tone can end up adjacent.
+       Collapsing the seam keeps them reading as one region instead of a double gap. */
+    .band-light + .band-light,
+    .band-dark + .band-dark{padding-top:0}
+    /* A hairline only where dark meets dark — light/dark meet on colour alone. */
+    .band-dark + .band-dark > .wrap{border-top:1px solid var(--line);padding-top:104px}
+
     .kicker{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--accent);
       background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:100px;padding:6px 14px;margin-bottom:22px}
     h1{font-size:clamp(40px,5.6vw,68px);font-weight:800;letter-spacing:-.035em;line-height:1}
@@ -260,7 +298,8 @@ const traderTemplate = {
     h1 .ser{display:block;color:var(--text);opacity:.92;margin-top:.12em}
 
     /* ---------- hero ---------- */
-    .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:104px 0 96px}
+    /* The band owns the vertical rhythm now. */
+    .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:0}
     .hero.solo{grid-template-columns:1fr;max-width:720px;text-align:center;justify-items:center}
     .avatar{width:76px;height:76px;border-radius:20px;object-fit:cover;margin-bottom:26px;border:1px solid var(--line2);box-shadow:0 16px 40px rgba(0,0,0,.55);display:block}
     .avatar-initials{display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--accent),var(--accent-deep));color:#fff;font-size:2rem;font-weight:800;letter-spacing:-.02em}
@@ -326,7 +365,7 @@ const traderTemplate = {
     .chip{background:var(--bg2);border:1px solid var(--line2);border-radius:100px;padding:9px 18px;font-size:13.5px;font-weight:600;color:#d5d5dd}
 
     /* ---------- prose ---------- */
-    .prose{color:#b3b3be;font-size:17.5px;line-height:1.7;white-space:pre-wrap;max-width:62ch;overflow-wrap:anywhere}
+    .prose{color:#b3b3be;font-size:17.5px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
 
     /* ---------- services ---------- */
     .svcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
@@ -335,6 +374,23 @@ const traderTemplate = {
     .svc:hover{border-color:var(--line2);transform:translateY(-3px)}
     .svc h3{margin-bottom:10px}
     .svc p{font-size:14.5px;line-height:1.6;overflow-wrap:anywhere}
+
+    /* ---------- light band ---------- */
+    .band-light h2{color:var(--l-text)}
+    .band-light .ser{color:var(--l-dim)}
+    .band-light .prose{color:var(--l-muted)}
+    .band-light .chip{background:var(--l-card);border-color:var(--l-line);color:#3a3a44;box-shadow:0 1px 2px rgba(10,10,15,.04)}
+    /* The big white editorial card: heading left, prose right. */
+    .lcard{background:var(--l-card);border:1px solid var(--l-line);border-radius:28px;padding:52px;
+      display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:start;
+      box-shadow:0 1px 2px rgba(10,10,15,.04),0 12px 40px rgba(10,10,15,.05)}
+    .lcard-head h2{margin-bottom:0}
+    .lcard-head .ser{display:block}
+    .band-light .svc{background:var(--l-card);border-color:var(--l-line);
+      box-shadow:0 1px 2px rgba(10,10,15,.04),0 10px 30px rgba(10,10,15,.045)}
+    .band-light .svc:hover{border-color:var(--accent-line);transform:translateY(-3px)}
+    .band-light .svc h3{color:var(--l-text)}
+    .band-light .svc p{color:var(--l-muted)}
 
     /* ---------- contact ---------- */
     .cform{display:flex;flex-direction:column;gap:11px;max-width:560px}
@@ -356,20 +412,28 @@ const traderTemplate = {
     .social{width:42px;height:42px;border-radius:12px;border:1px solid var(--line2);background:rgba(255,255,255,.025);display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .16s}
     .social:hover{color:#fff;border-color:var(--accent);transform:translateY(-2px)}
 
-    .disclaimer{font-size:11.5px;color:#55555f;border-top:1px solid var(--line);padding:30px 0;line-height:1.65;max-width:78ch}
-    footer{text-align:center;padding:34px 0 44px;color:#55555f;font-size:12.5px}
+    /* ---------- footer band ---------- */
+    /* Exempt from the dark-on-dark seam rule: the disclaimer is a quiet coda, not a
+       new section, and <footer> already draws its own rule below it. */
+    .band-foot{padding:56px 0 40px}
+    .band-dark + .band-dark.band-foot > .wrap{border-top:0;padding-top:0}
+    .disclaimer{font-size:11.5px;color:#55555f;line-height:1.65;max-width:78ch}
+    footer{padding-top:28px;margin-top:28px;border-top:1px solid var(--line);color:#55555f;font-size:12.5px}
     footer a{color:var(--muted);text-decoration:none;font-weight:600}
     footer a:hover{color:var(--accent)}
 
     /* ---------- responsive ---------- */
     @media(max-width:920px){
-      .hero{grid-template-columns:1fr;gap:44px;padding:72px 0 64px}
-      .section{padding:72px 0}
+      .hero{grid-template-columns:1fr;gap:44px;padding:0}
+      .band{padding:76px 0}
+      .band-dark + .band-dark > .wrap{padding-top:76px}
+      .lcard{grid-template-columns:1fr;gap:26px;padding:40px}
     }
     @media(max-width:560px){
       .wrap{padding:0 18px}
-      .hero{padding:56px 0 52px}
-      .section{padding:60px 0}
+      .band{padding:60px 0}
+      .band-dark + .band-dark > .wrap{padding-top:60px}
+      .lcard{padding:30px 24px;border-radius:22px}
       .cform .row{flex-direction:column}
       .tr-feature{padding:26px 18px 22px}
       .tr-cell{padding:15px 13px}
@@ -382,7 +446,8 @@ const traderTemplate = {
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="band band-dark band-hero">
+    <div class="wrap">
     <header class="hero${trackCard ? '' : ' solo'}">
       <div class="hero-id">
         ${avatar}
@@ -398,11 +463,15 @@ const traderTemplate = {
       </div>
       ${trackCard}
     </header>
-${body}
-    <p class="disclaimer">${disclaimer}</p>
+    </div>
   </div>
-
-  <footer>Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></footer>
+${body}
+  <div class="band band-dark band-foot">
+    <div class="wrap">
+      <p class="disclaimer">${disclaimer}</p>
+      <footer>Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></footer>
+    </div>
+  </div>
 
   ${journalOn ? `<script>
     // Live track record. The numbers already on the page were computed at publish
