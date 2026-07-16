@@ -1,6 +1,12 @@
+import { useMemo } from 'react';
 import { SectionItem } from '../builder.config';
 import { renderProfessionalSection, renderProfessionalSidebar, renderProfessionalHeader } from './ProfessionalTemplate';
 import { renderModernSection } from './ModernTemplate';
+// The trader preview renders the REAL published output rather than a React re-creation.
+// The other two templates keep a hand-written React copy of their design here, which has
+// to be updated in lockstep with the server renderer or the preview quietly lies. Feeding
+// generateHTML straight into an iframe makes that class of drift impossible.
+import traderTemplate from '../../../../api/templates/trader-template/_index.js';
 
 interface Props {
   formData: Record<string, string>;
@@ -15,12 +21,36 @@ export default function PreviewCanvas({ formData, previewMode, sections, templat
   const isDesktop = previewMode === 'desktop';
   const isModern = templateId === 'modern-writer-template';
   const isProfessional = templateId === 'professional-writer-template';
+  const isTrader = templateId === 'trader-template';
 
   const visibleSections = sections
     .filter(s => s.visible)
     .sort((a, b) => a.order - b.order);
 
   const widthClass = isDesktop ? 'w-full max-w-7xl mx-auto' : isTablet ? 'w-[768px] mx-auto' : 'w-[375px] mx-auto';
+
+  // Recomputed only when content actually changes, so typing doesn't reload the frame
+  // on every keystroke.
+  const traderHtml = useMemo(
+    () => (isTrader ? traderTemplate.generateHTML(formData, sections) : ''),
+    [isTrader, formData, sections]
+  );
+
+  // ── Trader: the real page, in a frame ──
+  if (isTrader) {
+    return (
+      <div className="flex-1 p-6 bg-stone-100 flex">
+        <iframe
+          title="Trader portfolio preview"
+          srcDoc={traderHtml}
+          // sandbox="" blocks scripts: the page's contact form must not actually fire
+          // while a trader is editing. Styles and layout render normally.
+          sandbox=""
+          className={`${widthClass} h-full border-0 rounded-sm bg-[#08080a] shadow-sm`}
+        />
+      </div>
+    );
+  }
 
   // ── Professional: split sidebar layout ──
   if (isProfessional) {

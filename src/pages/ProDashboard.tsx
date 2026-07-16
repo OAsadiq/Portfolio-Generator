@@ -5,7 +5,7 @@ import Logo from '../components/Logo';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Globe, Copy, Check, ExternalLink, AlertCircle, CheckCircle, Clock, Mail, Inbox } from 'lucide-react';
+import { Globe, Copy, Check, ExternalLink, AlertCircle, CheckCircle, Clock, Mail, Inbox, TrendingUp } from 'lucide-react';
 import TutorialTour, { TourStep } from '../components/tutorial/TutorialTour';
 import ReferralCard from '../components/ReferralCard';
 
@@ -68,7 +68,7 @@ interface Lead {
   created_at: string;
 }
 
-const PROFESSIONAL_TEMPLATES = ['professional-writer-template', 'modern-writer-template'];
+const PROFESSIONAL_TEMPLATES = ['professional-writer-template', 'modern-writer-template', 'trader-template'];
 
 const INPUT = 'w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-100 transition';
 
@@ -448,7 +448,9 @@ const ProDashboard = () => {
                       const displayUrl = liveUrl.replace(/^https?:\/\//, '');
                       const tplLabel = portfolio.template_id === 'modern-writer-template' ? 'Modern'
                         : portfolio.template_id === 'professional-writer-template' ? 'Professional'
-                        : portfolio.template_id === 'minimal-template' ? 'Minimal' : portfolio.template_id;
+                        : portfolio.template_id === 'minimal-template' ? 'Minimal'
+                        : portfolio.template_id === 'trader-template' ? 'Trader' : portfolio.template_id;
+                      const isTrader = portfolio.template_id === 'trader-template';
                       const copyId = `url-${portfolio.id}`;
                       const maxViews = Math.max(...portfolios.map(p => p.views || 0));
                       const isTop = (portfolio.views || 0) > 0 && (portfolio.views || 0) === maxViews && portfolios.length > 1;
@@ -519,6 +521,16 @@ const ProDashboard = () => {
                               Edit
                             </button>
                           </Link>
+                          {/* Traders log trades far more often than they edit page copy, so the
+                              journal gets its own entry point rather than living inside Edit. */}
+                          {isTrader && (
+                            <Link to={`/journal/${portfolio.slug}`} className="flex-1">
+                              <button className="w-full bg-orange-50 border border-orange-200 hover:border-orange-300 hover:bg-orange-100 text-orange-700 py-2 px-3 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1.5">
+                                <TrendingUp className="w-3.5 h-3.5" />
+                                Journal
+                              </button>
+                            </Link>
+                          )}
                           <a href={`${import.meta.env.VITE_API_URL}/api/templates/preview?slug=${portfolio.slug}`} target="_blank" rel="noopener noreferrer"
                             className="flex-1 bg-white border border-stone-200 hover:border-stone-300 text-stone-700 py-2 px-3 rounded-lg text-sm font-semibold text-center transition">
                             Preview

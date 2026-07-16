@@ -14,7 +14,9 @@ interface TemplateField {
   placeholder?: string;
 }
 
-const PROFESSIONAL_TEMPLATES = ['professional-writer-template'];
+// Templates edited in the visual builder rather than this form. Anything listed here
+// gets redirected to /builder/:slug below.
+const PROFESSIONAL_TEMPLATES = ['professional-writer-template', 'modern-writer-template', 'trader-template'];
 
 const SECTION_META: Record<string, { label: string; icon: string; optional?: boolean }> = {
   personal:     { label: 'About you',           icon: '👤' },

@@ -169,6 +169,103 @@ export default function ContentTab({
         </div>
       )}
 
+      {/* ── Track record (trader) ───────────────────────── */}
+      {blocks.includes('track-record') && (
+        <div className={DIVIDER}>
+          <p className={SECTION_HDR}><TrendingUp className="w-3.5 h-3.5" />Track Record</p>
+          <p className="text-xs text-stone-400 mb-3">
+            The numbers investors scan first. Leave any blank to hide it — an empty metric is better than a vague one.
+          </p>
+
+          <label className={LABEL}>Prop firm / funded badge</label>
+          <input type="text" value={formData.propFirm || ''} onChange={e => onChange('propFirm', e.target.value)} className={INPUT} placeholder="e.g. FTMO Funded • $200K" />
+
+          <div className="grid grid-cols-2 gap-2 mt-3">
+            {([
+              ['returnPct', 'Total return', 'e.g. +142%'],
+              ['winRate', 'Win rate', 'e.g. 68%'],
+              ['profitFactor', 'Profit factor', 'e.g. 2.4'],
+              ['maxDrawdown', 'Max drawdown', 'e.g. 8.2%'],
+            ] as const).map(([field, label, ph]) => (
+              <div key={field}>
+                <label className={LABEL}>{label}</label>
+                <input type="text" value={formData[field] || ''} onChange={e => onChange(field, e.target.value)} className={INPUT} placeholder={ph} />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-3">
+            <label className={LABEL}>Track record length</label>
+            <input type="text" value={formData.tradingSince || ''} onChange={e => onChange('tradingSince', e.target.value)} className={INPUT} placeholder="e.g. 3 years" />
+          </div>
+
+          <div className="mt-3">
+            <label className={LABEL}>Markets traded</label>
+            <input type="text" value={formData.markets || ''} onChange={e => onChange('markets', e.target.value)} className={INPUT} placeholder="Forex, Indices, Crypto" />
+            <p className="text-xs text-stone-400 mt-1.5">Separate with commas.</p>
+          </div>
+
+          <p className="text-xs text-stone-500 mt-3 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            These are your own figures. Porfilr doesn't verify them, and your page says so — link a source below to let people check.
+          </p>
+        </div>
+      )}
+
+      {/* ── Proof (trader) ──────────────────────────────── */}
+      {blocks.includes('proof') && (
+        <div className={DIVIDER}>
+          <p className={SECTION_HDR}><ImageIcon className="w-3.5 h-3.5" />Proof</p>
+          <p className="text-xs text-stone-400 mb-3">Anything that lets an investor check your numbers. All optional.</p>
+
+          <label className={LABEL}>Track-record link</label>
+          <input type="url" value={formData.verificationUrl || ''} onChange={e => onChange('verificationUrl', e.target.value)} className={INPUT} placeholder="https://myfxbook.com/members/you" />
+          <p className="text-xs text-stone-400 mt-1.5 mb-3">MyFXBook, your broker, or a prop-firm dashboard.</p>
+
+          {([
+            ['equityCurveImage', 'Equity curve image'],
+            ['proofImage', 'Statement / results screenshot'],
+          ] as const).map(([field, label]) => (
+            <div key={field} className="mb-3">
+              <label className={LABEL}>{label}</label>
+              {formData[field] && (
+                <div className="flex items-center gap-3 p-3 bg-stone-50 border border-stone-200 rounded-xl mb-2">
+                  <img src={formData[field]} alt="" className="w-12 h-12 rounded object-cover border border-stone-200" />
+                  <p className="text-sm text-stone-700 font-medium flex-1">Uploaded</p>
+                  <button onClick={() => onChange(field, '')} className="p-1.5 hover:bg-red-50 rounded-lg transition">
+                    <Trash2 className="w-4 h-4 text-red-400" />
+                  </button>
+                </div>
+              )}
+              <label className="block cursor-pointer">
+                <div className="w-full bg-stone-50 border-2 border-dashed border-stone-200 hover:border-orange-400 rounded-xl px-4 py-3 text-center transition">
+                  <Upload className="w-4 h-4 text-stone-400 mx-auto mb-1" />
+                  <p className="text-xs text-stone-500">{formData[field] ? 'Replace image' : 'Upload image'}</p>
+                </div>
+                <input type="file" accept="image/*" className="hidden" onChange={e => onFileChange(field, e.target.files?.[0] || null)} />
+              </label>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Strategy & risk (trader) ────────────────────── */}
+      {blocks.includes('strategy') && (
+        <div className={DIVIDER}>
+          <p className={SECTION_HDR}><FileText className="w-3.5 h-3.5" />Strategy &amp; Risk</p>
+
+          <label className={LABEL}>How you trade</label>
+          <textarea value={formData.strategy || ''} onChange={e => onChange('strategy', e.target.value)} rows={4} className={`${INPUT} resize-none`} placeholder="Your style, timeframe, and edge — in plain language." />
+
+          <label className={`${LABEL} mt-3`}>How you manage risk</label>
+          <textarea value={formData.riskProfile || ''} onChange={e => onChange('riskProfile', e.target.value)} rows={4} className={`${INPUT} resize-none`} placeholder="Risk per trade, stops, daily loss limits — how you protect capital." />
+          <p className="text-xs text-stone-400 mt-1.5">Investors read this before your returns. It's what separates a trader from a gambler.</p>
+
+          <label className={`${LABEL} mt-3`}>Risk disclaimer</label>
+          <textarea value={formData.disclaimerText || ''} onChange={e => onChange('disclaimerText', e.target.value)} rows={3} className={`${INPUT} resize-none`} placeholder="Leave blank to use the standard disclaimer." />
+          <p className="text-xs text-stone-400 mt-1.5">A standard risk disclaimer is added automatically if you leave this blank.</p>
+        </div>
+      )}
+
       {/* ── Contact ─────────────────────────────────────── */}
       {blocks.includes('contact') && (
         <div className={DIVIDER}>

@@ -69,6 +69,11 @@ export const SECTION_METADATA: Record<string, { name: string; icon: React.ReactN
   testimonials:  { name: 'Testimonials',icon: React.createElement(MessageSquare, { className: 'w-4 h-4' }) },
   contact:       { name: 'Contact',     icon: React.createElement(Mail, { className: 'w-4 h-4' }) },
   footer:        { name: 'Footer',      icon: React.createElement(Footprints, { className: 'w-4 h-4' }) },
+  // Trader
+  proof:         { name: 'Proof',       icon: React.createElement(Image, { className: 'w-4 h-4' }) },
+  markets:       { name: 'Markets',     icon: React.createElement(Sparkles, { className: 'w-4 h-4' }) },
+  strategy:      { name: 'Strategy',    icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
+  risk:          { name: 'Risk',        icon: React.createElement(TrendingUp, { className: 'w-4 h-4' }) },
 };
 
 
@@ -96,7 +101,51 @@ const MODERN_SECTIONS: SectionItem[] = [
   { id: 'footer',       name: 'Footer',       visible: true,  order: 10, icon: React.createElement(Footprints, { className: 'w-4 h-4' }) },
 ];
 
+// The hero is intentionally absent: it always renders (it carries the trader's identity
+// and the track-record card), so offering a hide toggle would be a lie. These IDs must
+// match the `blocks` map in api/templates/trader-template/_index.js.
+const TRADER_SECTIONS: SectionItem[] = [
+  { id: 'proof',    name: 'Proof',    visible: true, order: 0, icon: React.createElement(Image, { className: 'w-4 h-4' }) },
+  { id: 'markets',  name: 'Markets',  visible: true, order: 1, icon: React.createElement(Sparkles, { className: 'w-4 h-4' }) },
+  { id: 'strategy', name: 'Strategy', visible: true, order: 2, icon: React.createElement(FileText, { className: 'w-4 h-4' }) },
+  { id: 'risk',     name: 'Risk',     visible: true, order: 3, icon: React.createElement(TrendingUp, { className: 'w-4 h-4' }) },
+  { id: 'services', name: 'Services', visible: true, order: 4, icon: React.createElement(Briefcase, { className: 'w-4 h-4' }) },
+  { id: 'contact',  name: 'Contact',  visible: true, order: 5, icon: React.createElement(Mail, { className: 'w-4 h-4' }) },
+];
+
 export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
+  'trader-template': {
+    sections: TRADER_SECTIONS,
+    contentBlocks: ['hero', 'track-record', 'proof', 'strategy', 'services', 'social', 'contact'],
+    fields: {
+      fullName: 'Jordan Rivera',
+      headline: 'Forex Trader • 3-Year Track Record',
+      propFirm: 'FTMO Funded • $200K',
+      bio: 'Disciplined swing trader focused on major forex pairs and indices. Three years of consistent, risk-managed results.',
+      location: 'Lagos, Nigeria',
+      primaryColor: '#ea580c',
+      // Placeholder metrics so the preview isn't empty on first open. A trader replaces
+      // these with their own — nothing here is presented as verified.
+      returnPct: '+142%',
+      winRate: '68%',
+      profitFactor: '2.4',
+      maxDrawdown: '8.2%',
+      tradingSince: '3 years',
+      markets: 'Forex, Indices, Crypto',
+      verificationUrl: '',
+      strategy: 'Swing trading major forex pairs and indices on the 4H timeframe. My edge is disciplined trend-continuation setups with strict, risk-defined entries — no averaging down, no revenge trading.',
+      riskProfile: 'Max 1% risk per trade, a hard stop on every position, and a 5% daily loss limit. Capital preservation comes before returns — that consistency is what keeps me funded.',
+      service1Title: 'Managed Accounts',
+      service1Desc: 'I trade your capital under a transparent profit-share arrangement.',
+      service2Title: 'Signals',
+      service2Desc: 'Real-time entries, exits, and risk levels delivered to your inbox.',
+      service3Title: '1:1 Mentorship',
+      service3Desc: 'Learn my exact strategy and risk framework.',
+      email: 'jordan@example.com',
+      social1: 'https://linkedin.com/in/jordan',
+      social2: 'https://x.com/jordan',
+    },
+  },
   'professional-writer-template': {
     sections: PROFESSIONAL_SECTIONS,
     contentBlocks: ['hero', 'social', 'contact', 'services', 'experience', 'samples', 'testimonials', 'education'],

@@ -10,7 +10,7 @@ const traderTemplate = {
   name: 'Trader',
   description: 'A premium, credible track-record page for traders — get funded, get clients, get taken seriously.',
   thumbnail: '/images/minimal-template.jpg',
-  isPro: false,
+  isPro: true,
   fields: [
     // Hero
     { name: 'fullName',   label: 'Full Name',            type: 'text',  required: true },
@@ -55,7 +55,7 @@ const traderTemplate = {
     { name: 'disclaimerText', label: 'Risk Disclaimer (leave blank for the default)', type: 'textarea' },
   ],
 
-  generateHTML: (data) => {
+  generateHTML: (data, sections = []) => {
     const name = esc(data.fullName || 'Your Name');
     const headline = esc(data.headline || 'Trader');
     const propFirm = esc(data.propFirm || '');
@@ -96,7 +96,9 @@ const traderTemplate = {
           ).join('')}</div>` : ''}
         </div>` : '';
 
-    const services = [1, 2, 3]
+    // 1–6 to match the builder's Services block, which offers six slots. Mapping only
+    // 1–3 here would let a trader fill slots 4–6 and watch them vanish on publish.
+    const services = [1, 2, 3, 4, 5, 6]
       .map(i => ({ t: data[`service${i}Title`], d: data[`service${i}Desc`] }))
       .filter(s => s.t);
     const serviceCards = services
@@ -119,15 +121,60 @@ const traderTemplate = {
       ? `<div class="funded"><span class="funded-dot"></span>${propFirm}</div>`
       : '';
 
-    // Proof section — only the evidence. Metrics now live in the hero card.
-    const proofSection = (equity || proofImg || verifyHref) ? `
+    // ── Section blocks ────────────────────────────────────────────────────────
+    // Each returns '' when it has nothing to show, so an empty section never renders
+    // as a bare heading. The builder's Layout tab controls order and visibility via
+    // `sections`; the hero is deliberately not toggleable (it's the page's identity,
+    // and the track-record card lives inside it).
+    const blocks = {
+      proof: () => (equity || proofImg || verifyHref) ? `
     <section class="section" id="proof">
       <div class="kicker">Proof</div>
       <h2>The receipts<span class="ser"> — not screenshots in a DM.</span></h2>
       ${equity ? `<div class="chart-card"><div class="chart-head">Equity curve</div><div class="chart-body"><img src="${equity}" alt="Equity curve" /></div></div>` : ''}
       ${proofImg ? `<div class="chart-card"><div class="chart-head">Statement / results</div><div class="chart-body"><img src="${proofImg}" alt="Statement / verified results" /></div></div>` : ''}
       ${verifyHref ? `<p class="proof-note">Independently verifiable: <a href="${verifyHref}" target="_blank" rel="noopener">${esc(verifyUrl.replace(/^https?:\/\//, ''))}</a></p>` : ''}
-    </section>` : '';
+    </section>` : '',
+
+      markets: () => markets.length ? `<section class="section"><div class="kicker">Markets</div><h2>What I trade</h2><div class="chips">${markets.map(m => `<span class="chip">${esc(m)}</span>`).join('')}</div></section>` : '',
+
+      strategy: () => strategy ? `<section class="section"><div class="kicker">Strategy</div><h2>How I trade<span class="ser"> — and where the edge is.</span></h2><p class="prose">${strategy}</p></section>` : '',
+
+      risk: () => risk ? `<section class="section"><div class="kicker">Risk management</div><h2>How I protect capital<span class="ser"> — before I grow it.</span></h2><p class="prose">${risk}</p></section>` : '',
+
+      services: () => serviceCards ? `<section class="section"><div class="kicker">Work with me</div><h2>What I offer</h2><div class="svcs">${serviceCards}</div></section>` : '',
+
+      contact: () => `
+    <section class="section" id="contact">
+      <div class="kicker">Get in touch</div>
+      <h2>Let's talk<span class="ser"> — investors and clients welcome.</span></h2>
+      ${email ? `
+      <form class="cform" id="contactForm">
+        <div class="row">
+          <input type="text" name="senderName" placeholder="Your name" required />
+          <input type="email" name="senderEmail" placeholder="Your email" required />
+        </div>
+        <textarea name="message" placeholder="Tell me what you're looking for…" required></textarea>
+        <input type="text" name="company" class="cf-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <button type="submit" id="cfSubmit">Send message</button>
+        <div class="cf-msg" id="cfMsg"></div>
+      </form>` : ''}
+      ${socialRow}
+    </section>`,
+    };
+
+    const DEFAULT_ORDER = ['proof', 'markets', 'strategy', 'risk', 'services', 'contact'];
+    // Honour the builder's order/visibility when given; fall back to the natural order
+    // for the form flow and for pages published before sections existed.
+    const chosen = (Array.isArray(sections) && sections.length)
+      ? sections
+          .filter(s => s && s.visible !== false && blocks[s.id])
+          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+          .map(s => s.id)
+      : DEFAULT_ORDER;
+    // A trader who hides everything still gets a contactable page — losing the contact
+    // form silently would cost them the leads this page exists to capture.
+    const body = chosen.map(id => blocks[id]()).join('\n');
 
     return `<!DOCTYPE html>
 <html lang="en" data-theme="dark">
@@ -315,34 +362,7 @@ const traderTemplate = {
       </div>
       ${trackCard}
     </header>
-
-    ${proofSection}
-
-    ${markets.length ? `<section class="section"><div class="kicker">Markets</div><h2>What I trade</h2><div class="chips">${markets.map(m => `<span class="chip">${esc(m)}</span>`).join('')}</div></section>` : ''}
-
-    ${strategy ? `<section class="section"><div class="kicker">Strategy</div><h2>How I trade<span class="ser"> — and where the edge is.</span></h2><p class="prose">${strategy}</p></section>` : ''}
-
-    ${risk ? `<section class="section"><div class="kicker">Risk management</div><h2>How I protect capital<span class="ser"> — before I grow it.</span></h2><p class="prose">${risk}</p></section>` : ''}
-
-    ${serviceCards ? `<section class="section"><div class="kicker">Work with me</div><h2>What I offer</h2><div class="svcs">${serviceCards}</div></section>` : ''}
-
-    <section class="section" id="contact">
-      <div class="kicker">Get in touch</div>
-      <h2>Let's talk<span class="ser"> — investors and clients welcome.</span></h2>
-      ${email ? `
-      <form class="cform" id="contactForm">
-        <div class="row">
-          <input type="text" name="senderName" placeholder="Your name" required />
-          <input type="email" name="senderEmail" placeholder="Your email" required />
-        </div>
-        <textarea name="message" placeholder="Tell me what you're looking for…" required></textarea>
-        <input type="text" name="company" class="cf-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-        <button type="submit" id="cfSubmit">Send message</button>
-        <div class="cf-msg" id="cfMsg"></div>
-      </form>` : ''}
-      ${socialRow}
-    </section>
-
+${body}
     <p class="disclaimer">${disclaimer}</p>
   </div>
 

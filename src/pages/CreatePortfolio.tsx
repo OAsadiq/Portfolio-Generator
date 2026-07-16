@@ -212,8 +212,6 @@ const CreatePortfolio = () => {
     return (
       <div className="min-h-screen bg-stone-50">
         <PortfolioVisualBuilder
-          template={template}
-          onSave={handleSubmit}
           onCancel={() => navigate("/templates")}
         />
       </div>
