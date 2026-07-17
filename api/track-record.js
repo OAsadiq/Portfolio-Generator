@@ -126,7 +126,13 @@ export default async function handler(req, res) {
 
     // Matches the published page's own caching. A track record does not need to be
     // real-time; five minutes is indistinguishable to a reader and spares the DB.
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    // `?v=` (owner preview links, passed through by the page) opts out entirely so the
+    // trader who just logged a trade sees it immediately — and so we don't fill the
+    // cache with a throwaway entry per owner visit.
+    res.setHeader(
+      'Cache-Control',
+      req.query.v !== undefined ? 'no-store, max-age=0' : 's-maxage=300, stale-while-revalidate=600'
+    );
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
     return res.status(200).json({

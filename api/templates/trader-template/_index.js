@@ -536,7 +536,13 @@ ${body}
         if (cls) { el.classList.remove('pos','neg'); el.classList.add(cls); }
       }
 
-      fetch('/api/track-record?slug=' + encodeURIComponent(SLUG))
+      // The metrics endpoint is edge-cached for 5 minutes — right for real visitors,
+      // wrong for the trader who just logged a trade and opened their own page to check.
+      // Owner links carry ?v=; pass it through so their view skips the cache too.
+      // Without this the page is fresh but the numbers on it are up to 5 minutes old,
+      // which reads as "the journal is broken".
+      var bust = new URLSearchParams(location.search).get('v');
+      fetch('/api/track-record?slug=' + encodeURIComponent(SLUG) + (bust ? '&v=' + encodeURIComponent(bust) : ''))
         .then(function(r){ return r.ok ? r.json() : null; })
         .then(function(d){
           if (!d || !d.metrics) return;
