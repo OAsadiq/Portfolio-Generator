@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { templates } from "./_templateConfig.js";
+import { computeMetrics } from "../_lib/metrics.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -52,12 +53,39 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Template not found" });
     }
 
-    // Bake the last-known metrics into the HTML so a published page always has real
-    // numbers to fall back on if the live fetch fails.
+    // Compute the journal metrics NOW rather than reusing portfolio.metrics_cache.
+    // The cache is only written when a visitor hits /api/track-record, so on the publish
+    // that immediately follows "turn on live track record" it is still null — the page
+    // would bake the trader's typed placeholder figures and keep showing them until a
+    // stranger happened to load it. Computing here means the page is correct the moment
+    // it's published.
+    let metricsCache = portfolio.metrics_cache || null;
+    if (portfolio.journal_enabled && portfolio.starting_balance > 0) {
+      const { data: trades, error: tradesErr } = await supabase
+        .from('trades')
+        .select('opened_at, closed_at, pnl, fees')
+        .eq('portfolio_id', portfolio.id)
+        .not('closed_at', 'is', null)
+        .limit(5000);
+
+      if (tradesErr) {
+        // Never fail a publish over metrics — fall back to the last known cache.
+        console.error('trades fetch failed during publish:', tradesErr.message);
+      } else {
+        metricsCache = computeMetrics(trades || [], portfolio.starting_balance);
+        // Persist so the baked fallback and the live endpoint agree from the start.
+        const { error: cacheErr } = await supabase
+          .from('portfolios')
+          .update({ metrics_cache: metricsCache, metrics_updated_at: new Date().toISOString() })
+          .eq('id', portfolio.id);
+        if (cacheErr) console.error('metrics_cache write failed:', cacheErr.message);
+      }
+    }
+
     const generatedHtml = template.generateHTML(formData, sections, {
       slug,
       journalEnabled: !!portfolio.journal_enabled,
-      metricsCache: portfolio.metrics_cache || null,
+      metricsCache,
     });
 
     const filePath = `portfolios/${slug}.html`;

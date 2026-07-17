@@ -143,9 +143,20 @@ const traderTemplate = {
       ? `<div class="socials">${socials.map(u => `<a href="${u}" target="_blank" rel="noopener" class="social" aria-label="social link">${socialIconSvg(u, 18)}</a>`).join('')}</div>`
       : '';
 
+    const initial = name.charAt(0).toUpperCase();
     const avatar = profile
       ? `<img src="${profile}" alt="${name}" class="avatar" />`
-      : `<div class="avatar avatar-initials">${name.charAt(0).toUpperCase()}</div>`;
+      : `<div class="avatar avatar-initials">${initial}</div>`;
+
+    // Browser-tab icon. Their photo when they have one; otherwise a generated monogram
+    // rather than the browser's blank page icon — this page gets sent to investors, and
+    // a default icon in a tab of open tabs reads as unfinished. Inline SVG keeps the
+    // page self-contained (no extra request, nothing to 404).
+    const favicon = profile
+      ? `<link rel="icon" href="${profile}" />`
+      : `<link rel="icon" href="data:image/svg+xml,${encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="${accent}"/><text x="32" y="45" font-family="Inter,Helvetica,Arial,sans-serif" font-size="36" font-weight="700" fill="#ffffff" text-anchor="middle">${initial}</text></svg>`
+        )}" />`;
 
     const trackLink = verifyHref
       ? `<a href="${verifyHref}" target="_blank" rel="noopener" class="btn btn-ghost">View my track record ↗</a>`
@@ -244,6 +255,7 @@ const traderTemplate = {
   <meta property="og:title" content="${name} — ${headline}" />
   <meta property="og:description" content="${bio.slice(0, 160)}" />
   <meta property="og:type" content="profile" />
+  ${favicon}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
