@@ -38,7 +38,10 @@ export default function SuccessModal({ isOpen, portfolioSlug, onClose }: Props) 
         <div className="space-y-3">
           {portfolioSlug && (
             <a
-              href={`${import.meta.env.VITE_APP_URL ?? ''}/p/${portfolioSlug}`}
+              // ?v= bypasses the 5-minute edge cache on published pages. Without it the
+              // author clicks "view" right after saving and sees their previous version.
+              // The share link below deliberately stays clean and cached.
+              href={`${import.meta.env.VITE_APP_URL ?? ''}/p/${portfolioSlug}?v=${Date.now()}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-semibold transition"

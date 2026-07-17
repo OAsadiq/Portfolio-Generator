@@ -5,6 +5,21 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
+// Published pages are edge-cached for 5 minutes, which is what makes them fast and
+// cheap for real visitors. But the owner who just hit Save and clicked "view" gets
+// served that cached copy and thinks the update failed.
+//
+// `?v=` (any value) opts a single request out of the cache entirely. Owner-facing links
+// append a timestamp; shared/public links stay clean and stay cached. A unique query
+// string is its own cache key, so this can't poison the cached copy everyone else gets.
+function setCacheHeader(req, res) {
+  if (req.query.v !== undefined) {
+    res.setHeader('Cache-Control', 'no-store, max-age=0');
+  } else {
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+  }
+}
+
 export default async function handler(req, res) {
   const { slug, domain } = req.query;
 
@@ -69,6 +84,7 @@ export default async function handler(req, res) {
 
       const html2 = await data2.text();
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      setCacheHeader(req, res);
       res.status(200).send(html2);
 
       // Increment view count after sending response
@@ -82,7 +98,7 @@ export default async function handler(req, res) {
 
     const html = await data.text();
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    setCacheHeader(req, res);
     res.status(200).send(html);
 
     // Increment view count after sending response

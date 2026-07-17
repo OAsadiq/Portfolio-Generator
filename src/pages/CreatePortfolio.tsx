@@ -220,8 +220,13 @@ const CreatePortfolio = () => {
 
   // Success screen
   if (portfolioSlug) {
+    // The shareable URL — stays clean, and stays edge-cached for real visitors.
     const portfolioUrl = `${import.meta.env.VITE_APP_URL ?? ''}/p/${portfolioSlug}`;
     const displayUrl = `porfilr.com/p/${portfolioSlug}`;
+    // The owner's own "view it" link. Published pages are edge-cached for 5 minutes, so
+    // without a unique query the author clicks straight into a stale copy of their page
+    // and concludes the save didn't work. Never use this for copy/share.
+    const viewUrl = `${portfolioUrl}?v=${Date.now()}`;
     const handleCopy = () => {
       navigator.clipboard.writeText(portfolioUrl);
       setCopied(true);
@@ -274,7 +279,7 @@ const CreatePortfolio = () => {
           {/* Actions */}
           <div className="flex flex-col gap-3">
             <a
-              href={portfolioUrl}
+              href={viewUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-stone-900 hover:bg-stone-700 text-white py-3.5 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2"

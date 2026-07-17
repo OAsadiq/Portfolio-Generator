@@ -47,6 +47,10 @@ export default async function handler(req, res) {
     }
 
     res.setHeader("Content-Type", "text/html");
+    // This is the owner's own preview — it must always reflect their last save. Never
+    // cache it, at the edge or in their browser: seeing a stale page here reads as
+    // "my change didn't save".
+    res.setHeader("Cache-Control", "no-store, max-age=0");
     res.send(html);
 
   } catch (err) {
