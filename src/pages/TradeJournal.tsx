@@ -45,6 +45,17 @@ const nowLocal = () => {
 
 const toIso = (local: string) => (local ? new Date(local).toISOString() : null);
 
+/** ISO from the database back into what <input type="datetime-local"> expects (local time). */
+const isoToLocal = (iso: string | null) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 16);
+};
+
+const numToStr = (n: number | null) => (n === null || n === undefined ? '' : String(n));
+
 const fmtMoney = (n: number | null) =>
   n === null || n === undefined ? '—' : (n > 0 ? '+' : '') + n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 
@@ -63,6 +74,8 @@ const TradeJournal = () => {
   const [toast, setToast] = useState<string | null>(null);
 
   const [form, setForm] = useState({ ...EMPTY_FORM, opened_at: nowLocal() });
+  // When set, the form is editing that trade rather than logging a new one.
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -228,7 +241,45 @@ const TradeJournal = () => {
 
   const numOrNull = (v: string) => (v.trim() === '' ? null : Number(v));
 
-  const addTrade = async (e: React.FormEvent) => {
+  const formFromTrade = (t: Trade) => ({
+    symbol: t.symbol || '',
+    direction: t.direction,
+    opened_at: isoToLocal(t.opened_at),
+    closed_at: isoToLocal(t.closed_at),
+    entry_price: numToStr(t.entry_price),
+    exit_price: numToStr(t.exit_price),
+    size: numToStr(t.size),
+    pnl: numToStr(t.pnl),
+    fees: numToStr(t.fees),
+    notes: t.notes || '',
+  });
+
+  const focusForm = () => {
+    setFormError(null);
+    document.getElementById('trade-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  const startEdit = (t: Trade) => {
+    setEditingId(t.id);
+    setForm(formFromTrade(t));
+    focusForm();
+  };
+
+  /** Closing an open trade is the common case, so prefill the close time and let them
+   *  just type the P&L their broker shows. */
+  const startClose = (t: Trade) => {
+    setEditingId(t.id);
+    setForm({ ...formFromTrade(t), closed_at: t.closed_at ? isoToLocal(t.closed_at) : nowLocal() });
+    focusForm();
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm({ ...EMPTY_FORM, opened_at: nowLocal() });
+    setFormError(null);
+  };
+
+  const submitTrade = async (e: React.FormEvent) => {
     e.preventDefault();
     const v = validate();
     setFormError(v);
@@ -237,8 +288,6 @@ const TradeJournal = () => {
     setSaving(true);
     try {
       const row = {
-        user_id: user!.id,
-        portfolio_id: portfolio.id,
         symbol: form.symbol.trim().toUpperCase(),
         direction: form.direction,
         opened_at: toIso(form.opened_at),
@@ -250,14 +299,29 @@ const TradeJournal = () => {
         fees: numOrNull(form.fees) ?? 0,
         notes: form.notes.trim() || null,
       };
-      const { data, error: e2 } = await supabase.from('trades').insert(row).select().single();
-      if (e2) throw e2;
 
-      setTrades([data as Trade, ...trades]);
-      // Keep the open date — traders log several trades from the same session.
-      setForm({ ...EMPTY_FORM, opened_at: form.opened_at, direction: form.direction });
-      track('trade_logged', { slug, closed: !!row.closed_at });
-      showToast('Trade logged.');
+      if (editingId) {
+        // user_id/portfolio_id are deliberately not in `row` — an update must never be
+        // able to move a trade to another user or portfolio. RLS would reject it, but
+        // the safest write is the one that can't express it.
+        const { data, error: e2 } = await supabase
+          .from('trades').update(row).eq('id', editingId).select().single();
+        if (e2) throw e2;
+        setTrades(trades.map(t => (t.id === editingId ? (data as Trade) : t)));
+        track('trade_edited', { slug, closed: !!row.closed_at });
+        showToast(row.closed_at ? 'Trade updated and closed.' : 'Trade updated.');
+        cancelEdit();
+      } else {
+        const { data, error: e2 } = await supabase
+          .from('trades').insert({ ...row, user_id: user!.id, portfolio_id: portfolio.id })
+          .select().single();
+        if (e2) throw e2;
+        setTrades([data as Trade, ...trades]);
+        // Keep the open date — traders log several trades from the same session.
+        setForm({ ...EMPTY_FORM, opened_at: form.opened_at, direction: form.direction });
+        track('trade_logged', { slug, closed: !!row.closed_at });
+        showToast('Trade logged.');
+      }
     } catch (e: any) {
       setFormError(e.message || 'Could not save that trade.');
     } finally {
@@ -267,6 +331,8 @@ const TradeJournal = () => {
 
   const deleteTrade = async (id: string) => {
     if (!window.confirm('Delete this trade? This cannot be undone.')) return;
+    // Don't leave the form editing a row that no longer exists — saving it would fail.
+    if (editingId === id) cancelEdit();
     const prev = trades;
     setTrades(trades.filter((t) => t.id !== id)); // optimistic
     const { error: e } = await supabase.from('trades').delete().eq('id', id);
@@ -476,11 +542,22 @@ const TradeJournal = () => {
           )}
         </div>
 
-        {/* Log a trade */}
-        <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
-          <h2 className="font-bold text-stone-900 text-sm mb-5">Log a trade</h2>
+        {/* Log / edit a trade — one form, two modes. */}
+        <div id="trade-form" className={`bg-white border rounded-2xl p-6 mb-6 transition ${
+          editingId ? 'border-orange-300 ring-2 ring-orange-100' : 'border-stone-200'
+        }`}>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-bold text-stone-900 text-sm">
+              {editingId ? 'Edit trade' : 'Log a trade'}
+            </h2>
+            {editingId && (
+              <button onClick={cancelEdit} className="text-xs font-semibold text-stone-400 hover:text-stone-700 transition">
+                Cancel
+              </button>
+            )}
+          </div>
 
-          <form onSubmit={addTrade} className="space-y-4">
+          <form onSubmit={submitTrade} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wide">
@@ -617,13 +694,24 @@ const TradeJournal = () => {
 
             {formError && <p className="text-red-500 text-sm">{formError}</p>}
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white text-sm font-semibold px-6 py-3 rounded-xl transition"
-            >
-              {saving ? 'Saving…' : 'Log trade'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={saving}
+                className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white text-sm font-semibold px-6 py-3 rounded-xl transition"
+              >
+                {saving ? 'Saving…' : editingId ? 'Save changes' : 'Log trade'}
+              </button>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  className="bg-stone-100 hover:bg-stone-200 text-stone-700 text-sm font-semibold px-5 py-3 rounded-xl transition"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
           </form>
         </div>
 
@@ -661,7 +749,13 @@ const TradeJournal = () => {
                         {t.closed_at ? (
                           <span className="text-stone-500">{new Date(t.closed_at).toLocaleDateString()}</span>
                         ) : (
-                          <span className="text-amber-600 font-semibold">Open</span>
+                          // The whole point of an open trade is that it gets closed later.
+                          <button
+                            onClick={() => startClose(t)}
+                            className="text-amber-700 bg-amber-50 border border-amber-200 hover:border-amber-400 font-semibold px-2 py-1 rounded-md transition"
+                          >
+                            Open · close it
+                          </button>
                         )}
                       </td>
                       <td className={`py-3 text-right font-semibold tabular-nums ${
@@ -670,7 +764,16 @@ const TradeJournal = () => {
                         {fmtMoney(t.pnl)}
                       </td>
                       <td className="py-3 text-right text-stone-400 tabular-nums text-xs">{t.fees ? t.fees : '—'}</td>
-                      <td className="py-3 text-right">
+                      <td className="py-3 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => startEdit(t)}
+                          className={`transition text-xs font-semibold mr-3 ${
+                            editingId === t.id ? 'text-orange-600' : 'text-stone-400 hover:text-stone-900'
+                          }`}
+                          aria-label={`Edit ${t.symbol} trade`}
+                        >
+                          {editingId === t.id ? 'Editing' : 'Edit'}
+                        </button>
                         <button
                           onClick={() => deleteTrade(t.id)}
                           className="text-stone-300 hover:text-red-500 transition text-xs font-medium"
