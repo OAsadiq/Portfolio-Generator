@@ -122,6 +122,9 @@ const TradeJournal = () => {
 
   const closedCount = metrics.totalTrades;
   const openCount = trades.length - closedCount;
+  const hasBalanceNow = portfolio?.starting_balance > 0;
+  // All three conditions the published page needs before it can show live numbers.
+  const liveReady = hasBalanceNow && closedCount > 0 && !!portfolio?.journal_enabled;
 
   const saveBalance = async () => {
     const n = Number(balanceInput);
@@ -332,9 +335,41 @@ const TradeJournal = () => {
           </div>
         )}
 
-        {/* Setup */}
+        {/* Setup — the live track record has three preconditions and every one of them
+            used to fail silently. Say out loud what's missing. */}
         <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
-          <h2 className="font-bold text-stone-900 text-sm mb-5">Setup</h2>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-bold text-stone-900 text-sm">Setup</h2>
+            {!liveReady && (
+              <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-3 py-1">
+                Not live yet
+              </span>
+            )}
+          </div>
+
+          {!liveReady && (
+            <ol className="mb-5 space-y-2">
+              {[
+                [hasBalance, 'Set your starting balance', 'Your return % is measured against it.'],
+                [closedCount > 0, 'Log at least one closed trade', openCount > 0
+                  ? `You have ${openCount} open ${openCount === 1 ? 'trade' : 'trades'} — add a close date and P&L to ${openCount === 1 ? 'it' : 'them'}.`
+                  : 'Only closed trades count towards your numbers.'],
+                [portfolio.journal_enabled, 'Turn on the live track record', 'Publishes your computed metrics to your page.'],
+              ].map(([done, title, why], i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className={`flex-none w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mt-0.5 ${
+                    done ? 'bg-emerald-500 text-white' : 'bg-stone-200 text-stone-500'
+                  }`}>
+                    {done ? '✓' : i + 1}
+                  </span>
+                  <div>
+                    <p className={`text-sm font-semibold ${done ? 'text-stone-400 line-through' : 'text-stone-900'}`}>{title as string}</p>
+                    {!done && <p className="text-xs text-stone-500 mt-0.5">{why as string}</p>}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
 
           <div className="flex flex-col sm:flex-row sm:items-end gap-3 mb-5">
             <div className="flex-1">
@@ -369,9 +404,11 @@ const TradeJournal = () => {
               <p className="text-stone-500 text-xs mt-0.5">
                 {togglingJournal
                   ? 'Updating your published page…'
-                  : hasBalance
-                    ? 'Your metrics update on your published page as you log trades, and it shows when you last traded.'
-                    : 'Set a starting balance first.'}
+                  : !hasBalance
+                    ? 'Add a starting balance above to enable this.'
+                    : portfolio.journal_enabled && closedCount === 0
+                      ? 'On — but your page still shows your typed figures until you log a closed trade.'
+                      : 'Your metrics update on your published page as you log trades, and it shows when you last traded.'}
               </p>
             </div>
             <button
