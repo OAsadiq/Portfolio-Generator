@@ -1,11 +1,20 @@
 {
   "version": 2,
-  
+
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.porfilr.com" }],
+      "destination": "https://porfilr.com/:path*",
+      "permanent": true
+    }
+  ],
+
   "rewrites": [
     { "source": "/p/:slug", "destination": "/api/p/index?slug=:slug" },
     {
       "source": "/(.*)",
-      "has": [{ "type": "host", "value": "(?<domain>(?!porfilr\\.com|.*\\.vercel\\.app|localhost).+)" }],
+      "has": [{ "type": "host", "value": "(?<domain>(?!(www\\.)?porfilr\\.com|.*\\.vercel\\.app|localhost).+)" }],
       "destination": "/api/p/index?domain=:domain"
     },
     { "source": "/(.*)", "destination": "/" }
