@@ -448,6 +448,11 @@ const TradeJournal = () => {
                 min="0"
                 value={balanceInput}
                 onChange={(e) => setBalanceInput(e.target.value)}
+                // Typing a number and walking away used to save nothing — the separate
+                // Save button was easy to miss, and every downstream step silently
+                // stayed blocked. Commit on blur and on Enter too.
+                onBlur={() => { if (balanceInput.trim() !== '' && Number(balanceInput) !== portfolio.starting_balance) saveBalance(); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); (e.target as HTMLInputElement).blur(); } }}
                 placeholder="e.g. 10000"
                 className="w-full bg-stone-50 border border-stone-200 text-stone-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 placeholder:text-stone-300 transition"
               />
