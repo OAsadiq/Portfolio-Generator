@@ -1,4 +1,5 @@
 import { collectSocials, socialIconSvg } from '../_social.js';
+import { equityCurveSvg, CLIENT_REDRAW } from '../../_lib/chart.js';
 
 function esc(s) {
   return String(s || '')
@@ -115,6 +116,12 @@ const traderTemplate = {
       ? `<span class="tr-stamp" id="trStamp" hidden>Updated <span id="trStampVal"></span></span>`
       : '';
 
+    // Generated from the journal's own curve data. Needs 2+ points to mean anything;
+    // below that we fall back to whatever chart image the trader uploaded.
+    const journalCurve = journalOn && Array.isArray(cache.curve) && cache.curve.length >= 2
+      ? equityCurveSvg(cache.curve)
+      : '';
+
     // The first metric is featured large, the rest fill a grid. Works with 1 or 6.
     const [feat, ...rest] = metrics;
     const trackCard = metrics.length ? `
@@ -178,10 +185,15 @@ const traderTemplate = {
 
     const blocks = {
       // Dark: the numbers and the evidence belong to the terminal half of the page.
-      proof: () => (equity || proofImg || verifyHref) ? dark(`
+      proof: () => (journalCurve || equity || proofImg || verifyHref) ? dark(`
       <div class="kicker">Proof</div>
       <h2>The receipts<span class="ser"> — not screenshots in a DM.</span></h2>
-      ${equity ? `<div class="chart-card"><div class="chart-head">Equity curve</div><div class="chart-body"><img src="${equity}" alt="Equity curve" /></div></div>` : ''}
+      ${journalCurve
+        // Drawn from logged trades, so it beats an uploaded screenshot: it's current,
+        // it can't be doctored in Photoshop, and it carries a live badge that a static
+        // image never can.
+        ? `<div class="chart-card"><div class="chart-head">Equity curve<span class="chart-live">Live</span></div><div class="chart-body eq-body">${journalCurve}</div></div>`
+        : equity ? `<div class="chart-card"><div class="chart-head">Equity curve</div><div class="chart-body"><img src="${equity}" alt="Equity curve" /></div></div>` : ''}
       ${proofImg ? `<div class="chart-card"><div class="chart-head">Statement / results</div><div class="chart-body"><img src="${proofImg}" alt="Statement / verified results" /></div></div>` : ''}
       ${verifyHref ? `<p class="proof-note">Independently verifiable: <a href="${verifyHref}" target="_blank" rel="noopener">${esc(verifyUrl.replace(/^https?:\/\//, ''))}</a></p>` : ''}`, 'proof') : '',
 
@@ -364,7 +376,13 @@ const traderTemplate = {
     /* ---------- proof cards ---------- */
     .chart-card{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--bg2);margin-top:20px;
       box-shadow:0 26px 64px rgba(0,0,0,.42)}
-    .chart-head{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.17em;color:var(--dim);padding:15px 20px;border-bottom:1px solid var(--line)}
+    .chart-head{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.17em;color:var(--dim);padding:15px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .chart-live{display:inline-flex;align-items:center;gap:6px;color:var(--pos);font-size:9.5px;letter-spacing:.14em}
+    .chart-live::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--pos);box-shadow:0 0 8px var(--pos)}
+    /* Generated curve: full-bleed inside the card, aspect ratio preserved so the
+       axis labels don't distort. */
+    .eq-body{padding:0;background:#0d0d10;display:block}
+    .eq-svg{width:100%;height:auto;display:block}
     /* uploaded images are arbitrary size/quality — contain them so nothing dominates or stretches */
     .chart-body{background:#0d0d10;display:flex;justify-content:center;align-items:center;padding:14px}
     .chart-card img{max-width:100%;max-height:520px;width:auto;height:auto;display:block;border-radius:10px}
@@ -490,6 +508,8 @@ ${body}
     // time; this refreshes them. Every failure path is silent and leaves the baked-in
     // values in place — a stale-but-real number beats a broken metrics card, which is
     // the single worst thing this page could show an investor.
+    ${CLIENT_REDRAW}
+
     (function(){
       var SLUG = ${JSON.stringify(String(meta.slug || ''))};
       if (!SLUG) return;
@@ -530,6 +550,11 @@ ${body}
           if (m.maxDrawdownPct !== null && m.maxDrawdownPct !== undefined) put('maxDrawdownPct', m.maxDrawdownPct + '%');
           if (m.totalTrades !== null && m.totalTrades !== undefined) put('totalTrades', String(m.totalTrades));
           if (m.trackRecordLabel) put('trackRecordLabel', m.trackRecordLabel);
+
+          // Redraw the curve too. The metrics update live, so a curve still showing the
+          // shape from publish time would contradict them — "143 trades" beside a
+          // two-point line is an obvious tell.
+          try { if (d.curve) redrawCurve(d.curve); } catch (e) {}
 
           // Only claim freshness when it's true and recent.
           if (!d.stale && d.lastTradeAt) {

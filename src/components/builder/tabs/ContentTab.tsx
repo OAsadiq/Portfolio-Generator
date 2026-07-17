@@ -44,6 +44,7 @@ export default function ContentTab({
   const blocks = config.contentBlocks;
   const isModern = templateId === 'modern-writer-template';
   const isProfessional = templateId === 'professional-writer-template';
+  const isTrader = templateId === 'trader-template';
 
   const [customSkill, setCustomSkill] = useState('');
   const selectedSkills = [1, 2, 3, 4, 5, 6].map(n => formData[`skill${n}`]).filter(Boolean);
@@ -125,18 +126,22 @@ export default function ContentTab({
               className={`${INPUT} resize-none builder-scrollbar`} placeholder="Tell visitors about yourself..." />
           </div>
 
+          {/* Location renders on the trader page too, so it must be editable there —
+              otherwise the seeded default is stuck on the page with no way to change or
+              clear it. Clearing the field hides the section entirely. */}
+          {(isProfessional || isTrader) && (
+            <div>
+              <label className={LABEL}>Location <span className="text-stone-400 font-normal normal-case">(optional — leave blank to hide)</span></label>
+              <input type="text" value={formData.location || ''} onChange={e => onChange('location', e.target.value)} className={INPUT} placeholder="San Francisco, CA" />
+            </div>
+          )}
+
           {isProfessional && (
-            <>
-              <div>
-                <label className={LABEL}>Location <span className="text-stone-400 font-normal normal-case">(optional)</span></label>
-                <input type="text" value={formData.location || ''} onChange={e => onChange('location', e.target.value)} className={INPUT} placeholder="San Francisco, CA" />
-              </div>
-              <div>
-                <label className={LABEL}>Opening statement <span className="text-stone-400 font-normal normal-case">(optional)</span></label>
-                <textarea value={formData.statement || ''} onChange={e => onChange('statement', e.target.value)} rows={2}
-                  className={`${INPUT} resize-none`} placeholder="One bold line that sums up what you do…" />
-              </div>
-            </>
+            <div>
+              <label className={LABEL}>Opening statement <span className="text-stone-400 font-normal normal-case">(optional)</span></label>
+              <textarea value={formData.statement || ''} onChange={e => onChange('statement', e.target.value)} rows={2}
+                className={`${INPUT} resize-none`} placeholder="One bold line that sums up what you do…" />
+            </div>
           )}
 
           {(isModern || isProfessional) && (

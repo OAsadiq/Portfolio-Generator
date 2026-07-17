@@ -149,12 +149,19 @@ const TradeJournal = () => {
     }
     setSavingBalance(true);
     try {
-      const { error: e } = await supabase
+      // .select() matters: without it Supabase reports success even when the write
+      // touched zero rows (filtered by RLS or a bad id), and the UI cheerfully says
+      // "saved" while the database is unchanged. Confirm a row actually came back.
+      const { data, error: e } = await supabase
         .from('portfolios')
         .update({ starting_balance: n })
-        .eq('id', portfolio.id);
+        .eq('id', portfolio.id)
+        .select('id, starting_balance');
       if (e) throw e;
-      setPortfolio({ ...portfolio, starting_balance: n });
+      if (!data || data.length === 0) {
+        throw new Error("That didn't save — the database rejected the write. Try signing out and back in.");
+      }
+      setPortfolio({ ...portfolio, starting_balance: data[0].starting_balance });
       showToast('Starting balance saved.');
     } catch (e: any) {
       showToast(e.message || 'Could not save.');
@@ -197,11 +204,16 @@ const TradeJournal = () => {
     try {
       // Order matters: the column must be committed before republishing, because the
       // publish route reads journal_enabled to decide whether to bake in the script.
-      const { error: e } = await supabase
+      // .select() confirms the write landed — a zero-row update reports no error.
+      const { data, error: e } = await supabase
         .from('portfolios')
         .update({ journal_enabled: next })
-        .eq('id', portfolio.id);
+        .eq('id', portfolio.id)
+        .select('id, journal_enabled');
       if (e) throw e;
+      if (!data || data.length === 0) {
+        throw new Error("That didn't save — the database rejected the write. Try signing out and back in.");
+      }
 
       const updated = { ...portfolio, journal_enabled: next };
       setPortfolio(updated);
