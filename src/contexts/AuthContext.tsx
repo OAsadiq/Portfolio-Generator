@@ -11,6 +11,10 @@ interface AuthContextType {
   hasPortfolio: boolean;
   existingPortfolio: { slug: string; template_id: string } | null;
   isPro: boolean;
+  /** Template IDs this user has bought outright (kits). Separate from Pro on purpose:
+   *  Pro is a $19 one-time unlock for premium templates; a kit is its own product. */
+  ownedTemplates: string[];
+  ownsTemplate: (templateId: string) => boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithOTP: (email: string) => Promise<any>;
   verifyOTP: (email: string, token: string) => Promise<any>;
@@ -29,6 +33,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [hasPortfolio, setHasPortfolio] = useState(false);
   const [existingPortfolio, setExistingPortfolio] = useState<{ slug: string; template_id: string } | null>(null);
   const [isPro, setIsPro] = useState(false);
+  const [ownedTemplates, setOwnedTemplates] = useState<string[]>([]);
 
   // Capture a ?ref=CODE from the URL as early as possible and stash it until signup.
   useEffect(() => {
@@ -54,6 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const checkSubscription = useCallback(async () => {
     if (!user) {
       setIsPro(false);
+      setOwnedTemplates([]);
       setSubscriptionLoading(false);
       return;
     }
@@ -70,22 +76,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) {
         console.error(error);
         setIsPro(false);
-        return;
-      }
-
-      if (data && data.length > 0) {
+      } else if (data && data.length > 0) {
         const subscription = data[0];
         setIsPro(subscription.status === 'active' && subscription.plan === 'pro');
       } else {
         setIsPro(false);
       }
+
+      // Kits are bought per template and do NOT come with Pro. Fetched here so the
+      // whole app has one answer to "can this user use this template?".
+      const { data: purchases, error: pErr } = await supabase
+        .from('template_purchases')
+        .select('template_id')
+        .eq('user_id', user.id);
+      if (pErr) {
+        console.error('template_purchases error:', pErr);
+        setOwnedTemplates([]);
+      } else {
+        setOwnedTemplates((purchases || []).map((p: { template_id: string }) => p.template_id));
+      }
     } catch (err) {
       console.error(err);
       setIsPro(false);
+      setOwnedTemplates([]);
     } finally {
       setSubscriptionLoading(false);
     }
   }, [user]);
+
+  const ownsTemplate = useCallback(
+    (templateId: string) => ownedTemplates.includes(templateId),
+    [ownedTemplates]
+  );
 
   const checkPortfolio = useCallback(async () => {
     if (!user) {
@@ -215,6 +237,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         hasPortfolio,
         existingPortfolio,
         isPro,
+        ownedTemplates,
+        ownsTemplate,
         signInWithGoogle,
         signInWithOTP,
         verifyOTP,

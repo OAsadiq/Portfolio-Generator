@@ -11,7 +11,15 @@ const traderTemplate = {
   name: 'Trader',
   description: 'A premium, credible track-record page for traders — get funded, get clients, get taken seriously.',
   thumbnail: '/images/minimal-template.jpg',
-  isPro: true,
+
+  // `isPro` conflated two unrelated things: "render in the visual builder" and
+  // "requires payment". Splitting them matters here — Pro is $19 ONE-TIME and promises
+  // "all premium templates", so leaving isPro:true would sell this kit for $19 forever
+  // and hand it free to every existing Pro user.
+  isPro: false,        // not unlocked by a Pro purchase
+  usesBuilder: true,   // but still edited in the visual builder
+  kit: 'trader-kit',   // unlocked by its own entitlement (template_purchases)
+  kitName: 'Trader Kit',
   fields: [
     // Hero
     { name: 'fullName',   label: 'Full Name',            type: 'text',  required: true },

@@ -94,12 +94,75 @@ async function handleCreateCheckoutSession({ priceId, userId, userEmail }, res) 
     }
 }
 
-async function handleCreateTemplateCheckout({ priceId, templateId, userId, userEmail }, res) {
-    // TODO(kits): honor referral kit credit here. Before creating the session, read
-    // referrals.kit_credit for this userId; if > 0, apply it as a free unlock or a
-    // Stripe discount/coupon, then decrement kit_credit on success (in the webhook's
-    // premium_template branch). Earned via the referral hook (1 paid referral = 1 kit).
+// Server owns the price for each kit. NEVER trust a client-sent priceId: price IDs are
+// public (they ship in the browser bundle), so a client could otherwise substitute the
+// cheaper $19 Pro price and buy a $35 kit for $19. The client sends only templateId.
+const KIT_PRICE_ENV = {
+    'trader-template': 'STRIPE_TRADER_KIT_PRICE_ID',
+};
+
+async function handleCreateTemplateCheckout({ templateId, userId, userEmail }, res) {
+    if (!userId || !templateId) {
+        return res.status(400).json({ error: 'Missing user or template' });
+    }
+
+    const priceEnv = KIT_PRICE_ENV[templateId];
+    const priceId = priceEnv ? process.env[priceEnv] : null;
+    if (!priceId) {
+        // A kit with no configured price must never fall through to a free grant path.
+        return res.status(400).json({ error: 'This kit is not available for purchase yet.' });
+    }
+
     try {
+        // ── Already owns it? ──
+        // Don't charge twice, and never burn a referral credit on something they have.
+        const { data: owned } = await supabase
+            .from('template_purchases')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('template_id', templateId)
+            .maybeSingle();
+        if (owned) {
+            return res.json({ alreadyOwned: true });
+        }
+
+        // ── Referral kit credit ──
+        // Earned by referring someone who bought Pro (see rewardReferrerForProPurchase).
+        // The claim is a compare-and-swap: `set kit_credit = 0 where kit_credit > 0`
+        // returns a row only for the caller that actually won it. A read-then-write would
+        // let a double-click spend one credit twice.
+        const { data: claimed, error: claimErr } = await supabase
+            .from('referrals')
+            .update({ kit_credit: 0 })
+            .eq('user_id', userId)
+            .gt('kit_credit', 0)
+            .select('user_id');
+
+        if (claimErr) {
+            // A broken credit lookup must not block a paying customer — fall through to checkout.
+            console.error('kit_credit claim failed, falling back to paid checkout:', claimErr.message);
+        } else if (claimed && claimed.length > 0) {
+            const { error: grantErr } = await supabase
+                .from('template_purchases')
+                .insert({
+                    user_id: userId,
+                    template_id: templateId,
+                    stripe_payment_intent_id: null,
+                    amount: 0,
+                });
+
+            if (grantErr) {
+                // The credit is already spent but the kit didn't land. Put it back —
+                // silently swallowing someone's earned reward is the worst outcome here.
+                await supabase.from('referrals').update({ kit_credit: 1 }).eq('user_id', userId);
+                console.error('kit grant failed, credit restored:', grantErr.message);
+                return res.status(500).json({ error: 'Could not unlock your kit. Your referral credit is safe — please try again.' });
+            }
+
+            return res.json({ granted: true, reason: 'referral_credit' });
+        }
+
+        // ── Normal paid checkout ── (priceId already resolved and validated above)
         const session = await stripe.checkout.sessions.create({
             mode: 'payment',
             payment_method_types: ['card'],

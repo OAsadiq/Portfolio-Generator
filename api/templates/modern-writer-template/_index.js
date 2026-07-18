@@ -611,7 +611,8 @@ const modernTemplate = {
   name: 'Modern Portfolio',
   description: 'Clean, minimal, universal portfolio that works for any profession.',
   thumbnail: '/images/modern-template.jpg',
-  isPro: true,
+  isPro: true,       // unlocked by a Pro purchase
+  usesBuilder: true, // rendered by the visual builder — see trader-template for why these are separate
   generateHTML,
 };
 

@@ -23,7 +23,13 @@ interface Template {
   name: string;
   description: string;
   fields: TemplateField[];
+  /** Unlocked by the one-time Pro purchase. */
   isPro?: boolean;
+  /** Edited in the visual builder rather than the form flow. Independent of pricing. */
+  usesBuilder?: boolean;
+  /** Sold separately as a kit — Pro does NOT unlock it. */
+  kit?: string | null;
+  kitName?: string | null;
 }
 
 const STEPS = ["Pick a template", "Add your details", "Portfolio is live"];
@@ -83,9 +89,14 @@ const CreatePortfolio = () => {
   const [portfolioSlug, setPortfolioSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [kitLoading, setKitLoading] = useState(false);
+  const [kitError, setKitError] = useState<string | null>(null);
+  // Referral reward: 1 earned kit. Shown on the paywall so someone who's earned one
+  // isn't quoted a price for something they already paid for with referrals.
+  const [kitCredit, setKitCredit] = useState(0);
   const [completedFields, setCompletedFields] = useState(0);
   const [copied, setCopied] = useState(false);
-  const { user, isPro } = useAuth();
+  const { user, isPro, ownsTemplate, checkSubscription } = useAuth();
 
   const uploadImage = async (file: File): Promise<string> => {
     const ext = file.name.split(".").pop();
@@ -104,6 +115,17 @@ const CreatePortfolio = () => {
     }
   }, [templateId]);
 
+  // Does this user have an unspent referral kit credit?
+  useEffect(() => {
+    if (!user) { setKitCredit(0); return; }
+    supabase
+      .from('referrals')
+      .select('kit_credit')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => setKitCredit(data?.kit_credit || 0));
+  }, [user]);
+
   useEffect(() => {
     if (template) {
       const filled = Object.keys(formData).filter(k => formData[k]).length;
@@ -118,6 +140,58 @@ const CreatePortfolio = () => {
       setFormData(prev => ({ ...prev, [name]: url }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  /** Buy a kit outright. Deliberately independent of the Pro flow — a free user can
+   *  come straight here without upgrading first. */
+  const buyKit = async () => {
+    if (!user) {
+      // Send them to sign in, then straight back to this template.
+      navigate('/login', { state: { from: { pathname: `/create/${templateId}` } } });
+      return;
+    }
+    setKitLoading(true);
+    setKitError(null);
+    try {
+      // Price is resolved server-side from templateId — the client must not send it, or
+      // it could substitute a cheaper price. See KIT_PRICE_ENV in api/stripe/actions.js.
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/stripe/actions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create-template-checkout',
+          templateId: template?.id,
+          userId: user.id,
+          userEmail: user.email,
+        }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        let msg = 'Failed to start checkout';
+        try { msg = JSON.parse(text).error || msg; } catch { /* empty */ }
+        throw new Error(msg);
+      }
+      const data = await res.json();
+
+      // A referral credit (or an existing purchase) unlocks the kit without Stripe —
+      // there's no checkout URL in that case, and treating it as an error would tell
+      // someone their free kit failed.
+      if (data.granted || data.alreadyOwned) {
+        await checkSubscription(); // refresh ownedTemplates so the gate opens
+        track(data.granted ? 'kit_granted' : 'kit_already_owned', {
+          templateId: template?.id,
+          reason: data.reason || null,
+        });
+        setKitLoading(false);
+        return;
+      }
+
+      if (data.url) window.location.href = data.url;
+      else throw new Error('No checkout URL returned');
+    } catch (err: any) {
+      setKitError(err.message || 'Could not start checkout. Please try again.');
+      setKitLoading(false);
     }
   };
 
@@ -168,7 +242,19 @@ const CreatePortfolio = () => {
 
   const totalFields = template?.fields?.length || 1;
   const progress = Math.round((completedFields / totalFields) * 100);
+  // Two separate questions that used to be one flag:
+  //   usesBuilder  — how it's edited (visual builder vs the form flow)
+  //   access       — who's allowed to use it (Pro unlock, kit purchase, or free)
+  // Conflating them meant the Trader Kit was unlocked by the $19 Pro purchase.
+  const usesBuilder =
+    template?.usesBuilder || template?.id === "professional-writer-template" || template?.isPro;
   const isProTemplate = template?.id === "professional-writer-template" || template?.isPro;
+  const kitId = template?.kit || null;
+  const hasAccess = kitId
+    ? !!template && ownsTemplate(template.id) // kits are bought outright — Pro does not include them
+    : isProTemplate
+      ? isPro
+      : true;
 
   // Loading template
   if (!template) {
@@ -177,6 +263,71 @@ const CreatePortfolio = () => {
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-stone-200 border-t-stone-700 rounded-full animate-spin"></div>
           <p className="text-stone-400 text-sm">Loading template...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Kit gate — deliberately NOT the Pro gate. A kit is its own product: buying it
+  // requires no Pro purchase (no double paywall), and owning Pro doesn't grant it.
+  if (kitId && !hasAccess) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
+        <div className="bg-white border border-stone-200 rounded-2xl p-8 max-w-md w-full shadow-sm">
+          <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-5">
+            <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-stone-900 mb-2">{template.kitName || 'Kit'}</h2>
+          <p className="text-stone-500 text-sm mb-5">
+            A track-record page that updates itself. Log your trades and Porfilr works out your return, win
+            rate, drawdown and equity curve — then keeps your page current, with the date you last traded.
+          </p>
+          <ul className="space-y-2 mb-6">
+            {[
+              'The Trader template + visual builder',
+              'Private trade journal',
+              'Live track record on your page',
+              'Built-in contact form for investors',
+            ].map((f) => (
+              <li key={f} className="flex items-start gap-2 text-sm text-stone-600">
+                <svg className="w-4 h-4 text-emerald-500 flex-none mt-0.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                {f}
+              </li>
+            ))}
+          </ul>
+          {kitCredit > 0 && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 mb-4">
+              <p className="text-emerald-800 text-sm font-semibold">You've earned a free kit.</p>
+              <p className="text-emerald-700 text-xs mt-0.5">
+                Your referral credit covers this — you won't be charged.
+              </p>
+            </div>
+          )}
+          {kitError && <p className="text-red-500 text-sm mb-3">{kitError}</p>}
+          <button
+            onClick={buyKit}
+            disabled={kitLoading}
+            className="w-full bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white py-3 rounded-xl font-bold text-sm transition"
+          >
+            {kitLoading
+              ? (kitCredit > 0 ? 'Unlocking…' : 'Opening checkout…')
+              : kitCredit > 0 ? 'Unlock with my referral credit' : 'Get the Trader Kit'}
+          </button>
+          {kitCredit === 0 && (
+            <p className="text-stone-400 text-xs text-center mt-3">
+              {/* Say this plainly: Pro is a different product and does not include kits. */}
+              Sold separately — you don't need Pro.
+            </p>
+          )}
+          <div className="text-center mt-4">
+            <Link to="/templates" className="text-stone-400 hover:text-stone-700 text-sm transition">
+              ← Back to templates
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -207,8 +358,9 @@ const CreatePortfolio = () => {
     );
   }
 
-  // Pro visual builder
-  if (isProTemplate && isPro) {
+  // Visual builder — reached once access is granted, whether that came from Pro or
+  // from owning the kit. Keyed on usesBuilder, not on how it was paid for.
+  if (usesBuilder && hasAccess) {
     return (
       <div className="min-h-screen bg-stone-50">
         <PortfolioVisualBuilder

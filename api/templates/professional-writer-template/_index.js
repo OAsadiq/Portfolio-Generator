@@ -507,7 +507,8 @@ const professionalWriterTemplate = {
   name: "Professional Portfolio",
   description: "Premium split-layout portfolio with a sticky profile sidebar, experience timeline, and case-study modals.",
   thumbnail: "/images/professional-template.jpg",
-  isPro: true,
+  isPro: true,       // unlocked by a Pro purchase
+  usesBuilder: true, // rendered by the visual builder — see trader-template for why these are separate
   fields: [
     { name: "fullName", label: "Full Name", type: "text", required: true, section: "hero" },
     { name: "headline", label: "Professional Headline", type: "text", required: true, section: "hero" },

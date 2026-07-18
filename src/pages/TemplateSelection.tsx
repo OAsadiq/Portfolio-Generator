@@ -23,6 +23,10 @@ interface Template {
   thumbnail?: string;
   price?: number;
   available?: boolean;
+  isPro?: boolean;
+  /** Sold separately as a kit. Pro does NOT unlock these. */
+  kit?: string | null;
+  kitName?: string | null;
 }
 
 const STEPS = ["Pick a template", "Add your details", "Portfolio is live"];
@@ -192,7 +196,7 @@ const TemplateMockup = ({ id, hovered }: { id: string; hovered: boolean }) => {
 
 const TemplateSelection = () => {
   const navigate = useNavigate();
-  const { user, hasPortfolio, existingPortfolio, isPro, checkPortfolio, checkSubscription, session } = useAuth();
+  const { user, hasPortfolio, existingPortfolio, isPro, ownsTemplate, checkPortfolio, checkSubscription, session } = useAuth();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
@@ -265,8 +269,12 @@ const TemplateSelection = () => {
     }
   };
 
-  const isTemplateLocked = (id: string) => !isPro && id !== "minimal-template";
-  const canSelectTemplate = (id: string) => isPro || id === "minimal-template";
+  // Kits are their own product: Pro does not unlock them, and owning one doesn't
+  // require Pro. Everything else keeps the old rule (Minimal free, rest via Pro).
+  const kitOf = (id: string) => templates.find(t => t.id === id)?.kit || null;
+  const isTemplateLocked = (id: string) =>
+    kitOf(id) ? !ownsTemplate(id) : !isPro && id !== "minimal-template";
+  const canSelectTemplate = (id: string) => !isTemplateLocked(id);
 
   const handleSelect = async (templateId: string) => {
     // Logged-out visitors: remember the choice, send to login, then continue to /create.
@@ -424,6 +432,9 @@ const TemplateSelection = () => {
               const isLoading = selectedLoading === template.id;
               const isLocked = isTemplateLocked(template.id);
               const isFree = template.id === "minimal-template";
+              // A kit isn't "Pro" and certainly isn't "Free" — label it honestly, or a
+              // free user clicks a "Free" badge and hits a paywall.
+              const isKit = !!template.kit;
               const isHovered = hoveredTemplate === template.id;
 
               return (
@@ -441,9 +452,11 @@ const TemplateSelection = () => {
 
                     {/* Tier badge */}
                     <div className={`absolute top-3 right-3 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
-                      isFree ? "bg-white/90 text-stone-600 border border-stone-200" : "bg-orange-600 text-white"
+                      isKit ? "bg-stone-900 text-white"
+                        : isFree ? "bg-white/90 text-stone-600 border border-stone-200"
+                        : "bg-orange-600 text-white"
                     }`}>
-                      {isFree ? "Free" : "Pro"}
+                      {isKit ? "Kit" : isFree ? "Free" : "Pro"}
                     </div>
 
                     {/* Lock overlay */}

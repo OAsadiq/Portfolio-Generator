@@ -671,7 +671,7 @@ const ProDashboard = () => {
                   <h3 className="font-bold text-stone-900 mb-4">What's included</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {[
-                      'All premium templates',
+                      'All premium templates (kits sold separately)',
                       'Custom domain support',
                       'Portfolio view analytics',
                       'Remove Porfilr branding',

@@ -19,6 +19,9 @@ export default function handler(req, res) {
         description: t.description,
         thumbnail: t.thumbnail,
         isPro: t.isPro || false,
+        usesBuilder: t.usesBuilder || false, // rendering: visual builder vs form flow
+        kit: t.kit || null,                  // entitlement: bought separately, not via Pro
+        kitName: t.kitName || null,
         fields: t.fields
       }));
       
