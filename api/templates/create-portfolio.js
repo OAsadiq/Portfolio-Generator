@@ -99,8 +99,29 @@ export default async function handler(req, res) {
             });
         }
 
-        // Pro templates require Pro subscription
-        if (!isPro && templateId !== 'minimal-template') {
+        // ── Entitlement gate (server-side; the client gate can be bypassed) ──
+        // Three tiers, keyed off the template's own flags rather than a hardcoded id list:
+        //   • kit templates      → require a template_purchases row (Pro does NOT grant it)
+        //   • other pro templates→ require Pro
+        //   • everything else    → free
+        if (template.kit) {
+            const { data: owned, error: ownErr } = await supabase
+                .from('template_purchases')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('template_id', templateId)
+                .maybeSingle();
+            if (ownErr) {
+                console.error('kit ownership check failed:', ownErr);
+                return res.status(500).json({ error: 'Could not verify your purchase. Please try again.' });
+            }
+            if (!owned) {
+                return res.status(403).json({
+                    error: `The ${template.kitName || 'kit'} is required for this template.`,
+                    code: 'KIT_REQUIRED'
+                });
+            }
+        } else if (template.isPro && !isPro) {
             return res.status(403).json({
                 error: 'This template requires a Pro subscription.',
                 code: 'PRO_TEMPLATE_REQUIRED'

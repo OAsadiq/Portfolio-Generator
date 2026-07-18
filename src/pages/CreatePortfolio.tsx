@@ -108,11 +108,32 @@ const CreatePortfolio = () => {
   };
 
   useEffect(() => {
+    // localStorage gives an instant first paint, but it can be STALE — a template cached
+    // before the kit/pricing flags existed has no `kit`, which would make the access gate
+    // fall through to the wrong paywall. So we always re-fetch the authoritative template
+    // and let it win. (Gating still can't be trusted to the client alone — publish is
+    // enforced server-side — but the UI must at least show the right paywall.)
     const stored = localStorage.getItem("selectedTemplate");
     if (stored) {
-      const parsed: Template = JSON.parse(stored);
-      if (parsed.id === templateId) setTemplate(parsed);
+      try {
+        const parsed: Template = JSON.parse(stored);
+        if (parsed.id === templateId) setTemplate(parsed);
+      } catch { /* ignore corrupt cache */ }
     }
+
+    let cancelled = false;
+    fetch(`${import.meta.env.VITE_API_URL}/api/templates`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.templates) return;
+        const fresh = data.templates.find((t: Template) => t.id === templateId);
+        if (fresh) {
+          setTemplate(fresh);
+          localStorage.setItem("selectedTemplate", JSON.stringify(fresh));
+        }
+      })
+      .catch(() => { /* keep the cached copy if the refresh fails */ });
+    return () => { cancelled = true; };
   }, [templateId]);
 
   // Does this user have an unspent referral kit credit?
