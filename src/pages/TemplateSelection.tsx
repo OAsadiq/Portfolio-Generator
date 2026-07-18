@@ -286,7 +286,17 @@ const TemplateSelection = () => {
       return;
     }
     if (!canSelectTemplate(templateId)) {
-      setAttemptedTemplate(templates.find(t => t.id === templateId) || null);
+      // A locked KIT is NOT a Pro upsell. Send it to /create, where the kit's own
+      // paywall (buy it / use a referral credit — no Pro required) lives. The Pro
+      // modal is only for genuinely Pro-locked templates.
+      const selected = templates.find(t => t.id === templateId) || null;
+      if (kitOf(templateId)) {
+        if (selected) localStorage.setItem("selectedTemplate", JSON.stringify(selected));
+        track('kit_prompt_shown', { templateId });
+        navigate(`/create/${templateId}`);
+        return;
+      }
+      setAttemptedTemplate(selected);
       setShowUpgradeModal(true);
       track('upgrade_prompt_shown', { templateId, source: 'template_lock' });
       return;
