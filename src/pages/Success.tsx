@@ -101,7 +101,7 @@ const Success = () => {
                         {verifying && !subscriptionActive
                             ? "Activating your Pro account, just a moment..."
                             : subscriptionActive
-                            ? "Your Pro subscription is active. Enjoy premium templates, custom domain and priority support."
+                            ? "Your Pro access is active. Enjoy all Pro templates, custom domain and priority support."
                             : "Thank you for upgrading. Your account is being set up with Pro features."
                         }
                     </p>

@@ -53,6 +53,23 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Template not found" });
     }
 
+    // Branding removal is a paid perk: Pro members, or anyone who owns a kit. Computed
+    // server-side so it can't be spoofed from the client. Trader pages drop branding
+    // unconditionally (every trader page is a kit purchase), but passing the flag keeps
+    // every template on the same contract.
+    const { data: subs } = await supabase
+      .from('subscriptions')
+      .select('status, plan')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    const isPro = subs && subs[0] && subs[0].status === 'active' && subs[0].plan === 'pro';
+    const { count: kitCount } = await supabase
+      .from('template_purchases')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+    const removeBranding = !!isPro || (kitCount || 0) > 0;
+
     // Compute the journal metrics NOW rather than reusing portfolio.metrics_cache.
     // The cache is only written when a visitor hits /api/track-record, so on the publish
     // that immediately follows "turn on live track record" it is still null — the page
@@ -86,6 +103,7 @@ export default async function handler(req, res) {
       slug,
       journalEnabled: !!portfolio.journal_enabled,
       metricsCache,
+      removeBranding,
     });
 
     const filePath = `portfolios/${slug}.html`;

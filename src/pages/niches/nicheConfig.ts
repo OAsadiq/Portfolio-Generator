@@ -68,7 +68,7 @@ export const NICHES: NicheConfig[] = [
       },
       {
         q: 'How much does it cost?',
-        a: 'You can build and publish a portfolio for free. Pro — which unlocks all premium templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
+        a: 'You can build and publish a portfolio for free. Pro — which unlocks all Pro templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
       },
       {
         q: 'Can I use my own domain?',
@@ -133,7 +133,7 @@ export const NICHES: NicheConfig[] = [
       },
       {
         q: 'How much does it cost?',
-        a: 'You can build and publish for free. Pro — all premium templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
+        a: 'You can build and publish for free. Pro — all Pro templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
       },
       {
         q: 'Can I use my own domain?',
@@ -194,7 +194,7 @@ export const NICHES: NicheConfig[] = [
       },
       {
         q: 'How much does it cost?',
-        a: 'You can build and publish a photography portfolio for free. Pro — all premium templates, a custom domain, and analytics — is a one-time $19 payment, not a recurring subscription.',
+        a: 'You can build and publish a photography portfolio for free. Pro — all Pro templates, a custom domain, and analytics — is a one-time $19 payment, not a recurring subscription.',
       },
       {
         q: 'How is this different from Instagram?',
@@ -255,7 +255,7 @@ export const NICHES: NicheConfig[] = [
       },
       {
         q: 'How much does it cost?',
-        a: 'You can build and publish a writer portfolio for free. Pro — all premium templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
+        a: 'You can build and publish a writer portfolio for free. Pro — all Pro templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
       },
       {
         q: 'Can I use my own domain?',
@@ -316,7 +316,7 @@ export const NICHES: NicheConfig[] = [
       },
       {
         q: 'How much does it cost?',
-        a: 'You can build and publish for free. Pro — all premium templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
+        a: 'You can build and publish for free. Pro — all Pro templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
       },
       {
         q: 'How is this better than sending YouTube links?',
@@ -377,7 +377,7 @@ export const NICHES: NicheConfig[] = [
       },
       {
         q: 'How much does it cost?',
-        a: 'You can build and publish for free. Pro — all premium templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
+        a: 'You can build and publish for free. Pro — all Pro templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
       },
       {
         q: 'Why not just send screenshots?',

@@ -12,7 +12,7 @@ const KIT_OPTIONS = ["Photographer", "Developer / Engineer", "Designer", "Real E
 
 const TEMPLATE_TOUR: TourStep[] = [
   { title: "Welcome to Porfilr", body: "Let's take 20 seconds to show you how to get a live portfolio. You can replay this anytime from the ? button.", placement: "center" },
-  { selector: '[data-tour="tour-grid"]', title: "Pick a template", body: "Every template works for any profession — designer, developer, writer, photographer. Start free with Minimal, or unlock all three with Pro.", placement: "top" },
+  { selector: '[data-tour="tour-grid"]', title: "Pick a template", body: "Every template works for any profession — designer, developer, writer, photographer. Start free with Minimal, or unlock all Pro templates with Pro.", placement: "top" },
   { selector: '[data-tour="tour-card-actions"]', title: "Preview, then build", body: "Hit Preview to see a template full-screen, or “Use this” to jump straight into the editor and fill in your details.", placement: "top" },
 ];
 
@@ -556,10 +556,10 @@ const TemplateSelection = () => {
             </div>
             <h3 className="text-xl font-bold text-stone-900 text-center mb-1">Pro template</h3>
             {attemptedTemplate && (
-              <p className="text-center text-stone-500 text-sm mb-4">"{attemptedTemplate.name}" requires a Pro subscription.</p>
+              <p className="text-center text-stone-500 text-sm mb-4">"{attemptedTemplate.name}" is a Pro template — a one-time $19 unlock.</p>
             )}
             <ul className="space-y-2 mb-6">
-              {["All 3 premium templates", "Custom domain (yourname.com)", "Portfolio analytics", "Priority support"].map(item => (
+              {["All Pro templates", "Custom domain (yourname.com)", "Portfolio analytics", "Priority support"].map(item => (
                 <li key={item} className="flex items-center gap-2.5 text-sm text-stone-700">
                   <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

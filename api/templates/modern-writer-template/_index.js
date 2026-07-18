@@ -354,7 +354,9 @@ function getStyles(accent) {
   `;
 }
 
-function generateHTML(data, sections = []) {
+function generateHTML(data, sections = [], meta = {}) {
+  // Paid users (Pro or a kit) get the footer credit removed.
+  const removeBranding = !!(meta && meta.removeBranding);
   const accent = data.primaryColor || '#4f46e5';
   const name = data.fullName || 'Your Name';
   const role = data.tagline || data.headline || 'Professional';
@@ -485,7 +487,7 @@ function generateHTML(data, sections = []) {
   <footer class="site-footer" id="footer">
     <div class="container"><div class="footer-inner">
       <span>© ${new Date().getFullYear()} ${name}</span>
-      <span>Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></span>
+      ${removeBranding ? '' : '<span>Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></span>'}
     </div></div>
   </footer>`,
   };

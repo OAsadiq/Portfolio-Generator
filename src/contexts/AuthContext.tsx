@@ -12,7 +12,7 @@ interface AuthContextType {
   existingPortfolio: { slug: string; template_id: string } | null;
   isPro: boolean;
   /** Template IDs this user has bought outright (kits). Separate from Pro on purpose:
-   *  Pro is a $19 one-time unlock for premium templates; a kit is its own product. */
+   *  Pro is a $19 one-time unlock for Pro templates; a kit is its own product. */
   ownedTemplates: string[];
   ownsTemplate: (templateId: string) => boolean;
   signInWithGoogle: () => Promise<void>;

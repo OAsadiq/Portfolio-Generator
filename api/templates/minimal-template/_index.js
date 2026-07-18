@@ -56,7 +56,9 @@ const minimalTemplate = {
     { name: "website",  label: "Website URL (optional)", type: "text" },
   ],
   
-  generateHTML: (data) => {
+  generateHTML: (data, sections = [], meta = {}) => {
+    // Paid users (Pro or a kit) get the footer credit removed. Free pages keep it.
+    const removeBranding = !!(meta && meta.removeBranding);
     const name = data.fullName || "Your Name";
     const role = data.role || data.writerType || "Freelance Professional";
     const bio = data.bio || "I build things people love.";
@@ -758,7 +760,7 @@ const minimalTemplate = {
 
         <footer>
           <span>${name}</span>
-          <a href="https://porfilr.com" target="_blank" rel="noopener">Made with Porfilr</a>
+          ${removeBranding ? '' : '<a href="https://porfilr.com" target="_blank" rel="noopener">Made with Porfilr</a>'}
         </footer>
 
         <script>

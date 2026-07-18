@@ -507,7 +507,9 @@ ${body}
   <div class="band band-dark band-foot">
     <div class="wrap">
       <p class="disclaimer">${disclaimer}</p>
-      <footer>Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></footer>
+      ${/* No "Made with Porfilr" — removing branding is a paid perk of the Trader Kit,
+           and every trader page is by definition a kit owner (publishing it requires the
+           purchase). So it's always omitted here rather than gated on a flag. */''}
     </div>
   </div>
 

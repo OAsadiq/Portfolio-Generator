@@ -141,7 +141,7 @@ const PricingSection = () => {
                 // Kits (e.g. the Trader Kit) are a separate product with ongoing costs —
                 // a journal, a live metrics API. Pro is a one-time $19 unlock, so this
                 // promise has to exclude them or it's simply untrue.
-                "All premium templates (kits sold separately)",
+                "All Pro templates (kits sold separately)",
                 "Custom domain support (yourname.com)",
                 "Portfolio view analytics",
                 'Remove "Made with Porfilr" branding',

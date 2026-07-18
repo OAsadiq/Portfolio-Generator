@@ -73,7 +73,10 @@ const PROFESSIONAL_TEMPLATES = ['professional-writer-template', 'modern-writer-t
 const INPUT = 'w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-100 transition';
 
 const ProDashboard = () => {
-  const { user, isPro, subscriptionLoading, signOut } = useAuth();
+  const { user, isPro, ownedTemplates, subscriptionLoading, signOut } = useAuth();
+  // Kit owners get the same portfolio management as Pro (analytics, custom domain) —
+  // the kit is a standalone product that includes the hosting perks.
+  const hasDashboardAccess = isPro || ownedTemplates.length > 0;
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [stats, setStats] = useState<Stats>({ totalPortfolios: 0, totalViews: 0, templatesUsed: 0, lastCreated: null });
   const [loading, setLoading] = useState(true);
@@ -288,7 +291,7 @@ const ProDashboard = () => {
     );
   }
 
-  if (!isPro) {
+  if (!hasDashboardAccess) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white border border-stone-200 rounded-2xl p-8 text-center shadow-sm">
@@ -297,11 +300,11 @@ const ProDashboard = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-stone-900 mb-2">Pro Dashboard</h2>
-          <p className="text-stone-500 mb-6">This dashboard is only available for Pro members.</p>
+          <h2 className="text-2xl font-bold text-stone-900 mb-2">Dashboard</h2>
+          <p className="text-stone-500 mb-6">The dashboard is available with Pro or any kit.</p>
           <Link to="/pricing">
             <button className="w-full bg-stone-900 hover:bg-stone-700 text-white py-3 px-6 rounded-xl font-bold transition">
-              Upgrade to Pro
+              See plans
             </button>
           </Link>
         </div>
@@ -659,7 +662,7 @@ const ProDashboard = () => {
                             {subscription?.status === 'active' ? 'Active' : subscription?.status === 'past_due' ? 'Past due' : subscription?.status || 'Active'}
                           </span>
                         </div>
-                        <p className="text-stone-500 text-sm">$19 one-time · Premium templates, custom domain & more</p>
+                        <p className="text-stone-500 text-sm">$19 one-time · Pro templates, custom domain & more</p>
                         <p className="text-stone-400 text-xs mt-1">Lifetime access — one-time payment, nothing to renew.</p>
                       </div>
                     </div>
@@ -671,7 +674,7 @@ const ProDashboard = () => {
                   <h3 className="font-bold text-stone-900 mb-4">What's included</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {[
-                      'All premium templates (kits sold separately)',
+                      'All Pro templates (kits sold separately)',
                       'Custom domain support',
                       'Portfolio view analytics',
                       'Remove Porfilr branding',

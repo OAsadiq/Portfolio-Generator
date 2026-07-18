@@ -311,7 +311,10 @@ function getStyles(primary, accent) {
   `;
 }
 
-function generateHTML(data, sections = []) {
+function generateHTML(data, sections = [], meta = {}) {
+  // Paid users (Pro or a kit) get the footer credit removed.
+  const removeBranding = !!(meta && meta.removeBranding);
+  const credit = removeBranding ? '' : '<p class="credit">Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></p>';
   const name = data.fullName || "Your Name";
   const role = data.headline || "Professional";
   const bio = data.bio || "";
@@ -439,7 +442,7 @@ function generateHTML(data, sections = []) {
     <main class="content">
       ${statement ? `<p class="lead-statement">${statement}</p>` : ''}
       ${contentHTML}
-      <p class="credit">Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></p>
+      ${credit}
     </main>
   </div>` : `
   <div class="stacked">
@@ -458,7 +461,7 @@ function generateHTML(data, sections = []) {
     </header>
     <main class="content content--stacked">
       ${contentHTML}
-      <p class="credit">Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></p>
+      ${credit}
     </main>
   </div>`}
   ${sampleModals}

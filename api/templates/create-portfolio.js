@@ -128,6 +128,14 @@ export default async function handler(req, res) {
             });
         }
 
+        // Branding removal is a paid perk: Pro members, or anyone who owns a kit. Same
+        // rule as update-portfolio so a page's branding doesn't flip on the next save.
+        const { count: kitCount } = await supabase
+            .from('template_purchases')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', user.id);
+        const removeBranding = !!isPro || (kitCount || 0) > 0;
+
         const userName = formData.fullName || 'writer';
         const userEmail = formData.email || '';
 
@@ -175,7 +183,7 @@ export default async function handler(req, res) {
 
         // A brand-new portfolio has no journal yet (journal_enabled defaults to false),
         // so live metrics stay off until the trader turns them on and republishes.
-        const finalHTML = template.generateHTML(formData, sections, { slug, journalEnabled: false, metricsCache: null });
+        const finalHTML = template.generateHTML(formData, sections, { slug, journalEnabled: false, metricsCache: null, removeBranding });
 
         const filePath = `portfolios/${slug}.html`;
 

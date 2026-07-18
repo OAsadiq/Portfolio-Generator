@@ -8,6 +8,7 @@
   <meta property="og:title" content="Jordan Rivera — Forex Trader • 3-Year Track Record" />
   <meta property="og:description" content="Disciplined swing trader focused on major forex pairs and indices. Three years of consistent, risk-managed results." />
   <meta property="og:type" content="profile" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%23ea580c%22%2F%3E%3Ctext%20x%3D%2232%22%20y%3D%2245%22%20font-family%3D%22Inter%2CHelvetica%2CArial%2Csans-serif%22%20font-size%3D%2236%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EJ%3C%2Ftext%3E%3C%2Fsvg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
@@ -116,7 +117,13 @@
     /* ---------- proof cards ---------- */
     .chart-card{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--bg2);margin-top:20px;
       box-shadow:0 26px 64px rgba(0,0,0,.42)}
-    .chart-head{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.17em;color:var(--dim);padding:15px 20px;border-bottom:1px solid var(--line)}
+    .chart-head{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.17em;color:var(--dim);padding:15px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .chart-live{display:inline-flex;align-items:center;gap:6px;color:var(--pos);font-size:9.5px;letter-spacing:.14em}
+    .chart-live::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--pos);box-shadow:0 0 8px var(--pos)}
+    /* Generated curve: full-bleed inside the card, aspect ratio preserved so the
+       axis labels don't distort. */
+    .eq-body{padding:0;background:#0d0d10;display:block}
+    .eq-svg{width:100%;height:auto;display:block}
     /* uploaded images are arbitrary size/quality — contain them so nothing dominates or stretches */
     .chart-body{background:#0d0d10;display:flex;justify-content:center;align-items:center;padding:14px}
     .chart-card img{max-width:100%;max-height:520px;width:auto;height:auto;display:block;border-radius:10px}
@@ -225,7 +232,7 @@
           <a href="https://www.myfxbook.com/members/jordan" target="_blank" rel="noopener" class="btn btn-ghost">View my track record ↗</a>
         </div>
       </div>
-      
+
         <div class="tr-card">
           <div class="tr-head"><span class="tr-head-label">Track record</span></div>
           <div class="tr-feature">
@@ -240,8 +247,8 @@
 <div class="band band-dark" id="proof"><div class="wrap">
       <div class="kicker">Proof</div>
       <h2>The receipts<span class="ser"> — not screenshots in a DM.</span></h2>
-      <div class="chart-card"><div class="chart-head">Equity curve</div><div class="chart-body"><img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20900%20300%22%3E%3Crect%20width%3D%22900%22%20height%3D%22300%22%20fill%3D%22%230d0d10%22%2F%3E%3Cpolyline%20fill%3D%22none%22%20stroke%3D%22%2322c55e%22%20stroke-width%3D%223%22%20points%3D%2220%2C265%20110%2C240%20200%2C250%20290%2C190%20380%2C205%20470%2C140%20560%2C150%20650%2C90%20740%2C70%20830%2C30%20880%2C40%22%2F%3E%3C%2Fsvg%3E" alt="Equity curve" /></div></div>
-      <div class="chart-card"><div class="chart-head">Statement / results</div><div class="chart-body"><img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20900%20260%22%3E%3Crect%20width%3D%22900%22%20height%3D%22260%22%20fill%3D%22%230d0d10%22%2F%3E%3Ctext%20x%3D%2230%22%20y%3D%2250%22%20fill%3D%22%2393939f%22%20font-family%3D%22monospace%22%20font-size%3D%2215%22%3EAccount%20%23482910%20%E2%80%94%20Broker%20Statement%3C%2Ftext%3E%3Ctext%20x%3D%2230%22%20y%3D%2295%22%20fill%3D%22%23f7f7f9%22%20font-family%3D%22monospace%22%20font-size%3D%2215%22%3EClosed%20P%2FL%20............%20%2B%2428%2C420.00%3C%2Ftext%3E%3Ctext%20x%3D%2230%22%20y%3D%22130%22%20fill%3D%22%2322c55e%22%20font-family%3D%22monospace%22%20font-size%3D%2215%22%3EReturn%20...............%20%2B142.0%25%3C%2Ftext%3E%3Ctext%20x%3D%2230%22%20y%3D%22165%22%20fill%3D%22%23f7f7f9%22%20font-family%3D%22monospace%22%20font-size%3D%2215%22%3EWin%20rate%20.............%2068%25%3C%2Ftext%3E%3Ctext%20x%3D%2230%22%20y%3D%22200%22%20fill%3D%22%23f87171%22%20font-family%3D%22monospace%22%20font-size%3D%2215%22%3EMax%20drawdown%20.........%208.2%25%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Statement / verified results" /></div></div>
+
+
       <p class="proof-note">Independently verifiable: <a href="https://www.myfxbook.com/members/jordan" target="_blank" rel="noopener">www.myfxbook.com/members/jordan</a></p></div></div>
 <div class="band band-light"><div class="wrap">
       <div class="kicker">Markets</div>
@@ -253,7 +260,7 @@
           <div class="kicker">Strategy</div>
           <h2>How I trade<span class="ser"> — and where the edge is.</span></h2>
         </div>
-        <p class="prose">Swing trading major forex pairs and indices on the 4H timeframe. My edge is disciplined trend-continuation setups with strict, risk-defined entries — no averaging down, no revenge trading.</p>
+        <p class="prose">Swing trading major forex pairs and indices on the 4H timeframe. My edge is disciplined trend-continuation setups with strict, risk-defined entries.</p>
       </div></div></div>
 <div class="band band-light"><div class="wrap">
       <div class="lcard">
@@ -261,7 +268,7 @@
           <div class="kicker">Risk</div>
           <h2>How I protect capital<span class="ser"> — before I grow it.</span></h2>
         </div>
-        <p class="prose">Max 1% risk per trade, a hard stop on every position, and a 5% daily loss limit. Capital preservation comes before returns — that consistency is what keeps me funded.</p>
+        <p class="prose">Max 1% risk per trade, a hard stop on every position, and a 5% daily loss limit.</p>
       </div></div></div>
 <div class="band band-light"><div class="wrap">
       <div class="kicker">Work with me</div>
@@ -270,7 +277,7 @@
 <div class="band band-dark" id="contact"><div class="wrap">
       <div class="kicker">Get in touch</div>
       <h2>Let's talk<span class="ser"> — investors and clients welcome.</span></h2>
-      
+
       <form class="cform" id="contactForm">
         <div class="row">
           <input type="text" name="senderName" placeholder="Your name" required />
@@ -281,15 +288,13 @@
         <button type="submit" id="cfSubmit">Send message</button>
         <div class="cf-msg" id="cfMsg"></div>
       </form>
-      <div class="socials"><a href="https://linkedin.com/in/jordanwilliams" target="_blank" rel="noopener" class="social" aria-label="social link"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a><a href="https://twitter.com/jordanwilliams" target="_blank" rel="noopener" class="social" aria-label="social link"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a><a href="https://dribbble.com/jordanwilliams" target="_blank" rel="noopener" class="social" aria-label="social link"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12c6.627 0 12-5.373 12-12S18.627 0 12 0zm9.568 5.302c1.4 1.5 2.252 3.498 2.273 5.668-.337-.063-3.717-.755-7.124-.326-.075-.165-.15-.33-.226-.495-.21-.495-.435-.99-.66-1.47 3.78-1.54 5.49-3.766 5.467-3.847.09-.05.18-.1.27-.15zm-9.568 1.394c2.34 0 4.484.87 6.12 2.296-.165.255-2.49 2.295-6.12 3.66-1.395-2.55-2.94-4.65-3.18-4.965 1.005-.51 2.13-.99 3.18-.99zM5.79 8.07c.225.3 1.74 2.385 3.15 4.875-3.99 1.065-7.515 1.05-7.89 1.05-.015-.06-.015-.12-.015-.18 0-2.52 1.71-4.74 4.755-5.745zM2.4 12.18v.15c.375.015 4.5.105 8.745-1.155.255.495.495.99.72 1.485-.105.03-.21.06-.315.09-4.41 1.425-6.75 5.31-6.945 5.64C3.33 16.5 2.4 14.43 2.4 12.18zm9.6 9.42c-2.07 0-3.975-.705-5.49-1.89.15-.315 1.86-3.6 6.69-5.295.015 0 .03-.015.045-.015 1.2 3.105 1.695 5.715 1.815 6.45-.93.39-1.965.6-3.06.6zm5.085-1.605c-.09-.51-.555-3-1.665-6.06 3.21-.51 6.015.33 6.36.435-.45 2.835-2.085 5.28-4.38 6.825z"/></svg></a></div></div></div>
+      <div class="socials"><a href="https://linkedin.com/in/jordan" target="_blank" rel="noopener" class="social" aria-label="social link"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a><a href="https://x.com/jordan" target="_blank" rel="noopener" class="social" aria-label="social link"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></div>
   <div class="band band-dark band-foot">
     <div class="wrap">
       <p class="disclaimer">Trading involves substantial risk of loss and is not suitable for every investor. Results shown are self-reported by the account holder. Past performance is not indicative of future results.</p>
-      <footer>Made with <a href="https://porfilr.com" target="_blank" rel="noopener">Porfilr</a></footer>
+
     </div>
   </div>
-
-  
 
   <script>
     (function(){
