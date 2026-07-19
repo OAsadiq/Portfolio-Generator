@@ -139,97 +139,82 @@ export default async function handler(req, res) {
         const userName = formData.fullName || 'writer';
         const userEmail = formData.email || '';
 
-        const generateUniqueSlug = async (baseName, userId) => {
-        const baseSlug = createSlug(baseName);
-        
-        const { data: existing } = await supabase
-            .from('portfolios')
-            .select('slug')
-            .eq('user_id', userId)
-            .ilike('slug', `${baseSlug}%`)
-            .order('slug', { ascending: false })
-            .limit(1);
-        
-        if (!existing || existing.length === 0) {
-            return baseSlug;
-        }
-        
-        const existingSlugs = await supabase
-            .from('portfolios')
-            .select('slug')
-            .eq('user_id', userId)
-            .ilike('slug', `${baseSlug}%`);
-        
-        if (!existingSlugs.data || existingSlugs.data.length === 0) {
-            return baseSlug;
-        }
-        
-        const numbers = existingSlugs.data
-            .map(item => {
-            const match = item.slug.match(new RegExp(`^${baseSlug}-(\\d+)$`));
-            return match ? parseInt(match[1]) : 0;
-            })
-            .filter(num => num > 0);
-        
-        if (numbers.length === 0) {
-            return `${baseSlug}-2`;
-        }
-        
-        const maxNumber = Math.max(...numbers);
-        return `${baseSlug}-${maxNumber + 1}`;
+        // Slugs must be GLOBALLY unique — they're the public /p/<slug> URL, and the DB
+        // enforces it with a unique constraint (portfolios_slug_key). This query must
+        // therefore check ALL portfolios, not just the current user's: previously it
+        // filtered by user_id, so one user's "jordan-rivera" collided with another's and
+        // the insert died with a raw 23505 duplicate-key 500.
+        const generateUniqueSlug = async (baseName) => {
+            const baseSlug = createSlug(baseName) || 'portfolio';
+            const { data: taken } = await supabase
+                .from('portfolios')
+                .select('slug')
+                .ilike('slug', `${baseSlug}%`);
+
+            const used = new Set((taken || []).map(r => r.slug));
+            if (!used.has(baseSlug)) return baseSlug;
+            // baseSlug is taken — find the lowest free -N suffix.
+            for (let n = 2; ; n++) {
+                const candidate = `${baseSlug}-${n}`;
+                if (!used.has(candidate)) return candidate;
+            }
         };
 
-        const slug = await generateUniqueSlug(userName, user.id);
+        let slug = await generateUniqueSlug(userName);
 
         // A brand-new portfolio has no journal yet (journal_enabled defaults to false),
-        // so live metrics stay off until the trader turns them on and republishes.
+        // so live metrics stay off — meaning the generated HTML doesn't depend on the
+        // slug and can be reused if we have to pick a different one on a collision.
         const finalHTML = template.generateHTML(formData, sections, { slug, journalEnabled: false, metricsCache: null, removeBranding });
 
-        const filePath = `portfolios/${slug}.html`;
+        // Insert, tolerating a slug race. The global check above makes collisions rare,
+        // but two requests can still pass it and hit the unique constraint (23505). Retry
+        // with a fresh slug instead of surfacing a raw duplicate-key 500 to the user.
+        let portfolio = null;
+        let filePath = null;
+        let urlData = null;
+        for (let attempt = 0; attempt < 5; attempt++) {
+            filePath = `portfolios/${slug}.html`;
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('portfolios')
-            .upload(filePath, finalHTML, {
-                contentType: 'text/html',
-                cacheControl: '3600',
-                upsert: true
-            });
+            const { error: uploadError } = await supabase.storage
+                .from('portfolios')
+                .upload(filePath, finalHTML, { contentType: 'text/html', cacheControl: '3600', upsert: true });
+            if (uploadError) {
+                return res.status(500).json({ error: "Failed to upload portfolio", details: uploadError.message });
+            }
 
-        if (uploadError) {
-            return res.status(500).json({
-                error: "Failed to upload portfolio",
-                details: uploadError.message
-            });
+            urlData = supabase.storage.from('portfolios').getPublicUrl(filePath).data;
+
+            const { data, error: insertError } = await supabase
+                .from('portfolios')
+                .insert({
+                    user_id: user.id,
+                    slug: slug,
+                    user_name: userName,
+                    user_email: userEmail,
+                    template_id: templateId,
+                    template_fields: template.fields,
+                    file_path: filePath,
+                    form_data: formData,
+                    sections: sections || [],
+                    deployed_url: `https://porfilr.com/p/${slug}`,
+                    deployed_at: new Date().toISOString(),
+                    status: 'active',
+                })
+                .select()
+                .single();
+
+            if (!insertError) { portfolio = data; break; }
+            // 23505 = unique violation (slug already taken by a racing request). Try again.
+            if (insertError.code === '23505') {
+                slug = `${createSlug(userName) || 'portfolio'}-${Math.random().toString(36).slice(2, 6)}`;
+                continue;
+            }
+            return res.status(500).json({ error: 'Failed to create portfolio', details: insertError.message });
         }
 
-        const { data: urlData } = supabase.storage
-            .from('portfolios')
-            .getPublicUrl(filePath);
-
-        const { data: portfolio, error: insertError } = await supabase
-            .from('portfolios')
-            .insert({
-                user_id: user.id,
-                slug: slug,
-                user_name: userName,
-                user_email: userEmail,
-                template_id: templateId,
-                template_fields: template.fields,
-                file_path: filePath,
-                form_data: formData,
-                sections: sections || [],
-                deployed_url: `https://porfilr.com/p/${slug}`,
-                deployed_at: new Date().toISOString(),
-                status: 'active',
-            })
-            .select()
-            .single();
-
-        if (insertError) {
-            return res.status(500).json({
-                error: 'Failed to create portfolio',
-                details: insertError.message
-            });
+        if (!portfolio) {
+            return res.status(500).json({ error: 'Could not create a unique portfolio. Please try again.' });
         }
 
         // Restore trade history on rebuild. A kit's trades belong to the trader, not the
