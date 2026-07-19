@@ -9,6 +9,7 @@ import PreviewPortfolio from './pages/PreviewPortfolio';
 import Contact from './pages/Contact';
 import Home from './pages/Home';
 import Success from './pages/Success';
+import TemplateSuccess from './pages/TemplateSuccess';
 import ProDashboard from './pages/ProDashboard';
 import EditPortfolio from './pages/EditPortfolio';
 import TradeJournal from './pages/TradeJournal';
@@ -53,6 +54,11 @@ function App() {
             <Route path="/success" element={
               <ProtectedRoute>
                 <Success />
+              </ProtectedRoute>
+            } />
+            <Route path="/template-success" element={
+              <ProtectedRoute>
+                <TemplateSuccess />
               </ProtectedRoute>
             } />
             <Route path="/dashboard" element={
