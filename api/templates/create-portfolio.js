@@ -232,6 +232,20 @@ export default async function handler(req, res) {
             });
         }
 
+        // Restore trade history on rebuild. A kit's trades belong to the trader, not the
+        // page: when a previous kit page was deleted its trades were kept (portfolio_id
+        // set to null on delete). Re-point any such orphans of the SAME kit at this new
+        // page, so the journal and live track record come back instead of starting empty.
+        if (template.kit) {
+            const { error: adoptErr } = await supabase
+                .from('trades')
+                .update({ portfolio_id: portfolio.id })
+                .eq('user_id', user.id)
+                .eq('template_id', templateId)
+                .is('portfolio_id', null);
+            if (adoptErr) console.error('trade adoption failed:', adoptErr.message);
+        }
+
         const { error: trackingError } = await supabase
             .from('user_portfolio_usage')
             .insert({

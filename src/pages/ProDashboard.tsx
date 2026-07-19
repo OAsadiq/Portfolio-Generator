@@ -971,15 +971,16 @@ const ProDashboard = () => {
               Are you sure you want to delete <span className="font-semibold text-stone-900">"{deleteConfirm.name}"</span>?
             </p>
 
-            {/* The page is replaceable; the journal isn't. Name the cost before they click. */}
+            {/* Trades now survive a delete and re-attach when the trader rebuilds the kit
+                page, so this is reassurance, not a warning. */}
             {!!deleteConfirm.tradeCount && deleteConfirm.tradeCount > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-5">
-                <p className="text-red-800 text-sm font-semibold mb-1">
-                  This also deletes your trade journal.
+              <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 mb-5">
+                <p className="text-stone-800 text-sm font-semibold mb-1">
+                  Your {deleteConfirm.tradeCount} logged {deleteConfirm.tradeCount === 1 ? 'trade' : 'trades'} are safe.
                 </p>
-                <p className="text-red-700 text-sm">
-                  {deleteConfirm.tradeCount} logged {deleteConfirm.tradeCount === 1 ? 'trade' : 'trades'} will be
-                  permanently deleted with this portfolio — your whole track record history. There's no way to get it back.
+                <p className="text-stone-600 text-sm">
+                  This removes the published page, but your trade history is kept. Build a new Trader page
+                  any time and it'll come back automatically.
                 </p>
               </div>
             )}
@@ -990,14 +991,9 @@ const ProDashboard = () => {
               </button>
               <button
                 onClick={() => handleDeletePortfolio(deleteConfirm.id, deleteConfirm.slug)}
-                disabled={deleteConfirm.tradeCount === null}
-                className="flex-1 bg-red-500 hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2.5 px-4 rounded-xl text-sm font-semibold transition"
+                className="flex-1 bg-red-500 hover:bg-red-400 text-white py-2.5 px-4 rounded-xl text-sm font-semibold transition"
               >
-                {deleteConfirm.tradeCount === null
-                  ? 'Checking…'
-                  : deleteConfirm.tradeCount > 0
-                    ? `Delete page + ${deleteConfirm.tradeCount} trades`
-                    : 'Delete'}
+                Delete page
               </button>
             </div>
           </div>

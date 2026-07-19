@@ -325,7 +325,10 @@ const TradeJournal = () => {
         cancelEdit();
       } else {
         const { data, error: e2 } = await supabase
-          .from('trades').insert({ ...row, user_id: user!.id, portfolio_id: portfolio.id })
+          // template_id ties the trade to the KIT, not just this page — that's what lets
+          // a rebuilt page re-adopt its history after a delete. portfolio_id is the
+          // current (soft) association.
+          .from('trades').insert({ ...row, user_id: user!.id, portfolio_id: portfolio.id, template_id: portfolio.template_id })
           .select().single();
         if (e2) throw e2;
         setTrades([data as Trade, ...trades]);
