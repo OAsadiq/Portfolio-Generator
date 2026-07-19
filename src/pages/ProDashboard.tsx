@@ -94,11 +94,30 @@ const ProDashboard = () => {
   const [customDomains, setCustomDomains] = useState<CustomDomain[]>([]);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [kitPurchases, setKitPurchases] = useState<{ template_id: string; amount: number | null; purchased_at: string | null }[]>([]);
   const [billingLoading, setBillingLoading] = useState(false);
 
   useEffect(() => {
-    if (user) { fetchDashboardData(); fetchCustomDomains(); fetchSubscription(); fetchLeads(); }
+    if (user) { fetchDashboardData(); fetchCustomDomains(); fetchSubscription(); fetchPurchases(); fetchLeads(); }
   }, [user?.id]);
+
+  // Kits are separate purchases from Pro; the billing tab must reflect what was actually bought.
+  const fetchPurchases = async () => {
+    if (!user?.id) return;
+    const { data, error } = await supabase
+      .from('template_purchases')
+      .select('template_id, amount, purchased_at')
+      .eq('user_id', user.id)
+      .order('purchased_at', { ascending: false });
+    if (!error && data) setKitPurchases(data);
+  };
+
+  // A user is "Pro" only with an active pro subscription — NOT by owning a kit.
+  const hasPro = subscription?.status === 'active' && subscription?.plan === 'pro';
+  const KIT_NAMES: Record<string, string> = { 'trader-template': 'Trader Kit' };
+  const kitLabel = (id: string) => KIT_NAMES[id] || id.replace(/-template$/, '').replace(/-/g, ' ');
+  const fmtPrice = (cents: number | null) =>
+    cents == null ? '' : `$${(cents / 100).toFixed(2).replace(/\.00$/, '')}`;
 
   const fetchLeads = async () => {
     if (!user?.id) return;
@@ -639,66 +658,102 @@ const ProDashboard = () => {
             {activeTab === 'billing' && (
               <div className="space-y-5">
 
-                {/* Current Plan */}
+                {/* What you own — Pro and/or kits, reflecting actual purchases */}
                 <div className="bg-white border border-stone-200 rounded-2xl p-6">
-                  <h2 className="text-lg font-bold text-stone-900 mb-5">Current Plan</h2>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-orange-50 border border-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <h3 className="font-bold text-stone-900 text-lg">Pro Plan</h3>
-                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                            subscription?.status === 'active'
-                              ? 'bg-green-100 text-green-700'
-                              : subscription?.status === 'past_due'
-                              ? 'bg-red-100 text-red-600'
-                              : 'bg-stone-100 text-stone-500'
-                          }`}>
-                            {subscription?.status === 'active' ? 'Active' : subscription?.status === 'past_due' ? 'Past due' : subscription?.status || 'Active'}
-                          </span>
+                  <h2 className="text-lg font-bold text-stone-900 mb-5">Your purchases</h2>
+                  <div className="space-y-4">
+
+                    {/* Pro — only shown to actual Pro subscribers */}
+                    {hasPro && (
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-orange-50 border border-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
                         </div>
-                        <p className="text-stone-500 text-sm">$19 one-time · Pro templates, custom domain & more</p>
-                        <p className="text-stone-400 text-xs mt-1">Lifetime access — one-time payment, nothing to renew.</p>
+                        <div>
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <h3 className="font-bold text-stone-900 text-lg">Pro Plan</h3>
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Active</span>
+                          </div>
+                          <p className="text-stone-500 text-sm">$19 one-time · Pro templates, custom domain & more</p>
+                          <p className="text-stone-400 text-xs mt-1">Lifetime access — one-time payment, nothing to renew.</p>
+                        </div>
                       </div>
-                    </div>
+                    )}
+
+                    {/* Kits — each purchased separately from Pro */}
+                    {kitPurchases.map((kit) => (
+                      <div key={kit.template_id} className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-orange-50 border border-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <TrendingUp className="w-6 h-6 text-orange-500" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <h3 className="font-bold text-stone-900 text-lg">{kitLabel(kit.template_id)}</h3>
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Owned</span>
+                          </div>
+                          <p className="text-stone-500 text-sm">
+                            {kit.amount ? `${fmtPrice(kit.amount)} one-time` : 'Unlocked'} · trade journal &amp; live track record
+                          </p>
+                          <p className="text-stone-400 text-xs mt-1">Lifetime access — includes everything the kit needs, no Pro required.</p>
+                        </div>
+                      </div>
+                    ))}
+
+                    {!hasPro && kitPurchases.length === 0 && (
+                      <p className="text-stone-500 text-sm">You're on the free plan. Upgrade to Pro or get a kit to unlock more.</p>
+                    )}
                   </div>
                 </div>
 
-                {/* What's included */}
-                <div className="bg-white border border-stone-200 rounded-2xl p-6">
-                  <h3 className="font-bold text-stone-900 mb-4">What's included</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {[
-                      'All Pro templates (kits sold separately)',
-                      'Custom domain support',
-                      'Portfolio view analytics',
-                      'Remove Porfilr branding',
-                      'Priority support',
-                      'Early access to new features',
-                    ].map((feature) => (
-                      <div key={feature} className="flex items-center gap-2.5 text-sm text-stone-700">
-                        <div className="w-5 h-5 bg-green-50 border border-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        {feature}
+                {/* What's included — reflects what the user actually owns */}
+                {(() => {
+                  const proFeatures = [
+                    'All Pro templates (kits sold separately)',
+                    'Custom domain support',
+                    'Portfolio view analytics',
+                    'Remove Porfilr branding',
+                    'Priority support',
+                    'Early access to new features',
+                  ];
+                  const kitFeatures = [
+                    'Trader template + visual builder',
+                    'Private trade journal',
+                    'Live track record on your page',
+                    'Custom domain support',
+                    'Portfolio view analytics',
+                    'No Porfilr branding',
+                  ];
+                  const groups = [
+                    ...(hasPro ? [['Included with Pro', proFeatures] as const] : []),
+                    ...(kitPurchases.length > 0 ? [['Included with your kit', kitFeatures] as const] : []),
+                  ];
+                  return groups.map(([title, features]) => (
+                    <div key={title} className="bg-white border border-stone-200 rounded-2xl p-6">
+                      <h3 className="font-bold text-stone-900 mb-4">{title}</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {features.map((feature) => (
+                          <div key={feature} className="flex items-center gap-2.5 text-sm text-stone-700">
+                            <div className="w-5 h-5 bg-green-50 border border-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                            {feature}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                  ));
+                })()}
 
                 {/* Manage billing */}
                 <div className="bg-white border border-stone-200 rounded-2xl p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h3 className="font-bold text-stone-900 mb-1">Payment & Receipt</h3>
-                      <p className="text-stone-500 text-sm">View your payment details and download a receipt from the Stripe portal. Pro is a one-time purchase — there's nothing to renew or cancel.</p>
+                      <p className="text-stone-500 text-sm">View your payment details and download a receipt from the Stripe portal. Your purchases are one-time — there's nothing to renew or cancel.</p>
                     </div>
                   </div>
                   <button
