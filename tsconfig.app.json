@@ -28,5 +28,5 @@
        can never drift from the numbers a trader actually publishes. */
     "allowJs": true
   },
-  "include": ["src", "api/_lib/metrics.js", "api/templates/trader-template/_index.js"]
+  "include": ["src", "api/_lib/metrics.js", "api/_lib/tradeCsv.js", "api/templates/trader-template/_index.js"]
 }

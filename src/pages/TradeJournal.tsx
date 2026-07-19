@@ -8,6 +8,9 @@ import { track } from '../lib/track';
 // `npm test`). Shared deliberately: the preview a trader sees here must never disagree
 // with the numbers that end up in front of an investor.
 import { computeMetrics } from '../../api/_lib/metrics.js';
+// Shared, unit-tested CSV import (api/_lib/tradeCsv.js). A trader with real history won't
+// hand-log hundreds of trades, so this is what makes the journal usable for them.
+import { parseTradeCsv } from '../../api/_lib/tradeCsv.js';
 
 type Trade = {
   id: string;
@@ -82,6 +85,12 @@ const TradeJournal = () => {
   const [balanceInput, setBalanceInput] = useState('');
   const [savingBalance, setSavingBalance] = useState(false);
   const [togglingJournal, setTogglingJournal] = useState(false);
+
+  // CSV import: null until a file is parsed, then a preview the user confirms.
+  type ImportPreview = { valid: any[]; errors: { line: number; message: string }[]; totalRows: number; fileName: string };
+  const [csvPreview, setCsvPreview] = useState<ImportPreview | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -359,6 +368,49 @@ const TradeJournal = () => {
     }
   };
 
+  const onCsvFile = async (file: File | null) => {
+    if (!file) return;
+    setShowErrors(false);
+    try {
+      const text = await file.text();
+      const { valid, errors, totalRows } = parseTradeCsv(text);
+      setCsvPreview({ valid, errors, totalRows, fileName: file.name });
+      if (valid.length === 0 && errors.length === 0) {
+        showToast("That file has no rows we could read.");
+      }
+    } catch {
+      showToast("Could not read that file.");
+    }
+  };
+
+  const confirmImport = async () => {
+    if (!csvPreview || csvPreview.valid.length === 0) return;
+    setImporting(true);
+    try {
+      // Stamp each row with owner/page/kit, same as a manual insert. Chunked so a large
+      // history doesn't hit request limits.
+      const rows = csvPreview.valid.map((t) => ({
+        ...t, user_id: user!.id, portfolio_id: portfolio.id, template_id: portfolio.template_id,
+      }));
+      const CHUNK = 200;
+      const inserted: Trade[] = [];
+      for (let i = 0; i < rows.length; i += CHUNK) {
+        const { data, error: e } = await supabase.from('trades').insert(rows.slice(i, i + CHUNK)).select();
+        if (e) throw e;
+        if (data) inserted.push(...(data as Trade[]));
+      }
+      // Merge and re-sort by opened_at desc to match the list's ordering.
+      setTrades([...inserted, ...trades].sort((a, b) => new Date(b.opened_at).getTime() - new Date(a.opened_at).getTime()));
+      track('trades_imported', { slug, count: inserted.length });
+      showToast(`Imported ${inserted.length} ${inserted.length === 1 ? 'trade' : 'trades'}.`);
+      setCsvPreview(null);
+    } catch (e: any) {
+      showToast(e.message || 'Import failed. Nothing was changed.');
+    } finally {
+      setImporting(false);
+    }
+  };
+
   if (!user) return null;
 
   if (loading) {
@@ -559,6 +611,107 @@ const TradeJournal = () => {
                 </p>
               )}
             </>
+          )}
+        </div>
+
+        {/* Import from CSV — the adoption unlock for traders with existing history */}
+        <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="font-bold text-stone-900 text-sm">Import from CSV</h2>
+              <p className="text-stone-500 text-xs mt-0.5">
+                Export your history from MT4/MT5, cTrader, or your broker and drop it here. We'll map the columns automatically.
+              </p>
+            </div>
+            <label className="cursor-pointer bg-stone-900 hover:bg-stone-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition whitespace-nowrap">
+              Choose CSV
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                className="hidden"
+                onChange={(e) => { onCsvFile(e.target.files?.[0] || null); e.currentTarget.value = ''; }}
+              />
+            </label>
+          </div>
+
+          {csvPreview && (
+            <div className="mt-5 border-t border-stone-100 pt-5">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <p className="text-sm text-stone-700 font-medium truncate">{csvPreview.fileName}</p>
+                <button onClick={() => setCsvPreview(null)} className="text-stone-400 hover:text-stone-700 text-xs font-semibold flex-none">Clear</button>
+              </div>
+
+              <div className="flex gap-3 flex-wrap mb-4">
+                <span className="text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg px-3 py-1.5 font-semibold">
+                  {csvPreview.valid.length} ready to import
+                </span>
+                {csvPreview.errors.length > 0 && (
+                  <button
+                    onClick={() => setShowErrors((v) => !v)}
+                    className="text-sm bg-amber-50 text-amber-700 border border-amber-200 rounded-lg px-3 py-1.5 font-semibold"
+                  >
+                    {csvPreview.errors.length} couldn't be read {showErrors ? '▲' : '▼'}
+                  </button>
+                )}
+              </div>
+
+              {showErrors && csvPreview.errors.length > 0 && (
+                <div className="mb-4 max-h-48 overflow-y-auto bg-stone-50 border border-stone-200 rounded-xl divide-y divide-stone-100">
+                  {csvPreview.errors.map((er, i) => (
+                    <div key={i} className="px-3 py-2 text-xs flex gap-3">
+                      <span className="text-stone-400 font-mono flex-none">line {er.line}</span>
+                      <span className="text-stone-600">{er.message}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {csvPreview.valid.length > 0 ? (
+                <>
+                  {/* Preview the first few so they can eyeball the mapping before committing. */}
+                  <div className="overflow-x-auto -mx-6 px-6 mb-4">
+                    <table className="w-full text-xs min-w-[560px]">
+                      <thead>
+                        <tr className="text-stone-400 uppercase tracking-wide">
+                          <th className="text-left font-semibold pb-2">Symbol</th>
+                          <th className="text-left font-semibold pb-2">Side</th>
+                          <th className="text-left font-semibold pb-2">Opened</th>
+                          <th className="text-left font-semibold pb-2">Closed</th>
+                          <th className="text-right font-semibold pb-2">P&amp;L</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {csvPreview.valid.slice(0, 5).map((t, i) => (
+                          <tr key={i} className="border-t border-stone-100">
+                            <td className="py-1.5 font-semibold text-stone-900">{t.symbol}</td>
+                            <td className={`py-1.5 capitalize font-semibold ${t.direction === 'long' ? 'text-emerald-600' : 'text-red-500'}`}>{t.direction}</td>
+                            <td className="py-1.5 text-stone-500">{new Date(t.opened_at).toLocaleDateString()}</td>
+                            <td className="py-1.5 text-stone-500">{t.closed_at ? new Date(t.closed_at).toLocaleDateString() : '—'}</td>
+                            <td className={`py-1.5 text-right tabular-nums ${t.pnl == null ? 'text-stone-300' : t.pnl >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                              {t.pnl == null ? '—' : (t.pnl > 0 ? '+' : '') + t.pnl}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {csvPreview.valid.length > 5 && (
+                      <p className="text-stone-400 text-xs mt-2">…and {csvPreview.valid.length - 5} more.</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={confirmImport}
+                    disabled={importing}
+                    className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white text-sm font-semibold px-6 py-3 rounded-xl transition"
+                  >
+                    {importing ? 'Importing…' : `Import ${csvPreview.valid.length} ${csvPreview.valid.length === 1 ? 'trade' : 'trades'}`}
+                  </button>
+                </>
+              ) : (
+                <p className="text-stone-500 text-sm">
+                  No rows could be read from this file. Check the errors above, or make sure it has a header row with column names.
+                </p>
+              )}
+            </div>
           )}
         </div>
 
