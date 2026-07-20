@@ -31,6 +31,9 @@ interface Template {
 
 const STEPS = ["Pick a template", "Add your details", "Portfolio is live"];
 
+// A locked kit routes to its founding/claim page rather than the bare paywall.
+const KIT_CLAIM_PATH: Record<string, string> = { 'trader-template': '/trader-kit' };
+
 const StepIndicator = ({ current }: { current: number }) => (
   <div className="flex items-center justify-center gap-0 mb-10">
     {STEPS.map((label, i) => {
@@ -286,14 +289,14 @@ const TemplateSelection = () => {
       return;
     }
     if (!canSelectTemplate(templateId)) {
-      // A locked KIT is NOT a Pro upsell. Send it to /create, where the kit's own
-      // paywall (buy it / use a referral credit — no Pro required) lives. The Pro
-      // modal is only for genuinely Pro-locked templates.
+      // A locked KIT is NOT a Pro upsell. Send it to the kit's founding/claim page
+      // (counter, pitch, buy CTA, email capture) — a far better converting surface than
+      // the bare paywall. The Pro modal is only for genuinely Pro-locked templates.
       const selected = templates.find(t => t.id === templateId) || null;
       if (kitOf(templateId)) {
         if (selected) localStorage.setItem("selectedTemplate", JSON.stringify(selected));
         track('kit_prompt_shown', { templateId });
-        navigate(`/create/${templateId}`);
+        navigate(KIT_CLAIM_PATH[templateId] || `/create/${templateId}`);
         return;
       }
       setAttemptedTemplate(selected);
@@ -507,7 +510,7 @@ const TemplateSelection = () => {
                             <div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
                             Loading
                           </span>
-                        ) : isLocked ? "Upgrade" : "Use this →"}
+                        ) : isLocked ? (isKit ? "Claim" : "Upgrade") : "Use this →"}
                       </button>
                     </div>
                   </div>
@@ -671,14 +674,17 @@ const TemplateSelection = () => {
               className="flex-1 w-full border-none"
             />
             <div className="flex items-center justify-between px-6 py-4 border-t border-stone-100 flex-shrink-0">
-              <span className={`text-xs font-semibold px-3 py-1 rounded-full ${previewTemplate.id === "minimal-template" ? "bg-stone-100 text-stone-600" : "bg-orange-100 text-orange-700"}`}>
-                {previewTemplate.id === "minimal-template" ? "Free" : "Pro"}
+              <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                previewTemplate.kit ? "bg-stone-900 text-white"
+                  : previewTemplate.id === "minimal-template" ? "bg-stone-100 text-stone-600"
+                  : "bg-orange-100 text-orange-700"}`}>
+                {previewTemplate.kit ? "Kit" : previewTemplate.id === "minimal-template" ? "Free" : "Pro"}
               </span>
               <button
                 onClick={() => { setPreviewTemplate(null); handleSelect(previewTemplate.id); }}
                 className="bg-stone-900 hover:bg-stone-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition"
               >
-                Use this template →
+                {previewTemplate.kit && !ownsTemplate(previewTemplate.id) ? "Claim your spot →" : "Use this template →"}
               </button>
             </div>
           </div>
