@@ -4,6 +4,7 @@ import ProtectedRoute from './components/Auth/ProtectedRoute';
 import LoginPage from './components/Auth/LoginPage';
 import AuthCallback from './components/Auth/AuthCallback';
 import TemplateSelection from './pages/TemplateSelection';
+import TraderKit from './pages/TraderKit';
 import CreatePortfolio from './pages/CreatePortfolio';
 import PreviewPortfolio from './pages/PreviewPortfolio';
 import Contact from './pages/Contact';
@@ -46,6 +47,7 @@ function App() {
             {/* Public so visitors can browse/preview templates before signing up.
                 The "Use this" action gates on login (via /create being protected). */}
             <Route path="/templates" element={<TemplateSelection />} />
+            <Route path="/trader-kit" element={<TraderKit />} />
             <Route path="/create/:templateId" element={
               <ProtectedRoute>
                 <CreatePortfolio />

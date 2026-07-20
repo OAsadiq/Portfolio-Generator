@@ -377,7 +377,7 @@ export const NICHES: NicheConfig[] = [
       },
       {
         q: 'How much does it cost?',
-        a: 'You can build and publish for free. Pro — all Pro templates, a custom domain, and analytics — is a one-time $19 payment, not a subscription.',
+        a: 'The Trader Kit — the trader page plus a live trade journal that keeps your track record current — is a one-time founding price for early users, then moves to a monthly plan. You don’t need a separate Pro plan; the kit includes everything it needs.',
       },
       {
         q: 'Why not just send screenshots?',
