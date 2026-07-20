@@ -75,7 +75,9 @@ const traderTemplate = {
     const profile = data.profileImage || '';
     const location = esc(data.location || '');
     const email = esc(data.email || '');
-    const accent = /^#[0-9a-fA-F]{3,8}$/.test(data.primaryColor || '') ? data.primaryColor : '#ea580c';
+    // Gold is the trader accent — "serious money" reads better here than Porfilr orange.
+    // A saved custom colour still wins.
+    const accent = /^#[0-9a-fA-F]{3,8}$/.test(data.primaryColor || '') ? data.primaryColor : '#e0b252';
     const verifyUrl = String(data.verificationUrl || '').trim();
     const verifyHref = verifyUrl && !/^https?:\/\//i.test(verifyUrl) ? 'https://' + verifyUrl : verifyUrl;
     const equity = data.equityCurveImage || '';
@@ -126,9 +128,29 @@ const traderTemplate = {
 
     // Generated from the journal's own curve data. Needs 2+ points to mean anything;
     // below that we fall back to whatever chart image the trader uploaded.
-    const journalCurve = journalOn && Array.isArray(cache.curve) && cache.curve.length >= 2
-      ? equityCurveSvg(cache.curve)
-      : '';
+    const hasCurve = journalOn && Array.isArray(cache.curve) && cache.curve.length >= 2;
+    const journalCurve = hasCurve ? equityCurveSvg(cache.curve) : '';
+
+    // "Started $X → $Y · [span]" — concrete equity framing under the big return, drawn
+    // from the real curve. Honest: it's the journal's own start and end.
+    const usd = (n) => '$' + Math.round(Number(n)).toLocaleString('en-US');
+    const equityLine = hasCurve ? (() => {
+      const c = cache.curve;
+      const start = c[0].equity, end = c[c.length - 1].equity;
+      const span = cache.trackRecordLabel ? ` · ${esc(cache.trackRecordLabel)}` : '';
+      return `<div class="tr-equity mono">Started ${usd(start)} → <b>${usd(end)}</b>${span}</div>`;
+    })() : '';
+
+    // A thin fill bar under the metrics that map to 0–100 (win rate, drawdown). Others
+    // get none rather than an arbitrary width. Value parsed from the displayed string so
+    // it works for both live and typed figures.
+    const barFor = (label, val) => {
+      const n = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+      if (!Number.isFinite(n)) return '';
+      if (/win rate/i.test(label)) return `<div class="tr-bar"><i style="width:${Math.min(n, 100)}%;background:var(--pos)"></i></div>`;
+      if (/drawdown/i.test(label)) return `<div class="tr-bar"><i style="width:${Math.min(n, 100)}%;background:var(--neg)"></i></div>`;
+      return '';
+    };
 
     // The first metric is featured large, the rest fill a grid. Works with 1 or 6.
     const [feat, ...rest] = metrics;
@@ -138,9 +160,10 @@ const traderTemplate = {
           <div class="tr-feature">
             <div class="tr-feature-val ${feat[2]}"${attr(feat[3])}>${esc(feat[1])}</div>
             <div class="tr-feature-label">${esc(feat[0])}</div>
+            ${equityLine}
           </div>
           ${rest.length ? `<div class="tr-grid">${rest.map(([label, val, cls, key]) =>
-            `<div class="tr-cell"><div class="tr-cell-val ${cls}"${attr(key)}>${esc(val)}</div><div class="tr-cell-label">${esc(label)}</div></div>`
+            `<div class="tr-cell"><div class="tr-cell-val ${cls}"${attr(key)}>${esc(val)}</div><div class="tr-cell-label">${esc(label)}</div>${barFor(label, val)}</div>`
           ).join('')}</div>` : ''}
         </div>` : '';
 
@@ -285,7 +308,7 @@ const traderTemplate = {
       --accent:${accent};
       --bg:#08080a;--bg2:#131317;--bg3:#1a1a20;--line:#26262e;--line2:#33333d;
       --text:#f7f7f9;--muted:#93939f;--dim:#63636e;
-      --pos:#22c55e;--neg:#f87171;--gold:#eab308;
+      --pos:#22c55e;--neg:#f87171;--gold:#e0b252;
       /* light band */
       --l-bg:#f1f1f4;--l-card:#ffffff;--l-text:#0b0b0d;--l-muted:#5f5f6b;--l-dim:#8b8b96;--l-line:#e4e4ea;
       --radius:20px;
@@ -372,12 +395,17 @@ const traderTemplate = {
     .tr-feature-val.pos{color:var(--pos);text-shadow:0 0 44px rgba(34,197,94,.34)}
     .tr-feature-val.neg{color:var(--neg);text-shadow:0 0 44px rgba(248,113,113,.28)}
     .tr-feature-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.17em;color:var(--muted);margin-top:13px}
+    .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+    .tr-equity{font-size:12.5px;color:var(--dim);margin-top:14px;letter-spacing:-.01em}
+    .tr-equity b{color:var(--text);font-weight:600}
     .tr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
     .tr-cell{background:rgba(255,255,255,.022);border:1px solid var(--line);border-radius:14px;padding:17px 16px}
     .tr-cell-val{font-size:23px;font-weight:750;letter-spacing:-.03em;line-height:1.15;font-variant-numeric:tabular-nums}
     .tr-cell-val.pos{color:var(--pos)}
     .tr-cell-val.neg{color:var(--neg)}
     .tr-cell-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.13em;color:var(--dim);margin-top:6px}
+    .tr-bar{height:4px;border-radius:3px;background:var(--line);margin-top:10px;overflow:hidden}
+    .tr-bar>i{display:block;height:100%;border-radius:3px}
     /* an odd number of secondary metrics: let the last one span so nothing is orphaned */
     .tr-grid > .tr-cell:last-child:nth-child(odd){grid-column:1 / -1}
 

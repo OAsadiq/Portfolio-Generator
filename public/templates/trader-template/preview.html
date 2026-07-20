@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jordan Rivera — Forex Trader • 3-Year Track Record</title>
-  <meta name="description" content="Disciplined swing trader focused on major forex pairs and indices. Three years of consistent, risk-managed results." />
-  <meta property="og:title" content="Jordan Rivera — Forex Trader • 3-Year Track Record" />
-  <meta property="og:description" content="Disciplined swing trader focused on major forex pairs and indices. Three years of consistent, risk-managed results." />
+  <title>Marcus Kessler — Futures &amp; FX Trader • Verified Track Record</title>
+  <meta name="description" content="Systematic futures and FX trader. Disciplined R-based risk, every trade logged." />
+  <meta property="og:title" content="Marcus Kessler — Futures &amp; FX Trader • Verified Track Record" />
+  <meta property="og:description" content="Systematic futures and FX trader. Disciplined R-based risk, every trade logged." />
   <meta property="og:type" content="profile" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%23ea580c%22%2F%3E%3Ctext%20x%3D%2232%22%20y%3D%2245%22%20font-family%3D%22Inter%2CHelvetica%2CArial%2Csans-serif%22%20font-size%3D%2236%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EJ%3C%2Ftext%3E%3C%2Fsvg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%23e0b252%22%2F%3E%3Ctext%20x%3D%2232%22%20y%3D%2245%22%20font-family%3D%22Inter%2CHelvetica%2CArial%2Csans-serif%22%20font-size%3D%2236%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EM%3C%2Ftext%3E%3C%2Fsvg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     :root{
-      --accent:#ea580c;
+      --accent:#e0b252;
       --bg:#08080a;--bg2:#131317;--bg3:#1a1a20;--line:#26262e;--line2:#33333d;
       --text:#f7f7f9;--muted:#93939f;--dim:#63636e;
-      --pos:#22c55e;--neg:#f87171;--gold:#eab308;
+      --pos:#22c55e;--neg:#f87171;--gold:#e0b252;
       /* light band */
       --l-bg:#f1f1f4;--l-card:#ffffff;--l-text:#0b0b0d;--l-muted:#5f5f6b;--l-dim:#8b8b96;--l-line:#e4e4ea;
       --radius:20px;
@@ -105,12 +105,17 @@
     .tr-feature-val.pos{color:var(--pos);text-shadow:0 0 44px rgba(34,197,94,.34)}
     .tr-feature-val.neg{color:var(--neg);text-shadow:0 0 44px rgba(248,113,113,.28)}
     .tr-feature-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.17em;color:var(--muted);margin-top:13px}
+    .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+    .tr-equity{font-size:12.5px;color:var(--dim);margin-top:14px;letter-spacing:-.01em}
+    .tr-equity b{color:var(--text);font-weight:600}
     .tr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
     .tr-cell{background:rgba(255,255,255,.022);border:1px solid var(--line);border-radius:14px;padding:17px 16px}
     .tr-cell-val{font-size:23px;font-weight:750;letter-spacing:-.03em;line-height:1.15;font-variant-numeric:tabular-nums}
     .tr-cell-val.pos{color:var(--pos)}
     .tr-cell-val.neg{color:var(--neg)}
     .tr-cell-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.13em;color:var(--dim);margin-top:6px}
+    .tr-bar{height:4px;border-radius:3px;background:var(--line);margin-top:10px;overflow:hidden}
+    .tr-bar>i{display:block;height:100%;border-radius:3px}
     /* an odd number of secondary metrics: let the last one span so nothing is orphaned */
     .tr-grid > .tr-cell:last-child:nth-child(odd){grid-column:1 / -1}
 
@@ -221,25 +226,26 @@
     <div class="wrap">
     <header class="hero">
       <div class="hero-id">
-        <div class="avatar avatar-initials">J</div>
-        <div class="funded"><span class="funded-dot"></span>FTMO Funded • $200K</div>
-        <h1>Jordan Rivera</h1>
-        <div class="role ser">Forex Trader • 3-Year Track Record</div>
-        <div class="loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>Lagos, Nigeria</div>
-        <p class="bio">Disciplined swing trader focused on major forex pairs and indices. Three years of consistent, risk-managed results.</p>
+        <div class="avatar avatar-initials">M</div>
+        <div class="funded"><span class="funded-dot"></span>Tradovate • $200K</div>
+        <h1>Marcus Kessler</h1>
+        <div class="role ser">Futures &amp; FX Trader • Verified Track Record</div>
+        <div class="loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>Chicago, USA</div>
+        <p class="bio">Systematic futures and FX trader. Disciplined R-based risk, every trade logged.</p>
         <div class="hero-cta">
           <a href="#contact" class="btn btn-primary">Work with me</a>
-          <a href="https://www.myfxbook.com/members/jordan" target="_blank" rel="noopener" class="btn btn-ghost">View my track record ↗</a>
+          <a href="https://myfxbook.com/marcus" target="_blank" rel="noopener" class="btn btn-ghost">View my track record ↗</a>
         </div>
       </div>
 
         <div class="tr-card">
-          <div class="tr-head"><span class="tr-head-label">Track record</span></div>
+          <div class="tr-head"><span class="tr-head-label">Track record</span><span class="tr-stamp" id="trStamp" hidden>Updated <span id="trStampVal"></span></span></div>
           <div class="tr-feature">
-            <div class="tr-feature-val pos">+142%</div>
+            <div class="tr-feature-val pos" data-metric="totalReturnPct">+142.6%</div>
             <div class="tr-feature-label">Total return</div>
+            <div class="tr-equity mono">Started $25,140 → <b>$60,650</b> · 9 months</div>
           </div>
-          <div class="tr-grid"><div class="tr-cell"><div class="tr-cell-val ">68%</div><div class="tr-cell-label">Win rate</div></div><div class="tr-cell"><div class="tr-cell-val ">2.4</div><div class="tr-cell-label">Profit factor</div></div><div class="tr-cell"><div class="tr-cell-val neg">8.2%</div><div class="tr-cell-label">Max drawdown</div></div><div class="tr-cell"><div class="tr-cell-val ">3 years</div><div class="tr-cell-label">Track record</div></div></div>
+          <div class="tr-grid"><div class="tr-cell"><div class="tr-cell-val " data-metric="winRate">58.4%</div><div class="tr-cell-label">Win rate</div><div class="tr-bar"><i style="width:58.4%;background:var(--pos)"></i></div></div><div class="tr-cell"><div class="tr-cell-val " data-metric="profitFactor">2.31</div><div class="tr-cell-label">Profit factor</div></div><div class="tr-cell"><div class="tr-cell-val neg" data-metric="maxDrawdownPct">11.3%</div><div class="tr-cell-label">Max drawdown</div><div class="tr-bar"><i style="width:11.3%;background:var(--neg)"></i></div></div><div class="tr-cell"><div class="tr-cell-val " data-metric="totalTrades">534</div><div class="tr-cell-label">Trades</div></div><div class="tr-cell"><div class="tr-cell-val " data-metric="trackRecordLabel">9 months</div><div class="tr-cell-label">Track record</div></div></div>
         </div>
     </header>
     </div>
@@ -247,20 +253,35 @@
 <div class="band band-dark" id="proof"><div class="wrap">
       <div class="kicker">Proof</div>
       <h2>The receipts<span class="ser"> — not screenshots in a DM.</span></h2>
+      <div class="chart-card"><div class="chart-head">Equity curve<span class="chart-live">Live</span></div><div class="chart-body eq-body"><svg class="eq-svg" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Equity curve from 25,140 to 60,650">
+  <defs>
+    <linearGradient id="eqg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22c55e" stop-opacity=".26"/>
+      <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g id="eqGrid"><line x1="12" y1="272" x2="842" y2="272" stroke="#20242e" stroke-width="1"/><text class="eq-tick" x="850" y="275.5" fill="#63636e" font-family="ui-monospace,Menlo,monospace" font-size="10.5">$25k</text><line x1="12" y1="208" x2="842" y2="208" stroke="#20242e" stroke-width="1"/><text class="eq-tick" x="850" y="211.5" fill="#63636e" font-family="ui-monospace,Menlo,monospace" font-size="10.5">$34k</text><line x1="12" y1="144" x2="842" y2="144" stroke="#20242e" stroke-width="1"/><text class="eq-tick" x="850" y="147.5" fill="#63636e" font-family="ui-monospace,Menlo,monospace" font-size="10.5">$43k</text><line x1="12" y1="80" x2="842" y2="80" stroke="#20242e" stroke-width="1"/><text class="eq-tick" x="850" y="83.5" fill="#63636e" font-family="ui-monospace,Menlo,monospace" font-size="10.5">$52k</text><line x1="12" y1="16" x2="842" y2="16" stroke="#20242e" stroke-width="1"/><text class="eq-tick" x="850" y="19.5" fill="#63636e" font-family="ui-monospace,Menlo,monospace" font-size="10.5">$61k</text></g>
+  <path id="eqArea" d="M12,272 L12,272 L19,271.1 L25.9,269.4 L32.9,268.1 L39.9,266.7 L46.9,265.4 L53.8,264.5 L60.8,264.4 L67.8,264.6 L74.8,264.3 L81.7,263.9 L88.7,261.9 L95.7,260.6 L102.7,259.3 L109.6,258.7 L116.6,258.4 L123.6,258.4 L130.6,256.6 L137.5,254.8 L144.5,253.1 L151.5,252.3 L158.5,251.9 L165.4,250.2 L172.4,250.4 L179.4,248.8 L186.4,246.7 L193.3,245 L200.3,245 L207.3,244.4 L214.3,243.1 L221.2,243.3 L228.2,242.9 L235.2,241.9 L242.2,240.2 L249.1,239.8 L256.1,238.8 L263.1,239.1 L270.1,237.9 L277,236.8 L284,235.4 L291,233.9 L298,231.9 L304.9,230.1 L311.9,229.8 L318.9,227.9 L325.9,227 L332.8,224.8 L339.8,224.8 L346.8,222.8 L353.8,222.3 L360.7,222.6 L367.7,221.5 L374.7,221.8 L381.7,221.7 L388.6,219.4 L395.6,219.1 L402.6,222.2 L409.6,224.5 L416.5,226.5 L423.5,228.9 L430.5,230.6 L437.5,232.8 L444.4,235 L451.4,238.6 L458.4,241.6 L465.4,245.1 L472.3,246.5 L479.3,247.7 L486.3,250.7 L493.3,252.2 L500.2,250.5 L507.2,248.4 L514.2,247.1 L521.2,245.8 L528.1,244.3 L535.1,242.3 L542.1,239.7 L549.1,236 L556,233.6 L563,231.4 L570,229.2 L577,226.3 L583.9,223.9 L590.9,222.5 L597.9,219.1 L604.9,216.6 L611.8,214.6 L618.8,214.4 L625.8,212.8 L632.8,211.6 L639.7,209.7 L646.7,208.2 L653.7,207.2 L660.7,206.3 L667.6,205.9 L674.6,206.2 L681.6,205.6 L688.6,204.3 L695.5,203.8 L702.5,201.2 L709.5,199.1 L716.5,197.6 L723.4,197.7 L730.4,195.1 L737.4,193.7 L744.4,192.2 L751.3,192.1 L758.3,192.2 L765.3,190 L772.3,188.2 L779.2,187.1 L786.2,185 L793.2,183.3 L800.2,180.9 L807.1,180.1 L814.1,180.1 L821.1,179 L828.1,179.2 L835,176.6 L842,16 L842,272 Z" fill="url(#eqg)"/>
+  <line id="eqBase" x1="12" y1="272" x2="842" y2="272" stroke="#3a3f4c" stroke-width="1" stroke-dasharray="3 4"/>
+  <path id="eqLine" d="M12,272 L19,271.1 L25.9,269.4 L32.9,268.1 L39.9,266.7 L46.9,265.4 L53.8,264.5 L60.8,264.4 L67.8,264.6 L74.8,264.3 L81.7,263.9 L88.7,261.9 L95.7,260.6 L102.7,259.3 L109.6,258.7 L116.6,258.4 L123.6,258.4 L130.6,256.6 L137.5,254.8 L144.5,253.1 L151.5,252.3 L158.5,251.9 L165.4,250.2 L172.4,250.4 L179.4,248.8 L186.4,246.7 L193.3,245 L200.3,245 L207.3,244.4 L214.3,243.1 L221.2,243.3 L228.2,242.9 L235.2,241.9 L242.2,240.2 L249.1,239.8 L256.1,238.8 L263.1,239.1 L270.1,237.9 L277,236.8 L284,235.4 L291,233.9 L298,231.9 L304.9,230.1 L311.9,229.8 L318.9,227.9 L325.9,227 L332.8,224.8 L339.8,224.8 L346.8,222.8 L353.8,222.3 L360.7,222.6 L367.7,221.5 L374.7,221.8 L381.7,221.7 L388.6,219.4 L395.6,219.1 L402.6,222.2 L409.6,224.5 L416.5,226.5 L423.5,228.9 L430.5,230.6 L437.5,232.8 L444.4,235 L451.4,238.6 L458.4,241.6 L465.4,245.1 L472.3,246.5 L479.3,247.7 L486.3,250.7 L493.3,252.2 L500.2,250.5 L507.2,248.4 L514.2,247.1 L521.2,245.8 L528.1,244.3 L535.1,242.3 L542.1,239.7 L549.1,236 L556,233.6 L563,231.4 L570,229.2 L577,226.3 L583.9,223.9 L590.9,222.5 L597.9,219.1 L604.9,216.6 L611.8,214.6 L618.8,214.4 L625.8,212.8 L632.8,211.6 L639.7,209.7 L646.7,208.2 L653.7,207.2 L660.7,206.3 L667.6,205.9 L674.6,206.2 L681.6,205.6 L688.6,204.3 L695.5,203.8 L702.5,201.2 L709.5,199.1 L716.5,197.6 L723.4,197.7 L730.4,195.1 L737.4,193.7 L744.4,192.2 L751.3,192.1 L758.3,192.2 L765.3,190 L772.3,188.2 L779.2,187.1 L786.2,185 L793.2,183.3 L800.2,180.9 L807.1,180.1 L814.1,180.1 L821.1,179 L828.1,179.2 L835,176.6 L842,16" fill="none" stroke="#22c55e" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle id="eqHalo" cx="842" cy="16" r="9" fill="#22c55e" opacity="0.18"/>
+  <circle id="eqDot" cx="842" cy="16" r="4" fill="#22c55e"/>
+  <text id="eqFirst" class="eq-xlabel" x="12" y="292" fill="#63636e" font-family="Inter,sans-serif" font-size="10.5">Oct 2025</text>
+  <text id="eqLast" class="eq-xlabel" x="842" y="292" fill="#63636e" font-family="Inter,sans-serif" font-size="10.5" text-anchor="end">Apr 2026</text>
+</svg></div></div>
 
-
-      <p class="proof-note">Independently verifiable: <a href="https://www.myfxbook.com/members/jordan" target="_blank" rel="noopener">www.myfxbook.com/members/jordan</a></p></div></div>
+      <p class="proof-note">Independently verifiable: <a href="https://myfxbook.com/marcus" target="_blank" rel="noopener">myfxbook.com/marcus</a></p></div></div>
 <div class="band band-light"><div class="wrap">
       <div class="kicker">Markets</div>
       <h2>What I trade</h2>
-      <div class="chips"><span class="chip">Forex</span><span class="chip">Indices</span><span class="chip">Crypto</span></div></div></div>
+      <div class="chips"><span class="chip">ES</span><span class="chip">NQ</span><span class="chip">CL</span><span class="chip">EUR/USD</span></div></div></div>
 <div class="band band-light"><div class="wrap">
       <div class="lcard">
         <div class="lcard-head">
           <div class="kicker">Strategy</div>
           <h2>How I trade<span class="ser"> — and where the edge is.</span></h2>
         </div>
-        <p class="prose">Swing trading major forex pairs and indices on the 4H timeframe. My edge is disciplined trend-continuation setups with strict, risk-defined entries.</p>
+        <p class="prose">Intraday momentum on index futures and majors, 5m/15m execution. Strict R-multiples, no averaging down.</p>
       </div></div></div>
 <div class="band band-light"><div class="wrap">
       <div class="lcard">
@@ -268,12 +289,12 @@
           <div class="kicker">Risk</div>
           <h2>How I protect capital<span class="ser"> — before I grow it.</span></h2>
         </div>
-        <p class="prose">Max 1% risk per trade, a hard stop on every position, and a 5% daily loss limit.</p>
+        <p class="prose">Max 1R risk per trade, hard daily stop at 3R, flat before major news.</p>
       </div></div></div>
 <div class="band band-light"><div class="wrap">
       <div class="kicker">Work with me</div>
       <h2>What I offer</h2>
-      <div class="svcs"><div class="svc"><h3>Managed Accounts</h3><p>I trade your capital under a transparent profit-share arrangement.</p></div><div class="svc"><h3>Signals</h3><p>Real-time entries, exits, and risk levels delivered to your inbox.</p></div><div class="svc"><h3>1:1 Mentorship</h3><p>Learn my exact strategy and risk framework.</p></div></div></div></div>
+      <div class="svcs"><div class="svc"><h3>Managed Accounts</h3><p>Trade your capital on a transparent profit-share.</p></div><div class="svc"><h3>Signals</h3><p>Real-time entries and exits.</p></div><div class="svc"><h3>Mentorship</h3><p>Learn my exact playbook.</p></div></div></div></div>
 <div class="band band-dark" id="contact"><div class="wrap">
       <div class="kicker">Get in touch</div>
       <h2>Let's talk<span class="ser"> — investors and clients welcome.</span></h2>
@@ -288,7 +309,7 @@
         <button type="submit" id="cfSubmit">Send message</button>
         <div class="cf-msg" id="cfMsg"></div>
       </form>
-      <div class="socials"><a href="https://linkedin.com/in/jordan" target="_blank" rel="noopener" class="social" aria-label="social link"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a><a href="https://x.com/jordan" target="_blank" rel="noopener" class="social" aria-label="social link"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></div>
+      <div class="socials"><a href="https://linkedin.com/in/marcus" target="_blank" rel="noopener" class="social" aria-label="social link"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a><a href="https://x.com/kessler_fx" target="_blank" rel="noopener" class="social" aria-label="social link"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></div>
   <div class="band band-dark band-foot">
     <div class="wrap">
       <p class="disclaimer">Trading involves substantial risk of loss and is not suitable for every investor. Results shown are self-reported by the account holder. Past performance is not indicative of future results.</p>
@@ -305,7 +326,7 @@
         btn.disabled = true; btn.textContent = 'Sending…'; msg.className = 'cf-msg'; msg.textContent = '';
         try {
           var res = await fetch('/api/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
-            ownerEmail: "jordan@example.com", portfolioName: "Jordan Rivera",
+            ownerEmail: "marcus@example.com", portfolioName: "Marcus Kessler",
             senderName: fd.get('senderName'), senderEmail: fd.get('senderEmail'), message: fd.get('message'), company: fd.get('company')
           }) });
           var d = await res.json();

@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { equityCurveSvg, curveGeometry, downsample, fmtMoney } from './chart.js';
+import { equityCurveSvg, curveGeometry, downsample, fmtMoney, tickLabel, DEFAULTS } from './chart.js';
 
 const pt = (t, equity) => ({ t, equity });
 const CURVE = [
@@ -38,8 +38,8 @@ test('a perfectly flat curve draws down the middle instead of dividing by zero',
   // range === 0. A naive (v-min)/range gives NaN and blanks the chart.
   const g = curveGeometry([pt('2024-01-01T00:00:00Z', 500), pt('2024-02-01T00:00:00Z', 500)]);
   assert.ok(g);
-  assert.ok(g.pts.every(([, y]) => Number.isFinite(y)));
-  const ys = g.pts.map(([, y]) => y);
+  assert.ok(g.coords.every(([, y]) => Number.isFinite(y)));
+  const ys = g.coords.map(([, y]) => y);
   assert.equal(new Set(ys).size, 1, 'flat curve should be a straight horizontal line');
   assert.ok(!/NaN/.test(g.linePath));
 });
@@ -83,19 +83,34 @@ test('short curves are not downsampled', () => {
 
 test('geometry stays inside the viewBox', () => {
   const g = curveGeometry(CURVE);
-  for (const [x, y] of g.pts) {
+  for (const [x, y] of g.coords) {
     assert.ok(x >= 0 && x <= g.w, `x ${x} within 0..${g.w}`);
     assert.ok(y >= 0 && y <= g.h, `y ${y} within 0..${g.h}`);
   }
 });
 
-test('the curve spans the full width and touches top and bottom', () => {
+test('the curve spans the plot area and touches top and bottom', () => {
   const g = curveGeometry(CURVE);
-  const xs = g.pts.map(([x]) => x);
-  assert.equal(Math.min(...xs), 10);
-  assert.equal(Math.max(...xs), 890);
-  const ys = g.pts.map(([, y]) => y);
-  assert.equal(Math.min(...ys), 22, 'peak sits at the top padding');
+  const xs = g.coords.map(([x]) => x);
+  assert.equal(Math.min(...xs), DEFAULTS.padL);
+  assert.equal(Math.max(...xs), DEFAULTS.w - DEFAULTS.padR);
+  const ys = g.coords.map(([, y]) => y);
+  assert.equal(Math.min(...ys), DEFAULTS.padT, 'peak sits at the top padding');
+});
+
+test('tickLabel renders compact $ values', () => {
+  assert.equal(tickLabel(60650), '$61k');
+  assert.equal(tickLabel(8500), '$8.5k');
+  assert.equal(tickLabel(940), '$940');
+  assert.equal(tickLabel(2_400_000), '$2.4M');
+});
+
+test('the SVG has gridlines, a dashed baseline, and an endpoint halo', () => {
+  const svg = equityCurveSvg(CURVE);
+  assert.ok(svg.includes('id="eqGrid"'));
+  assert.ok(svg.includes('id="eqBase"') && svg.includes('stroke-dasharray'));
+  assert.ok(svg.includes('id="eqHalo"'));
+  assert.ok(!/NaN|undefined/.test(svg));
 });
 
 test('money labels stay readable', () => {

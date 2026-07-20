@@ -26,10 +26,13 @@ export default async function handler(req, res) {
   const limit = FOUNDING_LIMITS[kit] || DEFAULT_LIMIT;
 
   try {
+    // Count PAID spots only. Free grants (testers, referral credits) insert amount: 0 —
+    // they shouldn't consume a visible founding spot on the public counter.
     const { count, error } = await supabase
       .from('template_purchases')
       .select('id', { count: 'exact', head: true })
-      .eq('template_id', kit);
+      .eq('template_id', kit)
+      .gt('amount', 0);
     if (error) throw error;
 
     const claimed = count || 0;
