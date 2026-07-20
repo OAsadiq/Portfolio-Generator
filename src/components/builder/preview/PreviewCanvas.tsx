@@ -15,6 +15,23 @@ interface Props {
   templateId: string;
 }
 
+// A representative rising equity curve (with a dip + recovery) for the builder preview.
+// Deterministic and illustrative — the trader's real chart comes from their journal at
+// publish time. Only used to show the chart's shape while editing page content.
+const SAMPLE_CURVE = (() => {
+  const pts: { t: string; equity: number }[] = [];
+  let v = 10000, seed = 7;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+  for (let i = 0; i < 90; i++) {
+    let drift = 0.004;
+    if (i > 40 && i < 52) drift = -0.011;       // a drawdown
+    else if (i >= 52 && i < 66) drift = 0.010;  // the recovery
+    v = v * (1 + drift + (rnd() - 0.45) * 0.01);
+    pts.push({ t: new Date(2025, 9, 1 + i * 2).toISOString(), equity: Math.round(v) });
+  }
+  return pts;
+})();
+
 export default function PreviewCanvas({ formData, previewMode, sections, templateId }: Props) {
   const isMobile = previewMode === 'mobile';
   const isTablet = previewMode === 'tablet';
@@ -31,10 +48,20 @@ export default function PreviewCanvas({ formData, previewMode, sections, templat
 
   // Recomputed only when content actually changes, so typing doesn't reload the frame
   // on every keystroke.
-  const traderHtml = useMemo(
-    () => (isTrader ? traderTemplate.generateHTML(formData, sections) : ''),
-    [isTrader, formData, sections]
-  );
+  const traderHtml = useMemo(() => {
+    if (!isTrader) return '';
+    // The builder edits page CONTENT, not the journal — so it has no real metrics.
+    // Feed a representative equity curve so the trader sees the chart + design while
+    // editing. It's curve-ONLY (no metric values), so the numbers still come from the
+    // trader's own typed figures — only the chart shape is illustrative. The publish
+    // route uses their real journal data.
+    const meta = {
+      slug: 'preview',
+      journalEnabled: true,
+      metricsCache: { curve: SAMPLE_CURVE },
+    };
+    return traderTemplate.generateHTML(formData, sections, meta);
+  }, [isTrader, formData, sections]);
 
   // ── Trader: the real page, in a frame ──
   if (isTrader) {
