@@ -1,6 +1,30 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { HelpCircle, X } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
+
+// "Seen once per USER, everywhere" — not just per browser. localStorage is the fast
+// local cache; the user_tutorials table is the cross-device source of truth. A DB error
+// only falls back to the old per-browser behaviour, so it can never make a tour repeat
+// more than before.
+async function hasSeen(userId: string | undefined, key: string): Promise<boolean> {
+  if (localStorage.getItem(key)) return true;
+  if (!userId) return false;
+  const { data } = await supabase
+    .from('user_tutorials').select('tutorial_key')
+    .eq('user_id', userId).eq('tutorial_key', key).maybeSingle();
+  if (data) { localStorage.setItem(key, '1'); return true; } // seen on another device
+  return false;
+}
+
+function markSeen(userId: string | undefined, key: string) {
+  localStorage.setItem(key, '1');
+  if (userId) {
+    // Ignore duplicate-key/other errors — the local flag already prevents repeats.
+    supabase.from('user_tutorials').insert({ user_id: userId, tutorial_key: key }).then(() => {}, () => {});
+  }
+}
 
 export interface TourStep {
   /** CSS selector for the element to spotlight. Omit for a centered, element-less step. */
@@ -24,6 +48,7 @@ const CARD_W = 330;
 const GAP = 14;
 
 export default function TutorialTour({ steps, storageKey, accent = '#ea580c', showLauncher = true }: Props) {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
@@ -32,21 +57,24 @@ export default function TutorialTour({ steps, storageKey, accent = '#ea580c', sh
 
   const step = steps[index];
 
-  // Auto-run exactly once, on desktop only.
+  // Auto-run exactly once per USER, on desktop only.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (window.innerWidth < 768) return; // skip on mobile — the spotlight is janky on small screens
-    if (!localStorage.getItem(storageKey)) {
-      localStorage.setItem(storageKey, '1'); // mark seen immediately so it never re-shows, even if not finished
-      const t = setTimeout(() => { setIndex(0); setOpen(true); }, 600);
-      return () => clearTimeout(t);
-    }
-  }, [storageKey]);
+    let cancelled = false;
+    (async () => {
+      if (await hasSeen(user?.id, storageKey)) return;   // seen on any device → don't show
+      if (cancelled) return;
+      markSeen(user?.id, storageKey);                    // record immediately, even if not finished
+      setTimeout(() => { if (!cancelled) { setIndex(0); setOpen(true); } }, 600);
+    })();
+    return () => { cancelled = true; };
+  }, [storageKey, user?.id]);
 
   const finish = useCallback(() => {
-    localStorage.setItem(storageKey, '1');
+    markSeen(user?.id, storageKey);
     setOpen(false);
-  }, [storageKey]);
+  }, [storageKey, user?.id]);
 
   const start = () => { setIndex(0); setOpen(true); };
 
