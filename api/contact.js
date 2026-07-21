@@ -176,7 +176,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Porfilr <sadiq@porfilr.com>',
+        from: 'Porfilr <hello@porfilr.com>',
         to: ownerEmail,
         reply_to: senderEmail,
         subject: `New message from ${senderName} via your Porfilr portfolio`,

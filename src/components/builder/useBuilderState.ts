@@ -25,6 +25,9 @@ export function useBuilderState(onCancel?: () => void) {
   const [isMobile, setIsMobile] = useState(false);
   const [saving, setSaving] = useState(false);
   const [portfolioSlug, setPortfolioSlug] = useState('');
+  // The edited portfolio's real journal state, so the preview can show the SAME curve
+  // the published page will (not a placeholder). Null for new/unpublished portfolios.
+  const [journalMeta, setJournalMeta] = useState<{ journalEnabled: boolean; metricsCache: any } | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(isEditing);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -223,6 +226,7 @@ export function useBuilderState(onCancel?: () => void) {
       if (portfolio.user_id !== session.user.id) throw new Error('You do not have permission to edit this portfolio.');
 
       setPortfolioSlug(portfolio.slug);
+      setJournalMeta({ journalEnabled: !!portfolio.journal_enabled, metricsCache: portfolio.metrics_cache || null });
       if (portfolio.form_data) {
         const fd: Record<string, string> = { ...portfolio.form_data };
         // Migrate legacy named social fields (linkedin/twitter/github/instagram/website)
@@ -310,7 +314,7 @@ export function useBuilderState(onCancel?: () => void) {
     isMobile, loading, saving, error, setError,
     showCancelConfirm, setShowCancelConfirm,
     // data
-    sections, formData,
+    sections, formData, journalMeta,
     // history
     historyIndex, historyLength: history.length,
     // modal state

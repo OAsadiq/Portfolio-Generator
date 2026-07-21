@@ -13,6 +13,9 @@ interface Props {
   previewMode: string;
   sections: SectionItem[];
   templateId: string;
+  // The edited portfolio's real journal state, when it has one — so the trader preview
+  // shows the SAME curve/metrics the published page will, not the placeholder sample.
+  journalMeta?: { journalEnabled: boolean; metricsCache: any } | null;
 }
 
 // A representative rising equity curve (with a dip + recovery) for the builder preview.
@@ -32,7 +35,7 @@ const SAMPLE_CURVE = (() => {
   return pts;
 })();
 
-export default function PreviewCanvas({ formData, previewMode, sections, templateId }: Props) {
+export default function PreviewCanvas({ formData, previewMode, sections, templateId, journalMeta }: Props) {
   const isMobile = previewMode === 'mobile';
   const isTablet = previewMode === 'tablet';
   const isDesktop = previewMode === 'desktop';
@@ -50,18 +53,17 @@ export default function PreviewCanvas({ formData, previewMode, sections, templat
   // on every keystroke.
   const traderHtml = useMemo(() => {
     if (!isTrader) return '';
-    // The builder edits page CONTENT, not the journal — so it has no real metrics.
-    // Feed a representative equity curve so the trader sees the chart + design while
-    // editing. It's curve-ONLY (no metric values), so the numbers still come from the
-    // trader's own typed figures — only the chart shape is illustrative. The publish
-    // route uses their real journal data.
-    const meta = {
-      slug: 'preview',
-      journalEnabled: true,
-      metricsCache: { curve: SAMPLE_CURVE },
-    };
+    // Prefer the portfolio's REAL journal data so the preview matches the published page
+    // exactly. Only when there's no journal curve yet (new page, or no trades logged) do
+    // we fall back to a representative sample so the trader still sees the chart + design.
+    const realCurve = journalMeta?.metricsCache?.curve;
+    const hasReal = journalMeta?.journalEnabled && Array.isArray(realCurve) && realCurve.length >= 2;
+    const meta = hasReal
+      ? { slug: 'preview', journalEnabled: true, metricsCache: journalMeta!.metricsCache }
+      // Curve-only sample: numbers still come from the trader's typed figures.
+      : { slug: 'preview', journalEnabled: true, metricsCache: { curve: SAMPLE_CURVE } };
     return traderTemplate.generateHTML(formData, sections, meta);
-  }, [isTrader, formData, sections]);
+  }, [isTrader, formData, sections, journalMeta]);
 
   // ── Trader: the real page, in a frame ──
   if (isTrader) {

@@ -275,7 +275,7 @@ export default function PortfolioBuilder({ onCancel }: Props) {
           </div>
         )}
 
-        <PreviewCanvas formData={state.formData} previewMode={state.previewMode} sections={state.sections} templateId={state.selectedTemplate} />
+        <PreviewCanvas formData={state.formData} previewMode={state.previewMode} sections={state.sections} templateId={state.selectedTemplate} journalMeta={state.journalMeta} />
       </div>
 
       {/* ── Modals ───────────────────────────────────────── */}
