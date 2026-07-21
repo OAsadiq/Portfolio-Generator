@@ -11,6 +11,15 @@ import { computeMetrics } from '../../api/_lib/metrics.js';
 // Shared, unit-tested CSV import (api/_lib/tradeCsv.js). A trader with real history won't
 // hand-log hundreds of trades, so this is what makes the journal usable for them.
 import { parseTradeCsv } from '../../api/_lib/tradeCsv.js';
+import TutorialTour, { TourStep } from '../components/tutorial/TutorialTour';
+
+const JOURNAL_TOUR: TourStep[] = [
+  { title: "This is your trade journal", body: "Log your trades here and Porfilr turns them into the live track record on your page — return, win rate, drawdown, and your equity curve. Here's the 20-second version.", placement: "center" },
+  { selector: '[data-tour="journal-setup"]', title: "1. Set your starting balance", body: "Your return % is measured against this. It's the one thing you must set before anything shows.", placement: "bottom" },
+  { selector: '[data-tour="journal-log"]', title: "2. Log a trade", body: "Add each trade — symbol, direction, and the P&L your broker shows you. Closed trades count toward your numbers; open ones don't until you close them.", placement: "top" },
+  { selector: '[data-tour="journal-import"]', title: "Got history? Import it", body: "Already have months of trades? Export a CSV from your broker and drop it here instead of logging by hand.", placement: "bottom" },
+  { selector: '[data-tour="journal-toggle"]', title: "3. Go live", body: "Turn this on to show your track record on your published page. It updates automatically every time you log a trade.", placement: "left" },
+];
 
 type Trade = {
   id: string;
@@ -439,6 +448,9 @@ const TradeJournal = () => {
 
   return (
     <div className="min-h-screen bg-stone-50">
+      {/* Auto-runs once per user, then replayable from the ? button. */}
+      <TutorialTour steps={JOURNAL_TOUR} storageKey={`porfilr_tour_journal_v1_${user.id}`} />
+
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-stone-900 text-white text-sm font-medium px-5 py-3 rounded-full shadow-lg">
           {toast}
@@ -470,7 +482,7 @@ const TradeJournal = () => {
 
         {/* Setup — the live track record has three preconditions and every one of them
             used to fail silently. Say out loud what's missing. */}
-        <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
+        <div data-tour="journal-setup" className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-bold text-stone-900 text-sm">Setup</h2>
             {!liveReady && (
@@ -550,6 +562,7 @@ const TradeJournal = () => {
               </p>
             </div>
             <button
+              data-tour="journal-toggle"
               onClick={toggleJournal}
               disabled={!hasBalance || togglingJournal}
               className={`relative w-12 h-7 rounded-full transition flex-none disabled:opacity-40 ${
@@ -615,7 +628,7 @@ const TradeJournal = () => {
         </div>
 
         {/* Import from CSV — the adoption unlock for traders with existing history */}
-        <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
+        <div data-tour="journal-import" className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <h2 className="font-bold text-stone-900 text-sm">Import from CSV</h2>
@@ -716,7 +729,7 @@ const TradeJournal = () => {
         </div>
 
         {/* Log / edit a trade — one form, two modes. */}
-        <div id="trade-form" className={`bg-white border rounded-2xl p-6 mb-6 transition ${
+        <div id="trade-form" data-tour="journal-log" className={`bg-white border rounded-2xl p-6 mb-6 transition ${
           editingId ? 'border-orange-300 ring-2 ring-orange-100' : 'border-stone-200'
         }`}>
           <div className="flex items-center justify-between mb-5">

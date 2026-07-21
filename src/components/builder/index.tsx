@@ -25,6 +25,13 @@ const BUILDER_TOUR: TourStep[] = [
   { selector: '[data-tour="tour-save"]', title: "Save when you're ready", body: "Hit Save to publish your portfolio. It goes live instantly, and you can come back to edit anytime.", placement: "bottom" },
 ];
 
+// Traders get one extra step: the journal is a separate surface and the whole point of
+// the kit, so make sure they know it exists before they finish the tour.
+const TRADER_BUILDER_TOUR: TourStep[] = [
+  ...BUILDER_TOUR,
+  { title: "Your live track record", body: "After you publish, open your Journal to log trades. Porfilr works out your return, win rate, drawdown and equity curve — and keeps your page current automatically. Find it on your dashboard, or right after you publish.", placement: "center" },
+];
+
 const TABS = [
   { id: 'design',   label: 'Design',   icon: <Palette className="w-4 h-4" /> },
   { id: 'content',  label: 'Content',  icon: <Type className="w-4 h-4" /> },
@@ -283,11 +290,14 @@ export default function PortfolioBuilder({ onCancel }: Props) {
       <TestimonialModal isOpen={state.testimonialModalOpen} currentTestimonial={state.currentTestimonial} formData={state.formData} onChange={state.handleInputChange} onClose={() => state.setTestimonialModalOpen(false)} />
       <CaseStudyModal isOpen={state.caseModalOpen} currentCase={state.currentCase} formData={state.formData} onChange={state.handleInputChange} onClose={() => state.setCaseModalOpen(false)} />
       <BlogModal isOpen={state.blogModalOpen} currentBlog={state.currentBlog} formData={state.formData} onChange={state.handleInputChange} onClose={() => state.setBlogModalOpen(false)} />
-      <SuccessModal isOpen={state.successModalOpen} portfolioSlug={state.portfolioSlug} onClose={() => state.setSuccessModalOpen(false)} />
+      <SuccessModal isOpen={state.successModalOpen} portfolioSlug={state.portfolioSlug} templateId={state.selectedTemplate} onClose={() => state.setSuccessModalOpen(false)} />
 
       <BuilderStyles />
 
-      <TutorialTour steps={BUILDER_TOUR} storageKey="porfilr_tour_builder_v1" />
+      <TutorialTour
+        steps={state.selectedTemplate === 'trader-template' ? TRADER_BUILDER_TOUR : BUILDER_TOUR}
+        storageKey={state.selectedTemplate === 'trader-template' ? 'porfilr_tour_builder_trader_v1' : 'porfilr_tour_builder_v1'}
+      />
     </div>
   );
 }

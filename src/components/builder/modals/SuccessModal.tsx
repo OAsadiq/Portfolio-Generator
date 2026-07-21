@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { X, Check, Eye, ExternalLink } from 'lucide-react';
+import { X, Check, Eye, ExternalLink, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SharePortfolio from '../../SharePortfolio';
 import { track } from '../../../lib/track';
@@ -7,11 +7,13 @@ import { track } from '../../../lib/track';
 interface Props {
   isOpen: boolean;
   portfolioSlug: string;
+  templateId?: string;
   onClose: () => void;
 }
 
-export default function SuccessModal({ isOpen, portfolioSlug, onClose }: Props) {
+export default function SuccessModal({ isOpen, portfolioSlug, templateId, onClose }: Props) {
   const navigate = useNavigate();
+  const isTrader = templateId === 'trader-template';
 
   useEffect(() => {
     if (isOpen && portfolioSlug) track('portfolio_saved', { tier: 'pro' });
@@ -33,6 +35,25 @@ export default function SuccessModal({ isOpen, portfolioSlug, onClose }: Props) 
           <h2 className="text-2xl font-bold text-stone-900 mb-2">Portfolio saved!</h2>
           <p className="text-stone-500">Your changes are live on your portfolio.</p>
         </div>
+
+        {/* Trader kit: the journal is a separate surface most people won't discover on
+            their own. Lead with it here — this is the moment they've just published. */}
+        {isTrader && portfolioSlug && (
+          <button
+            onClick={() => { onClose(); track('journal_cta_clicked', { from: 'success_modal' }); navigate(`/journal/${portfolioSlug}`); }}
+            className="w-full flex items-start gap-3 p-4 mb-5 bg-orange-50 border border-orange-200 hover:border-orange-300 rounded-xl text-left transition"
+          >
+            <div className="w-9 h-9 rounded-lg bg-orange-600 flex items-center justify-center flex-shrink-0">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="font-bold text-stone-900 text-sm">Now build your track record</p>
+              <p className="text-stone-600 text-xs mt-0.5">
+                Log your trades in your journal and your page updates itself — return, win rate, equity curve. Add trades →
+              </p>
+            </div>
+          </button>
+        )}
 
         {/* Actions */}
         <div className="space-y-3">
