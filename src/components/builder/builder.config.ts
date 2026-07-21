@@ -2,6 +2,9 @@ import React from 'react';
 import { User, FileText, BookOpen, MessageSquare, Mail, Sparkles, Footprints, TrendingUp, Briefcase, Building2, Image, GraduationCap } from 'lucide-react';
 
 export const COLOR_PRESETS = [
+  // Gold — the Trader template's default accent; here so a trader can re-pick it after
+  // changing colours (otherwise it's unreachable from the preset row).
+  { name: 'Gold', primary: '#e0b252', accent: '#e0b252' },
   { name: 'Indigo', primary: '#4f46e5', accent: '#4f46e5' },
   { name: 'Ink', primary: '#0a0a0a', accent: '#0a0a0a' },
   { name: 'Slate', primary: '#475569', accent: '#1e293b' },

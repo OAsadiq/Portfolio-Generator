@@ -220,6 +220,13 @@ const TemplateSelection = () => {
     }
   }, [user]);
 
+  // Refresh ownership every time the gallery opens. ownedTemplates is otherwise only
+  // fetched once when the user first loads, so a kit bought or granted since then would
+  // still show "Claim" until a full refresh. This keeps the button state current.
+  useEffect(() => {
+    if (user) checkSubscription();
+  }, [user]);
+
   const dismissWelcome = () => {
     const key = `porfilr_welcomed_${user?.id}`;
     localStorage.setItem(key, "1");
