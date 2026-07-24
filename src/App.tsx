@@ -48,11 +48,10 @@ function App() {
                 The "Use this" action gates on login (via /create being protected). */}
             <Route path="/templates" element={<TemplateSelection />} />
             <Route path="/trader-kit" element={<TraderKit />} />
-            <Route path="/create/:templateId" element={
-              <ProtectedRoute>
-                <CreatePortfolio />
-              </ProtectedRoute>
-            } />
+            {/* Public: logged-out visitors can fill a template in and only hit the
+                signup wall at Publish. CreatePortfolio still shows the Pro/kit paywall
+                for paid templates, so only the free Minimal form is truly open. */}
+            <Route path="/create/:templateId" element={<CreatePortfolio />} />
             <Route path="/success" element={
               <ProtectedRoute>
                 <Success />

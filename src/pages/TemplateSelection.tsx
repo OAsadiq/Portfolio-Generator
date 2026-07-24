@@ -287,12 +287,13 @@ const TemplateSelection = () => {
   const canSelectTemplate = (id: string) => !isTemplateLocked(id);
 
   const handleSelect = async (templateId: string) => {
-    // Logged-out visitors: remember the choice, send to login, then continue to /create.
+    // Logged-out visitors go straight into the builder/form — the signup wall now waits
+    // until Publish. Paid templates still show their paywall inside /create.
     if (!user) {
       const selected = templates.find(t => t.id === templateId);
       if (selected) localStorage.setItem("selectedTemplate", JSON.stringify(selected));
       track('template_selected', { templateId, loggedOut: true });
-      navigate('/login', { state: { from: { pathname: `/create/${templateId}` } } });
+      navigate(`/create/${templateId}`);
       return;
     }
     if (!canSelectTemplate(templateId)) {

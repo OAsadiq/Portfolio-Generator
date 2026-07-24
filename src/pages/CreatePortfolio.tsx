@@ -136,6 +136,17 @@ const CreatePortfolio = () => {
     return () => { cancelled = true; };
   }, [templateId]);
 
+  // Draft persistence — so a logged-out visitor's work survives the signup redirect and
+  // is waiting for them when they come back to publish. Keyed per template.
+  const draftKey = `porfilr_draft_${templateId}`;
+  useEffect(() => {
+    const raw = localStorage.getItem(draftKey);
+    if (raw) { try { setFormData(JSON.parse(raw)); } catch { /* ignore corrupt draft */ } }
+  }, [templateId]);
+  useEffect(() => {
+    if (Object.keys(formData).length) localStorage.setItem(draftKey, JSON.stringify(formData));
+  }, [formData, draftKey]);
+
   // Does this user have an unspent referral kit credit?
   useEffect(() => {
     if (!user) { setKitCredit(0); return; }
@@ -157,11 +168,22 @@ const CreatePortfolio = () => {
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
     if (files && files[0]) {
+      // Image upload needs an authenticated storage path, and File objects can't survive
+      // the signup redirect. So this is the one spot we ask a logged-out user to sign up —
+      // their typed text is already saved as a draft and will be here when they return.
+      if (!user) { promptSignup(); return; }
       const url = await uploadImage(files[0]);
       setFormData(prev => ({ ...prev, [name]: url }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
+  };
+
+  // Send a logged-out user to sign up, returning to this exact page. Their draft is in
+  // localStorage, so the form is restored and they can finish where they left off.
+  const promptSignup = () => {
+    localStorage.setItem(draftKey, JSON.stringify(formData));
+    navigate('/login', { state: { from: { pathname: `/create/${templateId}` } } });
   };
 
   /** Buy a kit outright. Deliberately independent of the Pro flow — a free user can
@@ -218,7 +240,10 @@ const CreatePortfolio = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!templateId || !user) return;
+    if (!templateId) return;
+    // The signup wall lives HERE now — at Publish, after they've done the work. Their
+    // filled-in form is saved as a draft and restored when they come back signed in.
+    if (!user) { track('publish_signup_prompt', { templateId }); promptSignup(); return; }
     setLoading(true);
     setError(null);
     try {
@@ -237,6 +262,7 @@ const CreatePortfolio = () => {
         throw new Error(data.error || "Something went wrong. Please try again.");
       }
       setPortfolioSlug(data.portfolioSlug);
+      localStorage.removeItem(draftKey); // published — draft no longer needed
       track('portfolio_published', { templateId, tier: 'free' });
     } catch (err: any) {
       setError(err.message);
@@ -633,12 +659,18 @@ const CreatePortfolio = () => {
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 Building your portfolio...
               </span>
-            ) : (
+            ) : user ? (
               "Build my portfolio →"
+            ) : (
+              "Sign up & publish — it's free →"
             )}
           </button>
 
-          <p className="text-center text-stone-400 text-xs">Your portfolio is live instantly. You can edit any detail after.</p>
+          <p className="text-center text-stone-400 text-xs">
+            {user
+              ? "Your portfolio is live instantly. You can edit any detail after."
+              : "Fill it in now — you'll only sign up when you're ready to publish. Your work is saved."}
+          </p>
         </form>
       </div>
     </div>
