@@ -84,8 +84,15 @@ const SECTION_META: Record<string, { label: string; icon: string }> = {
 const CreatePortfolio = () => {
   const { templateId } = useParams();
   const navigate = useNavigate();
+  const draftKey = `porfilr_draft_${templateId}`;
   const [template, setTemplate] = useState<Template | null>(null);
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  // Restore any saved draft SYNCHRONOUSLY on first render — so a logged-out visitor's
+  // work is already there when they come back from signup. Doing this in an effect raced
+  // with the auto-save effect and re-renders from auth/template loading, which wiped it.
+  const [formData, setFormData] = useState<Record<string, any>>(() => {
+    try { const raw = localStorage.getItem(`porfilr_draft_${templateId}`); return raw ? JSON.parse(raw) : {}; }
+    catch { return {}; }
+  });
   const [portfolioSlug, setPortfolioSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -136,13 +143,8 @@ const CreatePortfolio = () => {
     return () => { cancelled = true; };
   }, [templateId]);
 
-  // Draft persistence — so a logged-out visitor's work survives the signup redirect and
-  // is waiting for them when they come back to publish. Keyed per template.
-  const draftKey = `porfilr_draft_${templateId}`;
-  useEffect(() => {
-    const raw = localStorage.getItem(draftKey);
-    if (raw) { try { setFormData(JSON.parse(raw)); } catch { /* ignore corrupt draft */ } }
-  }, [templateId]);
+  // Auto-save the draft as they type, so it survives the signup redirect. (Restore is
+  // done synchronously in the formData initializer above.)
   useEffect(() => {
     if (Object.keys(formData).length) localStorage.setItem(draftKey, JSON.stringify(formData));
   }, [formData, draftKey]);
@@ -183,6 +185,9 @@ const CreatePortfolio = () => {
   // localStorage, so the form is restored and they can finish where they left off.
   const promptSignup = () => {
     localStorage.setItem(draftKey, JSON.stringify(formData));
+    // Router state.from is lost across Google's OAuth round-trip, so also stash the
+    // return path in localStorage — AuthCallback reads it to bring them back here.
+    localStorage.setItem('porfilr_after_login', `/create/${templateId}`);
     navigate('/login', { state: { from: { pathname: `/create/${templateId}` } } });
   };
 

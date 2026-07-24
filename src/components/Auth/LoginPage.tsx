@@ -20,7 +20,11 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (user && !loading) {
-      const from = (location.state as any)?.from?.pathname || '/templates';
+      // Prefer the stashed return path (set by promptSignup, survives OAuth), then router
+      // state, then the default. Always clear it so it can't cause a stale redirect later.
+      const stored = localStorage.getItem('porfilr_after_login');
+      if (stored) localStorage.removeItem('porfilr_after_login');
+      const from = stored || (location.state as any)?.from?.pathname || '/templates';
       navigate(from, { replace: true });
     }
   }, [user, loading, navigate, location]);

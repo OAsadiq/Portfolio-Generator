@@ -21,12 +21,18 @@ const AuthCallback = () => {
 
         if (session) {
 
+          // Return to where the user was headed before signing in (e.g. mid-way through
+          // filling a portfolio). Set by promptSignup; survives the OAuth round-trip.
+          const afterLogin = localStorage.getItem('porfilr_after_login');
           const pendingUpgrade = sessionStorage.getItem('pendingUpgrade');
-          
-          if (pendingUpgrade === 'true') {
+
+          if (afterLogin) {
+            localStorage.removeItem('porfilr_after_login');
+            navigate(afterLogin, { replace: true });
+          } else if (pendingUpgrade === 'true') {
 
             sessionStorage.removeItem('pendingUpgrade');
-            
+
             navigate('/pricing', { replace: true });
           } else {
             navigate('/templates', { replace: true });
