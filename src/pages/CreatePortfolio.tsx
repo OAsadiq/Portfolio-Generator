@@ -578,6 +578,7 @@ const CreatePortfolio = () => {
                       {field.type === "textarea" ? (
                         <textarea
                           name={field.name}
+                          value={formData[field.name] || ""}
                           onChange={handleChange}
                           required={field.required}
                           placeholder={field.placeholder}
@@ -617,6 +618,7 @@ const CreatePortfolio = () => {
                         <input
                           type={field.type}
                           name={field.name}
+                          value={formData[field.name] || ""}
                           onChange={handleChange}
                           required={field.required}
                           placeholder={field.placeholder}
