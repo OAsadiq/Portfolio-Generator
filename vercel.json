@@ -12,6 +12,7 @@
 
   "rewrites": [
     { "source": "/p/:slug", "destination": "/api/p/index?slug=:slug" },
+    { "source": "/r/:code", "destination": "/api/r?code=:code" },
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "(?<domain>(?!(www\\.)?porfilr\\.com|.*\\.vercel\\.app|localhost).+)" }],

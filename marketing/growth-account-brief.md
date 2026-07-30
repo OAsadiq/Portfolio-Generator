@@ -40,13 +40,27 @@ Why we win: those are *verification tools* — accurate but ugly, and not someth
 
 **Always leave a door open.** Not salesy, but bio + link current, and every so often a natural "here's what I'm building and why."
 
+## Tracked links (so results are measurable, not guessed)
+Each person gets their own **branded link** on our own domain — trusted, and it lets me see
+exactly how many people they drove and how many signed up:
+
+- `porfilr.com/r/c1` → Candidate 1 (utm_content `team_c1`)
+- `porfilr.com/r/c2` → Candidate 2 (utm_content `team_c2`)
+
+Each person uses **only their own link** (in bio, and in replies where it fits). A click is
+logged, then the visitor is sent to porfilr.com — clicks *and* signups are attributed per person.
+
+**To add a new link** (a third person, a campaign): add one line to the `CODES` map in
+`api/r.js` — e.g. `c3: 'team_c3'` — and `porfilr.com/r/c3` is live after deploy. That's the
+whole pattern.
+
 ## Metrics that matter
 Report these, not likes/impressions:
 1. **Profile visits**
-2. **Link clicks**
+2. **Link clicks** (from the tracked link above)
 3. **New followers**
 4. **Replies you started**
-5. **Signups** (I'll pull these)
+5. **Signups** (I'll pull these from the tracked link)
 
 ## Voice
 First person, as me. Plain and direct — no corporate speak, no hype, no emoji spam. Confident but honest: we're early and building in the open, and that's a strength.
