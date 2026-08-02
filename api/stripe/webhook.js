@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { sendKitWelcomeEmail } from '../_lib/kitEmail.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabase = createClient(
@@ -222,6 +223,18 @@ async function handleCheckoutCompleted(session) {
 
     } catch (err) {
       throw err;
+    }
+
+    // Welcome email — thanks them and points at the one action that makes the kit worth
+    // paying for (logging trades so the page goes live). Deliberately AFTER the purchase
+    // is recorded, and never allowed to throw: a mail failure must not fail the webhook
+    // and make Stripe retry a purchase we already granted.
+    try {
+      const to = session.customer_details?.email || session.customer_email || null;
+      const fullName = session.customer_details?.name || '';
+      await sendKitWelcomeEmail({ to, firstName: fullName.split(' ')[0] || '' });
+    } catch (mailErr) {
+      console.error('kit welcome email threw (ignored):', mailErr.message);
     }
   }
 }
