@@ -11,23 +11,27 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
-// Short code -> the utm_content it tags visitors with. Add a line per new link.
+// Short code -> where it lands + the utm_content it tags visitors with.
+// Personal team links land on the HOME page: not every click is a trader — many are
+// creators who just want to try a template, and the home page serves both. Use a
+// dedicated code with path '/trader-kit' for trader-only campaigns if needed later.
 const CODES = {
-  c1: 'team_c1',
-  c2: 'team_c2',
+  c1: { utm: 'team_c1', path: '/' },
+  c2: { utm: 'team_c2', path: '/' },
 };
 
-const BASE = 'https://porfilr.com/';
+const BASE = 'https://porfilr.com';
 
 export default async function handler(req, res) {
   const code = String(req.query.code || '').trim().toLowerCase();
-  const utmContent = CODES[code] || null;
+  const entry = CODES[code] || null;
+  const utmContent = entry ? entry.utm : null;
 
-  // Build the destination. Known code -> tagged home; unknown -> plain home (never 404 a
-  // real person who clicked a link).
-  const dest = utmContent
-    ? `${BASE}?utm_source=x&utm_medium=social&utm_campaign=growth&utm_content=${encodeURIComponent(utmContent)}`
-    : BASE;
+  // Build the destination. Known code -> tagged landing page; unknown -> plain home
+  // (never 404 a real person who clicked a link).
+  const dest = entry
+    ? `${BASE}${entry.path}?utm_source=x&utm_medium=social&utm_campaign=growth&utm_content=${encodeURIComponent(entry.utm)}`
+    : `${BASE}/`;
 
   // Log the click (fire-and-forget — a logging error must never block the redirect).
   try {

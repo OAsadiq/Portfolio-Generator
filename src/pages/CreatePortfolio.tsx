@@ -195,7 +195,10 @@ const CreatePortfolio = () => {
    *  come straight here without upgrading first. */
   const buyKit = async () => {
     if (!user) {
-      // Send them to sign in, then straight back to this template.
+      // Remember they were mid-purchase, so we can send them straight to checkout after
+      // login instead of dumping them back on the page to find the button again.
+      sessionStorage.setItem('porfilr_pending_kit', String(templateId));
+      localStorage.setItem('porfilr_after_login', `/create/${templateId}`);
       navigate('/login', { state: { from: { pathname: `/create/${templateId}` } } });
       return;
     }
@@ -242,6 +245,21 @@ const CreatePortfolio = () => {
       setKitLoading(false);
     }
   };
+
+  // Resume an interrupted purchase: if they clicked "Get the Trader Kit" while logged out,
+  // we sent them to sign in — bring them straight to checkout now instead of making them
+  // hunt for the button again. Cleared immediately so a stale flag can't re-fire later.
+  useEffect(() => {
+    if (!user || !template) return;
+    const pending = sessionStorage.getItem('porfilr_pending_kit');
+    if (pending && pending === templateId && template.kit && !ownsTemplate(template.id)) {
+      sessionStorage.removeItem('porfilr_pending_kit');
+      track('kit_checkout_resumed', { templateId });
+      buyKit();
+    } else if (pending) {
+      sessionStorage.removeItem('porfilr_pending_kit');
+    }
+  }, [user, template, templateId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
