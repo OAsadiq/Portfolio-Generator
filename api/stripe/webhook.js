@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { sendKitWelcomeEmail } from '../_lib/kitEmail.js';
+import { sendKitWelcomeEmail, sendFounderSaleAlert } from '../_lib/kitEmail.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabase = createClient(
@@ -233,8 +233,23 @@ async function handleCheckoutCompleted(session) {
       const to = session.customer_details?.email || session.customer_email || null;
       const fullName = session.customer_details?.name || '';
       await sendKitWelcomeEmail({ to, firstName: fullName.split(' ')[0] || '' });
+
+      // Founder alert — so you know the moment a spot sells and can reach out personally.
+      // Paid spots only, matching the public founding counter.
+      const { count: spotsSold } = await supabase
+        .from('template_purchases')
+        .select('id', { count: 'exact', head: true })
+        .eq('template_id', metadata.templateId)
+        .gt('amount', 0);
+      await sendFounderSaleAlert({
+        buyerEmail: to,
+        buyerName: fullName,
+        amount: session.amount_total,
+        templateId: metadata.templateId,
+        spotsSold: spotsSold || null,
+      });
     } catch (mailErr) {
-      console.error('kit welcome email threw (ignored):', mailErr.message);
+      console.error('kit emails threw (ignored):', mailErr.message);
     }
   }
 }

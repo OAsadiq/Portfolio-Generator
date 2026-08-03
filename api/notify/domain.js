@@ -232,6 +232,90 @@ function nudgeEmail(name) {
 }
 
 // ── Find signups with no portfolio (≥1 day old, not yet nudged) and email them once ──
+/**
+ * Nudge Trader Kit buyers who paid but haven't finished setting up — the ones who started
+ * and stalled. Three stall points, each with its own message, because "you haven't finished"
+ * is useless but "you just need your starting balance" is actionable.
+ * Runs daily; each buyer is nudged at most once (kit_nudged_at on template_purchases).
+ */
+async function sendKitNudges(apiKey) {
+  const olderThan1d = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+  const { data: buyers } = await supabase
+    .from('template_purchases')
+    .select('user_id, purchased_at')
+    .eq('template_id', 'trader-template')
+    .is('kit_nudged_at', null)
+    .lt('purchased_at', olderThan1d)
+    .limit(50);
+
+  if (!buyers || buyers.length === 0) return 0;
+
+  let sent = 0;
+  for (const b of buyers) {
+    const stamp = new Date().toISOString();
+    const mark = () => supabase.from('template_purchases')
+      .update({ kit_nudged_at: stamp }).eq('user_id', b.user_id).eq('template_id', 'trader-template');
+
+    // Where did they stall?
+    const { data: p } = await supabase
+      .from('portfolios')
+      .select('id, slug, starting_balance, journal_enabled')
+      .eq('user_id', b.user_id).eq('template_id', 'trader-template')
+      .maybeSingle();
+
+    let subject = null, body = null;
+
+    if (!p) {
+      subject = 'Your Trader Kit is waiting';
+      body = `You picked up the Trader Kit but haven't built your page yet. It takes about 10 minutes — your bio, markets, strategy and how you handle risk.`;
+    } else {
+      const { count: closed } = await supabase
+        .from('trades').select('id', { count: 'exact', head: true })
+        .eq('portfolio_id', p.id).not('closed_at', 'is', null);
+
+      if (!(p.starting_balance > 0)) {
+        subject = 'One number away from your live track record';
+        body = `Your page is up — nice. It just needs your <strong>starting balance</strong> before anything can calculate. Your return % is measured against it, so nothing shows until it's set. It's the first field in your Journal.`;
+      } else if (!closed) {
+        subject = 'Add your trades and your page comes alive';
+        body = `Your balance is set. Now log a few closed trades — or import your whole history at once with a CSV from MT4/MT5 or your broker. Only closed trades count toward your numbers.`;
+      } else if (!p.journal_enabled) {
+        subject = 'Your track record is ready — just switch it on';
+        body = `You've logged trades and your numbers are computed. One switch left: turn on <strong>live track record</strong> in your Journal and your page starts showing your real return, win rate, drawdown and equity curve.`;
+      }
+    }
+
+    // Fully set up → nothing to nudge, just stop checking them.
+    if (!subject) { await mark(); continue; }
+
+    let email = null, name = null;
+    try {
+      const { data } = await supabase.auth.admin.getUserById(b.user_id);
+      email = data?.user?.email || null;
+      name = data?.user?.user_metadata?.full_name?.split(' ')[0] || null;
+    } catch { /* no email — mark anyway so we don't re-loop */ }
+
+    if (email) {
+      const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;color:#181b22;font-size:15px;line-height:1.6;">
+        <p>${name ? `Hi ${name},` : 'Hi,'}</p>
+        <p style="color:#4f5661;">${body}</p>
+        <p style="margin:24px 0;"><a href="https://porfilr.com/dashboard" style="background:#e0b252;color:#0b0e14;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;">Pick up where you left off</a></p>
+        <p style="color:#4f5661;">Stuck on anything? Just reply — it comes straight to me.</p>
+        <p style="color:#4f5661;">— Sadiq, Porfilr</p>
+      </div>`;
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: FROM, to: email, subject, html, reply_to: 'hello@porfilr.com' }),
+      });
+      sent++;
+    }
+    await mark();
+  }
+  return sent;
+}
+
 async function sendPublishNudges(apiKey) {
   const now = Date.now();
   const olderThan1d = new Date(now - 24 * 60 * 60 * 1000).toISOString();
@@ -349,7 +433,10 @@ export default async function handler(req, res) {
       let nudged = 0;
       try { nudged = await sendPublishNudges(apiKey); } catch (e) { console.error('Nudge error:', e); }
 
-      return res.status(200).json({ ok: true, nudged });
+      let kitNudged = 0;
+      try { kitNudged = await sendKitNudges(apiKey); } catch (e) { console.error('Kit nudge error:', e); }
+
+      return res.status(200).json({ ok: true, nudged, kitNudged });
     } catch (err) {
       console.error('Digest error:', err);
       return res.status(500).json({ error: err.message });

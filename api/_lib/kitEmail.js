@@ -148,6 +148,45 @@ You're receiving this because you purchased the Trader Kit on porfilr.com`;
 }
 
 /**
+ * Tell the founder a kit just sold. Small, instant, and includes who bought — so you can
+ * personally reach out to founding buyers while the purchase is fresh.
+ * Never throws.
+ */
+export async function sendFounderSaleAlert({ buyerEmail, buyerName, amount, templateId, spotsSold }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = process.env.ADMIN_EMAIL || 'sadiq@porfilr.com';
+  if (!apiKey) return false;
+  const money = typeof amount === 'number' ? `$${(amount / 100).toFixed(2).replace(/\.00$/, '')}` : '—';
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: FROM,
+        to,
+        subject: `💰 Kit sold — ${money}${spotsSold ? ` (founding spot ${spotsSold}/20)` : ''}`,
+        html: `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:15px;color:#0f172a;">
+          <h2 style="margin:0 0 12px;">Someone bought the ${esc(templateId === 'trader-template' ? 'Trader Kit' : templateId)}</h2>
+          <table cellpadding="0" cellspacing="0" style="font-size:14px;">
+            <tr><td style="padding:6px 16px 6px 0;color:#64748b;">Buyer</td><td><strong>${esc(buyerName || '—')}</strong></td></tr>
+            <tr><td style="padding:6px 16px 6px 0;color:#64748b;">Email</td><td><a href="mailto:${esc(buyerEmail)}">${esc(buyerEmail)}</a></td></tr>
+            <tr><td style="padding:6px 16px 6px 0;color:#64748b;">Amount</td><td><strong>${money}</strong></td></tr>
+            ${spotsSold ? `<tr><td style="padding:6px 16px 6px 0;color:#64748b;">Founding</td><td><strong>${spotsSold} of 20 claimed</strong></td></tr>` : ''}
+          </table>
+          <p style="margin:18px 0 0;color:#64748b;font-size:13px;">They've been sent the welcome email. Worth a personal note from you — founding buyers are your first testimonials.</p>
+        </div>`,
+        text: `Kit sold — ${money}\nBuyer: ${buyerName || '—'} (${buyerEmail})\n${spotsSold ? `Founding spot ${spotsSold}/20\n` : ''}\nThey've been sent the welcome email.`,
+      }),
+    });
+    if (!res.ok) { console.error('founder sale alert failed:', await res.text()); return false; }
+    return true;
+  } catch (err) {
+    console.error('founder sale alert error:', err.message);
+    return false;
+  }
+}
+
+/**
  * Send the welcome email. Never throws — a failed email must not break the webhook or
  * cost someone the kit they paid for.
  */
