@@ -316,6 +316,79 @@ async function sendKitNudges(apiKey) {
   return sent;
 }
 
+/**
+ * Nudge traders whose LIVE page has gone quiet — no closed trade in 10+ days while their
+ * public track record is on.
+ *
+ * Deliberately NOT a "log your trades twice a week" schedule: that emails people who are
+ * already logging, and pressures traders to trade during quiet periods, which is bad advice
+ * from a product built on discipline. This only fires when it actually costs them something
+ * — their public page is ageing — and at most once every 14 days per trader.
+ */
+async function sendStaleTrackRecordNudges(apiKey) {
+  const STALE_DAYS = 10;
+  const COOLDOWN_DAYS = 14;
+  const now = Date.now();
+  const staleBefore = new Date(now - STALE_DAYS * 864e5).toISOString();
+  const cooldownBefore = new Date(now - COOLDOWN_DAYS * 864e5).toISOString();
+
+  // Only live, set-up trader pages can go "stale" in a way that matters.
+  const { data: pages } = await supabase
+    .from('portfolios')
+    .select('id, slug, user_id, stale_nudged_at')
+    .eq('template_id', 'trader-template')
+    .eq('journal_enabled', true)
+    .gt('starting_balance', 0)
+    .limit(100);
+
+  if (!pages || pages.length === 0) return 0;
+
+  let sent = 0;
+  for (const p of pages) {
+    // Respect the cooldown so this can never become a drip campaign.
+    if (p.stale_nudged_at && p.stale_nudged_at > cooldownBefore) continue;
+
+    const { data: recent } = await supabase
+      .from('trades')
+      .select('closed_at')
+      .eq('portfolio_id', p.id)
+      .not('closed_at', 'is', null)
+      .order('closed_at', { ascending: false })
+      .limit(1);
+
+    const last = recent && recent[0] ? recent[0].closed_at : null;
+    if (!last) continue;                    // never traded — a different nudge handles that
+    if (last > staleBefore) continue;       // still current, nothing to say
+
+    const days = Math.floor((now - new Date(last).getTime()) / 864e5);
+
+    let email = null, name = null;
+    try {
+      const { data } = await supabase.auth.admin.getUserById(p.user_id);
+      email = data?.user?.email || null;
+      name = (data?.user?.user_metadata?.full_name || '').split(' ')[0] || null;
+    } catch { /* fall through */ }
+
+    if (email) {
+      const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;color:#181b22;font-size:15px;line-height:1.6;">
+        <p>${name ? `Hi ${name},` : 'Hi,'}</p>
+        <p style="color:#4f5661;">Your track record hasn't had a new closed trade in ${days} days, so your page is starting to look quiet to anyone checking it out.</p>
+        <p style="color:#4f5661;">If you've been trading, adding them keeps your page current — that "recently updated" signal is the thing a screenshot can never show. If you've been sitting out, no problem at all: that's discipline, not a gap.</p>
+        <p style="margin:24px 0;"><a href="https://porfilr.com/dashboard" style="background:#e0b252;color:#0b0e14;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;">Update your journal</a></p>
+        <p style="color:#4f5661;">— Sadiq, Porfilr</p>
+      </div>`;
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: FROM, to: email, subject: 'Your track record is going quiet', html, reply_to: 'hello@porfilr.com' }),
+      });
+      sent++;
+    }
+    await supabase.from('portfolios').update({ stale_nudged_at: new Date().toISOString() }).eq('id', p.id);
+  }
+  return sent;
+}
+
 async function sendPublishNudges(apiKey) {
   const now = Date.now();
   const olderThan1d = new Date(now - 24 * 60 * 60 * 1000).toISOString();
@@ -436,7 +509,10 @@ export default async function handler(req, res) {
       let kitNudged = 0;
       try { kitNudged = await sendKitNudges(apiKey); } catch (e) { console.error('Kit nudge error:', e); }
 
-      return res.status(200).json({ ok: true, nudged, kitNudged });
+      let staleNudged = 0;
+      try { staleNudged = await sendStaleTrackRecordNudges(apiKey); } catch (e) { console.error('Stale nudge error:', e); }
+
+      return res.status(200).json({ ok: true, nudged, kitNudged, staleNudged });
     } catch (err) {
       console.error('Digest error:', err);
       return res.status(500).json({ error: err.message });
