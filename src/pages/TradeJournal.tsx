@@ -11,6 +11,9 @@ import { computeMetrics } from '../../api/_lib/metrics.js';
 // Shared, unit-tested CSV import (api/_lib/tradeCsv.js). A trader with real history won't
 // hand-log hundreds of trades, so this is what makes the journal usable for them.
 import { parseTradeCsv } from '../../api/_lib/tradeCsv.js';
+// Trading performance calendar — same closed-only, net-of-fees maths as the metrics, so
+// the calendar can never disagree with the headline numbers.
+import { monthGrid, activeMonths } from '../../api/_lib/calendar.js';
 import TutorialTour, { TourStep } from '../components/tutorial/TutorialTour';
 
 const JOURNAL_TOUR: TourStep[] = [
@@ -94,9 +97,12 @@ const TradeJournal = () => {
   const [balanceInput, setBalanceInput] = useState('');
   const [savingBalance, setSavingBalance] = useState(false);
   const [togglingJournal, setTogglingJournal] = useState(false);
+  const [togglingCalendar, setTogglingCalendar] = useState(false);
 
   // CSV import: null until a file is parsed, then a preview the user confirms.
   type ImportPreview = { valid: any[]; errors: { line: number; message: string }[]; totalRows: number; fileName: string };
+  // Calendar: which month is on screen. null = default to the most recent month with trades.
+  const [calMonth, setCalMonth] = useState<{ year: number; month: number } | null>(null);
   const [csvPreview, setCsvPreview] = useState<ImportPreview | null>(null);
   const [importing, setImporting] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
@@ -117,7 +123,7 @@ const TradeJournal = () => {
         .from('portfolios')
         // form_data/sections are needed to republish the page when the journal is
         // toggled — the live-metrics script is baked in at publish time.
-        .select('id, slug, user_id, template_id, starting_balance, journal_enabled, form_data, sections')
+        .select('id, slug, user_id, template_id, starting_balance, journal_enabled, calendar_public, form_data, sections')
         .eq('slug', slug)
         .maybeSingle();
 
@@ -153,6 +159,30 @@ const TradeJournal = () => {
 
   const closedCount = metrics.totalTrades;
   const openCount = trades.length - closedCount;
+
+  // ── Trading performance calendar ──
+  const months = useMemo(() => activeMonths(trades), [trades]);
+  // Show the selected month, else the most recent month that has trades, else today.
+  const shownMonth = useMemo(() => {
+    if (calMonth) return calMonth;
+    if (months.length) return { year: months[0].year, month: months[0].month };
+    const now = new Date();
+    return { year: now.getUTCFullYear(), month: now.getUTCMonth() + 1 };
+  }, [calMonth, months]);
+  const grid = useMemo(
+    () => monthGrid(trades, shownMonth.year, shownMonth.month),
+    [trades, shownMonth]
+  );
+  // Scale day colours against the biggest absolute day in view, so a big win reads
+  // differently from a scrape.
+  const maxAbsDay = useMemo(() => {
+    const vals = grid.weeks.flat().filter((c: any) => c && c.pnl !== null).map((c: any) => Math.abs(c.pnl));
+    return vals.length ? Math.max(...vals) : 0;
+  }, [grid]);
+  const shiftMonth = (delta: number) => {
+    const d = new Date(Date.UTC(shownMonth.year, shownMonth.month - 1 + delta, 1));
+    setCalMonth({ year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 });
+  };
   const hasBalanceNow = portfolio?.starting_balance > 0;
   // All three conditions the published page needs before it can show live numbers.
   const liveReady = hasBalanceNow && closedCount > 0 && !!portfolio?.journal_enabled;
@@ -209,6 +239,34 @@ const TradeJournal = () => {
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
       throw new Error(d.error || 'Could not update your published page.');
+    }
+  };
+
+  /** Opt-in: show the trading calendar on the published page. Off by default — it reveals
+   *  day-by-day trading patterns, so it's the trader's call. Republishes so the page
+   *  reflects the change immediately. */
+  const toggleCalendar = async () => {
+    const next = !portfolio.calendar_public;
+    setTogglingCalendar(true);
+    try {
+      const { data, error: e } = await supabase
+        .from('portfolios')
+        .update({ calendar_public: next })
+        .eq('id', portfolio.id)
+        .select('id, calendar_public');
+      if (e) throw e;
+      if (!data || data.length === 0) {
+        throw new Error("That didn't save — the database rejected the write. Try signing out and back in.");
+      }
+      const updated = { ...portfolio, calendar_public: next };
+      setPortfolio(updated);
+      await republish(updated);
+      track('calendar_public_toggled', { enabled: next, slug });
+      showToast(next ? 'Calendar added to your page.' : 'Calendar removed from your page.');
+    } catch (e: any) {
+      showToast(e.message || 'Could not update your page. Try again.');
+    } finally {
+      setTogglingCalendar(false);
     }
   };
 
@@ -578,6 +636,38 @@ const TradeJournal = () => {
               />
             </button>
           </div>
+
+          {/* Opt-in calendar — only offered once the live track record is on, since it's
+              part of the same public proof. Off by default: it shows daily patterns. */}
+          {portfolio.journal_enabled && (
+            <div className="flex items-center justify-between gap-4 pt-5 border-t border-stone-100">
+              <div>
+                <p className="text-sm font-semibold text-stone-900">Show my trading calendar on my page</p>
+                <p className="text-stone-500 text-xs mt-0.5">
+                  {togglingCalendar
+                    ? 'Updating your published page…'
+                    : closedCount === 0
+                      ? 'Log a closed trade first.'
+                      : 'Adds a month view of your green and red days — strong proof of consistency. Colours only, never your daily amounts.'}
+                </p>
+              </div>
+              <button
+                onClick={toggleCalendar}
+                disabled={togglingCalendar || closedCount === 0}
+                className={`relative w-12 h-7 rounded-full transition flex-none disabled:opacity-40 ${
+                  portfolio.calendar_public ? 'bg-emerald-500' : 'bg-stone-300'
+                }`}
+                aria-pressed={!!portfolio.calendar_public}
+                aria-label="Show my trading calendar on my page"
+              >
+                <span
+                  className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${
+                    portfolio.calendar_public ? 'left-6' : 'left-1'
+                  }`}
+                />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Live metrics preview */}
@@ -626,6 +716,83 @@ const TradeJournal = () => {
             </>
           )}
         </div>
+
+        {/* Trading performance calendar — shows consistency at a glance, which is what an
+            investor actually reads: steady green, or one big day carrying a wall of red? */}
+        {closedCount > 0 && (
+          <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
+            <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+              <div>
+                <h2 className="font-bold text-stone-900 text-sm">Trading calendar</h2>
+                <p className="text-stone-500 text-xs mt-0.5">Your daily profit and loss.</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => shiftMonth(-1)}
+                  className="w-8 h-8 rounded-lg border border-stone-200 hover:border-stone-300 text-stone-500 hover:text-stone-900 transition"
+                  aria-label="Previous month"
+                >‹</button>
+                <span className="text-sm font-semibold text-stone-900 min-w-[130px] text-center tabular-nums">{grid.label}</span>
+                <button
+                  onClick={() => shiftMonth(1)}
+                  className="w-8 h-8 rounded-lg border border-stone-200 hover:border-stone-300 text-stone-500 hover:text-stone-900 transition"
+                  aria-label="Next month"
+                >›</button>
+              </div>
+            </div>
+
+            {/* Month summary */}
+            <div className="flex flex-wrap gap-4 mb-4 text-sm">
+              <span className={`font-bold tabular-nums ${grid.summary.pnl >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                {grid.summary.pnl >= 0 ? '+' : ''}{grid.summary.pnl.toLocaleString()}
+              </span>
+              <span className="text-stone-400">
+                {grid.summary.tradingDays} {grid.summary.tradingDays === 1 ? 'day' : 'days'} traded
+              </span>
+              <span className="text-emerald-600">{grid.summary.greenDays} green</span>
+              <span className="text-red-500">{grid.summary.redDays} red</span>
+            </div>
+
+            {/* Grid */}
+            <div className="grid grid-cols-7 gap-1.5 mb-2">
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
+                <div key={d} className="text-[10px] font-semibold text-stone-400 uppercase tracking-wide text-center pb-1">
+                  {d.slice(0, 1)}<span className="hidden sm:inline">{d.slice(1)}</span>
+                </div>
+              ))}
+              {grid.weeks.flat().map((cell: any, i: number) => {
+                if (!cell) return <div key={`b${i}`} />;
+                const traded = cell.pnl !== null;
+                const up = traded && cell.pnl > 0;
+                const down = traded && cell.pnl < 0;
+                // Opacity scales with size of the day relative to the biggest in view.
+                const strength = traded && maxAbsDay ? 0.25 + 0.75 * (Math.abs(cell.pnl) / maxAbsDay) : 0;
+                return (
+                  <div
+                    key={cell.date}
+                    title={traded ? `${cell.date}: ${cell.pnl > 0 ? '+' : ''}${cell.pnl} · ${cell.trades} ${cell.trades === 1 ? 'trade' : 'trades'}` : cell.date}
+                    className={`aspect-square rounded-lg border p-1.5 flex flex-col justify-between ${
+                      traded ? (up ? 'border-emerald-200' : down ? 'border-red-200' : 'border-stone-200') : 'border-stone-100'
+                    }`}
+                    style={traded ? {
+                      backgroundColor: up
+                        ? `rgba(16,185,129,${0.10 + 0.22 * strength})`
+                        : down ? `rgba(239,68,68,${0.10 + 0.22 * strength})` : undefined,
+                    } : undefined}
+                  >
+                    <span className={`text-[10px] font-semibold ${traded ? 'text-stone-600' : 'text-stone-300'}`}>{cell.day}</span>
+                    {traded && (
+                      <span className={`text-[11px] font-bold tabular-nums leading-none ${up ? 'text-emerald-700' : down ? 'text-red-600' : 'text-stone-500'}`}>
+                        {cell.pnl > 0 ? '+' : ''}{Math.abs(cell.pnl) >= 1000 ? `${(cell.pnl / 1000).toFixed(1)}k` : cell.pnl}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-stone-400 text-xs">Days with no closed trades are left blank.</p>
+          </div>
+        )}
 
         {/* Import from CSV — the adoption unlock for traders with existing history */}
         <div data-tour="journal-import" className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">

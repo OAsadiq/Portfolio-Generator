@@ -30,7 +30,7 @@ const supabase = createClient(url, key);
 
 let q = supabase
   .from('portfolios')
-  .select('id, slug, template_id, form_data, sections, file_path, user_id, journal_enabled, starting_balance, metrics_cache');
+  .select('id, slug, template_id, form_data, sections, file_path, user_id, journal_enabled, starting_balance, metrics_cache, calendar_public');
 if (slugArg) q = q.eq('slug', slugArg);
 const { data: portfolios, error } = await q;
 
@@ -48,13 +48,13 @@ async function computeRemoveBranding(userId) {
   return !!isPro || (kitCount || 0) > 0;
 }
 
-// Same journal metrics the live publish computes, from the portfolio's own closed trades.
-async function computeMetricsCache(p) {
-  if (!(p.journal_enabled && p.starting_balance > 0)) return p.metrics_cache || null;
+// Closed trades for this portfolio — feeds both the metrics and the opt-in calendar.
+async function loadClosedTrades(p) {
+  if (!(p.journal_enabled && p.starting_balance > 0)) return [];
   const { data: trades } = await supabase
     .from('trades').select('opened_at, closed_at, pnl, fees')
     .eq('portfolio_id', p.id).not('closed_at', 'is', null).limit(5000);
-  return computeMetrics(trades || [], p.starting_balance);
+  return trades || [];
 }
 
 let ok = 0, skipped = 0, failed = 0;
@@ -68,8 +68,19 @@ for (const p of portfolios) {
   }
   try {
     const removeBranding = await computeRemoveBranding(p.user_id);
-    const metricsCache = await computeMetricsCache(p);
-    const meta = { slug: p.slug, journalEnabled: !!p.journal_enabled, metricsCache, removeBranding };
+    const closedTrades = await loadClosedTrades(p);
+    const metricsCache = closedTrades.length || (p.journal_enabled && p.starting_balance > 0)
+      ? computeMetrics(closedTrades, p.starting_balance)
+      : (p.metrics_cache || null);
+    const meta = {
+      slug: p.slug,
+      journalEnabled: !!p.journal_enabled,
+      metricsCache,
+      removeBranding,
+      // Preserve the trader's opt-in calendar choice on bulk republish.
+      calendarPublic: !!p.calendar_public,
+      trades: closedTrades,
+    };
 
     const html = tpl.generateHTML(p.form_data || {}, p.sections || [], meta);
     const filePath = p.file_path || `portfolios/${p.slug}.html`;

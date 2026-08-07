@@ -77,6 +77,8 @@ export default async function handler(req, res) {
     // stranger happened to load it. Computing here means the page is correct the moment
     // it's published.
     let metricsCache = portfolio.metrics_cache || null;
+    // Also reused by the opt-in trading calendar below, so it's declared out here.
+    let closedTradeRows = [];
     if (portfolio.journal_enabled && portfolio.starting_balance > 0) {
       const { data: trades, error: tradesErr } = await supabase
         .from('trades')
@@ -89,6 +91,7 @@ export default async function handler(req, res) {
         // Never fail a publish over metrics — fall back to the last known cache.
         console.error('trades fetch failed during publish:', tradesErr.message);
       } else {
+        closedTradeRows = trades || [];
         metricsCache = computeMetrics(trades || [], portfolio.starting_balance);
         // Persist so the baked fallback and the live endpoint agree from the start.
         const { error: cacheErr } = await supabase
@@ -104,6 +107,9 @@ export default async function handler(req, res) {
       journalEnabled: !!portfolio.journal_enabled,
       metricsCache,
       removeBranding,
+      // Opt-in trading calendar: only rendered when the trader turned it on.
+      calendarPublic: !!portfolio.calendar_public,
+      trades: closedTradeRows,
     });
 
     const filePath = `portfolios/${slug}.html`;

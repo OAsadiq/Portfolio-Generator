@@ -1,5 +1,6 @@
 import { collectSocials, socialIconSvg } from '../_social.js';
 import { equityCurveSvg, CLIENT_REDRAW } from '../../_lib/chart.js';
+import { calendarHtml } from '../../_lib/calendar.js';
 
 function esc(s) {
   return String(s || '')
@@ -128,6 +129,12 @@ const traderTemplate = {
 
     // Generated from the journal's own curve data. Needs 2+ points to mean anything;
     // below that we fall back to whatever chart image the trader uploaded.
+    // Opt-in trading calendar. Off unless the trader turned it on — it shows their
+    // day-by-day pattern, which is a personal call. Shape only, never daily amounts.
+    const calendar = (journalOn && meta.calendarPublic && Array.isArray(meta.trades))
+      ? calendarHtml(meta.trades)
+      : '';
+
     const hasCurve = journalOn && Array.isArray(cache.curve) && cache.curve.length >= 2;
     const journalCurve = hasCurve ? equityCurveSvg(cache.curve) : '';
 
@@ -216,7 +223,7 @@ const traderTemplate = {
 
     const blocks = {
       // Dark: the numbers and the evidence belong to the terminal half of the page.
-      proof: () => (journalCurve || equity || proofImg || verifyHref) ? dark(`
+      proof: () => (journalCurve || equity || proofImg || verifyHref || calendar) ? dark(`
       <div class="kicker">Proof</div>
       <h2>The receipts<span class="ser"> — not screenshots in a DM.</span></h2>
       ${journalCurve
@@ -226,6 +233,7 @@ const traderTemplate = {
         ? `<div class="chart-card"><div class="chart-head">Equity curve<span class="chart-live">Live</span></div><div class="chart-body eq-body">${journalCurve}</div></div>`
         : equity ? `<div class="chart-card"><div class="chart-head">Equity curve</div><div class="chart-body"><img src="${equity}" alt="Equity curve" /></div></div>` : ''}
       ${proofImg ? `<div class="chart-card"><div class="chart-head">Statement / results</div><div class="chart-body"><img src="${proofImg}" alt="Statement / verified results" /></div></div>` : ''}
+      ${calendar}
       ${verifyHref ? `<p class="proof-note">Independently verifiable: <a href="${verifyHref}" target="_blank" rel="noopener">${esc(verifyUrl.replace(/^https?:\/\//, ''))}</a></p>` : ''}`, 'proof') : '',
 
       // Light: the human story — how they think, how they protect money, what they sell.
@@ -422,6 +430,23 @@ const traderTemplate = {
     /* uploaded images are arbitrary size/quality — contain them so nothing dominates or stretches */
     .chart-body{background:#0d0d10;display:flex;justify-content:center;align-items:center;padding:14px}
     .chart-card img{max-width:100%;max-height:520px;width:auto;height:auto;display:block;border-radius:10px}
+    /* ---------- trading calendar (opt-in) ---------- */
+    .cal-card{border:1px solid var(--line);border-radius:var(--radius);background:var(--bg2);margin-top:20px;padding:20px;
+      box-shadow:0 26px 64px rgba(0,0,0,.42)}
+    .cal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .cal-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.17em;color:var(--dim)}
+    .cal-legend{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;color:var(--dim)}
+    .cal-key{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:2px}
+    .cal-key-up{background:rgba(34,197,94,.55)}
+    .cal-key-down{background:rgba(248,113,113,.55)}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+    .cal-dow{font-size:9.5px;font-weight:700;color:var(--dim);text-align:center;padding-bottom:2px}
+    .cal-cell{aspect-ratio:1;border-radius:5px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+    .cal-blank{background:none;border:0}
+    .cal-on{border-color:transparent}
+    .cal-note{font-size:12px;color:var(--dim);margin-top:14px}
+    @media(max-width:560px){.cal-card{padding:14px}.cal-grid{gap:3px}}
+
     .proof-note{font-size:13px;color:var(--dim);margin-top:18px}
     .proof-note a{color:var(--accent);text-decoration:none;font-weight:600}
     .proof-note a:hover{text-decoration:underline}
