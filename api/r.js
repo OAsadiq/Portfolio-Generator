@@ -12,12 +12,17 @@ import { createClient } from '@supabase/supabase-js';
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 // Short code -> where it lands + the utm_content it tags visitors with.
-// Personal team links land on the HOME page: not every click is a trader — many are
-// creators who just want to try a template, and the home page serves both. Use a
-// dedicated code with path '/trader-kit' for trader-only campaigns if needed later.
+//
+// The team links land on /trader-kit because 100% of current content is trader content —
+// a trader arriving from a track-record conversation and landing on a generic portfolio
+// homepage bounces (we measured exactly that: 42 real visitors, 0 onward clicks).
+// Use the `gen` link when talking to non-trader creators.
 const CODES = {
-  c1: { utm: 'team_c1', path: '/' },
-  c2: { utm: 'team_c2', path: '/' },
+  c1: { utm: 'team_c1', path: '/trader-kit' },
+  c2: { utm: 'team_c2', path: '/trader-kit' },
+  // General-audience links — same people, non-trader conversations.
+  g1: { utm: 'team_c1_gen', path: '/' },
+  g2: { utm: 'team_c2_gen', path: '/' },
 };
 
 const BASE = 'https://porfilr.com';
@@ -33,6 +38,12 @@ export default async function handler(req, res) {
     ? `${BASE}${entry.path}?utm_source=x&utm_medium=social&utm_campaign=growth&utm_content=${encodeURIComponent(entry.utm)}`
     : `${BASE}/`;
 
+  // Social platforms fetch every shared link to build a preview card. Those hits are NOT
+  // people — 63% of our first two weeks of "clicks" were bots, which made the growth
+  // numbers look 3x better than reality. Flag them so reporting can count humans only.
+  const ua = req.headers['user-agent'] || '';
+  const isBot = !ua || /bot|crawler|spider|preview|fetch|curl|python|headless|facebookexternalhit|Twitterbot|WhatsApp|Slackbot|LinkedInBot|Discordbot|TelegramBot|Go-http|axios|node-fetch/i.test(ua);
+
   // Log the click (fire-and-forget — a logging error must never block the redirect).
   try {
     await supabase.from('events').insert({
@@ -42,8 +53,9 @@ export default async function handler(req, res) {
         code,
         utm_content: utmContent,
         known: !!utmContent,
+        bot: isBot,
         referrer: req.headers['referer'] || req.headers['referrer'] || null,
-        ua: req.headers['user-agent'] || null,
+        ua: ua || null,
       },
     });
   } catch (err) {
