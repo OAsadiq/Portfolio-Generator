@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
 
 const CREATORS = ["Writers", "Designers", "Photographers", "Developers", "Videographers", "Traders"];
 
@@ -12,10 +11,18 @@ const Hero = () => {
 
   useEffect(() => {
     const fetchCount = async () => {
-      const { count, error } = await supabase
-        .from("waitlist")
-        .select("*", { count: "exact", head: true });
-      if (!error && count !== null) setUserCount(count);
+      // Count PUBLISHED PORTFOLIOS, not the legacy pre-launch `waitlist` table — that was
+      // showing 11 while 38 people had signed up and 18 had published.
+      //
+      // Must go through the API, not supabase directly: RLS restricts portfolio SELECT to
+      // the owner, so a logged-out visitor querying the table reads 0. This endpoint uses
+      // the service key server-side and returns only an aggregate count.
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/stats/portfolio-count`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (typeof data.count === "number") setUserCount(data.count);
+      } catch { /* leave the counter hidden rather than show a wrong number */ }
     };
     fetchCount();
   }, []);
@@ -100,7 +107,7 @@ const Hero = () => {
           ))}
         </div>
         <p className="text-stone-500 text-sm">
-          <span className="font-bold text-stone-800">{animatedCount > 0 ? `${animatedCount}+` : "..."}</span> creators signed up
+          <span className="font-bold text-stone-800">{animatedCount > 0 ? `${animatedCount}+` : "..."}</span> portfolios published
         </p>
       </div>
 
