@@ -8,6 +8,10 @@ import { useSeo } from '../lib/useSeo';
 
 const KIT = 'trader-template';
 
+// YouTube ID of the Trader Kit demo (the unlisted video used in the PearX application).
+// Swap this when a better demo lands — it's the only place the video is referenced.
+const DEMO_VIDEO_ID = 'biMVNP4qMRw';
+
 // Founding-offer landing page for the Trader Kit. Live spot counter + buy CTA (routes
 // into the real kit purchase flow) + email capture for the not-ready. One URL the growth
 // hire can drive all trader traffic to, with clear metrics: spots filled, emails captured.
@@ -140,6 +144,92 @@ const TraderKit = () => {
               <h3 className="font-bold text-stone-900 mb-1.5">{t}</h3>
               <p className="text-stone-600 text-sm leading-relaxed">{b}</p>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Demo video — seeing it work beats reading about it */}
+      <section className="max-w-3xl mx-auto px-6 pb-16">
+        <h2 className="text-2xl font-bold text-stone-900 text-center mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+          See it in action.
+        </h2>
+        <p className="text-stone-600 text-center mb-6">Log a trade, watch everything update.</p>
+        <div className="rounded-2xl overflow-hidden border border-stone-200 bg-stone-900 aspect-video">
+          <iframe
+            className="w-full h-full"
+            src={`https://www.youtube.com/embed/${DEMO_VIDEO_ID}`}
+            title="Porfilr Trader Kit demo"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      </section>
+
+      {/* Live example — the strongest proof is a real page they can click into */}
+      <section className="max-w-3xl mx-auto px-6 pb-16 text-center">
+        <h2 className="text-2xl font-bold text-stone-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+          A real trader page.
+        </h2>
+        <p className="text-stone-600 mb-6">
+          This is what yours looks like — the equity curve, the calendar, the numbers. All generated from logged trades.
+        </p>
+        <a
+          href="/templates/trader-template/preview.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-stone-900 hover:bg-stone-700 text-white font-semibold px-6 py-3 rounded-xl transition"
+        >
+          View the live example →
+        </a>
+      </section>
+
+      {/* How it works — removes the "is this a lot of work?" objection */}
+      <section className="max-w-4xl mx-auto px-6 pb-16">
+        <h2 className="text-2xl font-bold text-stone-900 text-center mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
+          Set up in one sitting.
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            ['1', 'Import your history', 'Export a CSV from MT4, MT5, cTrader or your broker and drop it in. Hundreds of trades in seconds — no manual typing.'],
+            ['2', 'See your patterns', 'Your calendar, equity curve and stats appear immediately. This is usually the moment traders find something they did not know about their own trading.'],
+            ['3', 'Keep it current', 'Log new trades as you go. Everything recalculates itself — including the page you share.'],
+          ].map(([n, t, b]) => (
+            <div key={n} className="bg-white border border-stone-200 rounded-2xl p-6">
+              <div className="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 font-bold flex items-center justify-center mb-3">{n}</div>
+              <h3 className="font-bold text-stone-900 mb-1.5">{t}</h3>
+              <p className="text-stone-600 text-sm leading-relaxed">{b}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ — answers the objections that quietly stop people buying */}
+      <section className="max-w-2xl mx-auto px-6 pb-16">
+        <h2 className="text-2xl font-bold text-stone-900 text-center mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
+          Questions traders ask.
+        </h2>
+        <div className="space-y-3">
+          {[
+            ['Do I have to log every trade by hand?',
+             'No. Import your whole history from a broker CSV in one go, then add new trades as you close them — that part takes seconds.'],
+            ['Is my trading data private?',
+             'Yes. Your individual trades and notes are always private to you. Only your summary numbers appear on your page, and only if you turn that on. The calendar is off by default.'],
+            ['Does Porfilr verify my results?',
+             'No, and we say so plainly on your page. You enter your own numbers. We compute them honestly and show when you last traded — we do not claim to audit them. Anyone telling you otherwise is not being straight with you.'],
+            ['What if I stop trading for a while?',
+             'Nothing breaks. Your page stays up, and we hide the "last updated" stamp rather than making a quiet period look bad.'],
+            ['Do I need the Pro plan too?',
+             'No. The kit includes everything — custom domain, analytics, no Porfilr branding. One purchase, nothing else to buy.'],
+            ['What happens after the 20 founding spots?',
+             'The kit moves to a monthly plan. If you claim a founding spot now, you keep it for life at the one-time price.'],
+          ].map(([q, a]) => (
+            <details key={q} className="bg-white border border-stone-200 rounded-2xl p-5 group">
+              <summary className="font-semibold text-stone-900 cursor-pointer list-none flex items-center justify-between gap-4">
+                {q}
+                <span className="text-stone-400 group-open:rotate-180 transition flex-none">▾</span>
+              </summary>
+              <p className="text-stone-600 text-sm leading-relaxed mt-3">{a}</p>
+            </details>
           ))}
         </div>
       </section>
