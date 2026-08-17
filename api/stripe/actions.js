@@ -101,7 +101,7 @@ const KIT_PRICE_ENV = {
     'trader-template': 'STRIPE_TRADER_KIT_PRICE_ID',
 };
 
-async function handleCreateTemplateCheckout({ templateId, userId, userEmail }, res) {
+async function handleCreateTemplateCheckout({ templateId, userId, userEmail, attribution }, res) {
     if (!userId || !templateId) {
         return res.status(400).json({ error: 'Missing user or template' });
     }
@@ -170,7 +170,9 @@ async function handleCreateTemplateCheckout({ templateId, userId, userEmail }, r
             customer_email: userEmail,
             success_url: `${process.env.VITE_REDIRECT_URL}/template-success?template_id=${templateId}`,
             cancel_url: `${process.env.VITE_REDIRECT_URL}/templates`,
-            metadata: { userId, templateId, type: 'premium_template' }
+            // attribution rides through Stripe so the webhook can record who drove the
+            // sale — Stripe metadata values must be strings, hence the ?? ''.
+            metadata: { userId, templateId, type: 'premium_template', attribution: attribution || '' }
         });
 
         return res.json({ sessionId: session.id, url: session.url });

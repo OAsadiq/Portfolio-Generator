@@ -48,6 +48,16 @@ function attribution(): Record<string, any> {
 }
 
 /**
+ * The first-touch utm_content (e.g. "ayo", "team_c2") — who drove this visitor here.
+ * Sent with kit checkout so the purchase can be attributed and commission paid provably.
+ * Returns '' when the visit was organic.
+ */
+export function attributionSource(): string {
+  const a = attribution();
+  return typeof a.utm_content === 'string' ? a.utm_content : '';
+}
+
+/**
  * Fire-and-forget activity event → Supabase `events` table.
  * Analytics must NEVER break the UX, so every failure is swallowed.
  * Visits/pageviews are handled separately by Cloudflare Web Analytics.

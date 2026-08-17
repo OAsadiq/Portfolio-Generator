@@ -10,7 +10,7 @@ const KIT = 'trader-template';
 
 // YouTube ID of the Trader Kit demo (the unlisted video used in the PearX application).
 // Swap this when a better demo lands — it's the only place the video is referenced.
-const DEMO_VIDEO_ID = 'biMVNP4qMRw';
+const DEMO_VIDEO_ID = 'nglwmrZQmBk';
 
 // Founding-offer landing page for the Trader Kit. Live spot counter + buy CTA (routes
 // into the real kit purchase flow) + email capture for the not-ready. One URL the growth

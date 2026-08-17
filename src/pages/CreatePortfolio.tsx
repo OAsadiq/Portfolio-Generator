@@ -6,7 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import PortfolioVisualBuilder from "../components/PortfolioVisualBuilder.tsx";
 import SharePortfolio from "../components/SharePortfolio";
-import { track } from "../lib/track";
+import { track, attributionSource } from "../lib/track";
 import { suggestEmailFix } from "../lib/emailTypo";
 
 interface TemplateField {
@@ -215,6 +215,9 @@ const CreatePortfolio = () => {
           templateId: template?.id,
           userId: user.id,
           userEmail: user.email,
+          // Who drove this visitor here (first-touch). Recorded on the purchase so
+          // growth commission is provable from data rather than memory.
+          attribution: attributionSource(),
         }),
       });
       if (!res.ok) {

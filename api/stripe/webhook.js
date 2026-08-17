@@ -213,7 +213,10 @@ async function handleCheckoutCompleted(session) {
           user_id: metadata.userId,
           template_id: metadata.templateId,
           stripe_payment_intent_id: session.payment_intent,
-          amount: session.amount_total
+          amount: session.amount_total,
+          // Who drove this sale (utm_content of their first-touch link). Null when
+          // organic. This is the basis for growth commission.
+          attribution: metadata.attribution || null
         })
         .select();
 
