@@ -16,8 +16,8 @@ const TraderKit = () => {
   const { user } = useAuth();
 
   useSeo({
-    title: 'The Trader Kit — a track record that updates itself | Porfilr',
-    description: 'Log your trades and Porfilr builds a live, credible track record page investors trust. Founding price for the first 20 traders, then it goes monthly.',
+    title: 'The Trader Kit — see your trading clearly | Porfilr',
+    description: 'A trading journal that turns your trades into an equity curve, a P&L calendar and real stats — so you can spot your patterns and improve. Founding price for the first 20 traders, then it goes monthly.',
     canonical: 'https://porfilr.com/trader-kit',
   });
 
@@ -83,12 +83,13 @@ const TraderKit = () => {
         </div>
 
         <h1 className="text-4xl md:text-5xl font-bold text-stone-900 tracking-tight mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
-          A track record that updates itself.
+          See your trading clearly.
         </h1>
         <p className="text-stone-600 text-lg max-w-xl mx-auto mb-8">
-          Log your trades and Porfilr works out your return, win rate, drawdown and equity curve —
-          then keeps a clean, credible page current, showing the day you last traded. The proof a
-          screenshot can never give.
+          Log your trades — or import your whole history — and Porfilr shows you what's actually
+          happening: your equity curve, a calendar of every green and red day, your real win rate
+          and drawdown. Spot the patterns costing you money, and share a page that proves your
+          consistency when you need to.
         </p>
 
         {/* Live counter */}
@@ -130,10 +131,10 @@ const TraderKit = () => {
       <section className="max-w-4xl mx-auto px-6 pb-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
-            ['Live track record', 'Your metrics recompute from your logged trades and stay current on your page — with the date you last traded.'],
-            ['Private trade journal', 'Log trades by hand or import your whole history from a broker CSV. Only the totals are ever public.'],
-            ['Built for investors', 'A clean, dark, premium page with your equity curve, strategy, risk approach, and a contact form built in.'],
-            ['Everything included', 'Custom domain, no Porfilr branding, analytics — all part of the kit. No separate Pro plan.'],
+            ['P&L calendar', 'Every trading day coloured green or red. See instantly whether you\'re steadily profitable or one big day is carrying weeks of losses.'],
+            ['Your equity curve', 'Watch your account actually progress. Where the drawdowns hit, how long recovery took, whether you\'re trending up.'],
+            ['The numbers that matter', 'Win rate, profit factor, max drawdown and total return — worked out for you from your own trades, always current.'],
+            ['A page worth sharing', 'The same data becomes a clean page you can send to a prop firm or a client. Everything included — custom domain, no branding, analytics.'],
           ].map(([t, b]) => (
             <div key={t} className="bg-white border border-stone-200 rounded-2xl p-6">
               <h3 className="font-bold text-stone-900 mb-1.5">{t}</h3>

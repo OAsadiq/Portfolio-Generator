@@ -1,0 +1,27 @@
+<!doctype html>
+<title>Graphic spell-check zoom</title>
+<body style="margin:0;background:#111;color:#fff;font:14px system-ui">
+<p style="padding:8px">Zoomed crops — checking the URL badge and logo spelling.</p>
+<div style="width:100%;height:260px;overflow:hidden;position:relative;border-bottom:2px solid #555">
+  <img id="a" style="position:absolute;transform-origin:top left" />
+</div>
+<div style="width:100%;height:220px;overflow:hidden;position:relative">
+  <img id="b" style="position:absolute;transform-origin:top left" />
+</div>
+<script>
+  // The badge sits bottom-right; the logo top-right. Scale up and offset to show them.
+  const src = '/_g/IMG_9001.JPG.jpeg';
+  const a = document.getElementById('a');
+  a.src = src;
+  a.onload = () => {
+    const s = 3.2;
+    a.style.transform = `scale(${s}) translate(${-a.naturalWidth*0.60}px, ${-a.naturalHeight*0.885}px)`;
+  };
+  const b = document.getElementById('b');
+  b.src = src;
+  b.onload = () => {
+    const s = 3.2;
+    b.style.transform = `scale(${s}) translate(${-b.naturalWidth*0.62}px, ${-b.naturalHeight*0.045}px)`;
+  };
+</script>
+</body>

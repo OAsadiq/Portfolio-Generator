@@ -18,6 +18,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "4180", "--directory", "public/templates"],
       "port": 4180
+    },
+    {
+      "name": "graphics-review",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4190", "--directory", "C:/Users/sadiq/Downloads/Porfilr Graphics"],
+      "port": 4190
     }
   ]
 }

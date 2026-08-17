@@ -23,6 +23,11 @@ const CODES = {
   // General-audience links — same people, non-trader conversations.
   g1: { utm: 'team_c1_gen', path: '/' },
   g2: { utm: 'team_c2_gen', path: '/' },
+
+  // Ayo — growth (retainer + 25% commission on founding kit sales). Attribution for her
+  // commission runs off this link, so it must stay hers alone.
+  ayo: { utm: 'ayo', path: '/trader-kit' },
+  ayog: { utm: 'ayo_gen', path: '/' },
 };
 
 const BASE = 'https://porfilr.com';
