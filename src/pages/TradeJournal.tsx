@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Fragment } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -1090,7 +1090,8 @@ const TradeJournal = () => {
                 </thead>
                 <tbody>
                   {trades.map((t) => (
-                    <tr key={t.id} className="border-t border-stone-100">
+                    <Fragment key={t.id}>
+                    <tr className="border-t border-stone-100">
                       <td className="py-3 font-semibold text-stone-900">{t.symbol}</td>
                       <td className="py-3">
                         <span className={`text-xs font-semibold capitalize ${t.direction === 'long' ? 'text-emerald-600' : 'text-red-500'}`}>
@@ -1136,6 +1137,18 @@ const TradeJournal = () => {
                         </button>
                       </td>
                     </tr>
+                    {/* The note, shown under its trade. Reviewing your own notes is the
+                        point of a journal — a note you can't see afterwards is worthless. */}
+                    {t.notes && (
+                      <tr>
+                        <td colSpan={7} className="pb-3 pt-0">
+                          <p className="text-stone-500 text-xs leading-relaxed bg-stone-50 border-l-2 border-stone-200 pl-3 py-2 rounded-r whitespace-pre-wrap">
+                            {t.notes}
+                          </p>
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
