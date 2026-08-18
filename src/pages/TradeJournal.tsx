@@ -71,6 +71,16 @@ const isoToLocal = (iso: string | null) => {
 
 const numToStr = (n: number | null) => (n === null || n === undefined ? '' : String(n));
 
+/** Compact money for calendar cells: 3220 -> $3.22K, -2090 -> -$2.09K. Sign included, so
+ *  callers must NOT add their own — a missing minus on a losing day would be misleading. */
+const fmtCompact = (n: number | null) => {
+  if (n === null || n === undefined) return '';
+  const sign = n < 0 ? '-' : '';
+  const abs = Math.abs(n);
+  if (abs >= 1000) return `${sign}$${(abs / 1000).toFixed(2).replace(/\.?0+$/, '')}K`;
+  return `${sign}$${Math.round(abs)}`;
+};
+
 const fmtMoney = (n: number | null) =>
   n === null || n === undefined ? '—' : (n > 0 ? '+' : '') + n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 
@@ -722,9 +732,19 @@ const TradeJournal = () => {
         {closedCount > 0 && (
           <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
             <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-              <div>
+              <div className="flex items-center gap-3 flex-wrap">
                 <h2 className="font-bold text-stone-900 text-sm">Trading calendar</h2>
-                <p className="text-stone-500 text-xs mt-0.5">Your daily profit and loss.</p>
+                {/* Month stats as pills — the headline read before you scan the grid. */}
+                <span className={`text-xs font-bold tabular-nums px-2.5 py-1 rounded-full ${
+                  grid.summary.pnl > 0 ? 'bg-emerald-50 text-emerald-700'
+                    : grid.summary.pnl < 0 ? 'bg-red-50 text-red-600'
+                    : 'bg-stone-100 text-stone-500'
+                }`}>
+                  {fmtCompact(grid.summary.pnl)}
+                </span>
+                <span className="text-xs font-semibold text-stone-500 bg-stone-100 px-2.5 py-1 rounded-full">
+                  {grid.summary.tradingDays} {grid.summary.tradingDays === 1 ? 'day' : 'days'}
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 <button
@@ -741,54 +761,92 @@ const TradeJournal = () => {
               </div>
             </div>
 
-            {/* Month summary */}
-            <div className="flex flex-wrap gap-4 mb-4 text-sm">
-              <span className={`font-bold tabular-nums ${grid.summary.pnl >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                {grid.summary.pnl >= 0 ? '+' : ''}{grid.summary.pnl.toLocaleString()}
-              </span>
-              <span className="text-stone-400">
-                {grid.summary.tradingDays} {grid.summary.tradingDays === 1 ? 'day' : 'days'} traded
-              </span>
-              <span className="text-emerald-600">{grid.summary.greenDays} green</span>
-              <span className="text-red-500">{grid.summary.redDays} red</span>
+            {/* Grid + weekly column. Traders read consistency week by week, so the weekly
+                totals sit alongside the days rather than being buried in a footer. */}
+            <div className="flex gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="grid grid-cols-7 gap-1.5 mb-1.5">
+                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
+                    <div key={d} className="text-[10px] font-semibold text-stone-400 uppercase tracking-wide text-center">
+                      {d.slice(0, 1)}<span className="hidden sm:inline">{d.slice(1)}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-1.5">
+                  {grid.weeks.map((week: any[], wi: number) => (
+                    <div key={wi} className="grid grid-cols-7 gap-1.5">
+                      {week.map((cell: any, i: number) => {
+                        if (!cell) return <div key={`b${wi}-${i}`} className="aspect-[4/3]" />;
+                        const traded = cell.pnl !== null;
+                        const up = traded && cell.pnl > 0;
+                        const down = traded && cell.pnl < 0;
+                        // Opacity scales with the day's size relative to the biggest in view.
+                        const strength = traded && maxAbsDay ? 0.25 + 0.75 * (Math.abs(cell.pnl) / maxAbsDay) : 0;
+                        return (
+                          <div
+                            key={cell.date}
+                            title={traded ? `${cell.date}: ${cell.pnl > 0 ? '+' : ''}${cell.pnl} · ${cell.trades} ${cell.trades === 1 ? 'trade' : 'trades'}` : cell.date}
+                            className={`aspect-[4/3] rounded-lg border p-1.5 flex flex-col justify-between relative ${
+                              traded ? (up ? 'border-emerald-200' : down ? 'border-red-200' : 'border-stone-200') : 'border-stone-100'
+                            }`}
+                            style={traded ? {
+                              backgroundColor: up
+                                ? `rgba(16,185,129,${0.10 + 0.24 * strength})`
+                                : down ? `rgba(239,68,68,${0.10 + 0.24 * strength})` : undefined,
+                            } : undefined}
+                          >
+                            <span className={`text-[10px] font-semibold leading-none ${traded ? 'text-stone-600' : 'text-stone-300'}`}>{cell.day}</span>
+                            {traded && (
+                              <>
+                                <span className={`text-[11px] sm:text-xs font-bold tabular-nums leading-none ${up ? 'text-emerald-700' : down ? 'text-red-600' : 'text-stone-500'}`}>
+                                  {fmtCompact(cell.pnl)}
+                                </span>
+                                {/* Trade-count dot — how busy the day was, without more numbers. */}
+                                <span
+                                  className={`absolute bottom-1 right-1 rounded-full ${up ? 'bg-emerald-500' : down ? 'bg-red-400' : 'bg-stone-300'}`}
+                                  style={{ width: 4 + Math.min(cell.trades - 1, 3), height: 4 + Math.min(cell.trades - 1, 3) }}
+                                  title={`${cell.trades} ${cell.trades === 1 ? 'trade' : 'trades'}`}
+                                />
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Weekly totals */}
+              <div className="hidden sm:block w-28 flex-none space-y-1.5">
+                <div className="text-[10px] font-semibold text-stone-400 uppercase tracking-wide text-center mb-1.5">Week</div>
+                {grid.weekSummaries.map((w: any) => (
+                  <div
+                    key={w.week}
+                    className={`aspect-[4/3] rounded-lg border p-2 flex flex-col justify-center ${
+                      w.tradingDays === 0 ? 'border-stone-100 bg-stone-50' : 'border-stone-200 bg-white'
+                    }`}
+                  >
+                    <p className="text-[10px] text-stone-400 font-semibold leading-none mb-1">Week {w.week}</p>
+                    <p className={`text-sm font-bold tabular-nums leading-none ${
+                      w.pnl > 0 ? 'text-emerald-600' : w.pnl < 0 ? 'text-red-500' : 'text-stone-400'
+                    }`}>
+                      {fmtCompact(w.pnl)}
+                    </p>
+                    <p className="text-[10px] text-stone-400 mt-1 leading-none">
+                      {w.tradingDays} {w.tradingDays === 1 ? 'day' : 'days'}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Grid */}
-            <div className="grid grid-cols-7 gap-1.5 mb-2">
-              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
-                <div key={d} className="text-[10px] font-semibold text-stone-400 uppercase tracking-wide text-center pb-1">
-                  {d.slice(0, 1)}<span className="hidden sm:inline">{d.slice(1)}</span>
-                </div>
-              ))}
-              {grid.weeks.flat().map((cell: any, i: number) => {
-                if (!cell) return <div key={`b${i}`} />;
-                const traded = cell.pnl !== null;
-                const up = traded && cell.pnl > 0;
-                const down = traded && cell.pnl < 0;
-                // Opacity scales with size of the day relative to the biggest in view.
-                const strength = traded && maxAbsDay ? 0.25 + 0.75 * (Math.abs(cell.pnl) / maxAbsDay) : 0;
-                return (
-                  <div
-                    key={cell.date}
-                    title={traded ? `${cell.date}: ${cell.pnl > 0 ? '+' : ''}${cell.pnl} · ${cell.trades} ${cell.trades === 1 ? 'trade' : 'trades'}` : cell.date}
-                    className={`aspect-square rounded-lg border p-1.5 flex flex-col justify-between ${
-                      traded ? (up ? 'border-emerald-200' : down ? 'border-red-200' : 'border-stone-200') : 'border-stone-100'
-                    }`}
-                    style={traded ? {
-                      backgroundColor: up
-                        ? `rgba(16,185,129,${0.10 + 0.22 * strength})`
-                        : down ? `rgba(239,68,68,${0.10 + 0.22 * strength})` : undefined,
-                    } : undefined}
-                  >
-                    <span className={`text-[10px] font-semibold ${traded ? 'text-stone-600' : 'text-stone-300'}`}>{cell.day}</span>
-                    {traded && (
-                      <span className={`text-[11px] font-bold tabular-nums leading-none ${up ? 'text-emerald-700' : down ? 'text-red-600' : 'text-stone-500'}`}>
-                        {cell.pnl > 0 ? '+' : ''}{Math.abs(cell.pnl) >= 1000 ? `${(cell.pnl / 1000).toFixed(1)}k` : cell.pnl}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
+            {/* Green / red split */}
+            <div className="flex gap-4 mt-4 text-xs">
+              <span className="text-emerald-600 font-semibold">{grid.summary.greenDays} green</span>
+              <span className="text-red-500 font-semibold">{grid.summary.redDays} red</span>
+              <span className="text-stone-400">{grid.summary.trades} {grid.summary.trades === 1 ? 'trade' : 'trades'}</span>
             </div>
             <p className="text-stone-400 text-xs">Days with no closed trades are left blank.</p>
           </div>

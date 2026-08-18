@@ -73,6 +73,18 @@ export function monthGrid(trades, year, month) {
   const weeks = [];
   for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
 
+  // Per-week totals. Traders judge consistency week by week ("three green weeks, one red"),
+  // so this is the summary that actually gets read next to the grid.
+  const weekSummaries = weeks.map((w, i) => {
+    const days = w.filter((c) => c && c.pnl !== null);
+    return {
+      week: i + 1,
+      pnl: round2(days.reduce((s, c) => s + c.pnl, 0)),
+      tradingDays: days.length,
+      trades: days.reduce((s, c) => s + c.trades, 0),
+    };
+  });
+
   // Month summary — only from days that actually traded.
   const traded = cells.filter((c) => c && c.pnl !== null);
   const pnl = round2(traded.reduce((s, c) => s + c.pnl, 0));
@@ -84,6 +96,7 @@ export function monthGrid(trades, year, month) {
     month,
     label: first.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }),
     weeks,
+    weekSummaries,
     summary: {
       pnl,
       tradingDays: traded.length,

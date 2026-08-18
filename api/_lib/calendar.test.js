@@ -127,6 +127,32 @@ test('activeMonths lists months with trades, newest first', () => {
   assert.deepEqual([months[1].year, months[1].month], [2026, 1]);
 });
 
+test('weekly summaries total each row of the grid', () => {
+  // Mar 2026: 2nd is a Monday, so 2-8 is week 1 (row 2 of the grid, after the lead-in row).
+  const g = monthGrid([
+    t('2026-03-02T12:00:00Z', 400),
+    t('2026-03-04T12:00:00Z', -150),
+    t('2026-03-11T12:00:00Z', 600),
+  ], 2026, 3);
+
+  assert.equal(g.weekSummaries.length, g.weeks.length, 'one summary per grid row');
+  const total = g.weekSummaries.reduce((s, w) => s + w.pnl, 0);
+  assert.equal(Math.round(total * 100) / 100, g.summary.pnl, 'weeks must sum to the month');
+
+  const traded = g.weekSummaries.filter((w) => w.tradingDays > 0);
+  assert.equal(traded.length, 2, 'two weeks had trades');
+  assert.equal(traded[0].pnl, 250, '400 + (-150)');
+  assert.equal(traded[1].pnl, 600);
+  assert.equal(traded[0].tradingDays, 2);
+});
+
+test('empty weeks report zero, not null', () => {
+  const g = monthGrid([t('2026-03-11T12:00:00Z', 100)], 2026, 3);
+  const empty = g.weekSummaries.filter((w) => w.tradingDays === 0);
+  assert.ok(empty.length > 0);
+  assert.ok(empty.every((w) => w.pnl === 0), 'a week with no trades is 0, so the UI can show $0');
+});
+
 test('public calendar renders the latest trading month', () => {
   const html = calendarHtml([
     t('2026-01-10T12:00:00Z', 100),
