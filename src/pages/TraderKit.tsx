@@ -43,6 +43,14 @@ const TraderKit = () => {
     track('founding_claim_clicked', { kit: KIT, spotsLeft: stats?.spotsLeft });
     // Reuse the real purchase flow: /create handles login → kit paywall → checkout.
     if (!user) {
+      // Router state does not survive Google's OAuth round-trip, so stash the destination
+      // where AuthCallback can find it. Without this, a trader who clicked "claim your
+      // spot" and signed in with Google landed on the generic template grid with no idea
+      // what happened to their purchase.
+      localStorage.setItem('porfilr_after_login', `/create/${KIT}`);
+      // Same reason CreatePortfolio sets this: resume checkout instead of making them
+      // hunt for the button again.
+      sessionStorage.setItem('porfilr_pending_kit', KIT);
       navigate('/login', { state: { from: { pathname: `/create/${KIT}` } } });
     } else {
       navigate(`/create/${KIT}`);

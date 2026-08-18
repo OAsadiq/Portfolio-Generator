@@ -4,6 +4,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import Logo from '../Logo';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { postLoginPath, takeAfterLogin } from '../../lib/postLogin';
 
 const LoginPage = () => {
   const { signInWithGoogle, signInWithOTP, verifyOTP, user, loading } = useAuth();
@@ -19,14 +20,18 @@ const LoginPage = () => {
   const location = useLocation();
 
   useEffect(() => {
-    if (user && !loading) {
-      // Prefer the stashed return path (set by promptSignup, survives OAuth), then router
-      // state, then the default. Always clear it so it can't cause a stale redirect later.
-      const stored = localStorage.getItem('porfilr_after_login');
-      if (stored) localStorage.removeItem('porfilr_after_login');
-      const from = stored || (location.state as any)?.from?.pathname || '/templates';
-      navigate(from, { replace: true });
-    }
+    if (!user || loading) return;
+    let cancelled = false;
+
+    // Prefer the stashed return path (set by promptSignup, survives OAuth), then router
+    // state. With neither, postLoginPath decides between dashboard and templates.
+    const explicit = takeAfterLogin() || (location.state as any)?.from?.pathname || null;
+
+    postLoginPath(user.id, explicit).then((to) => {
+      if (!cancelled) navigate(to, { replace: true });
+    });
+
+    return () => { cancelled = true; };
   }, [user, loading, navigate, location]);
 
   useEffect(() => {

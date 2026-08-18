@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { postLoginPath, takeAfterLogin } from '../../lib/postLogin';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -23,19 +24,17 @@ const AuthCallback = () => {
 
           // Return to where the user was headed before signing in (e.g. mid-way through
           // filling a portfolio). Set by promptSignup; survives the OAuth round-trip.
-          const afterLogin = localStorage.getItem('porfilr_after_login');
+          const afterLogin = takeAfterLogin();
           const pendingUpgrade = sessionStorage.getItem('pendingUpgrade');
 
           if (afterLogin) {
-            localStorage.removeItem('porfilr_after_login');
             navigate(afterLogin, { replace: true });
           } else if (pendingUpgrade === 'true') {
-
             sessionStorage.removeItem('pendingUpgrade');
-
             navigate('/pricing', { replace: true });
           } else {
-            navigate('/templates', { replace: true });
+            // Same rule the OTP form uses: returning builders get their dashboard.
+            navigate(await postLoginPath(session.user.id, null), { replace: true });
           }
         } else {
           navigate('/login', { replace: true });

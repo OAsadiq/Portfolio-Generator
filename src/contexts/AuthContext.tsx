@@ -186,12 +186,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // Clear local state BEFORE the network call. supabase.auth.signOut() rejects outright
+    // when the refresh token has already expired or been revoked server-side — the normal
+    // case for someone who left a tab open overnight. Awaiting it first meant the throw
+    // skipped every setter below, so the UI kept showing them signed in until they
+    // refreshed the page. State is the source of truth for the UI; the token revoke is
+    // best-effort cleanup that happens after.
     setUser(null);
     setSession(null);
     setHasPortfolio(false);
     setExistingPortfolio(null);
     setIsPro(false);
+    setOwnedTemplates([]);   // kit entitlements must not survive into the next account
+    setSubscriptionLoading(false);
+
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      // Revoking on the server failed, but the local session must still go — otherwise
+      // getSession() resurrects them on the next page load.
+      console.error('Sign out error:', err);
+      try {
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch {
+        /* nothing left to do; local state is already cleared */
+      }
+    }
   };
 
   useEffect(() => {
@@ -219,6 +239,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       ensureReferral();
     } else {
       setIsPro(false);
+      setOwnedTemplates([]);
       setSubscriptionLoading(false);
       setHasPortfolio(false);
       setExistingPortfolio(null);
