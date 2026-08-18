@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { templates } from "./_templateConfig.js";
+import { removeBrandingFor } from "../_lib/branding.js";
 
 const supabase = createClient(
     process.env.SUPABASE_URL,
@@ -82,21 +83,35 @@ export default async function handler(req, res) {
 
         const { data: existingPortfolios, error: portfolioError } = await supabase
             .from('portfolios')
-            .select('id')
+            .select('id, template_id')
             .eq('user_id', user.id);
 
         if (portfolioError) {
             console.error(portfolioError);
         }
 
-        const portfolioCount = existingPortfolios?.length || 0;
-
-        // 1 portfolio per user (free and Pro)
-        if (portfolioCount >= 1) {
-            return res.status(403).json({
-                error: 'You already have a portfolio. Delete it first to create a new one.',
-                code: 'PORTFOLIO_LIMIT_REACHED'
-            });
+        // ── Portfolio slots ──
+        // Slots are TYPED, not a pooled count. Everyone gets one general slot, and each kit
+        // a user buys comes with its own slot for that kit's template.
+        //
+        // The reason is the kit is a separate product, not extra capacity: a designer who
+        // already published a portfolio and then bought the Trader Kit was being told to
+        // delete the page they'd built in order to use the thing they'd just paid for.
+        // Typing the slot also stops the extra room leaking — buying the kit doesn't hand
+        // you a second slot for unrelated templates.
+        //
+        // Assignment: a kit-template portfolio claims that kit's slot (one each); anything
+        // beyond that falls back to the general slot, so the maths can't go negative if a
+        // user somehow ends up with two of the same kit.
+        const kitSlotsTaken = new Set();
+        let generalSlotsUsed = 0;
+        for (const p of existingPortfolios || []) {
+            const t = templates[p.template_id];
+            if (t && t.kit && !kitSlotsTaken.has(p.template_id)) {
+                kitSlotsTaken.add(p.template_id);
+            } else {
+                generalSlotsUsed += 1;
+            }
         }
 
         // ── Entitlement gate (server-side; the client gate can be bypassed) ──
@@ -128,13 +143,31 @@ export default async function handler(req, res) {
             });
         }
 
-        // Branding removal is a paid perk: Pro members, or anyone who owns a kit. Same
-        // rule as update-portfolio so a page's branding doesn't flip on the next save.
-        const { count: kitCount } = await supabase
-            .from('template_purchases')
-            .select('id', { count: 'exact', head: true })
-            .eq('user_id', user.id);
-        const removeBranding = !!isPro || (kitCount || 0) > 0;
+        // Slot check runs AFTER the entitlement gate on purpose: someone who doesn't own
+        // the kit should be told they need the kit, not that they're out of slots.
+        if (template.kit) {
+            if (kitSlotsTaken.has(templateId)) {
+                return res.status(403).json({
+                    error: `You already have a ${template.kitName || 'kit'} portfolio. Delete it first to create a new one.`,
+                    code: 'PORTFOLIO_LIMIT_REACHED'
+                });
+            }
+        } else if (generalSlotsUsed >= 1) {
+            return res.status(403).json({
+                error: 'You already have a portfolio. Delete it first to create a new one.',
+                code: 'PORTFOLIO_LIMIT_REACHED'
+            });
+        }
+
+        // Branding removal is scoped to THIS portfolio's template — see api/_lib/branding.js.
+        // Same helper as update-portfolio so a page's footer can't flip on the next save.
+        // Reaching here means the entitlement gate above already passed, so a kit template
+        // implies ownership of that kit; passing it explicitly keeps the rule readable and
+        // survives anyone reordering these blocks later.
+        const removeBranding = removeBrandingFor(template, {
+            isPro: !!isPro,
+            ownsKit: !!template.kit,
+        });
 
         const userName = formData.fullName || 'writer';
         const userEmail = formData.email || '';

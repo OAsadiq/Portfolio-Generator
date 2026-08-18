@@ -16,6 +16,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { templates } from '../api/templates/_templateConfig.js';
 import { computeMetrics } from '../api/_lib/metrics.js';
+import { removeBrandingFor } from '../api/_lib/branding.js';
 
 const DRY = process.argv.includes('--dry');
 const slugArg = (process.argv.find((a) => a.startsWith('--slug=')) || '').split('=')[1] || null;
@@ -37,15 +38,25 @@ const { data: portfolios, error } = await q;
 if (error) { console.error('Fetch error:', error.message); process.exit(1); }
 console.log(`Found ${portfolios.length} portfolio(s).${DRY ? ' (dry run)' : ''}${slugArg ? ` [slug=${slugArg}]` : ''}\n`);
 
-// Same entitlement rule as the publish route: paid users (Pro or any kit) drop branding.
-async function computeRemoveBranding(userId) {
+// Same entitlement rule as the publish route, via the shared helper. This MUST stay in
+// step: a bulk republish rewrites every live page, so a rule that drifts here silently
+// adds or removes the badge on portfolios nobody touched.
+async function computeRemoveBranding(userId, tpl) {
   const { data: subs } = await supabase
     .from('subscriptions').select('status, plan').eq('user_id', userId)
     .order('created_at', { ascending: false }).limit(1);
   const isPro = subs && subs[0] && subs[0].status === 'active' && subs[0].plan === 'pro';
-  const { count: kitCount } = await supabase
-    .from('template_purchases').select('id', { count: 'exact', head: true }).eq('user_id', userId);
-  return !!isPro || (kitCount || 0) > 0;
+
+  // Ownership of THIS template's kit, not any kit — matches update-portfolio.
+  let ownsKit = false;
+  if (tpl.kit) {
+    const { data: owned } = await supabase
+      .from('template_purchases').select('id')
+      .eq('user_id', userId).eq('template_id', tpl.id).maybeSingle();
+    ownsKit = !!owned;
+  }
+
+  return removeBrandingFor(tpl, { isPro: !!isPro, ownsKit });
 }
 
 // Closed trades for this portfolio — feeds both the metrics and the opt-in calendar.
@@ -67,7 +78,7 @@ for (const p of portfolios) {
     continue;
   }
   try {
-    const removeBranding = await computeRemoveBranding(p.user_id);
+    const removeBranding = await computeRemoveBranding(p.user_id, tpl);
     const closedTrades = await loadClosedTrades(p);
     const metricsCache = closedTrades.length || (p.journal_enabled && p.starting_balance > 0)
       ? computeMetrics(closedTrades, p.starting_balance)

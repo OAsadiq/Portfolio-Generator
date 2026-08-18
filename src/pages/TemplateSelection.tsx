@@ -199,7 +199,7 @@ const TemplateMockup = ({ id, hovered }: { id: string; hovered: boolean }) => {
 
 const TemplateSelection = () => {
   const navigate = useNavigate();
-  const { user, hasPortfolio, existingPortfolio, isPro, ownsTemplate, checkPortfolio, checkSubscription, session } = useAuth();
+  const { user, portfolios, isPro, ownsTemplate, checkPortfolio, checkSubscription, session } = useAuth();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
@@ -282,6 +282,20 @@ const TemplateSelection = () => {
   // Kits are their own product: Pro does not unlock them, and owning one doesn't
   // require Pro. Everything else keeps the old rule (Minimal free, rest via Pro).
   const kitOf = (id: string) => templates.find(t => t.id === id)?.kit || null;
+
+  // Typed slots, mirroring the server rule in api/templates/create-portfolio.js: one
+  // general slot, plus a dedicated slot for each kit the user owns. A kit page therefore
+  // never costs someone the portfolio they already built.
+  const kitSlotsTaken = new Set(
+    portfolios.filter(p => !!kitOf(p.template_id)).map(p => p.template_id)
+  );
+  const generalPortfolio = portfolios.find(p => !kitOf(p.template_id)) || null;
+  const generalSlotUsed = !!generalPortfolio;
+  const kitPortfolio = portfolios.find(p => !!kitOf(p.template_id)) || null;
+  // A kit they paid for and haven't used yet. The single most valuable nudge on this page:
+  // it's revenue already collected sitting idle.
+  const unbuiltKit = templates.find(t => t.kit && ownsTemplate(t.id) && !kitSlotsTaken.has(t.id)) || null;
+
   const isTemplateLocked = (id: string) =>
     kitOf(id) ? !ownsTemplate(id) : !isPro && id !== "minimal-template";
   const canSelectTemplate = (id: string) => !isTemplateLocked(id);
@@ -410,8 +424,35 @@ const TemplateSelection = () => {
         {/* Refer & earn — free users earn their way to Pro (the dashboard is Pro-only). */}
         {user && !isPro && <ReferralCard />}
 
+        {/* A kit they own but haven't built yet — this is an unused slot, not a locked
+            template, so it gets an invitation rather than the "you already have one" wall. */}
+        {user && unbuiltKit && (
+          <div className="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-stone-900 text-sm mb-0.5">
+                Your {unbuiltKit.kitName || unbuiltKit.name} is ready to build
+              </p>
+              <p className="text-stone-600 text-sm">
+                It gets its own page — building it won't touch{' '}
+                {generalSlotUsed ? 'the portfolio you already have' : 'your free portfolio slot'}.
+              </p>
+            </div>
+            <button
+              onClick={() => handleSelect(unbuiltKit.id)}
+              className="bg-stone-900 hover:bg-stone-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex-shrink-0"
+            >
+              Build it →
+            </button>
+          </div>
+        )}
+
         {/* Existing portfolio block */}
-        {hasPortfolio && existingPortfolio && (
+        {generalSlotUsed && generalPortfolio && (
           <div className="mb-8 bg-white border border-stone-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="w-10 h-10 bg-stone-100 rounded-full flex items-center justify-center flex-shrink-0">
               <svg className="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -420,11 +461,14 @@ const TemplateSelection = () => {
             </div>
             <div className="flex-1">
               <p className="font-bold text-stone-900 text-sm mb-0.5">You already have a portfolio</p>
-              <p className="text-stone-500 text-sm">Each account gets one. Edit your existing portfolio, or delete it first to switch templates.</p>
+              <p className="text-stone-500 text-sm">
+                Edit it, or delete it first to switch templates.
+                {kitPortfolio && ' Your kit page is separate and stays put.'}
+              </p>
             </div>
             <div className="flex gap-2 flex-shrink-0">
               <Link
-                to={isPro ? `/builder/${existingPortfolio.slug}` : `/edit/${existingPortfolio.slug}`}
+                to={isPro ? `/builder/${generalPortfolio.slug}` : `/edit/${generalPortfolio.slug}`}
                 className="bg-stone-900 hover:bg-stone-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
               >
                 Edit mine

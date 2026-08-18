@@ -10,6 +10,9 @@ interface AuthContextType {
   subscriptionLoading: boolean;
   hasPortfolio: boolean;
   existingPortfolio: { slug: string; template_id: string } | null;
+  /** Every portfolio the user has, newest first. Slots are typed (one general + one per
+   *  kit owned), so callers need the template of each — not just a count. */
+  portfolios: { slug: string; template_id: string }[];
   isPro: boolean;
   /** Template IDs this user has bought outright (kits). Separate from Pro on purpose:
    *  Pro is a $19 one-time unlock for Pro templates; a kit is its own product. */
@@ -32,6 +35,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [subscriptionLoading, setSubscriptionLoading] = useState(true);
   const [hasPortfolio, setHasPortfolio] = useState(false);
   const [existingPortfolio, setExistingPortfolio] = useState<{ slug: string; template_id: string } | null>(null);
+  const [portfolios, setPortfolios] = useState<{ slug: string; template_id: string }[]>([]);
   const [isPro, setIsPro] = useState(false);
   const [ownedTemplates, setOwnedTemplates] = useState<string[]>([]);
 
@@ -113,16 +117,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user) {
       setHasPortfolio(false);
       setExistingPortfolio(null);
+      setPortfolios([]);
       return;
     }
 
     try {
+      // No .limit(1) — a user can hold more than one now (general slot + a slot per kit),
+      // and callers need to know which templates are taken, not just whether any exist.
       const { data, error } = await supabase
         .from('portfolios')
         .select('slug, template_id')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1);
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error(error);
@@ -132,9 +138,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (data && data.length > 0) {
         setHasPortfolio(true);
         setExistingPortfolio({ slug: data[0].slug, template_id: data[0].template_id });
+        setPortfolios(data);
       } else {
         setHasPortfolio(false);
         setExistingPortfolio(null);
+        setPortfolios([]);
       }
     } catch (err) {
       console.error('Exception checking portfolio:', err);
@@ -196,6 +204,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setSession(null);
     setHasPortfolio(false);
     setExistingPortfolio(null);
+    setPortfolios([]);
     setIsPro(false);
     setOwnedTemplates([]);   // kit entitlements must not survive into the next account
     setSubscriptionLoading(false);
@@ -243,6 +252,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSubscriptionLoading(false);
       setHasPortfolio(false);
       setExistingPortfolio(null);
+      setPortfolios([]);
     }
   }, [user, checkSubscription, checkPortfolio, ensureReferral]);
 
@@ -257,6 +267,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         subscriptionLoading,
         hasPortfolio,
         existingPortfolio,
+        portfolios,
         isPro,
         ownedTemplates,
         ownsTemplate,

@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { templates } from "./_templateConfig.js";
 import { computeMetrics } from "../_lib/metrics.js";
+import { removeBrandingFor } from "../_lib/branding.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -53,10 +54,8 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Template not found" });
     }
 
-    // Branding removal is a paid perk: Pro members, or anyone who owns a kit. Computed
-    // server-side so it can't be spoofed from the client. Trader pages drop branding
-    // unconditionally (every trader page is a kit purchase), but passing the flag keeps
-    // every template on the same contract.
+    // Branding removal is a paid perk, scoped to THIS portfolio's template — see
+    // api/_lib/branding.js. Computed server-side so it can't be spoofed from the client.
     const { data: subs } = await supabase
       .from('subscriptions')
       .select('status, plan')
@@ -64,11 +63,22 @@ export default async function handler(req, res) {
       .order('created_at', { ascending: false })
       .limit(1);
     const isPro = subs && subs[0] && subs[0].status === 'active' && subs[0].plan === 'pro';
-    const { count: kitCount } = await supabase
-      .from('template_purchases')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id);
-    const removeBranding = !!isPro || (kitCount || 0) > 0;
+
+    // Ownership of THIS kit, not "any kit" — a second kit must not de-brand the first
+    // one's page, and a kit must not de-brand anything else the user owns.
+    let ownsKit = false;
+    if (template.kit) {
+      const { data: owned, error: ownErr } = await supabase
+        .from('template_purchases')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('template_id', templateId)
+        .maybeSingle();
+      if (ownErr) console.error('kit ownership check failed:', ownErr);
+      ownsKit = !!owned;
+    }
+
+    const removeBranding = removeBrandingFor(template, { isPro, ownsKit });
 
     // Compute the journal metrics NOW rather than reusing portfolio.metrics_cache.
     // The cache is only written when a visitor hits /api/track-record, so on the publish
