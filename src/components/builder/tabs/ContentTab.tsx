@@ -179,8 +179,19 @@ export default function ContentTab({
         <div className={DIVIDER}>
           <p className={SECTION_HDR}><TrendingUp className="w-3.5 h-3.5" />Track Record</p>
           <p className="text-xs text-stone-400 mb-3">
-            The numbers investors scan first. Leave any blank to hide it — an empty metric is better than a vague one.
+            Rough estimates are fine here. Leave any blank to hide it — an empty metric is better than a vague one.
           </p>
+
+          {/* Traders don't realise these typed figures are placeholders until the journal
+              takes over. Say it here, before they agonise over getting them exact. */}
+          <div className="text-xs bg-orange-50 border border-orange-200 rounded-lg px-3 py-2.5 mb-3">
+            <p className="font-semibold text-stone-800 mb-0.5">Put an estimate for now.</p>
+            <p className="text-stone-600 leading-relaxed">
+              Once you log your trades in your <strong>Journal</strong>, Porfilr works these out for
+              you — and your page updates itself with the real numbers. You can also import your whole
+              history from a broker CSV in one go.
+            </p>
+          </div>
 
           <label className={LABEL}>Prop firm / funded badge</label>
           <input type="text" value={formData.propFirm || ''} onChange={e => onChange('propFirm', e.target.value)} className={INPUT} placeholder="e.g. FTMO Funded • $200K" />
