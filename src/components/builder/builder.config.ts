@@ -125,7 +125,7 @@ export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
       headline: 'Forex Trader • 3-Year Track Record',
       propFirm: 'FTMO Funded • $200K',
       bio: 'Disciplined swing trader focused on major forex pairs and indices. Three years of consistent, risk-managed results.',
-      location: 'Lagos, Nigeria',
+      location: 'Washington, D.C.',
       primaryColor: '#ea580c',
       // Placeholder metrics so the preview isn't empty on first open. A trader replaces
       // these with their own — nothing here is presented as verified.
