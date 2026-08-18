@@ -2,9 +2,9 @@
 // + each portfolio's saved form_data. Run this after a template change so existing
 // portfolios pick up the update (they're static files, frozen at publish time).
 //
-// Requires env: SUPABASE_URL, SUPABASE_SERVICE_KEY
-// Run (PowerShell):
-//   $env:SUPABASE_URL="https://xxxx.supabase.co"; $env:SUPABASE_SERVICE_KEY="service_role_key"; node scripts/regen-portfolios.mjs
+// Reads SUPABASE_URL and SUPABASE_SERVICE_KEY from .env at the repo root.
+// Run from the repo root:
+//   node scripts/regen-portfolios.mjs
 //
 // Filter to one page:  node scripts/regen-portfolios.mjs --slug=jordan-rivera-2
 // Preview only:        node scripts/regen-portfolios.mjs --dry
@@ -21,10 +21,20 @@ import { removeBrandingFor } from '../api/_lib/branding.js';
 const DRY = process.argv.includes('--dry');
 const slugArg = (process.argv.find((a) => a.startsWith('--slug=')) || '').split('=')[1] || null;
 
+// Read .env ourselves. Node doesn't load it automatically, and pasting the service key
+// into the shell every run is how it ends up in shell history — it must not.
+try {
+  process.loadEnvFile('.env');
+} catch {
+  /* No .env (or an older Node): fall back to whatever the shell already exported. */
+}
+
 const url = process.env.SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_KEY;
 if (!url || !key) {
-  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_KEY env vars.');
+  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_KEY.');
+  console.error('Expected them in .env at the repo root, or exported in your shell.');
+  console.error('Run this from the repo root so .env is found.');
   process.exit(1);
 }
 const supabase = createClient(url, key);

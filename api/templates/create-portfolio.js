@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { templates } from "./_templateConfig.js";
 import { removeBrandingFor } from "../_lib/branding.js";
+import { validateFormData } from "../_lib/formSize.js";
 
 const supabase = createClient(
     process.env.SUPABASE_URL,
@@ -48,6 +49,12 @@ export default async function handler(req, res) {
 
         if (!templateId || !formData) {
             return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        // Size/content limits before any work is done — see api/_lib/formSize.js.
+        const sizeCheck = validateFormData(formData, sections);
+        if (!sizeCheck.ok) {
+            return res.status(sizeCheck.status).json({ error: sizeCheck.error, code: sizeCheck.code });
         }
 
         const template = templates[templateId];

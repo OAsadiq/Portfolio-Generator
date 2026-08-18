@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { templates } from "./_templateConfig.js";
 import { computeMetrics } from "../_lib/metrics.js";
 import { removeBrandingFor } from "../_lib/branding.js";
+import { validateFormData } from "../_lib/formSize.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -23,6 +24,13 @@ export default async function handler(req, res) {
 
   try {
     const { slug, templateId, formData, sections } = req.body;
+
+    // Size/content limits before any work is done — see api/_lib/formSize.js. Applied on
+    // update as well as create: an existing portfolio can be edited into the same state.
+    const sizeCheck = validateFormData(formData, sections);
+    if (!sizeCheck.ok) {
+      return res.status(sizeCheck.status).json({ error: sizeCheck.error, code: sizeCheck.code });
+    }
 
     const authHeader = req.headers.authorization;
     if (!authHeader) {
