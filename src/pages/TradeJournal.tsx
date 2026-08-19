@@ -126,6 +126,10 @@ const TradeJournal = () => {
   const [importing, setImporting] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
+  type Mover = { symbol: string; price: number; changePct: number; major: boolean };
+  const [movers, setMovers] = useState<Mover[]>([]);
+  const [moversStale, setMoversStale] = useState(false);
+
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2500);
@@ -134,6 +138,21 @@ const TradeJournal = () => {
   useEffect(() => {
     if (user) load();
   }, [slug, user]);
+
+  // Market panel. Failure is silent on purpose — it's decoration on a page that matters,
+  // so a dead feed leaves no trace rather than an error box next to someone's P&L.
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${import.meta.env.VITE_API_URL}/api/trending`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || !d?.items?.length) return;
+        setMovers(d.items);
+        setMoversStale(!!d.stale);
+      })
+      .catch(() => { /* panel stays hidden */ });
+    return () => { cancelled = true; };
+  }, []);
 
   const load = async () => {
     setLoading(true);
@@ -859,6 +878,58 @@ const TradeJournal = () => {
               <span className="text-stone-400">{grid.summary.trades} {grid.summary.trades === 1 ? 'trade' : 'trades'}</span>
             </div>
             <p className="text-stone-400 text-xs">Days with no closed trades are left blank.</p>
+          </div>
+        )}
+
+        {/* Market movers — ambient context, deliberately inert.
+            No links, no "trade this", no affiliate: this page exists to help someone see
+            their own trading clearly, and a journal that nudges you to trade more works
+            against both that and the user. Hides itself entirely if the feed is down. */}
+        {movers.length > 0 && (
+          <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
+            <div className="flex items-baseline justify-between gap-3 mb-4">
+              <h2 className="font-bold text-stone-900 text-sm">Market · last 24h</h2>
+              <span className="text-stone-400 text-xs">
+                {moversStale ? 'Delayed' : 'Updated every 5 min'}
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-stone-400 text-xs border-b border-stone-100">
+                    <th className="text-left font-medium pb-2">Pair</th>
+                    <th className="text-right font-medium pb-2">Price</th>
+                    <th className="text-right font-medium pb-2">24h</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {movers.map((m) => (
+                    <tr key={m.symbol} className="border-b border-stone-50 last:border-0">
+                      <td className="py-2 font-semibold text-stone-800">
+                        {m.symbol}
+                        <span className="text-stone-300 font-normal">/USDT</span>
+                      </td>
+                      <td className="py-2 text-right text-stone-600 tabular-nums">
+                        {/* Sub-dollar coins need the extra places or they all read $0.00 */}
+                        ${m.price < 1 ? m.price.toPrecision(3) : m.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </td>
+                      <td className={`py-2 text-right font-semibold tabular-nums ${
+                        m.changePct > 0 ? 'text-emerald-600' : m.changePct < 0 ? 'text-red-500' : 'text-stone-400'
+                      }`}>
+                        {m.changePct > 0 ? '+' : ''}{m.changePct.toFixed(2)}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Said plainly, because a table inside a trading tool invites the assumption
+                that it's a suggestion. It isn't, and we're not licensed to make one. */}
+            <p className="text-stone-400 text-xs mt-3">
+              Reference only — not a recommendation. Your own numbers above are what matter.
+            </p>
           </div>
         )}
 
