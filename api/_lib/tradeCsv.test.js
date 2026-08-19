@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   parseCsv, autoDetectMapping, parseNumber, parseDirection, parseDate,
-  rowToTrade, parseTradeCsv,
+  rowToTrade, parseTradeCsv, looksLikeFillExport,
 } from './tradeCsv.js';
 
 test('parseCsv handles quoted fields with commas and newlines', () => {
@@ -153,4 +153,124 @@ test('parseTradeCsv on an empty file returns empty, not a crash', () => {
   const r = parseTradeCsv('');
   assert.deepEqual(r.valid, []);
   assert.equal(r.totalRows, 0);
+});
+
+// ── Crypto exchange exports ────────────────────────────────────────────────
+// "I'm not typing in my trades" is a reason not to try the kit at all, and the audience
+// is now crypto as well as forex. These pin the exchange shapes.
+//
+// NOTE: the header spellings below follow the documented/observed exports at the time of
+// writing. Exchanges rename columns without warning — when a real export fails, the fix
+// is an alias plus a test here, not a change to the parsing.
+
+test('Bybit closed-P&L export maps onto a trade', () => {
+  // Bybit names the instrument "Contracts" and profit "Closed P&L", and gives one
+  // timestamp (the close). All three used to break the import.
+  const csv = [
+    'Contracts,Closing Direction,Qty,Entry Price,Exit Price,Closed P&L,Trade Time(UTC)',
+    'BTCUSDT,Sell,0.5,64000,63200,-400.25,2026-03-10 14:05:00',
+  ].join('\n');
+  const r = parseTradeCsv(csv);
+  assert.equal(r.errors.length, 0, JSON.stringify(r.errors));
+  assert.equal(r.valid.length, 1);
+  const t = r.valid[0];
+  assert.equal(t.symbol, 'BTCUSDT');
+  assert.equal(t.direction, 'short', '"Closing Direction: Sell" is a short position');
+  assert.equal(t.pnl, -400.25);
+  assert.equal(t.entry_price, 64000);
+  assert.equal(t.exit_price, 63200);
+  assert.equal(t.size, 0.5);
+});
+
+test('"Contracts" is read as the symbol, not the size', () => {
+  // The collision that makes or breaks the Bybit import: "Contracts" is the instrument,
+  // "Qty" is the quantity. Getting it backwards yields "Missing symbol" on every row.
+  const m = autoDetectMapping(['Contracts', 'Qty', 'Closed P&L', 'Trade Time']);
+  assert.equal(m.symbol, 0);
+  assert.equal(m.size, 1);
+  assert.equal(m.pnl, 2);
+});
+
+test('a close-only export reuses the close time and says so', () => {
+  // A closed-P&L row genuinely does not record when the position was opened. Rejecting
+  // the file would refuse every Bybit/MEXC export; inferring it silently would be a lie.
+  const csv = 'Contracts,Qty,Closed P&L,Trade Time(UTC)\nETHUSDT,2,150,2026-03-11 09:00:00';
+  const r = parseTradeCsv(csv);
+  assert.equal(r.assumedOpenTime, true);
+  assert.equal(r.valid.length, 1);
+  assert.equal(r.valid[0].opened_at, r.valid[0].closed_at);
+});
+
+test('an export with a real open time does not flag an assumption', () => {
+  const csv = 'Symbol,Open Time,Close Time,Profit\nEURUSD,2026-03-01,2026-03-02,50';
+  assert.equal(parseTradeCsv(csv).assumedOpenTime, false);
+});
+
+test('MEXC-style realised P&L headers are recognised', () => {
+  const csv = [
+    'Futures,Side,Filled Qty,Avg Entry Price,Avg Exit Price,Realized PNL,Trading Fee,Close Time',
+    'SOLUSDT,Long,10,180.5,192.0,115,0.62,2026-03-12 18:30:00',
+  ].join('\n');
+  const r = parseTradeCsv(csv);
+  assert.equal(r.errors.length, 0, JSON.stringify(r.errors));
+  assert.equal(r.valid[0].symbol, 'SOLUSDT');
+  assert.equal(r.valid[0].direction, 'long');
+  assert.equal(r.valid[0].pnl, 115);
+  assert.equal(r.valid[0].fees, 0.62);
+});
+
+test('Binance "Realized Profit" maps to P&L', () => {
+  const csv = [
+    'Date(UTC),Symbol,Side,Price,Quantity,Realized Profit,Fee',
+    '2026-03-13 11:00:00,BNBUSDT,SELL,610.4,3,88.10,0.45',
+  ].join('\n');
+  const r = parseTradeCsv(csv);
+  assert.equal(r.errors.length, 0, JSON.stringify(r.errors));
+  assert.equal(r.valid[0].pnl, 88.1);
+  assert.equal(r.valid[0].fees, 0.45);
+  assert.equal(r.valid[0].direction, 'short');
+});
+
+test('a "Fee Coin" column never becomes the fee amount', () => {
+  // Binance writes the currency next to the number. Matching "Fee Coin" would put "USDT"
+  // where a fee belongs — it parses to null and every fee in the import silently becomes 0.
+  const m = autoDetectMapping(['Symbol', 'Fee Coin', 'Fee', 'Closed P&L', 'Trade Time']);
+  assert.equal(m.fees, 2, 'the numeric Fee column, not Fee Coin');
+});
+
+test('a fill-level export is refused with instructions, not imported', () => {
+  // Binance spot trade history: buys and sells as separate rows, no profit column.
+  // Importing it would create a pile of phantom open positions.
+  const csv = [
+    'Date(UTC),Pair,Side,Price,Executed,Amount,Fee',
+    '2026-03-01 10:00:00,BTCUSDT,BUY,64000,0.1,6400,0.006',
+    '2026-03-02 12:00:00,BTCUSDT,SELL,65000,0.1,6500,0.006',
+  ].join('\n');
+  const r = parseTradeCsv(csv);
+  assert.ok(r.fileError, 'the file is rejected as a whole');
+  assert.equal(r.valid.length, 0, 'nothing is imported');
+  assert.match(r.fileError, /Closed P&L/, 'names the export to download instead');
+});
+
+test('looksLikeFillExport does not fire on a round-trip export', () => {
+  assert.equal(looksLikeFillExport(autoDetectMapping(
+    ['Contracts', 'Qty', 'Closed P&L', 'Trade Time'])), false);
+  assert.equal(looksLikeFillExport(autoDetectMapping(
+    ['Symbol', 'Open Time', 'Close Time', 'Profit', 'Lots'])), false);
+});
+
+test('forex exports still work exactly as before', () => {
+  // The regression that matters: crypto support must not cost the existing audience.
+  const csv = [
+    'Symbol,Side,Open Time,Close Time,Entry Price,Exit Price,Lots,Profit,Commission',
+    'GBPNZD,sell,2026.08.12 20:16,2026.08.13 11:17,2.30084,2.30876,0.05,-23.13,0.20',
+  ].join('\n');
+  const r = parseTradeCsv(csv);
+  assert.equal(r.errors.length, 0, JSON.stringify(r.errors));
+  assert.equal(r.assumedOpenTime, false);
+  const t = r.valid[0];
+  assert.equal(t.symbol, 'GBPNZD');
+  assert.equal(t.direction, 'short');
+  assert.equal(t.pnl, -23.13);
+  assert.equal(t.fees, 0.2);
 });

@@ -43,34 +43,104 @@ export function parseCsv(text) {
 }
 
 // ── Column detection ───────────────────────────────────────────────────────
-// Each trade field maps to the header names brokers actually use (MT4/MT5, cTrader,
-// TradingView, generic exports). Matching is case-insensitive and ignores non-letters.
+// Each trade field maps to the header names brokers actually use. Two families are
+// covered, and they are shaped very differently:
+//
+//   FOREX (MT4/MT5, cTrader): one row per round-trip position — open time, close time,
+//   entry, exit and profit all on the same row. Maps straight onto a journal trade.
+//
+//   CRYPTO EXCHANGES (Bybit, MEXC, Binance futures): the useful export is the
+//   closed-P&L / position-history one, which is also round-trip but names things
+//   differently ("Contracts" for the instrument, "Closed P&L" for profit) and often
+//   carries only ONE timestamp — the close. Handled below.
+//
+// Matching is case-insensitive and ignores non-letters, so "Closed P&L" -> "closedpl".
 const FIELD_ALIASES = {
-  symbol:      ['symbol', 'instrument', 'ticker', 'pair', 'market', 'item', 'security'],
-  direction:   ['direction', 'side', 'type', 'action', 'buysell', 'longshort', 'position'],
-  opened_at:   ['openedat', 'opentime', 'opendate', 'entrytime', 'entrydate', 'dateopened', 'open', 'datetime', 'date'],
-  closed_at:   ['closedat', 'closetime', 'closedate', 'exittime', 'exitdate', 'dateclosed', 'close'],
-  entry_price: ['entryprice', 'openprice', 'entry', 'priceopen', 'avgentry', 'fillprice'],
-  exit_price:  ['exitprice', 'closeprice', 'exit', 'priceclose', 'avgexit'],
-  size:        ['size', 'lots', 'volume', 'quantity', 'qty', 'units', 'amount', 'contracts'],
-  pnl:         ['pnl', 'profit', 'profitloss', 'netpl', 'netprofit', 'realizedpnl', 'plnet', 'result', 'gain'],
-  fees:        ['fees', 'fee', 'commission', 'commissions', 'cost', 'charges'],
+  // "contracts" is a SYMBOL here, not a quantity: Bybit's closed-P&L export puts the
+  // instrument (BTCUSDT) under "Contracts". Quantity is "Qty" on the same file.
+  symbol:      ['symbol', 'instrument', 'ticker', 'pair', 'market', 'item', 'security',
+                'contracts', 'contract', 'coin', 'futures', 'tradingpair'],
+  direction:   ['direction', 'side', 'type', 'action', 'buysell', 'longshort', 'position',
+                'closingdirection', 'positionside', 'orderside', 'tradeside'],
+  opened_at:   ['openedat', 'opentime', 'opendate', 'entrytime', 'entrydate', 'dateopened',
+                'open', 'datetime', 'date', 'createtime', 'openingtime'],
+  closed_at:   ['closedat', 'closetime', 'closedate', 'exittime', 'exitdate', 'dateclosed',
+                'close', 'tradetime', 'closingtime', 'updatetime', 'transactiontime'],
+  entry_price: ['entryprice', 'openprice', 'entry', 'priceopen', 'avgentry', 'fillprice',
+                'avgentryprice', 'avgopenprice', 'openingprice'],
+  exit_price:  ['exitprice', 'closeprice', 'exit', 'priceclose', 'avgexit',
+                'avgexitprice', 'avgcloseprice', 'closingprice'],
+  size:        ['size', 'lots', 'volume', 'quantity', 'qty', 'units', 'amount',
+                'filledqty', 'executedqty', 'closedsize', 'positionsize', 'filled'],
+  pnl:         ['pnl', 'profit', 'profitloss', 'netpl', 'netprofit', 'realizedpnl', 'plnet',
+                'result', 'gain', 'closedpl', 'realizedpl', 'realisedpnl', 'realisedpl',
+                'realizedprofit', 'closedpnl'],
+  fees:        ['fees', 'fee', 'commission', 'commissions', 'cost', 'charges',
+                'tradingfee', 'feepaid', 'totalfee'],
   notes:       ['notes', 'comment', 'comments', 'note', 'remark'],
 };
 
+// Columns that name a CURRENCY rather than carry a number. Binance writes "Fee Coin"
+// next to "Fee"; matching the wrong one puts "USDT" where a fee amount belongs, which
+// parses to null and silently zeroes every fee in the import.
+const CURRENCY_COLUMNS = ['feecoin', 'feeasset', 'commissionasset', 'feecurrency', 'pnlcurrency'];
+
 const norm = (h) => String(h || '').toLowerCase().replace(/[^a-z]/g, '');
 
-/** Best-guess mapping of trade field -> column index (or null). */
+/**
+ * Best-guess mapping of trade field -> column index (or null).
+ *
+ * When an export carries only a close time (the crypto closed-P&L shape), the open time
+ * is pointed at the same column: a closed-P&L row genuinely doesn't say when the position
+ * was opened, and refusing the whole file over a column the exchange never wrote would
+ * reject every Bybit and MEXC export outright. `assumedOpenTime` reports it so the UI can
+ * be honest about what was inferred.
+ */
 export function autoDetectMapping(headers) {
   const normed = (headers || []).map(norm);
   const mapping = {};
+
+  // Two passes over ALL fields, with claimed columns removed between them. Doing exact
+  // matches everywhere before any loose match is what stops a specific column being
+  // stolen by a vague one: Bybit's "Closed P&L" normalises to "closedpl", which contains
+  // "close", so a single pass handed it to closed_at and the real "Trade Time" column
+  // went unused — every row then failed with "could not read the open date (-400.25)".
+  const claimed = new Set();
+  const usable = (h, i) => !claimed.has(i) && !CURRENCY_COLUMNS.includes(h);
+
   for (const [field, aliases] of Object.entries(FIELD_ALIASES)) {
-    // Prefer an exact normalized match, then a contains-match, so "openTime" beats "time".
-    let idx = normed.findIndex((h) => aliases.includes(h));
-    if (idx === -1) idx = normed.findIndex((h) => aliases.some((a) => h.includes(a)));
+    const idx = normed.findIndex((h, i) => usable(h, i) && aliases.includes(h));
     mapping[field] = idx === -1 ? null : idx;
+    if (idx !== -1) claimed.add(idx);
   }
+
+  for (const [field, aliases] of Object.entries(FIELD_ALIASES)) {
+    if (mapping[field] != null) continue;
+    const idx = normed.findIndex((h, i) => usable(h, i) && aliases.some((a) => h.includes(a)));
+    mapping[field] = idx === -1 ? null : idx;
+    if (idx !== -1) claimed.add(idx);
+  }
+
+  mapping.assumedOpenTime = false;
+  if (mapping.opened_at == null && mapping.closed_at != null) {
+    mapping.opened_at = mapping.closed_at;
+    mapping.assumedOpenTime = true;
+  }
+
   return mapping;
+}
+
+/**
+ * Is this a fill-level export rather than a round-trip one?
+ *
+ * Binance's spot "Trade History" lists individual executions: a buy row and a sell row,
+ * with no profit column, because profit only exists once the two are paired. Importing it
+ * as-is would create hundreds of bogus open positions. Pairing fills FIFO is a real
+ * feature, not a parsing tweak — so detect it and say which export to download instead.
+ */
+export function looksLikeFillExport(mapping) {
+  const has = (f) => mapping[f] != null;
+  return !has('pnl') && !has('closed_at') && has('symbol') && has('size');
 }
 
 // ── Value coercion ─────────────────────────────────────────────────────────
@@ -184,6 +254,22 @@ export function parseTradeCsv(text) {
   const mapping = autoDetectMapping(headers);
   const dataRows = rows.slice(1);
 
+  // Refuse a fill-level export outright rather than importing hundreds of phantom open
+  // positions. Naming the right export is the whole fix, so the message says which one.
+  if (looksLikeFillExport(mapping)) {
+    return {
+      headers,
+      mapping,
+      valid: [],
+      errors: [],
+      totalRows: dataRows.length,
+      fileError:
+        'This looks like a list of individual fills (buys and sells separately), which has no profit per trade. ' +
+        'Export your closed positions instead — on Bybit that\'s "Closed P&L", on MEXC and Binance it\'s the ' +
+        'futures position or trade history that includes realised P&L.',
+    };
+  }
+
   const valid = [];
   const errors = [];
   dataRows.forEach((row, i) => {
@@ -193,7 +279,15 @@ export function parseTradeCsv(text) {
     else errors.push({ line: i + 2, message: res.error, raw: row }); // +2: 1-indexed + header
   });
 
-  return { headers, mapping, valid, errors, totalRows: dataRows.length };
+  return {
+    headers,
+    mapping,
+    valid,
+    errors,
+    totalRows: dataRows.length,
+    // True when the file had no open-time column and the close time was used for both.
+    assumedOpenTime: !!mapping.assumedOpenTime,
+  };
 }
 
 export default parseTradeCsv;

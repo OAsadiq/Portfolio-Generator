@@ -110,7 +110,16 @@ const TradeJournal = () => {
   const [togglingCalendar, setTogglingCalendar] = useState(false);
 
   // CSV import: null until a file is parsed, then a preview the user confirms.
-  type ImportPreview = { valid: any[]; errors: { line: number; message: string }[]; totalRows: number; fileName: string };
+  type ImportPreview = {
+    valid: any[];
+    errors: { line: number; message: string }[];
+    totalRows: number;
+    fileName: string;
+    /** Set when the whole file is the wrong export (e.g. a list of individual fills). */
+    fileError?: string;
+    /** The export had no open-time column, so the close time was used for both. */
+    assumedOpenTime?: boolean;
+  };
   // Calendar: which month is on screen. null = default to the most recent month with trades.
   const [calMonth, setCalMonth] = useState<{ year: number; month: number } | null>(null);
   const [csvPreview, setCsvPreview] = useState<ImportPreview | null>(null);
@@ -450,8 +459,9 @@ const TradeJournal = () => {
     setShowErrors(false);
     try {
       const text = await file.text();
-      const { valid, errors, totalRows } = parseTradeCsv(text);
-      setCsvPreview({ valid, errors, totalRows, fileName: file.name });
+      const { valid, errors, totalRows, fileError, assumedOpenTime } = parseTradeCsv(text);
+      setCsvPreview({ valid, errors, totalRows, fileName: file.name, fileError, assumedOpenTime });
+      if (fileError) return;  // the panel explains which export to download instead
       if (valid.length === 0 && errors.length === 0) {
         showToast("That file has no rows we could read.");
       }
@@ -857,8 +867,12 @@ const TradeJournal = () => {
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <h2 className="font-bold text-stone-900 text-sm">Import from CSV</h2>
+              {/* Naming the exchanges matters as much as supporting them: a crypto trader
+                  reading "MT4/MT5" assumes this isn't built for them and never tries. */}
               <p className="text-stone-500 text-xs mt-0.5">
-                Export your history from MT4/MT5, cTrader, or your broker and drop it here. We'll map the columns automatically.
+                Drop in a CSV from MT4/MT5, cTrader, Bybit, MEXC or Binance — we'll map the columns
+                automatically. On an exchange, export your <strong>closed positions</strong> (Bybit
+                calls it "Closed P&amp;L"), not the list of individual fills.
               </p>
             </div>
             <label className="cursor-pointer bg-stone-900 hover:bg-stone-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition whitespace-nowrap">
@@ -879,7 +893,28 @@ const TradeJournal = () => {
                 <button onClick={() => setCsvPreview(null)} className="text-stone-400 hover:text-stone-700 text-xs font-semibold flex-none">Clear</button>
               </div>
 
-              <div className="flex gap-3 flex-wrap mb-4">
+              {/* Wrong export entirely — tell them which one to download rather than
+                  importing a pile of half-trades they'd have to delete one by one. */}
+              {csvPreview.fileError && (
+                <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                  <p className="font-semibold text-stone-800 text-sm mb-1">This is the wrong export</p>
+                  <p className="text-stone-600 text-sm leading-relaxed">{csvPreview.fileError}</p>
+                </div>
+              )}
+
+              {/* Say what we inferred. A closed-P&L export doesn't record the open time,
+                  and quietly inventing one would be a lie in a track record. */}
+              {!csvPreview.fileError && csvPreview.assumedOpenTime && csvPreview.valid.length > 0 && (
+                <div className="mb-4 bg-stone-50 border border-stone-200 rounded-xl p-4">
+                  <p className="text-stone-600 text-sm leading-relaxed">
+                    This export only records when each position <strong>closed</strong>, so we've used
+                    that as the open time too. Your P&amp;L, win rate and calendar are unaffected — they
+                    all work off the close.
+                  </p>
+                </div>
+              )}
+
+              <div className={`flex gap-3 flex-wrap mb-4 ${csvPreview.fileError ? 'hidden' : ''}`}>
                 <span className="text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg px-3 py-1.5 font-semibold">
                   {csvPreview.valid.length} ready to import
                 </span>
