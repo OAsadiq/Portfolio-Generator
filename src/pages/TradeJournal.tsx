@@ -129,6 +129,17 @@ const TradeJournal = () => {
   type Mover = { symbol: string; price: number; changePct: number; major: boolean };
   const [movers, setMovers] = useState<Mover[]>([]);
   const [moversStale, setMoversStale] = useState(false);
+  const [changeLabel, setChangeLabel] = useState('24h');
+  // Once the panel has shown anything, keep it (and its toggle) on screen even if the
+  // other market's feed fails — otherwise switching to a dead feed makes the whole panel
+  // vanish and there's no way back without a reload.
+  const [panelSeen, setPanelSeen] = useState(false);
+  const [asOf, setAsOf] = useState<string | null>(null);
+  // Remembered per browser: a forex trader shouldn't have to re-pick their market every
+  // time they open the journal.
+  const [market, setMarket] = useState<'crypto' | 'forex'>(
+    () => (localStorage.getItem('porfilr_market') === 'forex' ? 'forex' : 'crypto')
+  );
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -143,16 +154,22 @@ const TradeJournal = () => {
   // so a dead feed leaves no trace rather than an error box next to someone's P&L.
   useEffect(() => {
     let cancelled = false;
-    fetch(`${import.meta.env.VITE_API_URL}/api/trending`)
+    localStorage.setItem('porfilr_market', market);
+    fetch(`${import.meta.env.VITE_API_URL}/api/trending?market=${market}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (cancelled || !d?.items?.length) return;
-        setMovers(d.items);
-        setMoversStale(!!d.stale);
+        if (cancelled) return;
+        // Empty means the feed failed — clear rather than leaving the other market's
+        // rows on screen under the new heading.
+        setMovers(d?.items || []);
+        if (d?.items?.length) setPanelSeen(true);
+        setMoversStale(!!d?.stale);
+        setChangeLabel(d?.changeLabel || '24h');
+        setAsOf(d?.asOf || null);
       })
-      .catch(() => { /* panel stays hidden */ });
+      .catch(() => { if (!cancelled) setMovers([]); });
     return () => { cancelled = true; };
-  }, []);
+  }, [market]);
 
   const load = async () => {
     setLoading(true);
@@ -885,50 +902,87 @@ const TradeJournal = () => {
             No links, no "trade this", no affiliate: this page exists to help someone see
             their own trading clearly, and a journal that nudges you to trade more works
             against both that and the user. Hides itself entirely if the feed is down. */}
-        {movers.length > 0 && (
+        {(movers.length > 0 || panelSeen) && (
           <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
-            <div className="flex items-baseline justify-between gap-3 mb-4">
-              <h2 className="font-bold text-stone-900 text-sm">Market · last 24h</h2>
-              <span className="text-stone-400 text-xs">
-                {moversStale ? 'Delayed' : 'Updated every 5 min'}
-              </span>
+            <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+              <h2 className="font-bold text-stone-900 text-sm">Market</h2>
+
+              <div className="flex items-center gap-3">
+                <span className="text-stone-400 text-xs">
+                  {moversStale
+                    ? 'Delayed'
+                    : market === 'forex'
+                      ? (asOf ? `ECB rates, ${asOf}` : 'Daily ECB rates')
+                      : 'Updated every 5 min'}
+                </span>
+                {/* Crypto and forex traders want different tables, and this product now
+                    serves both. Remembered per browser so it's a one-time choice. */}
+                <div className="inline-flex bg-stone-100 rounded-lg p-0.5">
+                  {(['crypto', 'forex'] as const).map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => setMarket(m)}
+                      className={`px-3 py-1 rounded-md text-xs font-semibold capitalize transition ${
+                        market === m ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700'
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-stone-400 text-xs border-b border-stone-100">
-                    <th className="text-left font-medium pb-2">Pair</th>
-                    <th className="text-right font-medium pb-2">Price</th>
-                    <th className="text-right font-medium pb-2">24h</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {movers.map((m) => (
-                    <tr key={m.symbol} className="border-b border-stone-50 last:border-0">
-                      <td className="py-2 font-semibold text-stone-800">
-                        {m.symbol}
-                        <span className="text-stone-300 font-normal">/USDT</span>
-                      </td>
-                      <td className="py-2 text-right text-stone-600 tabular-nums">
-                        {/* Sub-dollar coins need the extra places or they all read $0.00 */}
-                        ${m.price < 1 ? m.price.toPrecision(3) : m.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                      </td>
-                      <td className={`py-2 text-right font-semibold tabular-nums ${
-                        m.changePct > 0 ? 'text-emerald-600' : m.changePct < 0 ? 'text-red-500' : 'text-stone-400'
-                      }`}>
-                        {m.changePct > 0 ? '+' : ''}{m.changePct.toFixed(2)}%
-                      </td>
+            {movers.length === 0 ? (
+              <p className="text-stone-400 text-sm py-3">
+                Couldn't load {market} prices right now.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-stone-400 text-xs border-b border-stone-100">
+                      <th className="text-left font-medium pb-2">Pair</th>
+                      <th className="text-right font-medium pb-2">Price</th>
+                      <th className="text-right font-medium pb-2">{changeLabel}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {movers.map((m) => (
+                      <tr key={m.symbol} className="border-b border-stone-50 last:border-0">
+                        <td className="py-2 font-semibold text-stone-800">
+                          {m.symbol}
+                          {market === 'crypto' && <span className="text-stone-300 font-normal">/USDT</span>}
+                        </td>
+                        <td className="py-2 text-right text-stone-600 tabular-nums">
+                          {market === 'forex'
+                            // FX is quoted to 4-5 places (JPY pairs to 2-3). Rounding
+                            // EURUSD to 1.16 erases the range traders actually work in.
+                            ? m.price.toFixed(m.price > 50 ? 2 : 5)
+                            // Sub-dollar coins need the extra places or they all read $0.00.
+                            // minimumFractionDigits too, or a price of 1.0004 renders as
+                            // "$1" and reads like a placeholder rather than a rate.
+                            : `$${m.price < 1
+                                ? m.price.toPrecision(3)
+                                : m.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                        </td>
+                        <td className={`py-2 text-right font-semibold tabular-nums ${
+                          m.changePct > 0 ? 'text-emerald-600' : m.changePct < 0 ? 'text-red-500' : 'text-stone-400'
+                        }`}>
+                          {m.changePct > 0 ? '+' : ''}{m.changePct.toFixed(2)}%
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             {/* Said plainly, because a table inside a trading tool invites the assumption
                 that it's a suggestion. It isn't, and we're not licensed to make one. */}
             <p className="text-stone-400 text-xs mt-3">
               Reference only — not a recommendation. Your own numbers above are what matter.
+              {market === 'forex' && ' ECB publishes once per working day, so weekends show Friday\'s close.'}
             </p>
           </div>
         )}

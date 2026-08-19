@@ -6,7 +6,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  fromMexc, fromCoinGecko, topMovers, marketSnapshot, isLeveragedToken, MIN_QUOTE_VOLUME,
+  fromMexc, fromCoinGecko, fromFrankfurter, topMovers, marketSnapshot,
+  isLeveragedToken, MIN_QUOTE_VOLUME,
 } from './trending.js';
 
 const mexcRow = (symbol, pct, vol, price = 100) => ({
@@ -164,4 +165,75 @@ test('the panel respects its limit', () => {
 test('an empty feed yields an empty panel, not a crash', () => {
   assert.deepEqual(marketSnapshot([]), []);
   assert.deepEqual(marketSnapshot(null), []);
+});
+
+// ── Forex ──────────────────────────────────────────────────────────────────
+
+// Two ECB publications. USD is the base, so these are USD->X and several need inverting.
+const fx = {
+  rates: {
+    '2026-08-17': { EUR: 0.86259, GBP: 0.73800, JPY: 159.20, CAD: 1.39000 },
+    '2026-08-18': { EUR: 0.86386, GBP: 0.73933, JPY: 159.70, CAD: 1.38740 },
+  },
+};
+
+test('EURUSD is quoted the way traders quote it, not as the ECB base', () => {
+  // The trust test. ECB says USD->EUR = 0.86386; the pair is EURUSD = 1/0.86386 = 1.1576.
+  // Printing 0.86 next to "EURUSD" makes a trader distrust everything else on the page.
+  const rows = fromFrankfurter(fx);
+  const eur = rows.find((r) => r.symbol === 'EURUSD');
+  assert.ok(Math.abs(eur.price - 1.15759) < 0.001, `got ${eur.price}`);
+});
+
+test('a non-inverted pair keeps the ECB rate as-is', () => {
+  // USDJPY is already quoted USD-first, so it must NOT be flipped.
+  const jpy = fromFrankfurter(fx).find((r) => r.symbol === 'USDJPY');
+  assert.equal(jpy.price, 159.7);
+});
+
+test('inverting a pair flips the sign of its daily change', () => {
+  // USD->EUR rose (0.86259 -> 0.86386), so the dollar strengthened and EURUSD FELL.
+  // Computing the change before inverting would print a gain on a losing day.
+  const eur = fromFrankfurter(fx).find((r) => r.symbol === 'EURUSD');
+  assert.ok(eur.changePct < 0, `EURUSD should be down, got ${eur.changePct}`);
+
+  const jpy = fromFrankfurter(fx).find((r) => r.symbol === 'USDJPY');
+  assert.ok(jpy.changePct > 0, 'USDJPY rose with the dollar');
+});
+
+test('the two directions agree in magnitude', () => {
+  // EUR moved 0.147% against the dollar; the inverted pair must show the same size move.
+  const eur = fromFrankfurter(fx).find((r) => r.symbol === 'EURUSD');
+  assert.ok(Math.abs(Math.abs(eur.changePct) - 0.147) < 0.01, `got ${eur.changePct}`);
+});
+
+test('FX prices keep enough decimals to be usable', () => {
+  // Rounding EURUSD to 2dp gives 1.16 and erases the range traders work in.
+  const eur = fromFrankfurter(fx).find((r) => r.symbol === 'EURUSD');
+  assert.ok(String(eur.price).split('.')[1].length >= 4);
+});
+
+test('a single publication reports no change rather than zero', () => {
+  // "0.00%" claims the market was flat. With one data point we simply do not know.
+  const rows = fromFrankfurter({ rates: { '2026-08-18': { EUR: 0.86386 } } });
+  assert.deepEqual(rows, []);
+});
+
+test('a currency missing from the feed is skipped, not zeroed', () => {
+  const rows = fromFrankfurter(fx);
+  assert.equal(rows.some((r) => r.symbol === 'USDCHF'), false, 'CHF absent from this payload');
+  assert.equal(rows.some((r) => r.symbol === 'USDCAD'), true);
+});
+
+test('malformed forex payloads never throw', () => {
+  assert.deepEqual(fromFrankfurter(null), []);
+  assert.deepEqual(fromFrankfurter({}), []);
+  assert.deepEqual(fromFrankfurter({ rates: {} }), []);
+  assert.deepEqual(fromFrankfurter({ rates: { '2026-08-18': { EUR: 0 } } }), []);
+});
+
+test('forex rows survive the snapshot without a volume figure', () => {
+  // ECB publishes no volume, so the liquidity floor must not silently drop every pair.
+  const snap = marketSnapshot(fromFrankfurter(fx), { majors: [] });
+  assert.ok(snap.length >= 3, `expected FX rows through, got ${snap.length}`);
 });
