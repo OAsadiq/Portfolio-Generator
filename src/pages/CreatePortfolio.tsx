@@ -86,6 +86,7 @@ const CreatePortfolio = () => {
   const navigate = useNavigate();
   const draftKey = `porfilr_draft_${templateId}`;
   const [template, setTemplate] = useState<Template | null>(null);
+  const [allTemplates, setAllTemplates] = useState<Template[]>([]);
   // Restore any saved draft SYNCHRONOUSLY on first render — so a logged-out visitor's
   // work is already there when they come back from signup. Doing this in an effect raced
   // with the auto-save effect and re-renders from auth/template loading, which wiped it.
@@ -103,7 +104,7 @@ const CreatePortfolio = () => {
   const [kitCredit, setKitCredit] = useState(0);
   const [completedFields, setCompletedFields] = useState(0);
   const [copied, setCopied] = useState(false);
-  const { user, isPro, ownsTemplate, checkSubscription } = useAuth();
+  const { user, isPro, ownsTemplate, checkSubscription, portfolios, portfoliosLoading } = useAuth();
 
   const uploadImage = async (file: File): Promise<string> => {
     const ext = file.name.split(".").pop();
@@ -133,6 +134,9 @@ const CreatePortfolio = () => {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (cancelled || !data?.templates) return;
+        // Kept so we can tell which of the user's OTHER portfolios are kit pages —
+        // needed to work out whether their general slot is already taken.
+        setAllTemplates(data.templates);
         const fresh = data.templates.find((t: Template) => t.id === templateId);
         if (fresh) {
           setTemplate(fresh);
@@ -329,6 +333,39 @@ const CreatePortfolio = () => {
       ? isPro
       : true;
 
+  // Do they already have a portfolio on THIS template? If so, /create is the wrong place
+  // to land them — see the interstitial below.
+  // `!portfolioSlug` matters: the success/share screen renders further down this component.
+  // Once they publish, this portfolio IS in the list — without the guard, a refresh of the
+  // portfolio list would swap their "you're live!" screen for "you've already built this".
+  const alreadyBuilt =
+    user && !portfolioSlug ? portfolios.find((p) => p.template_id === templateId) || null : null;
+
+  // Would publishing this be refused for lack of a slot? Mirrors the server rule in
+  // api/templates/create-portfolio.js: one general slot, plus one per kit owned. Warn now
+  // rather than letting them fill in the whole form and hit a 403 at Publish.
+  // Only computed once the template list has loaded — without kit flags for the OTHER
+  // templates we'd mistake a kit page for a general one and warn wrongly.
+  const generalSlotTaken =
+    user && allTemplates.length > 0
+      ? portfolios.find((p) => !(allTemplates.find((t) => t.id === p.template_id)?.kit)) || null
+      : null;
+  const slotBlocked = !kitId && !!generalSlotTaken;
+
+  // Wait for the portfolio list before deciding. Rendering the form first and swapping to
+  // the interstitial a moment later would look like the app losing their work all over
+  // again — which is the exact impression this fix exists to prevent.
+  if (user && portfoliosLoading && template && !portfolioSlug) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-stone-200 border-t-stone-700 rounded-full animate-spin"></div>
+          <p className="text-stone-400 text-sm">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Loading template
   if (!template) {
     return (
@@ -336,6 +373,65 @@ const CreatePortfolio = () => {
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-stone-200 border-t-stone-700 rounded-full animate-spin"></div>
           <p className="text-stone-400 text-sm">Loading template...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Already built this one ──
+  // A trader who came back, landed on /templates and clicked the template they recognised
+  // used to get a BLANK form here — no trades, no details, nothing they'd entered. One
+  // reported it as "my logged trades disappeared"; the data was fine, they were just
+  // looking at an empty page. So say plainly that it exists, and link to it.
+  if (alreadyBuilt) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
+        <div className="bg-white border border-stone-200 rounded-2xl p-8 max-w-md w-full shadow-sm">
+          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-5">
+            <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-stone-900 mb-2">
+            You've already built this one
+          </h2>
+          <p className="text-stone-500 text-sm mb-6">
+            Your {template.name} page is live and everything you've entered is safe
+            {kitId ? ', including every trade in your journal' : ''}. Pick up where you left off:
+          </p>
+
+          <div className="space-y-2.5">
+            <Link
+              to={usesBuilder ? `/builder/${alreadyBuilt.slug}` : `/edit/${alreadyBuilt.slug}`}
+              className="block w-full text-center bg-stone-900 hover:bg-stone-700 text-white font-semibold py-3 px-6 rounded-xl transition"
+            >
+              Edit my page
+            </Link>
+
+            {/* The journal is the thing they were actually looking for. */}
+            {kitId && (
+              <Link
+                to={`/journal/${alreadyBuilt.slug}`}
+                className="block w-full text-center bg-white hover:bg-stone-50 border border-stone-200 text-stone-800 font-semibold py-3 px-6 rounded-xl transition"
+              >
+                Open my trade journal
+              </Link>
+            )}
+
+            <a
+              href={`/p/${alreadyBuilt.slug}`}
+              target="_blank"
+              rel="noopener"
+              className="block w-full text-center border border-stone-200 hover:bg-stone-50 text-stone-700 font-medium py-3 px-6 rounded-xl transition"
+            >
+              View my live page
+            </a>
+          </div>
+
+          <p className="mt-6 text-xs text-stone-400 text-center">
+            Want to start this one over? Delete it from your{' '}
+            <Link to="/dashboard" className="text-orange-600 hover:underline">dashboard</Link> first.
+          </p>
         </div>
       </div>
     );
@@ -554,6 +650,34 @@ const CreatePortfolio = () => {
 
         {/* Step indicator */}
         <StepIndicator current={1} />
+
+        {/* Their one portfolio slot is already used by a different template. Say so HERE,
+            not at Publish — filling in a whole form only to be refused is the version of
+            this that makes people think the product ate their work. */}
+        {slotBlocked && generalSlotTaken && (
+          <div className="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-5">
+            <p className="font-bold text-stone-900 text-sm mb-1">You already have a portfolio</p>
+            <p className="text-stone-600 text-sm mb-4">
+              Each account gets one (kit pages are extra). You can fill this in, but publishing
+              it will need your existing page deleted first — nothing you've already made is
+              lost either way.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to={`/edit/${generalSlotTaken.slug}`}
+                className="bg-stone-900 hover:bg-stone-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
+              >
+                Edit the one I have
+              </Link>
+              <Link
+                to="/dashboard"
+                className="border border-stone-300 hover:bg-white text-stone-700 px-4 py-2 rounded-xl text-sm font-medium transition"
+              >
+                Dashboard
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Header + progress */}
         <div className="mb-8">

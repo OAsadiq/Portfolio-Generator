@@ -13,6 +13,9 @@ interface AuthContextType {
   /** Every portfolio the user has, newest first. Slots are typed (one general + one per
    *  kit owned), so callers need the template of each — not just a count. */
   portfolios: { slug: string; template_id: string }[];
+  /** True until the portfolio list has been fetched. Callers that branch on "do you
+   *  already have one of these?" must wait for this, or they flash the wrong UI. */
+  portfoliosLoading: boolean;
   isPro: boolean;
   /** Template IDs this user has bought outright (kits). Separate from Pro on purpose:
    *  Pro is a $19 one-time unlock for Pro templates; a kit is its own product. */
@@ -36,6 +39,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [hasPortfolio, setHasPortfolio] = useState(false);
   const [existingPortfolio, setExistingPortfolio] = useState<{ slug: string; template_id: string } | null>(null);
   const [portfolios, setPortfolios] = useState<{ slug: string; template_id: string }[]>([]);
+  const [portfoliosLoading, setPortfoliosLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
   const [ownedTemplates, setOwnedTemplates] = useState<string[]>([]);
 
@@ -118,9 +122,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setHasPortfolio(false);
       setExistingPortfolio(null);
       setPortfolios([]);
+      setPortfoliosLoading(false);
       return;
     }
 
+    setPortfoliosLoading(true);
     try {
       // No .limit(1) — a user can hold more than one now (general slot + a slot per kit),
       // and callers need to know which templates are taken, not just whether any exist.
@@ -146,6 +152,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (err) {
       console.error('Exception checking portfolio:', err);
+    } finally {
+      // In a finally, not after the query: the error path above returns early, and a
+      // caller left waiting forever would render a spinner instead of its content.
+      setPortfoliosLoading(false);
     }
   }, [user]);
 
@@ -268,6 +278,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         hasPortfolio,
         existingPortfolio,
         portfolios,
+        portfoliosLoading,
         isPro,
         ownedTemplates,
         ownsTemplate,
