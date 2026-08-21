@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Undo, Redo, Palette, Type, Layout, Settings, Monitor, Tablet, Smartphone, AlertCircle, X, Check } from 'lucide-react';
 import { useBuilderState } from './useBuilderState';
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { supabase } from '../../lib/supabase';
 import { track } from '../../lib/track';
 import DesignTab from './tabs/DesignTab';
@@ -46,6 +46,27 @@ interface Props {
 export default function PortfolioBuilder({ onCancel }: Props) {
   const state = useBuilderState(onCancel);
   const navigate = useNavigate();
+  // Only set when editing an existing page (/builder/:slug). A brand-new build has
+  // nothing to edit yet, so those users only get the email-a-link option.
+  const { slug: editSlug } = useParams();
+
+  // Does this template have a form to fall back to? modern-writer declares no fields —
+  // it's builder-only — and sending a phone to /edit for it would bounce straight back
+  // here, looping. Only asked when the wall is actually about to show.
+  const [hasMobileForm, setHasMobileForm] = useState(false);
+  useEffect(() => {
+    if (!state.isMobile || !editSlug || !state.selectedTemplate) return;
+    let cancelled = false;
+    fetch(`${import.meta.env.VITE_API_URL}/api/templates`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled) return;
+        const t = (d?.templates || []).find((x: { id: string }) => x.id === state.selectedTemplate);
+        setHasMobileForm((t?.fields?.length || 0) > 0);
+      })
+      .catch(() => { /* leave false — the email link still works */ });
+    return () => { cancelled = true; };
+  }, [state.isMobile, editSlug, state.selectedTemplate]);
   const goBack = () => { if (onCancel) onCancel(); else navigate('/'); };
   const [remEmail, setRemEmail] = useState('');
   const [remStatus, setRemStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
@@ -92,6 +113,27 @@ export default function PortfolioBuilder({ onCancel }: Props) {
             <Monitor className="w-7 h-7 text-orange-600" />
           </div>
           <h2 className="text-xl font-bold text-stone-900 mb-2">Best built on desktop</h2>
+
+          {/* An existing page has a mobile-capable editor — /edit is the same form flow,
+              driven by the saved template_fields. Offering it first turns this screen from
+              a dead end into a detour. The email link stays for anyone who specifically
+              wants the drag-and-drop designer. */}
+          {editSlug && hasMobileForm && remStatus !== 'done' && (
+            <>
+              <p className="text-stone-500 text-sm mb-4 leading-relaxed">
+                The drag-and-drop designer needs a bigger screen — but you can edit your
+                text and details right here on your phone.
+              </p>
+              <button
+                onClick={() => navigate(`/edit/${editSlug}`)}
+                className="w-full bg-stone-900 hover:bg-stone-700 text-white px-6 py-3 rounded-xl font-semibold transition text-sm mb-4"
+              >
+                Edit on my phone
+              </button>
+              <p className="text-stone-400 text-xs mb-3">Or finish the design on a laptop:</p>
+            </>
+          )}
+
           {remStatus === 'done' ? (
             <>
               <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto my-4">

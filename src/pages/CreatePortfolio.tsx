@@ -8,6 +8,7 @@ import PortfolioVisualBuilder from "../components/PortfolioVisualBuilder.tsx";
 import SharePortfolio from "../components/SharePortfolio";
 import { track, attributionSource } from "../lib/track";
 import { suggestEmailFix } from "../lib/emailTypo";
+import { useIsMobileOnce } from "../lib/useIsMobile";
 
 interface TemplateField {
   name: string;
@@ -16,6 +17,8 @@ interface TemplateField {
   required?: boolean;
   placeholder?: string;
   section?: string;
+  /** For type: "select" — the choices, in order. */
+  options?: { value: string; label: string }[];
 }
 
 interface Template {
@@ -105,6 +108,8 @@ const CreatePortfolio = () => {
   const [completedFields, setCompletedFields] = useState(0);
   const [copied, setCopied] = useState(false);
   const { user, isPro, ownsTemplate, checkSubscription, portfolios, portfoliosLoading } = useAuth();
+  // Sticky: a rotation must not swap the editor out from under a half-filled form.
+  const isMobile = useIsMobileOnce();
 
   const uploadImage = async (file: File): Promise<string> => {
     const ext = file.name.split(".").pop();
@@ -171,7 +176,7 @@ const CreatePortfolio = () => {
     }
   }, [formData, template]);
 
-  const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
     if (files && files[0]) {
       // Image upload needs an authenticated storage path, and File objects can't survive
@@ -352,6 +357,9 @@ const CreatePortfolio = () => {
       : null;
   const slotBlocked = !kitId && !!generalSlotTaken;
 
+  // Can a phone user actually fill this in? Only if the template declares form fields.
+  const hasMobileForm = (template?.fields?.length || 0) > 0;
+
   // Wait for the portfolio list before deciding. Rendering the form first and swapping to
   // the interstitial a moment later would look like the app losing their work all over
   // again — which is the exact impression this fix exists to prevent.
@@ -529,7 +537,18 @@ const CreatePortfolio = () => {
 
   // Visual builder — reached once access is granted, whether that came from Pro or
   // from owning the kit. Keyed on usesBuilder, not on how it was paid for.
-  if (usesBuilder && hasAccess) {
+  //
+  // NOT on a phone. The builder blocks below 900px and used to show a dead end there, so
+  // someone who had just paid for a kit on their phone could not build anything at all.
+  // Of the seven people who hit that wall, three never published a page and one gave up
+  // and made a free minimal-template page instead — downgrading out of the paid product
+  // because the free one worked on their phone. Mobile now gets the form flow below,
+  // which publishes a real page; the builder is a desktop refinement, not a gate.
+  //
+  // One exception: a template with no `fields` (modern-writer) has no form to fall back
+  // to, so mobile still gets the builder's email-a-link screen. Rendering an empty form
+  // would be worse than the wall — it looks like the product is broken.
+  if (usesBuilder && hasAccess && (!isMobile || !hasMobileForm)) {
     return (
       <div className="min-h-screen bg-stone-50">
         <PortfolioVisualBuilder
@@ -679,6 +698,21 @@ const CreatePortfolio = () => {
           </div>
         )}
 
+        {/* Mobile users of a builder template land here instead of the old dead end. Say
+            why, or a paying customer assumes the visual builder they were sold doesn't
+            exist and that they got a cut-down product. */}
+        {isMobile && usesBuilder && hasAccess && (
+          <div className="mb-8 bg-stone-50 border border-stone-200 rounded-2xl p-5">
+            <p className="font-bold text-stone-900 text-sm mb-1">Building on your phone</p>
+            <p className="text-stone-600 text-sm leading-relaxed">
+              Fill this in and publish — you'll have a real, live page in a few minutes.
+              The drag-and-drop designer needs a bigger screen, so open your page on a
+              laptop whenever you want to change colours, fonts and layout. Nothing you
+              enter here is lost.
+            </p>
+          </div>
+        )}
+
         {/* Header + progress */}
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-stone-900 mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
@@ -720,7 +754,22 @@ const CreatePortfolio = () => {
                         {field.label}
                         {field.required && <span className="text-orange-500 ml-1">*</span>}
                       </label>
-                      {field.type === "textarea" ? (
+                      {field.type === "select" ? (
+                        // Anything not handled explicitly falls through to <input
+                        // type={field.type}>, which for "select" is invalid HTML and
+                        // silently renders a text box. A yes/no field has to be a picker.
+                        <select
+                          name={field.name}
+                          value={formData[field.name] || ""}
+                          onChange={handleChange}
+                          required={field.required}
+                          className="w-full bg-stone-50 border border-stone-200 text-stone-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 transition"
+                        >
+                          {(field.options || []).map((o) => (
+                            <option key={o.value} value={o.value}>{o.label}</option>
+                          ))}
+                        </select>
+                      ) : field.type === "textarea" ? (
                         <textarea
                           name={field.name}
                           value={formData[field.name] || ""}

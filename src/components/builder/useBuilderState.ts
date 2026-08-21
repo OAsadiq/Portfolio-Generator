@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { BUILDER_MIN_WIDTH } from '../../lib/useIsMobile';
 import { getTemplateConfig, SECTION_METADATA, SectionItem } from './builder.config';
 import { FileText } from 'lucide-react';
 import React from 'react';
@@ -22,7 +23,9 @@ export function useBuilderState(onCancel?: () => void) {
   const [caseModalOpen, setCaseModalOpen] = useState(false);
   const [blogModalOpen, setBlogModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    () => (typeof window === 'undefined' ? false : window.innerWidth < BUILDER_MIN_WIDTH)
+  );
   const [saving, setSaving] = useState(false);
   const [portfolioSlug, setPortfolioSlug] = useState('');
   // The edited portfolio's real journal state, so the preview can show the SAME curve
@@ -53,7 +56,9 @@ export function useBuilderState(onCancel?: () => void) {
   }, [selectedTemplate, isEditing]);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
+    // Shared with the routing in CreatePortfolio/EditPortfolio — if these two disagree,
+    // a user gets bounced between a form and a wall depending on which decided first.
+    const check = () => setIsMobile(window.innerWidth < BUILDER_MIN_WIDTH);
     check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);

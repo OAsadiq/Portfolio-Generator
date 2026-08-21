@@ -5,6 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import Logo from '../components/Logo';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useIsMobileOnce } from '../lib/useIsMobile';
 
 interface TemplateField {
   name: string;
@@ -12,6 +13,8 @@ interface TemplateField {
   type: string;
   required?: boolean;
   placeholder?: string;
+  /** For type: "select" — the choices, in order. */
+  options?: { value: string; label: string }[];
 }
 
 // Templates edited in the visual builder rather than this form. Anything listed here
@@ -38,6 +41,7 @@ const EditPortfolio = () => {
   const { slug } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobileOnce();
 
   const [portfolio, setPortfolio]           = useState<any>(null);
   const [templateFields, setTemplateFields] = useState<TemplateField[]>([]);
@@ -68,12 +72,22 @@ const EditPortfolio = () => {
   const checkTemplateType = async () => {
     const { data } = await supabase
       .from('portfolios')
-      .select('template_id')
+      .select('template_id, template_fields')
       .eq('slug', slug)
       .single();
-    if (data && PROFESSIONAL_TEMPLATES.includes(data.template_id)) {
-      navigate(`/builder/${slug}`, { replace: true });
-    }
+    if (!data || !PROFESSIONAL_TEMPLATES.includes(data.template_id)) return;
+
+    // On a phone, stay on this form rather than redirecting into the builder, which
+    // blocks below 900px — the redirect used to bounce mobile users out of a working
+    // editor and into a dead end.
+    //
+    // Only when the page actually has saved fields to edit, though. modern-writer stores
+    // none (it's builder-only), and this form renders "No template data found" for it,
+    // which is a worse dead end than the one we're avoiding.
+    const editableOnMobile = Array.isArray(data.template_fields) && data.template_fields.length > 0;
+    if (isMobile && editableOnMobile) return;
+
+    navigate(`/builder/${slug}`, { replace: true });
   };
 
   const fetchPortfolio = async () => {
@@ -110,12 +124,24 @@ const EditPortfolio = () => {
 
   const initFormData = () => {
     const existing = portfolio.form_data || {};
-    const init: any = {};
-    templateFields.forEach(f => { init[f.name] = existing[f.name] || ''; });
+    // Start from EVERYTHING that was saved, then make sure each declared field has a key.
+    //
+    // update-portfolio does `form_data: formData` — a full overwrite, not a merge. Seeding
+    // only from templateFields meant any stored value this form doesn't render was dropped
+    // on save. That was survivable while the form was the only editor for its templates,
+    // but it stops being survivable the moment a phone can edit a page built in the visual
+    // builder: the builder writes far more keys than any field list declares, and one
+    // mobile save would silently delete the lot.
+    //
+    // Merging on the SERVER would be wrong — the builder legitimately removes keys when
+    // you delete a case study, and a server-side merge would resurrect them. The form is
+    // the side with the partial view, so the form is the side that has to carry the rest.
+    const init: any = { ...existing };
+    templateFields.forEach(f => { init[f.name] = existing[f.name] ?? ''; });
     setFormData(init);
   };
 
-  const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
     if (files?.[0]) {
       const url = await uploadImage(files[0]);
@@ -349,7 +375,21 @@ const EditPortfolio = () => {
                         {field.required && <span className="text-orange-500 ml-1">*</span>}
                       </label>
 
-                      {field.type === 'textarea' ? (
+                      {field.type === 'select' ? (
+                        // Without this, "select" falls through to <input type="select">,
+                        // which is invalid HTML and renders a plain text box.
+                        <select
+                          name={field.name}
+                          value={formData[field.name] || ''}
+                          onChange={handleChange}
+                          required={field.required}
+                          className="w-full bg-stone-50 border border-stone-200 text-stone-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 transition"
+                        >
+                          {(field.options || []).map((o) => (
+                            <option key={o.value} value={o.value}>{o.label}</option>
+                          ))}
+                        </select>
+                      ) : field.type === 'textarea' ? (
                         <textarea
                           name={field.name}
                           value={formData[field.name] || ''}

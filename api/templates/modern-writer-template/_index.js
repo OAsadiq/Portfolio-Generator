@@ -616,6 +616,81 @@ const modernTemplate = {
   isPro: true,       // unlocked by a Pro purchase
   usesBuilder: true, // rendered by the visual builder — see trader-template for why these are separate
   generateHTML,
+
+  // Form fields — the MOBILE path, not a second editor.
+  //
+  // This template had none, so it was builder-only, and the builder blocks below 900px.
+  // Anyone who bought Pro and opened it on a phone hit a dead end with nothing to do but
+  // email themselves a link. Two of the seven recorded wall-hits were this template.
+  //
+  // Deliberately a SUBSET of what the builder can produce. The goal is to get a real,
+  // publishable page up from a phone — identity, positioning, proof, contact — not to
+  // reproduce a drag-and-drop canvas in a form. The builder still handles the full set
+  // (6 skills, 8 gallery images, 50 testimonials, per-case-study modals, layout, fonts),
+  // and editing here no longer discards those: EditPortfolio now carries every stored key
+  // through a save, so filling this in on a phone cannot delete work done on desktop.
+  fields: [
+    // Identity
+    { name: 'fullName',    label: 'Full Name',        type: 'text', required: true, section: 'hero' },
+    { name: 'tagline',     label: 'What You Do',      type: 'text', section: 'hero', placeholder: 'e.g. Brand Designer' },
+    { name: 'headline',    label: 'Headline',         type: 'text', section: 'hero', placeholder: 'The one line people should remember' },
+    { name: 'bio',         label: 'About You',        type: 'textarea', section: 'hero' },
+    { name: 'profileImage', label: 'Profile Photo',   type: 'file', section: 'hero' },
+    { name: 'primaryColor', label: 'Accent Colour',   type: 'color', default: '#4f46e5', section: 'theme' },
+
+    // Availability — a live "open for work" badge is the single highest-intent thing on
+    // the page, and it's one tap on a phone.
+    { name: 'availability',     label: 'Show "available for work" badge', type: 'select', section: 'hero',
+      options: [{ value: '', label: 'No' }, { value: 'true', label: 'Yes' }] },
+    { name: 'availabilityText', label: 'Availability text', type: 'text', section: 'hero',
+      placeholder: 'Available for work' },
+
+    // Proof
+    { name: 'clients', label: 'Clients / brands worked with', type: 'text', section: 'other',
+      placeholder: 'Comma separated — e.g. Nike, Spotify, Airbnb' },
+    { name: 'stat1Value', label: 'Stat 1 — number', type: 'text', section: 'other', placeholder: 'e.g. 50+' },
+    { name: 'stat1Label', label: 'Stat 1 — label',  type: 'text', section: 'other', placeholder: 'e.g. Projects shipped' },
+    { name: 'stat2Value', label: 'Stat 2 — number', type: 'text', section: 'other' },
+    { name: 'stat2Label', label: 'Stat 2 — label',  type: 'text', section: 'other' },
+    { name: 'stat3Value', label: 'Stat 3 — number', type: 'text', section: 'other' },
+    { name: 'stat3Label', label: 'Stat 3 — label',  type: 'text', section: 'other' },
+
+    // Skills — the template renders up to 6; three is enough to publish from a phone.
+    { name: 'skill1', label: 'Skill 1', type: 'text', section: 'other' },
+    { name: 'skill2', label: 'Skill 2', type: 'text', section: 'other' },
+    { name: 'skill3', label: 'Skill 3', type: 'text', section: 'other' },
+
+    // Services
+    { name: 'service1Title', label: 'Service 1 — title', type: 'text', section: 'services' },
+    { name: 'service1Desc',  label: 'Service 1 — description', type: 'textarea', section: 'services' },
+    { name: 'service2Title', label: 'Service 2 — title', type: 'text', section: 'services' },
+    { name: 'service2Desc',  label: 'Service 2 — description', type: 'textarea', section: 'services' },
+    { name: 'service3Title', label: 'Service 3 — title', type: 'text', section: 'services' },
+    { name: 'service3Desc',  label: 'Service 3 — description', type: 'textarea', section: 'services' },
+
+    // Work — the case-study modals (challenge/solution/results) stay builder-only; a
+    // phone form that long doesn't get finished.
+    { name: 'case1Title',       label: 'Work 1 — title',       type: 'text', section: 'samples' },
+    { name: 'case1Client',      label: 'Work 1 — client',      type: 'text', section: 'samples' },
+    { name: 'case1Description', label: 'Work 1 — description', type: 'textarea', section: 'samples' },
+    { name: 'case1Image',       label: 'Work 1 — image',       type: 'file', section: 'samples' },
+    { name: 'case2Title',       label: 'Work 2 — title',       type: 'text', section: 'samples' },
+    { name: 'case2Client',      label: 'Work 2 — client',      type: 'text', section: 'samples' },
+    { name: 'case2Description', label: 'Work 2 — description', type: 'textarea', section: 'samples' },
+    { name: 'case2Image',       label: 'Work 2 — image',       type: 'file', section: 'samples' },
+
+    // Testimonials
+    { name: 'testimonial1',       label: 'Testimonial 1 — quote',  type: 'textarea', section: 'testimonials' },
+    { name: 'testimonial1Author', label: 'Testimonial 1 — author', type: 'text', section: 'testimonials' },
+    { name: 'testimonial1Role',   label: 'Testimonial 1 — role',   type: 'text', section: 'testimonials' },
+    { name: 'testimonial2',       label: 'Testimonial 2 — quote',  type: 'textarea', section: 'testimonials' },
+    { name: 'testimonial2Author', label: 'Testimonial 2 — author', type: 'text', section: 'testimonials' },
+    { name: 'testimonial2Role',   label: 'Testimonial 2 — role',   type: 'text', section: 'testimonials' },
+
+    // Contact
+    { name: 'email',     label: 'Email Address',    type: 'email', required: true, section: 'contact' },
+    { name: 'resumeUrl', label: 'Resume / CV link', type: 'url',   section: 'contact' },
+  ],
 };
 
 export default modernTemplate;
