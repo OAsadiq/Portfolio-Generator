@@ -7,6 +7,7 @@ import { supabase } from "../lib/supabase";
 import TutorialTour, { TourStep } from "../components/tutorial/TutorialTour";
 import ReferralCard from "../components/ReferralCard";
 import { track } from "../lib/track";
+import { useIsMobileOnce } from "../lib/useIsMobile";
 
 const KIT_OPTIONS = ["Photographer", "Developer / Engineer", "Designer", "Real Estate", "Consultant / Coach", "Other"];
 
@@ -24,6 +25,8 @@ interface Template {
   price?: number;
   available?: boolean;
   isPro?: boolean;
+  /** Edited in the visual builder rather than the form flow. */
+  usesBuilder?: boolean;
   /** Sold separately as a kit. Pro does NOT unlock these. */
   kit?: string | null;
   kitName?: string | null;
@@ -200,6 +203,7 @@ const TemplateMockup = ({ id, hovered }: { id: string; hovered: boolean }) => {
 const TemplateSelection = () => {
   const navigate = useNavigate();
   const { user, portfolios, isPro, ownsTemplate, checkPortfolio, checkSubscription, session } = useAuth();
+  const isMobile = useIsMobileOnce();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
@@ -468,7 +472,12 @@ const TemplateSelection = () => {
             </div>
             <div className="flex gap-2 flex-shrink-0">
               <Link
-                to={isPro ? `/builder/${generalPortfolio.slug}` : `/edit/${generalPortfolio.slug}`}
+                // Keyed on the TEMPLATE, not on whether they're Pro — a kit owner who
+                // isn't Pro still has a builder template — and never the builder on a
+                // phone, where it shows a dead end instead of an editor.
+                to={!isMobile && templates.find((t) => t.id === generalPortfolio.template_id)?.usesBuilder
+                  ? `/builder/${generalPortfolio.slug}`
+                  : `/edit/${generalPortfolio.slug}`}
                 className="bg-stone-900 hover:bg-stone-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
               >
                 Edit mine

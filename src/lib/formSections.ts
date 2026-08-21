@@ -26,17 +26,40 @@ export type FormField = {
 export const SECTION_META: Record<string, { label: string; icon: string; optional?: boolean }> = {
   hero:         { label: 'About you',           icon: '👤' },
   personal:     { label: 'About you',           icon: '👤' },
-  theme:        { label: 'Colours',             icon: '🎨', optional: true },
+  theme:        { label: 'Look & layout',       icon: '🎨', optional: true },
   track:        { label: 'Track record',        icon: '📈' },
   proof:        { label: 'Highlights',          icon: '✨', optional: true },
   services:     { label: 'What you offer',      icon: '🧰', optional: true },
   samples:      { label: 'Your work',           icon: '📎' },
-  experience:   { label: 'Experience',          icon: '🏢', optional: true },
+  experience:   { label: 'Experience',          icon: '🏢' },
   education:    { label: 'Education',           icon: '🎓', optional: true },
   testimonials: { label: 'Testimonials',        icon: '💬', optional: true },
   contact:      { label: 'Contact details',     icon: '📧' },
   other:        { label: 'Additional info',     icon: '📋', optional: true },
 };
+
+/**
+ * Which sections start expanded.
+ *
+ * Full parity with the builder means ~95 fields on the bigger templates. As one flat
+ * scroll that's unusable on a phone — so optional sections collapse, and the heading
+ * shows how many of their fields are filled. Nothing is hidden; it's just folded.
+ */
+export function startsOpen(section: string, fieldCount = 0): boolean {
+  if (SECTION_META[section]?.optional) return false;
+  // Size matters as much as category. "Your work" is core content, but at 6 samples ×
+  // 6 fields it's 36 inputs — opening that by default buries Contact below a wall of
+  // empty boxes and undoes the point of folding.
+  return fieldCount <= 12;
+}
+
+/** How many fields in a group have a value — shown on collapsed headings. */
+export function filledCount(fields: FormField[], data: Record<string, unknown>): number {
+  return fields.filter((f) => {
+    const v = data?.[f.name];
+    return v !== undefined && v !== null && String(v).trim() !== '';
+  }).length;
+}
 
 /** Render order. Anything unlisted lands before "other" so nothing hides at the bottom. */
 export const SECTION_ORDER = [

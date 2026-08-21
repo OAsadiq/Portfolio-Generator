@@ -655,10 +655,13 @@ const modernTemplate = {
     { name: 'stat3Value', label: 'Stat 3 — number', type: 'text', section: 'proof' },
     { name: 'stat3Label', label: 'Stat 3 — label',  type: 'text', section: 'proof' },
 
-    // Skills — the template renders up to 6; three is enough to publish from a phone.
-    { name: 'skill1', label: 'Skill 1', type: 'text', section: 'proof' },
-    { name: 'skill2', label: 'Skill 2', type: 'text', section: 'proof' },
-    { name: 'skill3', label: 'Skill 3', type: 'text', section: 'proof' },
+    { name: 'stat4Value', label: 'Stat 4 — number', type: 'text', section: 'proof' },
+    { name: 'stat4Label', label: 'Stat 4 — label',  type: 'text', section: 'proof' },
+
+    // Skills — all six the template renders.
+    ...[1, 2, 3, 4, 5, 6].map((i) => (
+      { name: `skill${i}`, label: `Skill ${i}`, type: 'text', section: 'proof' }
+    )),
 
     // Services
     { name: 'service1Title', label: 'Service 1 — title', type: 'text', section: 'services' },
@@ -668,24 +671,34 @@ const modernTemplate = {
     { name: 'service3Title', label: 'Service 3 — title', type: 'text', section: 'services' },
     { name: 'service3Desc',  label: 'Service 3 — description', type: 'textarea', section: 'services' },
 
-    // Work — the case-study modals (challenge/solution/results) stay builder-only; a
-    // phone form that long doesn't get finished.
-    { name: 'case1Title',       label: 'Work 1 — title',       type: 'text', section: 'samples' },
-    { name: 'case1Client',      label: 'Work 1 — client',      type: 'text', section: 'samples' },
-    { name: 'case1Description', label: 'Work 1 — description', type: 'textarea', section: 'samples' },
-    { name: 'case1Image',       label: 'Work 1 — image',       type: 'file', section: 'samples' },
-    { name: 'case2Title',       label: 'Work 2 — title',       type: 'text', section: 'samples' },
-    { name: 'case2Client',      label: 'Work 2 — client',      type: 'text', section: 'samples' },
-    { name: 'case2Description', label: 'Work 2 — description', type: 'textarea', section: 'samples' },
-    { name: 'case2Image',       label: 'Work 2 — image',       type: 'file', section: 'samples' },
+    // Work — the whole case study, including the challenge/solution/results the template
+    // shows in its modal. These were builder-only, so a case study created on a phone was
+    // permanently a headline with no story behind it.
+    ...[1, 2, 3, 4].flatMap((i) => [
+      { name: `case${i}Title`,       label: `Work ${i} — title`,       type: 'text', section: 'samples' },
+      { name: `case${i}Client`,      label: `Work ${i} — client`,      type: 'text', section: 'samples' },
+      { name: `case${i}Role`,        label: `Work ${i} — your role`,   type: 'text', section: 'samples' },
+      { name: `case${i}Description`, label: `Work ${i} — description`, type: 'textarea', section: 'samples' },
+      { name: `case${i}Tags`,        label: `Work ${i} — tags`,        type: 'text', section: 'samples',
+        placeholder: 'Comma separated — e.g. Branding, Web' },
+      { name: `case${i}Challenge`,   label: `Work ${i} — the challenge`, type: 'textarea', section: 'samples' },
+      { name: `case${i}Solution`,    label: `Work ${i} — what you did`,  type: 'textarea', section: 'samples' },
+      { name: `case${i}Results`,     label: `Work ${i} — the result`,    type: 'textarea', section: 'samples' },
+      { name: `case${i}Image`,       label: `Work ${i} — image`,       type: 'file', section: 'samples' },
+    ]),
+
+    // Gallery — the template renders up to 8.
+    ...[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+      { name: `gallery${i}`, label: `Gallery image ${i}`, type: 'file', section: 'samples' }
+    )),
 
     // Testimonials
-    { name: 'testimonial1',       label: 'Testimonial 1 — quote',  type: 'textarea', section: 'testimonials' },
-    { name: 'testimonial1Author', label: 'Testimonial 1 — author', type: 'text', section: 'testimonials' },
-    { name: 'testimonial1Role',   label: 'Testimonial 1 — role',   type: 'text', section: 'testimonials' },
-    { name: 'testimonial2',       label: 'Testimonial 2 — quote',  type: 'textarea', section: 'testimonials' },
-    { name: 'testimonial2Author', label: 'Testimonial 2 — author', type: 'text', section: 'testimonials' },
-    { name: 'testimonial2Role',   label: 'Testimonial 2 — role',   type: 'text', section: 'testimonials' },
+    ...[1, 2, 3, 4].flatMap((i) => [
+      { name: `testimonial${i}`,       label: `Testimonial ${i} — quote`,  type: 'textarea', section: 'testimonials' },
+      { name: `testimonial${i}Author`, label: `Testimonial ${i} — author`, type: 'text', section: 'testimonials' },
+      { name: `testimonial${i}Role`,   label: `Testimonial ${i} — role`,   type: 'text', section: 'testimonials' },
+      { name: `testimonial${i}Image`,  label: `Testimonial ${i} — photo`,  type: 'file', section: 'testimonials' },
+    ]),
 
     // Contact. The named socials are read by collectSocials() in ../_social.js — which is
     // shared, so grepping this file alone makes them look unused. They are not.

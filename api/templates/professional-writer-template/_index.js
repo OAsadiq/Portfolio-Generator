@@ -518,6 +518,13 @@ const professionalWriterTemplate = {
     { name: "bio", label: "About You", type: "textarea", required: true, section: "hero" },
     { name: "profileImage", label: "Profile Image", type: "file", section: "hero" },
     { name: "resumeUrl", label: "Resume / CV link", type: "url", section: "hero" },
+    // Page layout. The template already read `layout` (sidebar vs stacked) but only the
+    // builder could set it, so a form-built page was silently locked to stacked.
+    { name: "layout", label: "Page layout", type: "select", section: "theme",
+      options: [
+        { value: "stacked", label: "Stacked — one column" },
+        { value: "sidebar", label: "Sidebar — profile pinned to the side" },
+      ] },
     { name: "primaryColor", label: "Primary Color", type: "color", default: "#4f46e5", section: "theme" },
     { name: "accentColor", label: "Accent Color", type: "color", default: "#9333ea", section: "theme" },
     { name: "location", label: "Location", type: "text", section: "hero", placeholder: "e.g. Lagos, Nigeria" },
@@ -553,23 +560,18 @@ const professionalWriterTemplate = {
     { name: "service3Title", label: "Service 3 — title", type: "text", section: "services" },
     { name: "service3Desc", label: "Service 3 — description", type: "textarea", section: "services" },
 
-    // Work samples. `sampleNContent` (pasted full text) stays builder-only — nobody types
-    // an article into a phone form, and a link or description covers the same job here.
-    { name: "sample1Title", label: "Work 1 — title", type: "text", section: "samples" },
-    { name: "sample1Type", label: "Work 1 — type", type: "text", section: "samples", placeholder: "e.g. Case study" },
-    { name: "sample1Description", label: "Work 1 — description", type: "textarea", section: "samples" },
-    { name: "sample1Link", label: "Work 1 — link", type: "url", section: "samples" },
-    { name: "sample1Image", label: "Work 1 — image", type: "file", section: "samples" },
-    { name: "sample2Title", label: "Work 2 — title", type: "text", section: "samples" },
-    { name: "sample2Type", label: "Work 2 — type", type: "text", section: "samples" },
-    { name: "sample2Description", label: "Work 2 — description", type: "textarea", section: "samples" },
-    { name: "sample2Link", label: "Work 2 — link", type: "url", section: "samples" },
-    { name: "sample2Image", label: "Work 2 — image", type: "file", section: "samples" },
-    { name: "sample3Title", label: "Work 3 — title", type: "text", section: "samples" },
-    { name: "sample3Type", label: "Work 3 — type", type: "text", section: "samples" },
-    { name: "sample3Description", label: "Work 3 — description", type: "textarea", section: "samples" },
-    { name: "sample3Link", label: "Work 3 — link", type: "url", section: "samples" },
-    { name: "sample3Image", label: "Work 3 — image", type: "file", section: "samples" },
+    // Work samples — the full set the template renders, including `sampleNContent` (the
+    // pasted piece itself, which the template shows in a reader modal). Leaving Content
+    // out meant a writer could add a sample from a phone but never the actual writing.
+    ...[1, 2, 3, 4, 5, 6].flatMap((i) => [
+      { name: `sample${i}Title`, label: `Work ${i} — title`, type: "text", section: "samples" },
+      { name: `sample${i}Type`, label: `Work ${i} — type`, type: "text", section: "samples", placeholder: "e.g. Case study" },
+      { name: `sample${i}Description`, label: `Work ${i} — short description`, type: "textarea", section: "samples" },
+      { name: `sample${i}Content`, label: `Work ${i} — the piece itself (optional)`, type: "textarea", section: "samples",
+        placeholder: "Paste the full text to let people read it without leaving your page." },
+      { name: `sample${i}Link`, label: `Work ${i} — external link`, type: "url", section: "samples" },
+      { name: `sample${i}Image`, label: `Work ${i} — image`, type: "file", section: "samples" },
+    ]),
 
     // Education
     { name: "edu1Title", label: "Education 1 — qualification", type: "text", section: "education" },
@@ -580,12 +582,12 @@ const professionalWriterTemplate = {
     { name: "edu2Year", label: "Education 2 — year", type: "text", section: "education" },
 
     // Testimonials
-    { name: "testimonial1", label: "Testimonial 1 — quote", type: "textarea", section: "testimonials" },
-    { name: "testimonial1Author", label: "Testimonial 1 — author", type: "text", section: "testimonials" },
-    { name: "testimonial1Role", label: "Testimonial 1 — role", type: "text", section: "testimonials" },
-    { name: "testimonial2", label: "Testimonial 2 — quote", type: "textarea", section: "testimonials" },
-    { name: "testimonial2Author", label: "Testimonial 2 — author", type: "text", section: "testimonials" },
-    { name: "testimonial2Role", label: "Testimonial 2 — role", type: "text", section: "testimonials" },
+    ...[1, 2, 3, 4].flatMap((i) => [
+      { name: `testimonial${i}`, label: `Testimonial ${i} — quote`, type: "textarea", section: "testimonials" },
+      { name: `testimonial${i}Author`, label: `Testimonial ${i} — author`, type: "text", section: "testimonials" },
+      { name: `testimonial${i}Role`, label: `Testimonial ${i} — role`, type: "text", section: "testimonials" },
+      { name: `testimonial${i}Image`, label: `Testimonial ${i} — photo`, type: "file", section: "testimonials" },
+    ]),
 
     { name: "email", label: "Email Address", type: "email", required: true, section: "contact" },
     { name: "linkedin", label: "LinkedIn URL", type: "text", section: "contact" },

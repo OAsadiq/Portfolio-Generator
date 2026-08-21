@@ -5,6 +5,7 @@ import Logo from '../components/Logo';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useIsMobileOnce } from '../lib/useIsMobile';
 import { Globe, Copy, Check, ExternalLink, AlertCircle, CheckCircle, Clock, Mail, Inbox, TrendingUp } from 'lucide-react';
 import TutorialTour, { TourStep } from '../components/tutorial/TutorialTour';
 import ReferralCard from '../components/ReferralCard';
@@ -74,6 +75,7 @@ const INPUT = 'w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 te
 
 const ProDashboard = () => {
   const { user, isPro, ownedTemplates, subscriptionLoading, signOut } = useAuth();
+  const isMobile = useIsMobileOnce();
   // Kit owners get the same portfolio management as Pro (analytics, custom domain) —
   // the kit is a standalone product that includes the hosting perks.
   const hasDashboardAccess = isPro || ownedTemplates.length > 0;
@@ -299,8 +301,13 @@ const ProDashboard = () => {
     setDeleteConfirm(prev => (prev && prev.id === portfolio.id ? { ...prev, tradeCount: resolved } : prev));
   };
 
+  // On a phone, send them to the form editor. /builder blocks below 900px, so this link
+  // used to drop dashboard users straight into the "needs a bigger screen" dead end —
+  // the same wall we removed from the create flow.
   const getEditRoute = (portfolio: Portfolio) =>
-    PROFESSIONAL_TEMPLATES.includes(portfolio.template_id) ? `/builder/${portfolio.slug}` : `/edit/${portfolio.slug}`;
+    !isMobile && PROFESSIONAL_TEMPLATES.includes(portfolio.template_id)
+      ? `/builder/${portfolio.slug}`
+      : `/edit/${portfolio.slug}`;
 
   if (!user || subscriptionLoading) {
     return (

@@ -9,7 +9,7 @@ import SharePortfolio from "../components/SharePortfolio";
 import { track, attributionSource } from "../lib/track";
 import { suggestEmailFix } from "../lib/emailTypo";
 import { useIsMobileOnce } from "../lib/useIsMobile";
-import { SECTION_META, groupFields } from "../lib/formSections";
+import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from "../lib/formSections";
 
 interface TemplateField {
   name: string;
@@ -86,6 +86,7 @@ const CreatePortfolio = () => {
   const draftKey = `porfilr_draft_${templateId}`;
   const [template, setTemplate] = useState<Template | null>(null);
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   // Restore any saved draft SYNCHRONOUSLY on first render — so a logged-out visitor's
   // work is already there when they come back from signup. Doing this in an effect raced
   // with the auto-save effect and re-renders from auth/template loading, which wiped it.
@@ -274,6 +275,23 @@ const CreatePortfolio = () => {
     if (!templateId) return;
     // The signup wall lives HERE now — at Publish, after they've done the work. Their
     // filled-in form is saved as a draft and restored when they come back signed in.
+    // Required-field check in JS, because collapsed sections aren't mounted and so the
+    // browser's own `required` validation can't see them. Without this a page could be
+    // published with no name, and the server falls back to the slug "writer".
+    //
+    // BEFORE the signup prompt, not after: sending someone off to create an account and
+    // only then telling them the form is incomplete wastes the one moment they were
+    // ready to finish.
+    const missing = (template?.fields || [])
+      .filter((f) => f.required && !String(formData[f.name] || '').trim());
+    if (missing.length) {
+      const first = missing[0];
+      setOpenSections((p) => ({ ...p, [sectionOf(first)]: true }));
+      setError(`Please fill in: ${missing.map((f) => f.label).join(', ')}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     if (!user) { track('publish_signup_prompt', { templateId }); promptSignup(); return; }
     setLoading(true);
     setError(null);
@@ -722,17 +740,34 @@ const CreatePortfolio = () => {
         <form onSubmit={handleSubmit} className="space-y-5">
           {groupedFields.map(([section, fields]) => {
             const meta = SECTION_META[section] || { label: section, icon: "📋" };
+            const open = openSections[section] ?? startsOpen(section, fields.length);
+            const filled = filledCount(fields, formData);
             return (
               <div key={section} className="bg-white border border-stone-200 rounded-2xl p-6">
-                <h2 className="font-bold text-stone-900 text-sm mb-5 flex items-center gap-2">
+                {/* Folded by default for optional sections — the form now covers every
+                    field the builder does, which is ~95 inputs on the bigger templates. */}
+                <button
+                  type="button"
+                  onClick={() => setOpenSections((p) => ({ ...p, [section]: !open }))}
+                  // -my-2 py-2 keeps the visual spacing identical while giving the row a
+                  // 36px+ hit area. As a bare heading it was 20px tall — under the ~44px
+                  // a thumb reliably hits, so opening a section on a phone was fiddly.
+                  className={`w-full flex items-center gap-2 text-left font-bold text-stone-900 text-sm -my-3 py-3 ${open ? "mb-2" : ""}`}
+                >
                   <span>{meta.icon}</span>
                   {meta.label}
                   {meta.optional && (
                     <span className="text-stone-400 font-normal text-xs ml-1">(optional)</span>
                   )}
-                </h2>
+                  <span className="ml-auto flex items-center gap-2 text-stone-400 font-normal text-xs">
+                    {filled > 0 && <span>{filled}/{fields.length}</span>}
+                    <svg className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </button>
                 <div className="space-y-4">
-                  {fields.map((field) => (
+                  {open && fields.map((field) => (
                     <div key={field.name}>
                       <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wide">
                         {field.label}

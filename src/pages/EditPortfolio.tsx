@@ -6,7 +6,7 @@ import Logo from '../components/Logo';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useIsMobileOnce } from '../lib/useIsMobile';
-import { SECTION_META, groupFields } from '../lib/formSections';
+import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from '../lib/formSections';
 
 interface TemplateField {
   name: string;
@@ -33,6 +33,8 @@ const EditPortfolio = () => {
 
   const [portfolio, setPortfolio]           = useState<any>(null);
   const [templateFields, setTemplateFields] = useState<TemplateField[]>([]);
+  const [templateName, setTemplateName]     = useState<string>('');
+  const [openSections, setOpenSections]     = useState<Record<string, boolean>>({});
   const [formData, setFormData]             = useState<any>({});
   const [loading, setLoading]               = useState(true);
   const [saving, setSaving]                 = useState(false);
@@ -105,6 +107,10 @@ const EditPortfolio = () => {
           const json = await res.json();
           const t = (json?.templates || []).find((x: { id: string }) => x.id === data.template_id);
           if (Array.isArray(t?.fields) && t.fields.length) live = t.fields;
+          // The template's real name ("Professional Portfolio"), not a label derived from
+          // the slug — that produced "Professional Writer", a name we don't use anywhere
+          // else and that doesn't match what they picked on the templates page.
+          if (t?.name) setTemplateName(t.name);
         }
       } catch { /* fall back to the stored snapshot below */ }
 
@@ -197,8 +203,15 @@ const EditPortfolio = () => {
     e.preventDefault();
     if (!portfolio) return;
 
-    const missing = templateFields.filter(f => f.required && !formData[f.name]).map(f => f.label);
-    if (missing.length) { setError(`Please fill in: ${missing.join(', ')}`); return; }
+    const missing = templateFields.filter(f => f.required && !String(formData[f.name] || '').trim());
+    if (missing.length) {
+      // Open the section holding the first offender — otherwise the error names a field
+      // the user can't see, because its section is folded.
+      setOpenSections(p => ({ ...p, [sectionOf(missing[0])]: true }));
+      setError(`Please fill in: ${missing.map(f => f.label).join(', ')}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
 
     setSaving(true);
     setError(null);
@@ -368,7 +381,7 @@ const EditPortfolio = () => {
           </h1>
           <div className="flex items-center gap-3 flex-wrap">
             <p className="text-stone-500 text-sm">
-              Template: <span className="font-medium text-stone-700">{portfolio.template_id.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()).replace(' Template', '')}</span>
+              Template: <span className="font-medium text-stone-700">{templateName || portfolio.template_id.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()).replace(' Template', '')}</span>
             </p>
             <span className="text-stone-300">·</span>
             <a href={portfolioUrl} target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:text-orange-500 text-sm font-medium transition flex items-center gap-1">
@@ -385,15 +398,35 @@ const EditPortfolio = () => {
 
           {groupedFields.map(([section, fields]) => {
             const meta = SECTION_META[section] || { label: section, icon: '📋' };
+            const open = openSections[section] ?? startsOpen(section, fields.length);
+            const filled = filledCount(fields, formData);
             return (
               <div key={section} className="bg-white border border-stone-200 rounded-2xl p-6">
-                <h2 className="font-bold text-stone-900 text-sm mb-5 flex items-center gap-2">
+                {/* Collapsible: with the form now matching the builder field for field,
+                    the bigger templates run to ~95 inputs. Folded sections with a filled
+                    count keep that navigable on a phone without hiding anything. */}
+                <button
+                  type="button"
+                  onClick={() => setOpenSections(p => ({ ...p, [section]: !open }))}
+                  // See CreatePortfolio: bare headings gave a 20px tap target.
+                  className={`w-full flex items-center gap-2 text-left font-bold text-stone-900 text-sm -my-3 py-3 ${open ? 'mb-2' : ''}`}
+                >
                   <span>{meta.icon}</span>
                   {meta.label}
                   {meta.optional && <span className="text-stone-400 font-normal text-xs ml-1">(optional)</span>}
-                </h2>
+                  <span className="ml-auto flex items-center gap-2 text-stone-400 font-normal text-xs">
+                    {filled > 0 && <span>{filled}/{fields.length}</span>}
+                    <svg className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </button>
+                {/* Unmounted, not just hidden. A `required` input inside a display:none
+                    block makes Chrome refuse to submit with "not focusable" — an error
+                    the user never sees. Values live in React state, so nothing is lost
+                    by unmounting, and handleSave validates required fields itself. */}
                 <div className="space-y-4">
-                  {fields.map(field => (
+                  {open && fields.map(field => (
                     <div key={field.name}>
                       <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wide">
                         {field.label}
@@ -465,6 +498,9 @@ const EditPortfolio = () => {
                     </div>
                   ))}
                 </div>
+                {!open && filled === 0 && (
+                  <p className="text-stone-400 text-xs">Nothing added yet — tap to open.</p>
+                )}
               </div>
             );
           })}
