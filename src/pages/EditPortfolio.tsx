@@ -166,8 +166,16 @@ const EditPortfolio = () => {
       if (data.html) {
         const url = URL.createObjectURL(new Blob([data.html], { type: 'text/html' }));
         const w = window.open(url, '_blank');
-        if (w) w.addEventListener('load', () => URL.revokeObjectURL(url));
-        else URL.revokeObjectURL(url);
+        if (w) {
+          w.addEventListener('load', () => URL.revokeObjectURL(url));
+        } else {
+          // A blocked popup used to be swallowed here: the spinner stopped and nothing
+          // happened, which reads as "the button is broken". window.open runs after an
+          // await, so it has lost the user-gesture context and blockers are entitled to
+          // refuse it — say so rather than leaving them clicking.
+          URL.revokeObjectURL(url);
+          setError('Your browser blocked the preview window. Allow pop-ups for this site, or use "View live" after saving.');
+        }
       }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err: any) {
@@ -268,33 +276,44 @@ const EditPortfolio = () => {
     <div className="min-h-screen bg-stone-50">
 
       {/* Sticky top bar */}
-      <div className="sticky top-0 z-20 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4 min-w-0">
+      {/* Every child used to be flex-shrink-0 inside a justify-between row, so on a phone
+          the Back link and the action buttons had nowhere to go and ran into each other.
+          Fixed by removing content rather than squeezing it: tighter padding, the word
+          "Back" drops to just its arrow, and only the buttons that work on mobile show. */}
+      <div className="sticky top-0 z-20 bg-white border-b border-stone-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <Link to="/" className="flex-shrink-0"><Logo size={28} /></Link>
           <span className="text-stone-300 hidden sm:block">|</span>
-          <Link to="/templates" className="text-stone-400 hover:text-stone-700 text-sm transition flex items-center gap-1.5 flex-shrink-0">
+          <Link to="/templates" className="text-stone-400 hover:text-stone-700 text-sm transition flex items-center gap-1.5 flex-shrink-0" aria-label="Back to templates">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back
+            <span className="hidden sm:inline">Back</span>
           </Link>
         </div>
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Now shown on mobile too — it's a plain link, so unlike Preview it actually
+              works there, and "see my page" is the thing people reach for. */}
           <a href={portfolioUrl} target="_blank" rel="noopener noreferrer">
-            <button className="hidden sm:flex items-center gap-2 border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 px-4 py-2 rounded-xl text-sm font-medium transition">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button className="flex items-center gap-2 border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
-              View live
+              <span className="hidden sm:inline">View live</span>
             </button>
           </a>
+          {/* Desktop only, and not just for space: Preview opens a blob: URL via
+              window.open AFTER an await, so the user-gesture context is gone and mobile
+              browsers block it — iOS Safari refuses blob: in a new tab outright. On a
+              phone this button did nothing at all, with no error. Better absent than
+              broken; "View live" covers the same need there. */}
           <button
             type="button"
             onClick={handlePreview}
             disabled={previewing}
-            className="flex items-center gap-2 border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 px-4 py-2 rounded-xl text-sm font-medium transition disabled:opacity-50"
+            className="hidden sm:flex items-center gap-2 border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 px-4 py-2 rounded-xl text-sm font-medium transition disabled:opacity-50"
           >
             {previewing ? (
               <div className="w-4 h-4 border-2 border-stone-300 border-t-stone-700 rounded-full animate-spin" />
@@ -310,7 +329,7 @@ const EditPortfolio = () => {
             form="edit-form"
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 bg-stone-900 hover:bg-stone-700 disabled:opacity-50 text-white px-5 py-2 rounded-xl text-sm font-semibold transition"
+            className="flex items-center gap-2 bg-stone-900 hover:bg-stone-700 disabled:opacity-50 text-white px-4 sm:px-5 py-2 rounded-xl text-sm font-semibold transition flex-shrink-0"
           >
             {saving ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -319,7 +338,7 @@ const EditPortfolio = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             )}
-            {saving ? 'Saving…' : 'Save changes'}
+            {saving ? 'Saving…' : (<><span className="sm:hidden">Save</span><span className="hidden sm:inline">Save changes</span></>)}
           </button>
         </div>
       </div>

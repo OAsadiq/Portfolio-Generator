@@ -20,6 +20,25 @@ function setCacheHeader(req, res) {
   }
 }
 
+/**
+ * Count one visit to a published page.
+ *
+ * Uses the atomic increment_portfolio_views RPC rather than reading `views` and writing
+ * back value+1. Read-modify-write loses concurrent visits — two people opening a page in
+ * the same moment both read N and both write N+1, so one of them never happened. That's
+ * precisely wrong for the stat traders check to see whether their page is landing.
+ *
+ * Never throws: this runs AFTER the response has been sent, so a failure here must not
+ * turn a served page into an error.
+ */
+async function countView(slug) {
+  try {
+    await supabase.rpc('increment_portfolio_views', { portfolio_slug: slug });
+  } catch (err) {
+    console.error('view count failed for', slug, err?.message);
+  }
+}
+
 export default async function handler(req, res) {
   const { slug, domain } = req.query;
 
@@ -87,12 +106,7 @@ export default async function handler(req, res) {
       setCacheHeader(req, res);
       res.status(200).send(html2);
 
-      // Increment view count after sending response
-      await supabase
-        .from('portfolios')
-        .update({ views: (portfolio.views || 0) + 1 })
-        .eq('slug', portfolio.slug);
-
+      await countView(portfolio.slug);
       return;
     }
 
@@ -101,11 +115,7 @@ export default async function handler(req, res) {
     setCacheHeader(req, res);
     res.status(200).send(html);
 
-    // Increment view count after sending response
-    await supabase
-      .from('portfolios')
-      .update({ views: (portfolio.views || 0) + 1 })
-      .eq('slug', portfolio.slug);
+    await countView(portfolio.slug);
 
   } catch (err) {
     return res.status(500).send(`<h1>Error loading portfolio</h1><pre>${err.message}</pre>`);

@@ -40,11 +40,13 @@ export default async function handler(req, res) {
 
     const html = await data.text();
 
-    try {
-      await supabase.rpc('increment_portfolio_views', { portfolio_slug: slug });
-    } catch (viewErr) {
-      console.log(viewErr);
-    }
+    // NO view increment here, deliberately.
+    //
+    // This route is the OWNER's own "view my page" link — it's linked only from the edit
+    // page and the dashboard; anything shared with other people goes to /p/:slug, which
+    // does the counting. Incrementing here meant an author checking their own work
+    // inflated their own view count, which is the one number they'd read as "did anyone
+    // actually look at this?".
 
     res.setHeader("Content-Type", "text/html");
     // This is the owner's own preview — it must always reflect their last save. Never
