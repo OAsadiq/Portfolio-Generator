@@ -21,55 +21,58 @@ const traderTemplate = {
   usesBuilder: true,   // but still edited in the visual builder
   kit: 'trader-kit',   // unlocked by its own entitlement (template_purchases)
   kitName: 'Trader Kit',
+  // `section` groups these in the form. Without it the form falls back to a name-based
+  // guess written around the minimal template, which dumped the whole track record into
+  // "Additional info" — the most important part of a trader's page, filed under misc.
   fields: [
     // Hero
-    { name: 'fullName',   label: 'Full Name',            type: 'text',  required: true },
-    { name: 'headline',   label: 'Headline',             type: 'text',  placeholder: 'e.g. Forex Trader • 3-Year Track Record' },
-    { name: 'propFirm',   label: 'Prop Firm / Funded Badge (optional)', type: 'text', placeholder: 'e.g. FTMO Funded • $200K' },
-    { name: 'bio',        label: 'Short Bio',            type: 'textarea', placeholder: 'One or two lines on who you are and what you trade.' },
-    { name: 'profileImage', label: 'Profile Photo',      type: 'file' },
-    { name: 'location',   label: 'Location (optional)',  type: 'text',  placeholder: 'e.g. Lagos, Nigeria' },
+    { name: 'fullName',   label: 'Full Name',            type: 'text',  required: true, section: 'hero' },
+    { name: 'headline',   label: 'Headline',             type: 'text',  placeholder: 'e.g. Forex Trader • 3-Year Track Record', section: 'hero' },
+    { name: 'propFirm',   label: 'Prop Firm / Funded Badge (optional)', type: 'text', placeholder: 'e.g. FTMO Funded • $200K', section: 'hero' },
+    { name: 'bio',        label: 'Short Bio',            type: 'textarea', placeholder: 'One or two lines on who you are and what you trade.', section: 'hero' },
+    { name: 'profileImage', label: 'Profile Photo',      type: 'file', section: 'hero' },
+    { name: 'location',   label: 'Location (optional)',  type: 'text',  placeholder: 'e.g. Lagos, Nigeria', section: 'hero' },
 
-    // Track record — the metrics investors scan first
-    { name: 'returnPct',     label: 'Total Return',      type: 'text',  placeholder: 'e.g. +142%' },
-    { name: 'winRate',       label: 'Win Rate',          type: 'text',  placeholder: 'e.g. 68%' },
-    { name: 'profitFactor',  label: 'Profit Factor',     type: 'text',  placeholder: 'e.g. 2.4' },
-    { name: 'maxDrawdown',   label: 'Max Drawdown',      type: 'text',  placeholder: 'e.g. 8.2%' },
-    { name: 'tradingSince',  label: 'Track Record Length', type: 'text', placeholder: 'e.g. 3 years' },
-    { name: 'markets',       label: 'Markets Traded',    type: 'text',  placeholder: 'e.g. Forex, Indices, Crypto' },
+    // Track record — the numbers the page is built around
+    { name: 'returnPct',     label: 'Total Return',      type: 'text',  placeholder: 'e.g. +142%', section: 'track' },
+    { name: 'winRate',       label: 'Win Rate',          type: 'text',  placeholder: 'e.g. 68%', section: 'track' },
+    { name: 'profitFactor',  label: 'Profit Factor',     type: 'text',  placeholder: 'e.g. 2.4', section: 'track' },
+    { name: 'maxDrawdown',   label: 'Max Drawdown',      type: 'text',  placeholder: 'e.g. 8.2%', section: 'track' },
+    { name: 'tradingSince',  label: 'Track Record Length', type: 'text', placeholder: 'e.g. 3 years', section: 'track' },
+    { name: 'markets',       label: 'Markets Traded',    type: 'text',  placeholder: 'e.g. Forex, Indices, Crypto', section: 'track' },
 
     // Proof (flexible — link, uploaded statement, or prop firm)
-    { name: 'verificationUrl', label: 'Track-record / proof link — MyFXBook, broker, prop-firm dashboard (optional)', type: 'text', placeholder: 'https://myfxbook.com/...' },
-    { name: 'equityCurveImage', label: 'Equity Curve / Performance Chart (image)', type: 'file' },
-    { name: 'proofImage', label: 'Proof screenshot — broker statement / verified results (optional)', type: 'file' },
+    { name: 'verificationUrl', label: 'Track-record / proof link — MyFXBook, broker, prop-firm dashboard (optional)', type: 'text', placeholder: 'https://myfxbook.com/...', section: 'proof' },
+    { name: 'equityCurveImage', label: 'Equity Curve / Performance Chart (image)', type: 'file', section: 'proof' },
+    { name: 'proofImage', label: 'Proof screenshot — broker statement / verified results (optional)', type: 'file', section: 'proof' },
 
     // Strategy & risk
-    { name: 'strategy',      label: 'Strategy Summary',  type: 'textarea', placeholder: 'How you trade — style, timeframe, edge — in plain language.' },
-    { name: 'riskProfile',   label: 'Risk Management',   type: 'textarea', placeholder: 'Max drawdown, risk per trade, your rules for protecting capital.' },
+    { name: 'strategy',      label: 'Strategy Summary',  type: 'textarea', placeholder: 'How you trade — style, timeframe, edge — in plain language.', section: 'proof' },
+    { name: 'riskProfile',   label: 'Risk Management',   type: 'textarea', placeholder: 'Max drawdown, risk per trade, your rules for protecting capital.', section: 'proof' },
 
     // Services / offer
-    { name: 'service1Title', label: 'Offer 1 – Title',       type: 'text',  placeholder: 'e.g. Managed Accounts' },
-    { name: 'service1Desc',  label: 'Offer 1 – Description',  type: 'textarea' },
-    { name: 'service2Title', label: 'Offer 2 – Title',       type: 'text',  placeholder: 'e.g. Signals' },
-    { name: 'service2Desc',  label: 'Offer 2 – Description',  type: 'textarea' },
-    { name: 'service3Title', label: 'Offer 3 – Title',       type: 'text',  placeholder: 'e.g. Mentorship' },
-    { name: 'service3Desc',  label: 'Offer 3 – Description',  type: 'textarea' },
+    { name: 'service1Title', label: 'Offer 1 – Title',       type: 'text',  placeholder: 'e.g. Managed Accounts', section: 'services' },
+    { name: 'service1Desc',  label: 'Offer 1 – Description',  type: 'textarea', section: 'services' },
+    { name: 'service2Title', label: 'Offer 2 – Title',       type: 'text',  placeholder: 'e.g. Signals', section: 'services' },
+    { name: 'service2Desc',  label: 'Offer 2 – Description',  type: 'textarea', section: 'services' },
+    { name: 'service3Title', label: 'Offer 3 – Title',       type: 'text',  placeholder: 'e.g. Mentorship', section: 'services' },
+    { name: 'service3Desc',  label: 'Offer 3 – Description',  type: 'textarea', section: 'services' },
 
     // Contact
-    { name: 'email',    label: 'Email Address',   type: 'email', required: true },
-    { name: 'linkedin', label: 'LinkedIn URL',    type: 'text' },
-    { name: 'twitter',  label: 'Twitter / X URL', type: 'text' },
-    { name: 'website',  label: 'Website URL',     type: 'text' },
+    { name: 'email',    label: 'Email Address',   type: 'email', required: true, section: 'contact' },
+    { name: 'linkedin', label: 'LinkedIn URL',    type: 'text', section: 'contact' },
+    { name: 'twitter',  label: 'Twitter / X URL', type: 'text', section: 'contact' },
+    { name: 'website',  label: 'Website URL',     type: 'text', section: 'contact' },
     // Read by collectSocials() like the rest; it was the only named social missing.
-    { name: 'instagram', label: 'Instagram URL',  type: 'text' },
+    { name: 'instagram', label: 'Instagram URL',  type: 'text', section: 'contact' },
 
     // Accent colour. The template already reads primaryColor (falling back to the gold
     // #e0b252), but nothing asked for it — so anyone building on a phone was stuck with
     // the default and had no way to know why.
-    { name: 'primaryColor', label: 'Accent Colour', type: 'color', default: '#e0b252' },
+    { name: 'primaryColor', label: 'Accent Colour', type: 'color', default: '#e0b252', section: 'theme' },
 
     // Optional custom disclaimer
-    { name: 'disclaimerText', label: 'Risk Disclaimer (leave blank for the default)', type: 'textarea' },
+    { name: 'disclaimerText', label: 'Risk Disclaimer (leave blank for the default)', type: 'textarea', section: 'other' },
   ],
 
   // `meta` carries publish-time context the form data doesn't have:

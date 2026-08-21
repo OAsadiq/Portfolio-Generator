@@ -650,15 +650,15 @@ const modernTemplate = {
       placeholder: 'Comma separated — e.g. Nike, Spotify, Airbnb' },
     { name: 'stat1Value', label: 'Stat 1 — number', type: 'text', section: 'other', placeholder: 'e.g. 50+' },
     { name: 'stat1Label', label: 'Stat 1 — label',  type: 'text', section: 'other', placeholder: 'e.g. Projects shipped' },
-    { name: 'stat2Value', label: 'Stat 2 — number', type: 'text', section: 'other' },
-    { name: 'stat2Label', label: 'Stat 2 — label',  type: 'text', section: 'other' },
-    { name: 'stat3Value', label: 'Stat 3 — number', type: 'text', section: 'other' },
-    { name: 'stat3Label', label: 'Stat 3 — label',  type: 'text', section: 'other' },
+    { name: 'stat2Value', label: 'Stat 2 — number', type: 'text', section: 'proof' },
+    { name: 'stat2Label', label: 'Stat 2 — label',  type: 'text', section: 'proof' },
+    { name: 'stat3Value', label: 'Stat 3 — number', type: 'text', section: 'proof' },
+    { name: 'stat3Label', label: 'Stat 3 — label',  type: 'text', section: 'proof' },
 
     // Skills — the template renders up to 6; three is enough to publish from a phone.
-    { name: 'skill1', label: 'Skill 1', type: 'text', section: 'other' },
-    { name: 'skill2', label: 'Skill 2', type: 'text', section: 'other' },
-    { name: 'skill3', label: 'Skill 3', type: 'text', section: 'other' },
+    { name: 'skill1', label: 'Skill 1', type: 'text', section: 'proof' },
+    { name: 'skill2', label: 'Skill 2', type: 'text', section: 'proof' },
+    { name: 'skill3', label: 'Skill 3', type: 'text', section: 'proof' },
 
     // Services
     { name: 'service1Title', label: 'Service 1 — title', type: 'text', section: 'services' },

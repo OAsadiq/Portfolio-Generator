@@ -532,18 +532,18 @@ const professionalWriterTemplate = {
 
     // Experience — this template's spine. It had NO form field for any of it, so a page
     // built outside the visual builder had no work history at all.
-    { name: "exp1Role", label: "Role 1 — job title", type: "text", section: "other" },
-    { name: "exp1Company", label: "Role 1 — company", type: "text", section: "other" },
-    { name: "exp1Period", label: "Role 1 — dates", type: "text", section: "other", placeholder: "e.g. 2023 — now" },
-    { name: "exp1Description", label: "Role 1 — what you did", type: "textarea", section: "other" },
-    { name: "exp2Role", label: "Role 2 — job title", type: "text", section: "other" },
-    { name: "exp2Company", label: "Role 2 — company", type: "text", section: "other" },
-    { name: "exp2Period", label: "Role 2 — dates", type: "text", section: "other" },
-    { name: "exp2Description", label: "Role 2 — what you did", type: "textarea", section: "other" },
-    { name: "exp3Role", label: "Role 3 — job title", type: "text", section: "other" },
-    { name: "exp3Company", label: "Role 3 — company", type: "text", section: "other" },
-    { name: "exp3Period", label: "Role 3 — dates", type: "text", section: "other" },
-    { name: "exp3Description", label: "Role 3 — what you did", type: "textarea", section: "other" },
+    { name: "exp1Role", label: "Role 1 — job title", type: "text", section: "experience" },
+    { name: "exp1Company", label: "Role 1 — company", type: "text", section: "experience" },
+    { name: "exp1Period", label: "Role 1 — dates", type: "text", section: "experience", placeholder: "e.g. 2023 — now" },
+    { name: "exp1Description", label: "Role 1 — what you did", type: "textarea", section: "experience" },
+    { name: "exp2Role", label: "Role 2 — job title", type: "text", section: "experience" },
+    { name: "exp2Company", label: "Role 2 — company", type: "text", section: "experience" },
+    { name: "exp2Period", label: "Role 2 — dates", type: "text", section: "experience" },
+    { name: "exp2Description", label: "Role 2 — what you did", type: "textarea", section: "experience" },
+    { name: "exp3Role", label: "Role 3 — job title", type: "text", section: "experience" },
+    { name: "exp3Company", label: "Role 3 — company", type: "text", section: "experience" },
+    { name: "exp3Period", label: "Role 3 — dates", type: "text", section: "experience" },
+    { name: "exp3Description", label: "Role 3 — what you did", type: "textarea", section: "experience" },
 
     // Services
     { name: "service1Title", label: "Service 1 — title", type: "text", section: "services" },
@@ -572,12 +572,12 @@ const professionalWriterTemplate = {
     { name: "sample3Image", label: "Work 3 — image", type: "file", section: "samples" },
 
     // Education
-    { name: "edu1Title", label: "Education 1 — qualification", type: "text", section: "other" },
-    { name: "edu1School", label: "Education 1 — school", type: "text", section: "other" },
-    { name: "edu1Year", label: "Education 1 — year", type: "text", section: "other" },
-    { name: "edu2Title", label: "Education 2 — qualification", type: "text", section: "other" },
-    { name: "edu2School", label: "Education 2 — school", type: "text", section: "other" },
-    { name: "edu2Year", label: "Education 2 — year", type: "text", section: "other" },
+    { name: "edu1Title", label: "Education 1 — qualification", type: "text", section: "education" },
+    { name: "edu1School", label: "Education 1 — school", type: "text", section: "education" },
+    { name: "edu1Year", label: "Education 1 — year", type: "text", section: "education" },
+    { name: "edu2Title", label: "Education 2 — qualification", type: "text", section: "education" },
+    { name: "edu2School", label: "Education 2 — school", type: "text", section: "education" },
+    { name: "edu2Year", label: "Education 2 — year", type: "text", section: "education" },
 
     // Testimonials
     { name: "testimonial1", label: "Testimonial 1 — quote", type: "textarea", section: "testimonials" },

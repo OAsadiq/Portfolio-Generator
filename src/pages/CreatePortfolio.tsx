@@ -9,6 +9,7 @@ import SharePortfolio from "../components/SharePortfolio";
 import { track, attributionSource } from "../lib/track";
 import { suggestEmailFix } from "../lib/emailTypo";
 import { useIsMobileOnce } from "../lib/useIsMobile";
+import { SECTION_META, groupFields } from "../lib/formSections";
 
 interface TemplateField {
   name: string;
@@ -75,14 +76,9 @@ const StepIndicator = ({ current }: { current: number }) => (
   </div>
 );
 
-const SECTION_META: Record<string, { label: string; icon: string }> = {
-  personal: { label: "About you", icon: "👤" },
-  samples: { label: "Your work", icon: "📎" },
-  services: { label: "Services", icon: "🛠️" },
-  testimonials: { label: "Client testimonials", icon: "💬" },
-  contact: { label: "Contact details", icon: "📧" },
-  other: { label: "Additional info", icon: "📋" },
-};
+// Section labels moved to src/lib/formSections.ts, shared with the edit form. They had
+// drifted already — this copy had a "services" group the edit form didn't, so the same
+// template laid out differently depending on which screen you were on.
 
 const CreatePortfolio = () => {
   const { templateId } = useParams();
@@ -306,21 +302,9 @@ const CreatePortfolio = () => {
     }
   };
 
-  const getFieldSection = (name: string) => {
-    if (["fullName", "role", "bio", "profileImage", "profilePicture", "location", "writerType"].some(k => name.includes(k))) return "personal";
-    if (name.includes("sample")) return "samples";
-    if (name.includes("service")) return "services";
-    if (name.includes("testimonial")) return "testimonials";
-    if (["email", "linkedin", "twitter", "website"].some(k => name.includes(k))) return "contact";
-    return "other";
-  };
-
-  const groupedFields = template?.fields?.reduce((acc, field) => {
-    const section = getFieldSection(field.name);
-    if (!acc[section]) acc[section] = [];
-    acc[section].push(field);
-    return acc;
-  }, {} as Record<string, TemplateField[]>);
+  // Shared with the edit form (src/lib/formSections.ts) and honours each field's declared
+  // `section`, so a template lays out its own form rather than being sorted by a guess.
+  const groupedFields = groupFields(template?.fields || []);
 
   const totalFields = template?.fields?.length || 1;
   const progress = Math.round((completedFields / totalFields) * 100);
@@ -736,14 +720,14 @@ const CreatePortfolio = () => {
 
         {/* Form sections */}
         <form onSubmit={handleSubmit} className="space-y-5">
-          {Object.entries(groupedFields || {}).map(([section, fields]) => {
+          {groupedFields.map(([section, fields]) => {
             const meta = SECTION_META[section] || { label: section, icon: "📋" };
             return (
               <div key={section} className="bg-white border border-stone-200 rounded-2xl p-6">
                 <h2 className="font-bold text-stone-900 text-sm mb-5 flex items-center gap-2">
                   <span>{meta.icon}</span>
                   {meta.label}
-                  {section === "testimonials" && (
+                  {meta.optional && (
                     <span className="text-stone-400 font-normal text-xs ml-1">(optional)</span>
                   )}
                 </h2>

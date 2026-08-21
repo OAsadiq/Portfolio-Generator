@@ -6,6 +6,7 @@ import Logo from '../components/Logo';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useIsMobileOnce } from '../lib/useIsMobile';
+import { SECTION_META, groupFields } from '../lib/formSections';
 
 interface TemplateField {
   name: string;
@@ -21,21 +22,8 @@ interface TemplateField {
 // gets redirected to /builder/:slug below.
 const PROFESSIONAL_TEMPLATES = ['professional-writer-template', 'modern-writer-template', 'trader-template'];
 
-const SECTION_META: Record<string, { label: string; icon: string; optional?: boolean }> = {
-  personal:     { label: 'About you',           icon: '👤' },
-  samples:      { label: 'Your work',            icon: '📎' },
-  testimonials: { label: 'Client testimonials',  icon: '💬', optional: true },
-  contact:      { label: 'Contact details',      icon: '📧' },
-  other:        { label: 'Additional info',      icon: '📋' },
-};
-
-const getSection = (name: string) => {
-  if (['fullName', 'writerType', 'bio', 'profilePicture'].some(k => name.includes(k))) return 'personal';
-  if (name.includes('sample'))      return 'samples';
-  if (name.includes('testimonial')) return 'testimonials';
-  if (['email', 'linkedin', 'twitter'].some(k => name.includes(k))) return 'contact';
-  return 'other';
-};
+// Section labels and grouping now live in src/lib/formSections.ts, shared with the create
+// form so the two can't drift.
 
 const EditPortfolio = () => {
   const { slug } = useParams();
@@ -102,7 +90,27 @@ const EditPortfolio = () => {
         .single();
       if (error) throw error;
       setPortfolio(data);
-      if (Array.isArray(data.template_fields)) {
+
+      // Prefer the LIVE template's fields over the snapshot stored on the row.
+      //
+      // portfolios.template_fields is frozen at publish time, so a page published before a
+      // field existed can never be given a value for it — one live portfolio had 27 stored
+      // fields against the template's current 62, meaning 35 of its sections were simply
+      // unreachable from this form. The stored copy stays as the fallback for a template
+      // that has since been removed.
+      let live: TemplateField[] | null = null;
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`);
+        if (res.ok) {
+          const json = await res.json();
+          const t = (json?.templates || []).find((x: { id: string }) => x.id === data.template_id);
+          if (Array.isArray(t?.fields) && t.fields.length) live = t.fields;
+        }
+      } catch { /* fall back to the stored snapshot below */ }
+
+      if (live) {
+        setTemplateFields(live);
+      } else if (Array.isArray(data.template_fields)) {
         setTemplateFields(data.template_fields);
       } else {
         setTemplateFields(
@@ -261,12 +269,10 @@ const EditPortfolio = () => {
     );
   }
 
-  const groupedFields = templateFields.reduce((acc, field) => {
-    const s = getSection(field.name);
-    if (!acc[s]) acc[s] = [];
-    acc[s].push(field);
-    return acc;
-  }, {} as Record<string, TemplateField[]>);
+  // Grouping lives in src/lib/formSections.ts and honours each field's declared
+  // `section`, so a template controls its own form layout instead of being sorted by a
+  // heuristic written for a different template.
+  const groupedFields = groupFields(templateFields);
 
   const portfolioUrl = `${import.meta.env.VITE_API_URL}/api/templates/preview?slug=${portfolio.slug}`;
 
@@ -377,7 +383,7 @@ const EditPortfolio = () => {
         {/* Form */}
         <form id="edit-form" onSubmit={handleSave} className="space-y-5">
 
-          {Object.entries(groupedFields).map(([section, fields]) => {
+          {groupedFields.map(([section, fields]) => {
             const meta = SECTION_META[section] || { label: section, icon: '📋' };
             return (
               <div key={section} className="bg-white border border-stone-200 rounded-2xl p-6">
