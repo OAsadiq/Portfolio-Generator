@@ -687,9 +687,15 @@ const modernTemplate = {
     { name: 'testimonial2Author', label: 'Testimonial 2 — author', type: 'text', section: 'testimonials' },
     { name: 'testimonial2Role',   label: 'Testimonial 2 — role',   type: 'text', section: 'testimonials' },
 
-    // Contact
+    // Contact. The named socials are read by collectSocials() in ../_social.js — which is
+    // shared, so grepping this file alone makes them look unused. They are not.
     { name: 'email',     label: 'Email Address',    type: 'email', required: true, section: 'contact' },
     { name: 'resumeUrl', label: 'Resume / CV link', type: 'url',   section: 'contact' },
+    { name: 'linkedin',  label: 'LinkedIn URL',     type: 'text',  section: 'contact' },
+    { name: 'twitter',   label: 'Twitter / X URL',  type: 'text',  section: 'contact' },
+    { name: 'instagram', label: 'Instagram URL',    type: 'text',  section: 'contact' },
+    { name: 'github',    label: 'GitHub URL',       type: 'text',  section: 'contact' },
+    { name: 'website',   label: 'Website URL',      type: 'text',  section: 'contact' },
   ],
 };
 

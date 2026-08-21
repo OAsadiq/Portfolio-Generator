@@ -520,10 +520,78 @@ const professionalWriterTemplate = {
     { name: "resumeUrl", label: "Resume / CV link", type: "url", section: "hero" },
     { name: "primaryColor", label: "Primary Color", type: "color", default: "#4f46e5", section: "theme" },
     { name: "accentColor", label: "Accent Color", type: "color", default: "#9333ea", section: "theme" },
+    { name: "location", label: "Location", type: "text", section: "hero", placeholder: "e.g. Lagos, Nigeria" },
+    { name: "statement", label: "Positioning statement", type: "textarea", section: "hero",
+      placeholder: "One line on the value you bring — shown under your headline." },
+
+    // Availability — the highest-intent thing on a freelance page, and one tap to set.
+    { name: "availability", label: 'Show "available for work" badge', type: "select", section: "hero",
+      options: [{ value: "", label: "No" }, { value: "true", label: "Yes" }] },
+    { name: "availabilityText", label: "Availability text", type: "text", section: "hero",
+      placeholder: "Available for work" },
+
+    // Experience — this template's spine. It had NO form field for any of it, so a page
+    // built outside the visual builder had no work history at all.
+    { name: "exp1Role", label: "Role 1 — job title", type: "text", section: "other" },
+    { name: "exp1Company", label: "Role 1 — company", type: "text", section: "other" },
+    { name: "exp1Period", label: "Role 1 — dates", type: "text", section: "other", placeholder: "e.g. 2023 — now" },
+    { name: "exp1Description", label: "Role 1 — what you did", type: "textarea", section: "other" },
+    { name: "exp2Role", label: "Role 2 — job title", type: "text", section: "other" },
+    { name: "exp2Company", label: "Role 2 — company", type: "text", section: "other" },
+    { name: "exp2Period", label: "Role 2 — dates", type: "text", section: "other" },
+    { name: "exp2Description", label: "Role 2 — what you did", type: "textarea", section: "other" },
+    { name: "exp3Role", label: "Role 3 — job title", type: "text", section: "other" },
+    { name: "exp3Company", label: "Role 3 — company", type: "text", section: "other" },
+    { name: "exp3Period", label: "Role 3 — dates", type: "text", section: "other" },
+    { name: "exp3Description", label: "Role 3 — what you did", type: "textarea", section: "other" },
+
+    // Services
+    { name: "service1Title", label: "Service 1 — title", type: "text", section: "services" },
+    { name: "service1Desc", label: "Service 1 — description", type: "textarea", section: "services" },
+    { name: "service2Title", label: "Service 2 — title", type: "text", section: "services" },
+    { name: "service2Desc", label: "Service 2 — description", type: "textarea", section: "services" },
+    { name: "service3Title", label: "Service 3 — title", type: "text", section: "services" },
+    { name: "service3Desc", label: "Service 3 — description", type: "textarea", section: "services" },
+
+    // Work samples. `sampleNContent` (pasted full text) stays builder-only — nobody types
+    // an article into a phone form, and a link or description covers the same job here.
+    { name: "sample1Title", label: "Work 1 — title", type: "text", section: "samples" },
+    { name: "sample1Type", label: "Work 1 — type", type: "text", section: "samples", placeholder: "e.g. Case study" },
+    { name: "sample1Description", label: "Work 1 — description", type: "textarea", section: "samples" },
+    { name: "sample1Link", label: "Work 1 — link", type: "url", section: "samples" },
+    { name: "sample1Image", label: "Work 1 — image", type: "file", section: "samples" },
+    { name: "sample2Title", label: "Work 2 — title", type: "text", section: "samples" },
+    { name: "sample2Type", label: "Work 2 — type", type: "text", section: "samples" },
+    { name: "sample2Description", label: "Work 2 — description", type: "textarea", section: "samples" },
+    { name: "sample2Link", label: "Work 2 — link", type: "url", section: "samples" },
+    { name: "sample2Image", label: "Work 2 — image", type: "file", section: "samples" },
+    { name: "sample3Title", label: "Work 3 — title", type: "text", section: "samples" },
+    { name: "sample3Type", label: "Work 3 — type", type: "text", section: "samples" },
+    { name: "sample3Description", label: "Work 3 — description", type: "textarea", section: "samples" },
+    { name: "sample3Link", label: "Work 3 — link", type: "url", section: "samples" },
+    { name: "sample3Image", label: "Work 3 — image", type: "file", section: "samples" },
+
+    // Education
+    { name: "edu1Title", label: "Education 1 — qualification", type: "text", section: "other" },
+    { name: "edu1School", label: "Education 1 — school", type: "text", section: "other" },
+    { name: "edu1Year", label: "Education 1 — year", type: "text", section: "other" },
+    { name: "edu2Title", label: "Education 2 — qualification", type: "text", section: "other" },
+    { name: "edu2School", label: "Education 2 — school", type: "text", section: "other" },
+    { name: "edu2Year", label: "Education 2 — year", type: "text", section: "other" },
+
+    // Testimonials
+    { name: "testimonial1", label: "Testimonial 1 — quote", type: "textarea", section: "testimonials" },
+    { name: "testimonial1Author", label: "Testimonial 1 — author", type: "text", section: "testimonials" },
+    { name: "testimonial1Role", label: "Testimonial 1 — role", type: "text", section: "testimonials" },
+    { name: "testimonial2", label: "Testimonial 2 — quote", type: "textarea", section: "testimonials" },
+    { name: "testimonial2Author", label: "Testimonial 2 — author", type: "text", section: "testimonials" },
+    { name: "testimonial2Role", label: "Testimonial 2 — role", type: "text", section: "testimonials" },
+
     { name: "email", label: "Email Address", type: "email", required: true, section: "contact" },
     { name: "linkedin", label: "LinkedIn URL", type: "text", section: "contact" },
     { name: "twitter", label: "Twitter/X URL", type: "text", section: "contact" },
     { name: "instagram", label: "Instagram URL", type: "text", section: "contact" },
+    { name: "github", label: "GitHub URL", type: "text", section: "contact" },
     { name: "website", label: "Website", type: "text", section: "contact" },
   ],
   generateHTML,

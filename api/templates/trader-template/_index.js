@@ -60,6 +60,13 @@ const traderTemplate = {
     { name: 'linkedin', label: 'LinkedIn URL',    type: 'text' },
     { name: 'twitter',  label: 'Twitter / X URL', type: 'text' },
     { name: 'website',  label: 'Website URL',     type: 'text' },
+    // Read by collectSocials() like the rest; it was the only named social missing.
+    { name: 'instagram', label: 'Instagram URL',  type: 'text' },
+
+    // Accent colour. The template already reads primaryColor (falling back to the gold
+    // #e0b252), but nothing asked for it — so anyone building on a phone was stuck with
+    // the default and had no way to know why.
+    { name: 'primaryColor', label: 'Accent Colour', type: 'color', default: '#e0b252' },
 
     // Optional custom disclaimer
     { name: 'disclaimerText', label: 'Risk Disclaimer (leave blank for the default)', type: 'textarea' },
