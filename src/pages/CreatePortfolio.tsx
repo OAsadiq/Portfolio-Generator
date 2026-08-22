@@ -9,6 +9,7 @@ import SharePortfolio from "../components/SharePortfolio";
 import { track, attributionSource } from "../lib/track";
 import { suggestEmailFix } from "../lib/emailTypo";
 import { useIsMobileOnce } from "../lib/useIsMobile";
+import { requestDesktopLink } from "../lib/desktopLink";
 import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from "../lib/formSections";
 
 interface TemplateField {
@@ -87,6 +88,9 @@ const CreatePortfolio = () => {
   const [template, setTemplate] = useState<Template | null>(null);
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const [deskOpen, setDeskOpen] = useState(false);
+  const [deskEmail, setDeskEmail] = useState('');
+  const [deskStatus, setDeskStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
   // Restore any saved draft SYNCHRONOUSLY on first render — so a logged-out visitor's
   // work is already there when they come back from signup. Doing this in an effect raced
   // with the auto-save effect and re-renders from auth/template loading, which wiped it.
@@ -712,6 +716,51 @@ const CreatePortfolio = () => {
               laptop whenever you want to change colours, fonts and layout. Nothing you
               enter here is lost.
             </p>
+
+            {/* Offered, not imposed. Deliberately BELOW the "you can do this here" message
+                and never as a gate: when this choice was a wall, three of the first seven
+                people who took it never published at all — the email lands when they're
+                not at a laptop and the moment goes. */}
+            {deskStatus === 'done' ? (
+              <p className="text-emerald-700 text-sm mt-3 font-medium">
+                Sent. Open it on a laptop whenever you're ready — this page stays as it is.
+              </p>
+            ) : deskOpen ? (
+              <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                <input
+                  type="email"
+                  value={deskEmail}
+                  onChange={(e) => { setDeskEmail(e.target.value); if (deskStatus === 'error') setDeskStatus('idle'); }}
+                  placeholder="you@example.com"
+                  className="flex-1 px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm text-stone-900 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                />
+                <button
+                  type="button"
+                  disabled={deskStatus === 'saving'}
+                  onClick={async () => {
+                    setDeskStatus('saving');
+                    try {
+                      await requestDesktopLink(deskEmail, String(templateId));
+                      setDeskStatus('done');
+                    } catch { setDeskStatus('error'); }
+                  }}
+                  className="bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50"
+                >
+                  {deskStatus === 'saving' ? 'Sending…' : 'Send link'}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setDeskOpen(true)}
+                className="mt-2 text-orange-600 hover:text-orange-500 text-sm font-medium underline underline-offset-2"
+              >
+                Prefer the full designer? Email me a link for later
+              </button>
+            )}
+            {deskStatus === 'error' && (
+              <p className="text-red-500 text-xs mt-2">Enter a valid email and try again.</p>
+            )}
           </div>
         )}
 

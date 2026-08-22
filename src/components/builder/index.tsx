@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { Undo, Redo, Palette, Type, Layout, Settings, Monitor, Tablet, Smartphone, AlertCircle, X, Check } from 'lucide-react';
 import { useBuilderState } from './useBuilderState';
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { supabase } from '../../lib/supabase';
-import { track } from '../../lib/track';
+import { requestDesktopLink } from '../../lib/desktopLink';
 import DesignTab from './tabs/DesignTab';
 import ContentTab from './tabs/ContentTab';
 import LayoutTab from './tabs/LayoutTab';
@@ -72,21 +71,11 @@ export default function PortfolioBuilder({ onCancel }: Props) {
   const [remStatus, setRemStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
 
   const sendDesktopLink = async () => {
-    const email = remEmail.toLowerCase().trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setRemStatus('error'); return; }
     setRemStatus('saving');
     try {
-      // A DB webhook on this table fires the "finish on desktop" email (via /api/notify/domain).
-      const { error } = await supabase.from('desktop_reminders').insert({
-        email,
-        resume_url: typeof window !== 'undefined' ? window.location.href : null,
-        template_id: state.selectedTemplate,
-      });
-      if (error) throw error;
-      // Also add them to the marketing list (they gave us their email). Ignore duplicates.
-      await supabase.from('newsletter_subscribers').insert({ email, source: 'desktop_reminder', is_active: true });
+      // Shared with the mobile create form — see src/lib/desktopLink.ts.
+      await requestDesktopLink(remEmail, state.selectedTemplate);
       setRemStatus('done');
-      track('desktop_link_requested', { template: state.selectedTemplate });
     } catch {
       setRemStatus('error');
     }
