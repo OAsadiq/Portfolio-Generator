@@ -11,6 +11,7 @@ import { computeMetrics } from '../../api/_lib/metrics.js';
 // Shared, unit-tested CSV import (api/_lib/tradeCsv.js). A trader with real history won't
 // hand-log hundreds of trades, so this is what makes the journal usable for them.
 import { parseTradeCsv } from '../../api/_lib/tradeCsv.js';
+import { extractLinks } from '../../api/_lib/noteLinks.js';
 // Trading performance calendar — same closed-only, net-of-fees maths as the metrics, so
 // the calendar can never disagree with the headline numbers.
 import { monthGrid, activeMonths } from '../../api/_lib/calendar.js';
@@ -36,6 +37,7 @@ type Trade = {
   pnl: number | null;
   fees: number | null;
   notes: string | null;
+  screenshot_url?: string | null;
 };
 
 const EMPTY_FORM = {
@@ -49,6 +51,7 @@ const EMPTY_FORM = {
   pnl: '',
   fees: '',
   notes: '',
+  screenshot_url: '',
 };
 
 /** <input type="datetime-local"> wants 'YYYY-MM-DDTHH:mm' in LOCAL time. */
@@ -124,6 +127,7 @@ const TradeJournal = () => {
   const [calMonth, setCalMonth] = useState<{ year: number; month: number } | null>(null);
   const [csvPreview, setCsvPreview] = useState<ImportPreview | null>(null);
   const [importing, setImporting] = useState(false);
+  const [shotUploading, setShotUploading] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
   type Mover = { symbol: string; price: number; changePct: number; major: boolean };
@@ -146,9 +150,12 @@ const TradeJournal = () => {
     setTimeout(() => setToast(null), 2500);
   };
 
+  // Keyed on the user's ID, not the user object — belt and braces with the identity fix
+  // in AuthContext. Reloading here unmounts the page and loses the scroll position.
   useEffect(() => {
     if (user) load();
-  }, [slug, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, user?.id]);
 
   // Market panel. Failure is silent on purpose — it's decoration on a page that matters,
   // so a dead feed leaves no trace rather than an error box next to someone's P&L.
@@ -395,6 +402,8 @@ const TradeJournal = () => {
     pnl: numToStr(t.pnl),
     fees: numToStr(t.fees),
     notes: t.notes || '',
+    // Without this, editing a trade and saving would blank an existing screenshot.
+    screenshot_url: t.screenshot_url || '',
   });
 
   const focusForm = () => {
@@ -422,6 +431,37 @@ const TradeJournal = () => {
     setFormError(null);
   };
 
+  /**
+   * Attach a chart screenshot to the trade being logged.
+   *
+   * Goes to the same `images` bucket as profile photos, under the user's own folder, so
+   * no new storage policy is needed. The size cap is here rather than server-side because
+   * a phone camera photo is routinely 5-10MB and the useful thing is to say so before a
+   * slow upload, not after.
+   */
+  const uploadScreenshot = async (file: File | null) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { setFormError('That file isn\'t an image.'); return; }
+    if (file.size > 5 * 1024 * 1024) {
+      setFormError(`That image is ${(file.size / 1024 / 1024).toFixed(1)}MB — the limit is 5MB.`);
+      return;
+    }
+    setShotUploading(true);
+    setFormError(null);
+    try {
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+      const path = `trade-screenshots/${user!.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('images').upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from('images').getPublicUrl(path);
+      setForm((f) => ({ ...f, screenshot_url: data.publicUrl }));
+    } catch (err: any) {
+      setFormError(err?.message || 'Could not upload that image.');
+    } finally {
+      setShotUploading(false);
+    }
+  };
+
   const submitTrade = async (e: React.FormEvent) => {
     e.preventDefault();
     const v = validate();
@@ -441,6 +481,7 @@ const TradeJournal = () => {
         pnl: numOrNull(form.pnl),
         fees: numOrNull(form.fees) ?? 0,
         notes: form.notes.trim() || null,
+        screenshot_url: form.screenshot_url || null,
       };
 
       if (editingId) {
@@ -832,7 +873,9 @@ const TradeJournal = () => {
                         return (
                           <div
                             key={cell.date}
-                            title={traded ? `${cell.date}: ${cell.pnl > 0 ? '+' : ''}${cell.pnl} · ${cell.trades} ${cell.trades === 1 ? 'trade' : 'trades'}` : cell.date}
+                            title={traded
+                              ? `${cell.date}: ${cell.pnl > 0 ? '+' : ''}${cell.pnl} · ${cell.trades} ${cell.trades === 1 ? 'trade' : 'trades'} · ${cell.wins}W ${cell.losses}L`
+                              : cell.date}
                             className={`aspect-[4/3] rounded-lg border p-1.5 flex flex-col justify-between relative ${
                               traded ? (up ? 'border-emerald-200' : down ? 'border-red-200' : 'border-stone-200') : 'border-stone-100'
                             }`}
@@ -848,9 +891,23 @@ const TradeJournal = () => {
                                 <span className={`text-[11px] sm:text-xs font-bold tabular-nums leading-none ${up ? 'text-emerald-700' : down ? 'text-red-600' : 'text-stone-500'}`}>
                                   {fmtCompact(cell.pnl)}
                                 </span>
-                                {/* Trade-count dot — how busy the day was, without more numbers. */}
+                                {/* Trade count and the win/loss split. The dot alone made you
+                                    hover to learn anything; a day that was +$300 across one
+                                    trade and one that was +$300 across six losses and a
+                                    winner are different days, and you should see which
+                                    without touching the cell.
+                                    Below sm the cells are too small for text, so the dot
+                                    stays there and this takes over from sm up. */}
+                                <span className="hidden sm:flex items-center gap-1 text-[9px] leading-none tabular-nums text-stone-500">
+                                  <span>{cell.trades}{cell.trades === 1 ? ' trade' : ' trades'}</span>
+                                  {(cell.wins > 0 || cell.losses > 0) && (
+                                    <span className="text-stone-300">·</span>
+                                  )}
+                                  {cell.wins > 0 && <span className="text-emerald-600 font-semibold">{cell.wins}W</span>}
+                                  {cell.losses > 0 && <span className="text-red-500 font-semibold">{cell.losses}L</span>}
+                                </span>
                                 <span
-                                  className={`absolute bottom-1 right-1 rounded-full ${up ? 'bg-emerald-500' : down ? 'bg-red-400' : 'bg-stone-300'}`}
+                                  className={`sm:hidden absolute bottom-1 right-1 rounded-full ${up ? 'bg-emerald-500' : down ? 'bg-red-400' : 'bg-stone-300'}`}
                                   style={{ width: 4 + Math.min(cell.trades - 1, 3), height: 4 + Math.min(cell.trades - 1, 3) }}
                                   title={`${cell.trades} ${cell.trades === 1 ? 'trade' : 'trades'}`}
                                 />
@@ -1258,9 +1315,53 @@ const TradeJournal = () => {
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 rows={2}
-                placeholder="What was the setup? What did you learn?"
+                placeholder="What was the setup? What did you learn? Paste a chart link — it'll become a button."
                 className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 placeholder:text-stone-300 transition resize-none"
               />
+            </div>
+
+            {/* Chart screenshot. Same privacy line as notes: this is for the trader's own
+                review, not the published page. */}
+            <div>
+              <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wide">
+                Chart screenshot <span className="text-stone-400 font-normal normal-case">(optional, private)</span>
+              </label>
+
+              {form.screenshot_url ? (
+                <div className="flex items-start gap-3">
+                  <img src={form.screenshot_url} alt="Trade screenshot" className="h-20 rounded-lg border border-stone-200" />
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, screenshot_url: '' }))}
+                    className="text-xs font-semibold text-stone-500 hover:text-red-500 transition"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <label className={`flex items-center justify-center gap-2 border border-dashed border-stone-300 rounded-xl px-4 py-4 text-sm transition ${shotUploading ? 'opacity-60' : 'cursor-pointer hover:border-stone-400 hover:bg-stone-50'}`}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={shotUploading}
+                    onChange={(e) => { uploadScreenshot(e.target.files?.[0] || null); e.target.value = ''; }}
+                  />
+                  {shotUploading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" />
+                      <span className="text-stone-500">Uploading…</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16l5-5 4 4 3-3 6 6M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" />
+                      </svg>
+                      <span className="text-stone-500">Add a screenshot of the chart</span>
+                    </>
+                  )}
+                </label>
+              )}
             </div>
 
             {formError && <p className="text-red-500 text-sm">{formError}</p>}
@@ -1357,15 +1458,53 @@ const TradeJournal = () => {
                     </tr>
                     {/* The note, shown under its trade. Reviewing your own notes is the
                         point of a journal — a note you can't see afterwards is worthless. */}
-                    {t.notes && (
-                      <tr>
-                        <td colSpan={7} className="pb-3 pt-0">
-                          <p className="text-stone-500 text-xs leading-relaxed bg-stone-50 border-l-2 border-stone-200 pl-3 py-2 rounded-r whitespace-pre-wrap">
-                            {t.notes}
-                          </p>
-                        </td>
-                      </tr>
-                    )}
+                    {(t.notes || t.screenshot_url) && (() => {
+                      // Links are lifted out of the prose and listed underneath. Inline
+                      // linkifying breaks the sentence and a 120-character chart URL wraps
+                      // badly in a table cell; as its own row it's a thing you click.
+                      const { text: noteText, links } = extractLinks(t.notes || '');
+                      return (
+                        <tr>
+                          <td colSpan={7} className="pb-3 pt-0">
+                            <div className="bg-stone-50 border-l-2 border-stone-200 pl-3 py-2 rounded-r space-y-2">
+                              {noteText && (
+                                <p className="text-stone-500 text-xs leading-relaxed whitespace-pre-wrap">{noteText}</p>
+                              )}
+                              {links.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                  {links.map((l) => (
+                                    <a
+                                      key={l.href}
+                                      href={l.href}
+                                      target="_blank"
+                                      // noreferrer as well as noopener: these are links a
+                                      // trader pasted, not ones we vouch for.
+                                      rel="noopener noreferrer nofollow"
+                                      className="inline-flex items-center gap-1.5 text-xs font-medium text-orange-600 hover:text-orange-500 bg-white border border-stone-200 rounded-lg px-2.5 py-1 transition max-w-full"
+                                    >
+                                      <svg className="w-3 h-3 flex-none" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656l-3 3a4 4 0 01-5.656-5.656l1.5-1.5M10.172 13.828a4 4 0 010-5.656l3-3a4 4 0 015.656 5.656l-1.5 1.5" />
+                                      </svg>
+                                      <span className="truncate">{l.label}</span>
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                              {t.screenshot_url && (
+                                <a href={t.screenshot_url} target="_blank" rel="noopener noreferrer" className="block w-fit">
+                                  <img
+                                    src={t.screenshot_url}
+                                    alt="Trade screenshot"
+                                    loading="lazy"
+                                    className="max-h-40 rounded-lg border border-stone-200 hover:border-stone-300 transition"
+                                  />
+                                </a>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })()}
                     </Fragment>
                   ))}
                 </tbody>

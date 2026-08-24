@@ -234,9 +234,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    // Keep the SAME user object when it's the same person.
+    //
+    // Supabase refreshes the access token whenever a tab regains focus, and every refresh
+    // fires onAuthStateChange with a newly-constructed user object. Assigning it blindly
+    // changed the reference on every tab switch, so any `useEffect(..., [user])` in the
+    // app re-ran and refetched — the Trade Journal blanked to a spinner and came back
+    // scrolled to the top, which is brutal if you're switching between here and a chart.
+    //
+    // The session still updates (it carries the new token); only the user identity is
+    // held stable.
+    const applyUser = (next: any) => {
+      setUser((prev: any) => (prev && next && prev.id === next.id ? prev : next ?? null));
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setUser(session?.user ?? null);
+      applyUser(session?.user ?? null);
       setLoading(false);
     });
 
@@ -244,7 +258,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      setUser(session?.user ?? null);
+      applyUser(session?.user ?? null);
       setLoading(false);
     });
 
