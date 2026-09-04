@@ -24,7 +24,7 @@ const TraderKit = () => {
     // The product is Porfilr Journal — a module inside Porfilr, not a rename of it.
     title: 'Porfilr Journal — a trading journal for forex & crypto',
     description: 'A trading journal that turns your trades into an equity curve, a P&L calendar and real stats — so you can spot your patterns and improve. Founding price for the first 20 traders, then it goes monthly.',
-    canonical: 'https://porfilr.com/trader-kit',
+    canonical: 'https://porfilr.com/trading-journal',
   });
 
   const [stats, setStats] = useState<{ claimed: number; limit: number; spotsLeft: number; open: boolean } | null>(null);
@@ -108,18 +108,38 @@ const TraderKit = () => {
           And when you want one, it gives you a page to share — updating itself as you trade.
         </p>
 
-        {/* Live counter */}
-        {stats && (
-          <div className="max-w-sm mx-auto mb-8">
-            <div className="h-2 bg-stone-200 rounded-full overflow-hidden">
+        {/* Founding offer — a scarcity meter, not a popularity meter.
+            This used to fill by spots CLAIMED, which at 1 of 20 rendered a 5% bar and
+            told every visitor that one person had bought it. Filling by spots REMAINING
+            is equally true and says the thing that's actually relevant: this price is
+            finite. The bar drains as spots go, so it keeps working as numbers grow. */}
+        {stats && stats.open && (
+          <div className="max-w-md mx-auto mb-8">
+            <div className="flex items-baseline justify-between mb-2">
+              <p className="text-sm text-stone-700">
+                <span className="font-bold text-stone-900">{stats.spotsLeft}</span> of {stats.limit} founding
+                {' '}{stats.spotsLeft === 1 ? 'spot' : 'spots'} left
+              </p>
+              <p className="text-xs text-stone-400">
+                {Math.round((stats.spotsLeft / stats.limit) * 100)}% remaining
+              </p>
+            </div>
+
+            <div className="h-2 bg-stone-200 rounded-full overflow-hidden" role="img"
+              aria-label={`${stats.spotsLeft} of ${stats.limit} founding spots remaining`}>
               <div
-                className="h-full bg-orange-500 rounded-full transition-all"
-                style={{ width: `${Math.min(100, (stats.claimed / stats.limit) * 100)}%` }}
+                className="h-full bg-orange-500 rounded-full transition-all duration-700"
+                style={{ width: `${Math.max(0, Math.min(100, (stats.spotsLeft / stats.limit) * 100))}%` }}
               />
             </div>
-            <p className="text-stone-500 text-sm mt-2">
-              <span className="font-bold text-stone-900">{stats.claimed}</span> of {stats.limit} founding spots claimed
-            </p>
+
+            {/* What the bar actually MEANS. A counter with no consequence attached is
+                decoration — this says what changes when it runs out. */}
+            <div className="flex items-center justify-center gap-2 mt-3 text-sm">
+              <span className="font-semibold text-stone-900">$35 once, forever</span>
+              <span className="text-stone-300">→</span>
+              <span className="text-stone-500">then it moves to a monthly plan</span>
+            </div>
           </div>
         )}
 
@@ -132,8 +152,8 @@ const TraderKit = () => {
               Start free — no card
             </button>
             <p className="text-stone-500 text-sm mt-3">
-              Log or import your first 25 trades free. Unlock unlimited for a one-time founding
-              price — lifetime access, no subscription.
+              Log or import your first 15 trades free — the calendar, equity curve and your real
+              numbers, all included. Unlock unlimited for a one-time founding price.
             </p>
           </>
         ) : (

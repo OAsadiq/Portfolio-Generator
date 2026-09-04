@@ -35,7 +35,7 @@ interface Template {
 const STEPS = ["Pick a template", "Add your details", "Portfolio is live"];
 
 // A locked kit routes to its founding/claim page rather than the bare paywall.
-const KIT_CLAIM_PATH: Record<string, string> = { 'trader-template': '/trader-kit' };
+const KIT_CLAIM_PATH: Record<string, string> = { 'trader-template': '/trading-journal' };
 
 const StepIndicator = ({ current }: { current: number }) => (
   <div className="flex items-center justify-center gap-0 mb-10">

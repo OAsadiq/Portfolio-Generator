@@ -3,6 +3,12 @@
 
   "redirects": [
     {
+      "comment": "Porfilr Journal's canonical URL. /trader-kit is the old name and still has live links pointing at it — Ayo's tracked links via /r/ayo, anything already shared, and every graphic printed so far. A permanent redirect keeps those working and hands the SEO to the new path instead of splitting it across two.",
+      "source": "/trader-kit",
+      "destination": "/trading-journal",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "www.porfilr.com" }],
       "destination": "https://porfilr.com/:path*",

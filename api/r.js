@@ -13,20 +13,20 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 
 // Short code -> where it lands + the utm_content it tags visitors with.
 //
-// The team links land on /trader-kit because 100% of current content is trader content —
+// The team links land on the Journal page because 100% of current content is trader content —
 // a trader arriving from a track-record conversation and landing on a generic portfolio
 // homepage bounces (we measured exactly that: 42 real visitors, 0 onward clicks).
 // Use the `gen` link when talking to non-trader creators.
 const CODES = {
-  c1: { utm: 'team_c1', path: '/trader-kit' },
-  c2: { utm: 'team_c2', path: '/trader-kit' },
+  c1: { utm: 'team_c1', path: '/trading-journal' },
+  c2: { utm: 'team_c2', path: '/trading-journal' },
   // General-audience links — same people, non-trader conversations.
   g1: { utm: 'team_c1_gen', path: '/' },
   g2: { utm: 'team_c2_gen', path: '/' },
 
   // Ayo — growth (retainer + 25% commission on founding kit sales). Attribution for her
   // commission runs off this link, so it must stay hers alone.
-  ayo: { utm: 'ayo', path: '/trader-kit' },
+  ayo: { utm: 'ayo', path: '/trading-journal' },
   ayog: { utm: 'ayo_gen', path: '/' },
 };
 

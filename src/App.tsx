@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import LoginPage from './components/Auth/LoginPage';
@@ -48,7 +48,10 @@ function App() {
             {/* Public so visitors can browse/preview templates before signing up.
                 The "Use this" action gates on login (via /create being protected). */}
             <Route path="/templates" element={<TemplateSelection />} />
-            <Route path="/trader-kit" element={<TraderKit />} />
+            <Route path="/trading-journal" element={<TraderKit />} />
+            {/* Old path. Vercel 301s this in production; the client route is the fallback
+                for local dev and for anyone already inside the SPA. */}
+            <Route path="/trader-kit" element={<Navigate to="/trading-journal" replace />} />
             {/* Public: logged-out visitors can fill a template in and only hit the
                 signup wall at Publish. CreatePortfolio still shows the Pro/kit paywall
                 for paid templates, so only the free Minimal form is truly open. */}

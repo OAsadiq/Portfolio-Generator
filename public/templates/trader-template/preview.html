@@ -14,6 +14,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+    /* Hide the scrollbar without disabling scrolling.
+       This file is embedded in an iframe on the Journal product page, where a native
+       scrollbar down the middle of the layout breaks the illusion that you're looking at
+       a real published page. Scrolling still works — wheel, trackpad, touch and keyboard
+       are all untouched; only the visual track is gone.
+       It has to live HERE rather than on the iframe element: an iframe's scrollbar belongs
+       to the document inside it, so no CSS on the parent page can reach it. */
+    html{scrollbar-width:none;-ms-overflow-style:none}
+    html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
     :root{
       --accent:#e0b252;
       --bg:#08080a;--bg2:#131317;--bg3:#1a1a20;--line:#26262e;--line2:#33333d;
