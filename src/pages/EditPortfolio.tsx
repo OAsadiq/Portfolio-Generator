@@ -576,19 +576,9 @@ const EditPortfolio = () => {
             </button>
           )}
 
-          {/* Bottom save — convenience duplicate for long forms */}
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full bg-stone-900 hover:bg-stone-700 disabled:opacity-50 text-white py-4 rounded-xl font-bold text-sm transition"
-          >
-            {saving ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Saving…
-              </span>
-            ) : 'Save changes'}
-          </button>
+          {/* Only one Save. The sticky header already has one and it's visible the whole
+              way down the form — a second at the bottom just made people wonder whether
+              the two did different things. */}
 
           <p className="text-center text-stone-400 text-xs pb-4">
             Changes go live on your portfolio immediately after saving.

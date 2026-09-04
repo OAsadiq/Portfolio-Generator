@@ -1012,10 +1012,7 @@ const CreatePortfolio = () => {
             </div>
           )}
 
-          {/* Preview, above Publish.
-              Deliberately not only at the bottom — see the sticky bar below. Someone
-              filling a long form wants to check their work partway through, not once
-              they've finished everything. */}
+          {/* Preview, directly above Publish — look, then publish. */}
           <button
             type="button"
             onClick={openPreview}
@@ -1050,23 +1047,10 @@ const CreatePortfolio = () => {
         </form>
       </div>
 
-      {/* Sticky preview, phones only.
-          The button inside the form is at the bottom of ~30 fields; on a phone that's a
-          long way from wherever you're typing. This keeps "show me what I've got" one tap
-          away throughout, which is the thing the desktop builder gives for free by having
-          the canvas permanently on screen.
-          Hidden while the sheet is open so it can't sit on top of the preview. */}
-      {isMobile && !previewOpen && (
-        <div className="fixed bottom-0 inset-x-0 z-40 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 bg-gradient-to-t from-stone-50 via-stone-50 to-transparent pointer-events-none">
-          <button
-            type="button"
-            onClick={openPreview}
-            className="pointer-events-auto w-full bg-white border border-stone-300 shadow-lg text-stone-800 py-3.5 rounded-xl font-semibold text-sm transition active:scale-[0.99]"
-          >
-            Preview my page
-          </button>
-        </div>
-      )}
+      {/* The floating preview bar was removed. It sat over the page on every template's
+          create form, duplicating the inline button just above Publish — two identical
+          controls, one of them permanently covering the bottom of the screen. The inline
+          one is the keeper: it's in the flow, next to the button it precedes. */}
 
       <PreviewSheet
         open={previewOpen}
