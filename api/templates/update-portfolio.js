@@ -159,10 +159,24 @@ export default async function handler(req, res) {
       .from('portfolios')
       .update({
         form_data: formData,
-        sections: sections, 
+        sections: sections,
         user_name: formData.fullName || portfolio.user_name,
         user_email: formData.email || portfolio.user_email,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        // Saving from the builder publishes the page, so a draft becomes live here.
+        //
+        // The builder routes to update-portfolio whenever it has a slug — which a
+        // journal-first user always does, because /journal created their draft. Without
+        // this the HTML was written and the page served, but the row stayed 'draft': the
+        // dashboard kept saying "Journal only — publish one" for a page that was already
+        // published, and /p/:slug 404'd because it filters on status='active'.
+        status: 'active',
+        // Required: sql/012 enforces that an ACTIVE row has a file_path, so a page can
+        // never be marked live with nothing to serve. A draft's file_path is null until
+        // this first publish writes the HTML above.
+        file_path: filePath,
+        deployed_url: portfolio.deployed_url || `https://porfilr.com/p/${slug}`,
+        deployed_at: portfolio.deployed_at || new Date().toISOString(),
       })
       .eq('slug', slug)
       .eq('user_id', user.id);
