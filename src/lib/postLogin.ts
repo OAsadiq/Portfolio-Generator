@@ -33,6 +33,17 @@ export async function postLoginPath(userId: string, explicit?: string | null): P
   if (target) return target;
 
   try {
+    // A kit owner goes to their journal. It's the product they bought and the thing they
+    // came back for — the dashboard and the template grid are both a detour on the way.
+    // /journal resolves or creates it, so this holds whether or not they have a page.
+    const { data: kit } = await supabase
+      .from('template_purchases')
+      .select('template_id')
+      .eq('user_id', userId)
+      .eq('template_id', 'trader-template')
+      .maybeSingle();
+    if (kit) return '/journal';
+
     const { data, error } = await supabase
       .from('portfolios')
       .select('id')

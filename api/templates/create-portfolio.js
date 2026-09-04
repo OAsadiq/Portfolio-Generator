@@ -90,12 +90,26 @@ export default async function handler(req, res) {
 
         const { data: existingPortfolios, error: portfolioError } = await supabase
             .from('portfolios')
-            .select('id, template_id')
+            .select('id, template_id, status')
             .eq('user_id', user.id);
 
         if (portfolioError) {
             console.error(portfolioError);
         }
+
+        // ── Adopt an existing draft ──
+        // A journal-first user already has a portfolios row for this template with
+        // status='draft' — it was created so the journal had somewhere to live, and it
+        // holds their trades. Publishing must UPDATE that row, not insert a second one:
+        // a duplicate would strand the trades on the invisible draft and count against
+        // the user's slot allowance.
+        const { data: draft } = await supabase
+            .from('portfolios')
+            .select('id, slug')
+            .eq('user_id', user.id)
+            .eq('template_id', templateId)
+            .eq('status', 'draft')
+            .maybeSingle();
 
         // ── Portfolio slots ──
         // Slots are TYPED, not a pooled count. Everyone gets one general slot, and each kit
@@ -113,6 +127,10 @@ export default async function handler(req, res) {
         const kitSlotsTaken = new Set();
         let generalSlotsUsed = 0;
         for (const p of existingPortfolios || []) {
+            // A draft is a journal with no published page. It occupies no slot — otherwise
+            // simply opening the journal would consume the user's one free portfolio and
+            // they'd be told they were out of room before publishing anything.
+            if (p.status === 'draft') continue;
             const t = templates[p.template_id];
             if (t && t.kit && !kitSlotsTaken.has(p.template_id)) {
                 kitSlotsTaken.add(p.template_id);
@@ -224,6 +242,37 @@ export default async function handler(req, res) {
             }
 
             urlData = supabase.storage.from('portfolios').getPublicUrl(filePath).data;
+
+            // Adopting the draft: same columns, but an UPDATE so the row's id — and the
+            // trades already pointing at it — survive. The slug is rewritten here because
+            // a draft's slug was auto-generated before we knew the trader's name, and
+            // nothing links to it yet.
+            if (draft) {
+                const { data, error: updErr } = await supabase
+                    .from('portfolios')
+                    .update({
+                        slug: slug,
+                        user_name: userName,
+                        user_email: userEmail,
+                        template_fields: template.fields,
+                        file_path: filePath,
+                        form_data: formData,
+                        sections: sections || [],
+                        deployed_url: `https://porfilr.com/p/${slug}`,
+                        deployed_at: new Date().toISOString(),
+                        status: 'active',
+                    })
+                    .eq('id', draft.id)
+                    .select()
+                    .single();
+
+                if (!updErr) { portfolio = data; break; }
+                if (updErr.code === '23505') {
+                    slug = `${createSlug(userName) || 'portfolio'}-${Math.random().toString(36).slice(2, 6)}`;
+                    continue;
+                }
+                return res.status(500).json({ error: 'Failed to publish portfolio', details: updErr.message });
+            }
 
             const { data, error: insertError } = await supabase
                 .from('portfolios')

@@ -28,12 +28,19 @@ function html(name) {
     <p>${name ? `Hi ${name},` : 'Hi,'}</p>
     <p>Quick one — there's a new feature in your Trader Kit: a <strong>trading calendar</strong>.</p>
     <p style="color:#4f5661;">
-      It's a month view of your trading days, with each day coloured by profit or loss. It answers
-      the question investors actually care about at a glance: are you <em>consistent</em>, or is one
-      big day carrying a wall of red?
+      It's a month view of your trading days, each one coloured by profit or loss, with the number of
+      trades and your wins and losses on the day. The thing it's actually good for is spotting your
+      own patterns — the days of the week you keep giving it back, or whether one big day is carrying
+      a wall of red.
     </p>
     <p style="color:#4f5661;">
       It's in your Journal now, built from the trades you've already logged — nothing to set up.
+    </p>
+    <p style="color:#4f5661;">
+      Two other things landed while I was in there: you can now <strong>import your history</strong>
+      straight from Bybit, MEXC, Binance, MT4, MT5 or cTrader instead of typing trades in one by one —
+      and the whole thing <strong>works on your phone</strong> now, including building and editing your
+      page.
     </p>
     <p style="color:#4f5661;">
       You can also <strong>show it on your public page</strong> if you want. That's off by default and
@@ -53,11 +60,16 @@ function text(name) {
 
 Quick one — there's a new feature in your Trader Kit: a TRADING CALENDAR.
 
-It's a month view of your trading days, each coloured by profit or loss. It answers the
-question investors care about at a glance: are you consistent, or is one big day carrying a
-wall of red?
+It's a month view of your trading days, each coloured by profit or loss, with the number of
+trades and your wins and losses on the day. The thing it's actually good for is spotting your
+own patterns — the days you keep giving it back, or whether one big day is carrying a wall of
+red.
 
 It's in your Journal now, built from trades you've already logged — nothing to set up.
+
+Two other things landed while I was in there: you can now import your history straight from
+Bybit, MEXC, Binance, MT4, MT5 or cTrader instead of typing trades in one by one — and the
+whole thing works on your phone now, including building and editing your page.
 
 You can also show it on your public page if you want. That's off by default and completely
 your call. If you turn it on, it shows the colours and your green/red day counts — never your
@@ -117,4 +129,11 @@ for (const o of pending) {
   }
 }
 
-console.log(`\nDone. ${sent} sent, ${skipped} skipped, ${failed} failed.`);
+// "sent" in a dry run means "would have been sent" — saying it plainly, because the old
+// wording printed "8 sent" after a preview that delivered nothing, which is exactly how
+// someone concludes the emails already went out.
+console.log(
+  DRY
+    ? `\nDry run — nothing was sent. ${sent} would be emailed, ${skipped} skipped, ${failed} failed.`
+    : `\nDone. ${sent} sent, ${skipped} skipped, ${failed} failed.`
+);

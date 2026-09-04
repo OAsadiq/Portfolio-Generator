@@ -14,6 +14,7 @@ import TemplateSuccess from './pages/TemplateSuccess';
 import ProDashboard from './pages/ProDashboard';
 import EditPortfolio from './pages/EditPortfolio';
 import TradeJournal from './pages/TradeJournal';
+import JournalEntry from './pages/JournalEntry';
 import PortfolioVisualBuilder from './components/PortfolioVisualBuilder';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import PricingPage from './pages/Pricing';
@@ -75,6 +76,13 @@ function App() {
             <Route path="/builder/:slug" element={
               <ProtectedRoute>
                 <PortfolioVisualBuilder />
+              </ProtectedRoute>
+            } />
+            {/* Bare /journal resolves (or creates) the user's journal and redirects, so
+                a trader can start logging without publishing a page first. */}
+            <Route path="/journal" element={
+              <ProtectedRoute>
+                <JournalEntry />
               </ProtectedRoute>
             } />
             <Route path="/journal/:slug" element={

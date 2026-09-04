@@ -49,6 +49,8 @@ const TemplateSuccess = () => {
   }, [templateId, user, navigate, checkSubscription]);
 
   const startBuilding = () => navigate(`/create/${templateId}`);
+  // /journal finds or creates their journal, so this works whether or not they have a page.
+  const startJournal = () => navigate('/journal');
 
   return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
@@ -76,15 +78,26 @@ const TemplateSuccess = () => {
             {verifying && !confirmed
               ? "Unlocking your kit, just a moment…"
               : confirmed
-                ? "Everything's ready — build your page, log your trades, and put a live track record in front of investors."
-                : "Thank you! Your kit is being unlocked — this can take a few seconds. You can start building now."}
+                ? "Everything's ready. Import your history or log your first trade — your calendar, equity curve and win rate build themselves from there."
+                : "Thank you! Your kit is being unlocked — this can take a few seconds. You can start now."}
           </p>
 
+          {/* Straight to the journal, not the page builder.
+              Someone who just paid should reach the thing that does the work within one
+              click. Sending them to build a page first is the order that left most kit
+              owners never logging a trade — and a page is worth more once there's
+              something to put on it. */}
           <button
-            onClick={startBuilding}
+            onClick={startJournal}
             className="w-full bg-orange-600 hover:bg-orange-500 text-white font-semibold py-3 rounded-xl transition mb-3 text-sm"
           >
-            Start building
+            Open my journal
+          </button>
+          <button
+            onClick={startBuilding}
+            className="w-full border border-stone-200 hover:bg-stone-50 text-stone-700 font-medium py-3 rounded-xl transition mb-3 text-sm"
+          >
+            Build my page instead
           </button>
           <Link to="/dashboard" className="text-stone-400 hover:text-stone-700 text-sm transition">
             Go to dashboard

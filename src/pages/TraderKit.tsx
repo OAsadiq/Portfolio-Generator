@@ -20,7 +20,9 @@ const TraderKit = () => {
   const { user } = useAuth();
 
   useSeo({
-    title: 'The Trader Kit — see your trading clearly | Porfilr',
+    // "Trading journal" is what people actually search for; nobody searches "trader kit".
+    // The product is Porfilr Journal — a module inside Porfilr, not a rename of it.
+    title: 'Porfilr Journal — a trading journal for forex & crypto',
     description: 'A trading journal that turns your trades into an equity curve, a P&L calendar and real stats — so you can spot your patterns and improve. Founding price for the first 20 traders, then it goes monthly.',
     canonical: 'https://porfilr.com/trader-kit',
   });
@@ -98,10 +100,16 @@ const TraderKit = () => {
           See your trading clearly.
         </h1>
         <p className="text-stone-600 text-lg max-w-xl mx-auto mb-8">
-          Log your trades — or import your whole history — and Porfilr shows you what's actually
-          happening: your equity curve, a calendar of every green and red day, your real win rate
-          and drawdown. Spot the patterns costing you money, and share a page that proves your
-          consistency when you need to.
+          Log your trades — or import your whole history from Bybit, MEXC, Binance, MT4 or MT5 —
+          and Porfilr shows you what's actually happening: your equity curve, a calendar of every
+          green and red day, your real win rate and drawdown. The patterns costing you money, in
+          front of you.
+        </p>
+        {/* The page is a real differentiator against every other journal — but it belongs
+            at the end of the story now, not in the headline. Three of four trader pages
+            have never been viewed; the journal is what gets used. */}
+        <p className="text-stone-500 text-base max-w-xl mx-auto mb-8">
+          And when you want one, it gives you a page to share — updating itself as you trade.
         </p>
 
         {/* Live counter */}
@@ -166,7 +174,7 @@ const TraderKit = () => {
           <iframe
             className="w-full h-full"
             src={`https://www.youtube.com/embed/${DEMO_VIDEO_ID}`}
-            title="Porfilr Trader Kit demo"
+            title="Porfilr Journal demo"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
@@ -176,10 +184,12 @@ const TraderKit = () => {
       {/* Live example — the strongest proof is a real page they can click into */}
       <section className="max-w-3xl mx-auto px-6 pb-16 text-center">
         <h2 className="text-2xl font-bold text-stone-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-          A real trader page.
+          And a page, if you want one.
         </h2>
         <p className="text-stone-600 mb-6">
-          This is what yours looks like — the equity curve, the calendar, the numbers. All generated from logged trades.
+          Your journal is private by default. When you do want to show your trading — to a prop
+          firm, a community, or anyone who asks — this is what it looks like. Generated from the
+          trades you've already logged, and it keeps itself current.
         </p>
         <a
           href="/templates/trader-template/preview.html"
@@ -198,7 +208,7 @@ const TraderKit = () => {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            ['1', 'Import your history', 'Export a CSV from MT4, MT5, cTrader or your broker and drop it in. Hundreds of trades in seconds — no manual typing.'],
+            ['1', 'Import your history', 'Export your closed positions from Bybit, MEXC, Binance, MT4, MT5 or cTrader and drop the file in. Hundreds of trades in seconds — no manual typing.'],
             ['2', 'See your patterns', 'Your calendar, equity curve and stats appear immediately. This is usually the moment traders find something they did not know about their own trading.'],
             ['3', 'Keep it current', 'Log new trades as you go. Everything recalculates itself — including the page you share.'],
           ].map(([n, t, b]) => (

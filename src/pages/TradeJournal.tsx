@@ -128,6 +128,9 @@ const TradeJournal = () => {
   const [csvPreview, setCsvPreview] = useState<ImportPreview | null>(null);
   const [importing, setImporting] = useState(false);
   const [shotUploading, setShotUploading] = useState(false);
+  // Set when the free trade cap stops something. `found`/`imported` describe the import
+  // that triggered it; a manual add sets found = 0.
+  const [capPrompt, setCapPrompt] = useState<{ found: number; imported: number } | null>(null);
   const [showErrors, setShowErrors] = useState(false);
 
   type Mover = { symbol: string; price: number; changePct: number; major: boolean };
@@ -144,6 +147,16 @@ const TradeJournal = () => {
   const [market, setMarket] = useState<'crypto' | 'forex'>(
     () => (localStorage.getItem('porfilr_market') === 'forex' ? 'forex' : 'crypto')
   );
+
+  /**
+   * Did this failure come from the free trade cap?
+   *
+   * The database trigger raises the literal string TRADE_CAP_REACHED (see
+   * sql/011_trade_cap.sql). Supabase surfaces it inside `message`, and without this the
+   * user would see a raw Postgres error where an upgrade prompt belongs.
+   */
+  const isCapError = (e: any) =>
+    typeof e?.message === 'string' && e.message.includes('TRADE_CAP_REACHED');
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -510,7 +523,13 @@ const TradeJournal = () => {
         showToast('Trade logged.');
       }
     } catch (e: any) {
-      setFormError(e.message || 'Could not save that trade.');
+      // A capped user gets the upgrade prompt, not a Postgres error string.
+      if (isCapError(e)) {
+        setCapPrompt({ found: 0, imported: 0 });
+        setFormError(null);
+      } else {
+        setFormError(e.message || 'Could not save that trade.');
+      }
     } finally {
       setSaving(false);
     }
@@ -547,13 +566,48 @@ const TradeJournal = () => {
     }
   };
 
+  /**
+   * How many more trades this account may store. null = unlimited (owns the kit).
+   *
+   * Degrades to unlimited if the RPC isn't there — the cap migration may not have been run
+   * yet, and a missing function must never stop someone logging a trade.
+   */
+  const fetchRemaining = async (): Promise<number | null> => {
+    try {
+      const { data, error } = await supabase.rpc('trades_remaining');
+      if (error) return null;
+      return typeof data === 'number' ? data : null;
+    } catch {
+      return null;
+    }
+  };
+
   const confirmImport = async () => {
     if (!csvPreview || csvPreview.valid.length === 0) return;
     setImporting(true);
     try {
+      // Free accounts store a limited number of trades. Truncate HERE rather than letting
+      // the database trigger reject the insert: a 200-row insert failing partway would
+      // leave a half-imported history and no clear way back.
+      //
+      // Keep the MOST RECENT ones — someone's last few weeks are what they came to look
+      // at, not trades from three years ago.
+      const remaining = await fetchRemaining();
+      const all = [...csvPreview.valid].sort(
+        (a, b) => new Date(b.opened_at).getTime() - new Date(a.opened_at).getTime()
+      );
+      const toImport = remaining === null ? all : all.slice(0, Math.max(remaining, 0));
+      const heldBack = all.length - toImport.length;
+
+      if (toImport.length === 0) {
+        setCapPrompt({ found: all.length, imported: 0 });
+        setImporting(false);
+        return;
+      }
+
       // Stamp each row with owner/page/kit, same as a manual insert. Chunked so a large
       // history doesn't hit request limits.
-      const rows = csvPreview.valid.map((t) => ({
+      const rows = toImport.map((t) => ({
         ...t, user_id: user!.id, portfolio_id: portfolio.id, template_id: portfolio.template_id,
       }));
       const CHUNK = 200;
@@ -565,11 +619,20 @@ const TradeJournal = () => {
       }
       // Merge and re-sort by opened_at desc to match the list's ordering.
       setTrades([...inserted, ...trades].sort((a, b) => new Date(b.opened_at).getTime() - new Date(a.opened_at).getTime()));
-      track('trades_imported', { slug, count: inserted.length });
-      showToast(`Imported ${inserted.length} ${inserted.length === 1 ? 'trade' : 'trades'}.`);
+      track('trades_imported', { slug, count: inserted.length, heldBack });
       setCsvPreview(null);
+
+      if (heldBack > 0) {
+        // The paywall moment, and the only one that matters. It appears AFTER their own
+        // calendar and curve have been built from the imported trades — they're looking at
+        // a partial picture of their own trading and can see what's missing.
+        setCapPrompt({ found: all.length, imported: inserted.length });
+      } else {
+        showToast(`Imported ${inserted.length} ${inserted.length === 1 ? 'trade' : 'trades'}.`);
+      }
     } catch (e: any) {
-      showToast(e.message || 'Import failed. Nothing was changed.');
+      showToast(isCapError(e) ? 'That would go over your free trade limit.' : (e.message || 'Import failed. Nothing was changed.'));
+      if (isCapError(e)) setCapPrompt({ found: csvPreview.valid.length, imported: 0 });
     } finally {
       setImporting(false);
     }
@@ -599,6 +662,9 @@ const TradeJournal = () => {
   }
 
   const isTrader = portfolio.template_id === 'trader-template';
+  // A journal with no published page behind it. Created by /journal so someone can start
+  // logging immediately; never publicly reachable until they publish.
+  const isDraft = portfolio.status === 'draft';
   const hasBalance = portfolio.starting_balance > 0;
 
   return (
@@ -622,9 +688,39 @@ const TradeJournal = () => {
             Trade journal.
           </h1>
           <p className="text-stone-500 text-sm">
-            Log your trades — Porfilr works out your track record and keeps your page current.
+            {isDraft
+              ? 'Log your trades and Porfilr works out your numbers. Publish a page whenever you want one.'
+              : 'Log your trades — Porfilr works out your track record and keeps your page current.'}
           </p>
         </div>
+
+        {/* A draft journal has no public page yet, and that's fine — the journal is the
+            product. Offer the page once there's something worth putting on it, rather
+            than demanding it up front the way we used to. */}
+        {isDraft && (
+          <div className="bg-white border border-stone-200 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <p className="font-bold text-stone-900 text-sm mb-0.5">
+                {closedCount >= 5 ? 'Ready for a page?' : 'No public page yet'}
+              </p>
+              <p className="text-stone-500 text-sm">
+                {closedCount >= 5
+                  ? `You've logged ${closedCount} closed trades — enough to make a page worth looking at.`
+                  : 'Your journal is private. When you want a page that shows this, you can publish one.'}
+              </p>
+            </div>
+            <Link
+              to={`/create/${portfolio.template_id}`}
+              className={`flex-none text-center px-4 py-2.5 rounded-xl text-sm font-semibold transition ${
+                closedCount >= 5
+                  ? 'bg-stone-900 hover:bg-stone-700 text-white'
+                  : 'border border-stone-200 hover:bg-stone-50 text-stone-700'
+              }`}
+            >
+              {closedCount >= 5 ? 'Build my page' : 'Set one up'}
+            </Link>
+          </div>
+        )}
 
         {!isTrader && (
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6">
@@ -952,6 +1048,54 @@ const TradeJournal = () => {
               <span className="text-stone-400">{grid.summary.trades} {grid.summary.trades === 1 ? 'trade' : 'trades'}</span>
             </div>
             <p className="text-stone-400 text-xs">Days with no closed trades are left blank.</p>
+          </div>
+        )}
+
+        {/* The free-tier prompt. Deliberately AFTER an import has run and the calendar
+            above has been rebuilt from their own trades — they're looking at a partial
+            picture of their own trading, which is the argument. Never shown before the
+            product has done something for them. */}
+        {capPrompt && (
+          <div className="bg-white border-2 border-amber-300 rounded-2xl p-6 mb-6">
+            <h2 className="font-bold text-stone-900 mb-1">
+              {capPrompt.found > 0
+                ? `We found ${capPrompt.found} trades in your file.`
+                : "You've hit the free limit."}
+            </h2>
+            <p className="text-stone-600 text-sm leading-relaxed mb-4">
+              {capPrompt.found > 0 && capPrompt.imported > 0 ? (
+                <>
+                  We've imported your most recent <strong>{capPrompt.imported}</strong> and built
+                  everything above from them. Unlock the rest to see your full history —
+                  the calendar, the curve and your real numbers across all {capPrompt.found}.
+                </>
+              ) : (
+                <>
+                  Free accounts keep their most recent trades. Unlock unlimited logging and
+                  imports, remove the Porfilr badge from your page, and turn on your public
+                  calendar.
+                </>
+              )}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to={`/create/${portfolio.template_id}`}
+                onClick={() => track('cap_prompt_upgrade_clicked', { slug, found: capPrompt.found })}
+                className="bg-stone-900 hover:bg-stone-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition"
+              >
+                Unlock everything — $35 once
+              </Link>
+              <button
+                type="button"
+                onClick={() => { track('cap_prompt_dismissed', { slug }); setCapPrompt(null); }}
+                className="border border-stone-200 hover:bg-stone-50 text-stone-600 px-5 py-2.5 rounded-xl text-sm font-medium transition"
+              >
+                {capPrompt.imported > 0 ? `Keep the free ${capPrompt.imported}` : 'Not now'}
+              </button>
+            </div>
+            <p className="text-stone-400 text-xs mt-3">
+              One payment, no subscription. What you've already logged stays yours either way.
+            </p>
           </div>
         )}
 

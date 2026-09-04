@@ -514,10 +514,15 @@ const ProDashboard = () => {
                             </div>
                             <p className="text-xs text-stone-400 mt-0.5">{tplLabel}</p>
                           </div>
+                          {/* A draft is a journal with no page published yet — say that,
+                              rather than showing the raw column value next to a "views"
+                              count that can only ever be zero. */}
                           <span className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                            portfolio.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-stone-100 text-stone-500'
+                            portfolio.status === 'active' ? 'bg-green-100 text-green-700'
+                              : portfolio.status === 'draft' ? 'bg-amber-100 text-amber-700'
+                              : 'bg-stone-100 text-stone-500'
                           }`}>
-                            {portfolio.status}
+                            {portfolio.status === 'draft' ? 'Journal only' : portfolio.status}
                           </span>
                         </div>
 

@@ -56,6 +56,9 @@ export default async function handler(req, res) {
         .select('file_path, slug, views')
         .eq('custom_domain', domain)
         .eq('domain_verified', true)
+        // Drafts are journal-only pages the owner has never published. They must not be
+        // reachable — not by slug, and not via a domain someone pointed at us.
+        .eq('status', 'active')
         .maybeSingle();
       portfolio = data;
 
@@ -68,6 +71,7 @@ export default async function handler(req, res) {
         .from('portfolios')
         .select('file_path, slug, views')
         .eq('slug', slug)
+        .eq('status', 'active')
         .maybeSingle();
       portfolio = data;
 
@@ -77,6 +81,7 @@ export default async function handler(req, res) {
           .from('portfolios')
           .select('file_path, slug, views')
           .ilike('slug', `${slug.split('-').slice(0, 3).join('-')}%`)
+          .eq('status', 'active')
           .limit(1);
         if (fuzzy && fuzzy.length > 0) portfolio = fuzzy[0];
       }
