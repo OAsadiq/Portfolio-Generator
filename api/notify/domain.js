@@ -233,7 +233,7 @@ function nudgeEmail(name) {
 
 // ── Find signups with no portfolio (≥1 day old, not yet nudged) and email them once ──
 /**
- * Nudge Trader Kit buyers who paid but haven't finished setting up — the ones who started
+ * Nudge Porfilr Journal buyers who paid but haven't finished setting up — the ones who started
  * and stalled. Three stall points, each with its own message, because "you haven't finished"
  * is useless but "you just need your starting balance" is actionable.
  * Runs daily; each buyer is nudged at most once (kit_nudged_at on template_purchases).
@@ -267,8 +267,8 @@ async function sendKitNudges(apiKey) {
     let subject = null, body = null;
 
     if (!p) {
-      subject = 'Your Trader Kit is waiting';
-      body = `You picked up the Trader Kit but haven't built your page yet. It takes about 10 minutes — your bio, markets, strategy and how you handle risk.`;
+      subject = 'Your Porfilr Journal is waiting';
+      body = `You picked up the Porfilr Journal but haven't built your page yet. It takes about 10 minutes — your bio, markets, strategy and how you handle risk.`;
     } else {
       const { count: closed } = await supabase
         .from('trades').select('id', { count: 'exact', head: true })

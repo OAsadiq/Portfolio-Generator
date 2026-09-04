@@ -20,7 +20,7 @@ const traderTemplate = {
   isPro: false,        // not unlocked by a Pro purchase
   usesBuilder: true,   // but still edited in the visual builder
   kit: 'trader-kit',   // unlocked by its own entitlement (template_purchases)
-  kitName: 'Trader Kit',
+  kitName: 'Porfilr Journal',
   // `section` groups these in the form. Without it the form falls back to a name-based
   // guess written around the minimal template, which dumped the whole track record into
   // "Additional info" — the most important part of a trader's page, filed under misc.
@@ -570,7 +570,7 @@ ${body}
   <div class="band band-dark band-foot">
     <div class="wrap">
       <p class="disclaimer">${disclaimer}</p>
-      ${/* No "Made with Porfilr" — removing branding is a paid perk of the Trader Kit,
+      ${/* No "Made with Porfilr" — removing branding is a paid perk of the Porfilr Journal,
            and every trader page is by definition a kit owner (publishing it requires the
            purchase). So it's always omitted here rather than gated on a flag. */''}
     </div>

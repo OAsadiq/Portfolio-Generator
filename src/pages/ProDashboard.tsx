@@ -116,7 +116,7 @@ const ProDashboard = () => {
 
   // A user is "Pro" only with an active pro subscription — NOT by owning a kit.
   const hasPro = subscription?.status === 'active' && subscription?.plan === 'pro';
-  const KIT_NAMES: Record<string, string> = { 'trader-template': 'Trader Kit' };
+  const KIT_NAMES: Record<string, string> = { 'trader-template': 'Porfilr Journal' };
   const kitLabel = (id: string) => KIT_NAMES[id] || id.replace(/-template$/, '').replace(/-/g, ' ');
   const fmtPrice = (cents: number | null) =>
     cents == null ? '' : `$${(cents / 100).toFixed(2).replace(/\.00$/, '')}`;

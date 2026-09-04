@@ -377,7 +377,7 @@ export const NICHES: NicheConfig[] = [
       },
       {
         q: 'How much does it cost?',
-        a: 'The Trader Kit — the trader page plus a live trade journal that keeps your track record current — is a one-time founding price for early users, then moves to a monthly plan. You don’t need a separate Pro plan; the kit includes everything it needs.',
+        a: 'Porfilr Journal is free to start — log or import your first 25 trades, see your calendar, equity curve and real stats, and publish a page if you want one. Unlocking unlimited trades and removing the Porfilr badge is a one-time founding price for early users, then it moves to a monthly plan. No separate Pro plan needed.',
       },
       {
         q: 'Why not just send screenshots?',

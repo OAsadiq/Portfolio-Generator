@@ -300,8 +300,10 @@ const TemplateSelection = () => {
   // it's revenue already collected sitting idle.
   const unbuiltKit = templates.find(t => t.kit && ownsTemplate(t.id) && !kitSlotsTaken.has(t.id)) || null;
 
+  // Kit templates are no longer locked. Anyone can start free — the limits (trade cap,
+  // Porfilr badge) sit after the value, not in front of it. Pro templates still gate.
   const isTemplateLocked = (id: string) =>
-    kitOf(id) ? !ownsTemplate(id) : !isPro && id !== "minimal-template";
+    kitOf(id) ? false : !isPro && id !== "minimal-template";
   const canSelectTemplate = (id: string) => !isTemplateLocked(id);
 
   const handleSelect = async (templateId: string) => {
@@ -336,7 +338,10 @@ const TemplateSelection = () => {
       const selected = templates.find(t => t.id === templateId);
       if (!selected) return;
       localStorage.setItem("selectedTemplate", JSON.stringify(selected));
-      navigate(`/create/${selected.id}`);
+      // The journal templates open the JOURNAL, not the page builder. Logging trades is
+      // the product; the page is what you publish once you have something to put on it.
+      // /journal resolves or creates their journal, so this works with no page yet.
+      navigate(selected.kit ? '/journal' : `/create/${selected.id}`);
     } catch (err: any) {
       console.error(err);
     } finally {
@@ -571,7 +576,7 @@ const TemplateSelection = () => {
                             <div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
                             Loading
                           </span>
-                        ) : isLocked ? (isKit ? "Claim" : "Upgrade") : "Use this →"}
+                        ) : isLocked ? "Upgrade" : (isKit && !ownsTemplate(template.id) ? "Start free →" : "Use this →")}
                       </button>
                     </div>
                   </div>

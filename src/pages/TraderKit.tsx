@@ -41,21 +41,17 @@ const TraderKit = () => {
       .catch(() => {});
   }, []);
 
-  const claimSpot = () => {
-    track('founding_claim_clicked', { kit: KIT, spotsLeft: stats?.spotsLeft });
-    // Reuse the real purchase flow: /create handles login → kit paywall → checkout.
+  const startFree = () => {
+    track('journal_start_clicked', { kit: KIT, spotsLeft: stats?.spotsLeft });
+    // Straight into the journal — no checkout, no page to build first. They can log or
+    // import trades immediately; the cap and the badge are what payment removes, later.
     if (!user) {
       // Router state does not survive Google's OAuth round-trip, so stash the destination
-      // where AuthCallback can find it. Without this, a trader who clicked "claim your
-      // spot" and signed in with Google landed on the generic template grid with no idea
-      // what happened to their purchase.
-      localStorage.setItem('porfilr_after_login', `/create/${KIT}`);
-      // Same reason CreatePortfolio sets this: resume checkout instead of making them
-      // hunt for the button again.
-      sessionStorage.setItem('porfilr_pending_kit', KIT);
-      navigate('/login', { state: { from: { pathname: `/create/${KIT}` } } });
+      // where AuthCallback can find it.
+      localStorage.setItem('porfilr_after_login', '/journal');
+      navigate('/login', { state: { from: { pathname: '/journal' } } });
     } else {
-      navigate(`/create/${KIT}`);
+      navigate('/journal');
     }
   };
 
@@ -130,13 +126,14 @@ const TraderKit = () => {
         {open ? (
           <>
             <button
-              onClick={claimSpot}
+              onClick={startFree}
               className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-8 py-4 rounded-xl text-base transition shadow-sm"
             >
-              Claim your founding spot
+              Start free — no card
             </button>
             <p className="text-stone-500 text-sm mt-3">
-              One-time founding price · lifetime access · then it moves to a monthly plan. No Pro subscription needed.
+              Log or import your first 25 trades free. Unlock unlimited for a one-time founding
+              price — lifetime access, no subscription.
             </p>
           </>
         ) : (

@@ -140,28 +140,16 @@ export default async function handler(req, res) {
         }
 
         // ── Entitlement gate (server-side; the client gate can be bypassed) ──
-        // Three tiers, keyed off the template's own flags rather than a hardcoded id list:
-        //   • kit templates      → require a template_purchases row (Pro does NOT grant it)
+        //   • kit templates      → FREE to publish. Buying removes the trade cap and the
+        //                          Porfilr badge; it is no longer a gate on getting in.
         //   • other pro templates→ require Pro
         //   • everything else    → free
-        if (template.kit) {
-            const { data: owned, error: ownErr } = await supabase
-                .from('template_purchases')
-                .select('id')
-                .eq('user_id', user.id)
-                .eq('template_id', templateId)
-                .maybeSingle();
-            if (ownErr) {
-                console.error('kit ownership check failed:', ownErr);
-                return res.status(500).json({ error: 'Could not verify your purchase. Please try again.' });
-            }
-            if (!owned) {
-                return res.status(403).json({
-                    error: `The ${template.kitName || 'kit'} is required for this template.`,
-                    code: 'KIT_REQUIRED'
-                });
-            }
-        } else if (template.isPro && !isPro) {
+        //
+        // The kit used to require a purchase before you could publish anything, so nobody
+        // saw the product before being asked to pay for it — and the one person who did
+        // pay never built a page. The limits now sit AFTER the value: the trade cap
+        // (sql/011_trade_cap.sql) and branding (api/_lib/branding.js).
+        if (!template.kit && template.isPro && !isPro) {
             return res.status(403).json({
                 error: 'This template requires a Pro subscription.',
                 code: 'PRO_TEMPLATE_REQUIRED'

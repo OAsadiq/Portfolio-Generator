@@ -1,4 +1,4 @@
-// Porfilr — welcome email for a Trader Kit purchase.
+// Porfilr — welcome email for a Porfilr Journal purchase.
 //
 // Sent from the Stripe webhook once payment completes. Purpose: thank them, and get them
 // to the ONE action that makes the kit valuable — logging trades so their page goes live.
@@ -22,14 +22,14 @@ export function kitWelcomeHtml({ firstName } = {}) {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #e6e3da;border-radius:16px;overflow:hidden;">
 
         <tr><td style="background:#0b0e14;padding:28px 32px;">
-          <p style="margin:0;color:#e0b252;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;">Trader Kit</p>
+          <p style="margin:0;color:#e0b252;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;">Porfilr Journal</p>
           <h1 style="margin:8px 0 0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-.02em;">You're in. Thank you.</h1>
         </td></tr>
 
         <tr><td style="padding:32px;">
           <p style="margin:0 0 16px;color:#181b22;font-size:15px;line-height:1.6;">${hi}</p>
           <p style="margin:0 0 16px;color:#4f5661;font-size:15px;line-height:1.6;">
-            Thank you for backing the Trader Kit — genuinely. You're one of the first traders using
+            Thank you for backing the Porfilr Journal — genuinely. You're one of the first traders using
             this, and that means a lot to a small team.
           </p>
           <p style="margin:0 0 24px;color:#4f5661;font-size:15px;line-height:1.6;">
@@ -94,7 +94,7 @@ export function kitWelcomeHtml({ firstName } = {}) {
 
         <tr><td style="padding:20px 32px;border-top:1px solid #eeece4;">
           <p style="margin:0;color:#8a909c;font-size:12px;line-height:1.6;">
-            You're receiving this because you purchased the Trader Kit on
+            You're receiving this because you purchased the Porfilr Journal on
             <a href="https://porfilr.com" style="color:#9c7620;text-decoration:none;">porfilr.com</a>.
           </p>
         </td></tr>
@@ -109,7 +109,7 @@ export function kitWelcomeText({ firstName } = {}) {
   const hi = firstName ? `Hi ${firstName},` : 'Hi,';
   return `${hi}
 
-Thank you for backing the Trader Kit — genuinely. You're one of the first traders using this,
+Thank you for backing the Porfilr Journal — genuinely. You're one of the first traders using this,
 and that means a lot to a small team.
 
 Here's how to get the most out of it:
@@ -144,7 +144,7 @@ Thanks again,
 Sadiq
 Founder, Porfilr
 
-You're receiving this because you purchased the Trader Kit on porfilr.com`;
+You're receiving this because you purchased the Porfilr Journal on porfilr.com`;
 }
 
 /**
@@ -166,7 +166,7 @@ export async function sendFounderSaleAlert({ buyerEmail, buyerName, amount, temp
         to,
         subject: `💰 Kit sold — ${money}${spotsSold ? ` (founding spot ${spotsSold}/20)` : ''}`,
         html: `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:15px;color:#0f172a;">
-          <h2 style="margin:0 0 12px;">Someone bought the ${esc(templateId === 'trader-template' ? 'Trader Kit' : templateId)}</h2>
+          <h2 style="margin:0 0 12px;">Someone bought the ${esc(templateId === 'trader-template' ? 'Porfilr Journal' : templateId)}</h2>
           <table cellpadding="0" cellspacing="0" style="font-size:14px;">
             <tr><td style="padding:6px 16px 6px 0;color:#64748b;">Buyer</td><td><strong>${esc(buyerName || '—')}</strong></td></tr>
             <tr><td style="padding:6px 16px 6px 0;color:#64748b;">Email</td><td><a href="mailto:${esc(buyerEmail)}">${esc(buyerEmail)}</a></td></tr>
@@ -203,7 +203,7 @@ export async function sendKitWelcomeEmail({ to, firstName }) {
       body: JSON.stringify({
         from: FROM,
         to,
-        subject: "You're in — here's how to get the most out of your Trader Kit",
+        subject: "You're in — here's how to get the most out of your Porfilr Journal",
         html: kitWelcomeHtml({ firstName }),
         text: kitWelcomeText({ firstName }),
         reply_to: 'hello@porfilr.com',

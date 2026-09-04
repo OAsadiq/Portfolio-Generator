@@ -18,7 +18,7 @@ const TemplateSuccess = () => {
   const [verifying, setVerifying] = useState(true);
   const tracked = useRef(false);
 
-  const kitLabel = templateId === "trader-template" ? "Trader Kit" : "kit";
+  const kitLabel = templateId === "trader-template" ? "Porfilr Journal" : "kit";
 
   useEffect(() => {
     if (!templateId) { navigate("/templates"); return; }

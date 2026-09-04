@@ -338,11 +338,15 @@ const CreatePortfolio = () => {
     template?.usesBuilder || template?.id === "professional-writer-template" || template?.isPro;
   const isProTemplate = template?.id === "professional-writer-template" || template?.isPro;
   const kitId = template?.kit || null;
+  // Kit templates are free to use. Buying removes the trade cap and the Porfilr badge —
+  // it is no longer a gate on getting in. Gating publication behind payment meant nobody
+  // saw the product before being asked to pay for it.
   const hasAccess = kitId
-    ? !!template && ownsTemplate(template.id) // kits are bought outright — Pro does not include them
+    ? true
     : isProTemplate
       ? isPro
       : true;
+  const ownsKit = !!kitId && !!template && ownsTemplate(template.id);
 
   // Do they already have a portfolio on THIS template? If so, /create is the wrong place
   // to land them — see the interstitial below.
@@ -453,6 +457,8 @@ const CreatePortfolio = () => {
 
   // Kit gate — deliberately NOT the Pro gate. A kit is its own product: buying it
   // requires no Pro purchase (no double paywall), and owning Pro doesn't grant it.
+  // Kept but unreachable while kits are free to start (hasAccess is true for them). Left
+  // in place so re-gating a future kit is a one-line change rather than a rebuild.
   if (kitId && !hasAccess) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
@@ -498,7 +504,7 @@ const CreatePortfolio = () => {
           >
             {kitLoading
               ? (kitCredit > 0 ? 'Unlocking…' : 'Opening checkout…')
-              : kitCredit > 0 ? 'Unlock with my referral credit' : 'Get the Trader Kit'}
+              : kitCredit > 0 ? 'Unlock with my referral credit' : 'Unlock Porfilr Journal'}
           </button>
           {kitCredit === 0 && (
             <p className="text-stone-400 text-xs text-center mt-3">
@@ -701,6 +707,19 @@ const CreatePortfolio = () => {
                 Dashboard
               </Link>
             </div>
+          </div>
+        )}
+
+        {/* Free users can publish — say what the free page includes before they do, so the
+            Porfilr badge isn't a surprise they discover on their own live page. */}
+        {kitId && !ownsKit && (
+          <div className="mb-8 bg-stone-50 border border-stone-200 rounded-2xl p-5">
+            <p className="font-bold text-stone-900 text-sm mb-1">You're on the free plan</p>
+            <p className="text-stone-600 text-sm leading-relaxed">
+              Publish as many times as you like — your page will carry a small "Made with
+              Porfilr" badge, and your journal keeps your most recent 25 trades. A one-time
+              unlock removes both.
+            </p>
           </div>
         )}
 
