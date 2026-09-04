@@ -48,8 +48,8 @@ export default function NicheLanding({ config }: { config: NicheConfig }) {
         </h1>
         <p className="text-lg text-stone-500 max-w-2xl mx-auto mb-8 leading-relaxed">{config.subhead}</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link to="/templates" className="bg-stone-900 hover:bg-stone-700 text-white px-7 py-3.5 rounded-xl font-bold text-sm transition inline-flex items-center justify-center gap-2">
-            Build my portfolio <ArrowRight className="w-4 h-4" />
+          <Link to={config.ctaHref || "/templates"} className="bg-stone-900 hover:bg-stone-700 text-white px-7 py-3.5 rounded-xl font-bold text-sm transition inline-flex items-center justify-center gap-2">
+            {config.ctaLabel || "Build my portfolio"} <ArrowRight className="w-4 h-4" />
           </Link>
           <Link to="/pricing" className="border border-stone-200 hover:bg-white text-stone-700 px-7 py-3.5 rounded-xl font-semibold text-sm transition">
             See pricing
@@ -137,8 +137,8 @@ export default function NicheLanding({ config }: { config: NicheConfig }) {
             Ready to show your work?
           </h2>
           <p className="text-stone-300 mb-8 max-w-md mx-auto">Build a portfolio that gets you hired — free to start, live in 10 minutes.</p>
-          <Link to="/templates" className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-500 text-white px-8 py-3.5 rounded-xl font-bold text-sm transition">
-            Build my portfolio <ArrowRight className="w-4 h-4" />
+          <Link to={config.ctaHref || "/templates"} className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-500 text-white px-8 py-3.5 rounded-xl font-bold text-sm transition">
+            {config.ctaLabel || "Build my portfolio"} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>

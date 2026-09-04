@@ -169,6 +169,19 @@ not a new brand per niche.
 Rename before the batch-4 graphics go into production — changing a name across posts,
 graphics and emails after material exists is where the cost lands.
 
+**URLs.** Canonical is `/trading-journal`. `/trader-kit` 301s to it in `vercel.json` and
+must keep doing so: Ayo's tracked links (`/r/ayo`), everything already shared, and every
+graphic printed so far point at the old path. The redirect also hands the accumulated SEO
+to one URL rather than splitting it across two.
+
+Two things about that config, both learned the hard way:
+
+- **No comments.** `vercel.json` is validated against a strict schema — an explanatory
+  `"comment"` key on a redirect fails the deploy with *"should NOT have additional
+  property"*. Rationale goes here instead.
+- **Host rules come first.** With the path rename above the `www` rule, a visitor to
+  `www.porfilr.com/trader-kit` takes two redirects instead of one.
+
 ---
 
 ## 6. COPY CHANGES

@@ -17,6 +17,13 @@ export interface NicheConfig {
   essentials: { title: string; body: string }[];
   /** FAQ — also rendered as FAQPage JSON-LD for rich snippets. */
   faq: { q: string; a: string }[];
+  /**
+   * Call to action. Optional — five of the six niches sell a portfolio page and the
+   * default is right for them. Traders are sold a journal, so sending them to the
+   * template grid after a page about logging trades loses the thread.
+   */
+  ctaLabel?: string;
+  ctaHref?: string;
 }
 
 export const NICHES: NicheConfig[] = [
@@ -392,6 +399,8 @@ export const NICHES: NicheConfig[] = [
         a: 'No. Log or import your trades and Porfilr does the rest — no code, and it works on your phone.',
       },
     ],
+    ctaLabel: 'Start my journal — free',
+    ctaHref: '/trading-journal',
   },
 ];
 

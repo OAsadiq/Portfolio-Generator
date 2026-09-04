@@ -1,32 +1,47 @@
 {
   "version": 2,
-
   "redirects": [
     {
-      "comment": "Porfilr Journal's canonical URL. /trader-kit is the old name and still has live links pointing at it — Ayo's tracked links via /r/ayo, anything already shared, and every graphic printed so far. A permanent redirect keeps those working and hands the SEO to the new path instead of splitting it across two.",
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.porfilr.com"
+        }
+      ],
+      "destination": "https://porfilr.com/:path*",
+      "permanent": true
+    },
+    {
       "source": "/trader-kit",
       "destination": "/trading-journal",
       "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.porfilr.com" }],
-      "destination": "https://porfilr.com/:path*",
-      "permanent": true
     }
   ],
-
   "rewrites": [
-    { "source": "/p/:slug", "destination": "/api/p/index?slug=:slug" },
-    { "source": "/r/:code", "destination": "/api/r?code=:code" },
+    {
+      "source": "/p/:slug",
+      "destination": "/api/p/index?slug=:slug"
+    },
+    {
+      "source": "/r/:code",
+      "destination": "/api/r?code=:code"
+    },
     {
       "source": "/(.*)",
-      "has": [{ "type": "host", "value": "(?<domain>(?!(www\\.)?porfilr\\.com|.*\\.vercel\\.app|localhost).+)" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<domain>(?!(www\\.)?porfilr\\.com|.*\\.vercel\\.app|localhost).+)"
+        }
+      ],
       "destination": "/api/p/index?domain=:domain"
     },
-    { "source": "/(.*)", "destination": "/" }
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
   ],
-
   "functions": {
     "api/**/*.js": {
       "maxDuration": 10,
@@ -34,15 +49,27 @@
     }
   },
   "crons": [
-    { "path": "/api/notify/domain", "schedule": "0 7 * * *" }
+    {
+      "path": "/api/notify/domain",
+      "schedule": "0 7 * * *"
+    }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
       ]
     }
   ]
