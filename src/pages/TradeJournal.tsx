@@ -12,6 +12,7 @@ import { computeMetrics } from '../../api/_lib/metrics.js';
 // hand-log hundreds of trades, so this is what makes the journal usable for them.
 import { parseTradeCsv } from '../../api/_lib/tradeCsv.js';
 import { extractLinks } from '../../api/_lib/noteLinks.js';
+import Modal from '../components/Modal';
 // Trading performance calendar — same closed-only, net-of-fees maths as the metrics, so
 // the calendar can never disagree with the headline numbers.
 import { monthGrid, activeMonths } from '../../api/_lib/calendar.js';
@@ -131,6 +132,8 @@ const TradeJournal = () => {
   // Set when the free trade cap stops something. `found`/`imported` describe the import
   // that triggered it; a manual add sets found = 0.
   const [capPrompt, setCapPrompt] = useState<{ found: number; imported: number } | null>(null);
+  // The trade awaiting delete confirmation. Holds the whole row so the dialog can name it.
+  const [deleteTarget, setDeleteTarget] = useState<Trade | null>(null);
   const [showErrors, setShowErrors] = useState(false);
 
   type Mover = { symbol: string; price: number; changePct: number; major: boolean };
@@ -535,13 +538,15 @@ const TradeJournal = () => {
     }
   };
 
-  const deleteTrade = async (id: string) => {
-    if (!window.confirm('Delete this trade? This cannot be undone.')) return;
+  const confirmDelete = async () => {
+    const t = deleteTarget;
+    if (!t) return;
+    setDeleteTarget(null);
     // Don't leave the form editing a row that no longer exists — saving it would fail.
-    if (editingId === id) cancelEdit();
+    if (editingId === t.id) cancelEdit();
     const prev = trades;
-    setTrades(trades.filter((t) => t.id !== id)); // optimistic
-    const { error: e } = await supabase.from('trades').delete().eq('id', id);
+    setTrades(trades.filter((x) => x.id !== t.id)); // optimistic
+    const { error: e } = await supabase.from('trades').delete().eq('id', t.id);
     if (e) {
       setTrades(prev); // roll back rather than lie about what's stored
       showToast(e.message || 'Could not delete.');
@@ -671,6 +676,100 @@ const TradeJournal = () => {
     <div className="min-h-screen bg-stone-50">
       {/* Auto-runs once per user, then replayable from the ? button. */}
       <TutorialTour steps={JOURNAL_TOUR} storageKey={`porfilr_tour_journal_v1_${user.id}`} />
+
+      {/* The free-limit prompt. A modal, not an inline panel: it used to render partway
+          down the page, so you could hit a limit and never see why. It still only appears
+          AFTER the import has run and the calendar has been built from their own trades —
+          the argument is the partial picture behind it, not the interruption. */}
+      <Modal
+        open={!!capPrompt}
+        onClose={() => { track('cap_prompt_dismissed', { slug }); setCapPrompt(null); }}
+        title={capPrompt && capPrompt.found > 0
+          ? `We found ${capPrompt.found} trades in your file`
+          : "You've hit the free limit"}
+        footer={capPrompt ? (
+          <>
+            <button
+              type="button"
+              onClick={() => { track('cap_prompt_dismissed', { slug }); setCapPrompt(null); }}
+              className="border border-stone-200 hover:bg-stone-50 text-stone-600 px-5 py-2.5 rounded-xl text-sm font-medium transition"
+            >
+              {capPrompt.imported > 0 ? `Keep the free ${capPrompt.imported}` : 'Not now'}
+            </button>
+            <Link
+              to={`/create/${portfolio.template_id}`}
+              onClick={() => track('cap_prompt_upgrade_clicked', { slug, found: capPrompt.found })}
+              className="bg-stone-900 hover:bg-stone-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition text-center"
+            >
+              Unlock everything — $35 once
+            </Link>
+          </>
+        ) : null}
+      >
+        {capPrompt && capPrompt.found > 0 && capPrompt.imported > 0 ? (
+          <p>
+            We've imported your most recent <strong>{capPrompt.imported}</strong> and built your
+            calendar and equity curve from them. Unlock the rest to see your full history —
+            all {capPrompt.found} trades, your real win rate, and the whole curve.
+          </p>
+        ) : (
+          <p>
+            Free accounts keep their most recent {25} trades. Unlock unlimited logging and
+            imports, remove the Porfilr badge from your page, and turn on your public calendar.
+          </p>
+        )}
+        <p className="text-stone-400 text-xs mt-3">
+          One payment, no subscription. What you've already logged stays yours either way.
+        </p>
+      </Modal>
+
+      {/* Deleting a trade used window.confirm — browser chrome that looks nothing like the
+          product and can't show WHICH trade is about to go. */}
+      <Modal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Delete this trade?"
+        tone="danger"
+        closeOnBackdrop={false}
+        footer={(
+          <>
+            <button
+              type="button"
+              onClick={() => setDeleteTarget(null)}
+              className="border border-stone-200 hover:bg-stone-50 text-stone-700 px-5 py-2.5 rounded-xl text-sm font-medium transition"
+            >
+              Keep it
+            </button>
+            <button
+              type="button"
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition"
+            >
+              Delete trade
+            </button>
+          </>
+        )}
+      >
+        {deleteTarget && (
+          <>
+            <p>
+              <strong className="text-stone-800">{deleteTarget.symbol}</strong>
+              {' · '}{deleteTarget.direction}
+              {deleteTarget.pnl !== null && (
+                <>
+                  {' · '}
+                  <span className={deleteTarget.pnl >= 0 ? 'text-emerald-600 font-semibold' : 'text-red-500 font-semibold'}>
+                    {deleteTarget.pnl > 0 ? '+' : ''}{deleteTarget.pnl}
+                  </span>
+                </>
+              )}
+            </p>
+            <p className="mt-2">
+              This can't be undone, and your calendar and stats will change to match.
+            </p>
+          </>
+        )}
+      </Modal>
 
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-stone-900 text-white text-sm font-medium px-5 py-3 rounded-full shadow-lg">
@@ -1048,54 +1147,6 @@ const TradeJournal = () => {
               <span className="text-stone-400">{grid.summary.trades} {grid.summary.trades === 1 ? 'trade' : 'trades'}</span>
             </div>
             <p className="text-stone-400 text-xs">Days with no closed trades are left blank.</p>
-          </div>
-        )}
-
-        {/* The free-tier prompt. Deliberately AFTER an import has run and the calendar
-            above has been rebuilt from their own trades — they're looking at a partial
-            picture of their own trading, which is the argument. Never shown before the
-            product has done something for them. */}
-        {capPrompt && (
-          <div className="bg-white border-2 border-amber-300 rounded-2xl p-6 mb-6">
-            <h2 className="font-bold text-stone-900 mb-1">
-              {capPrompt.found > 0
-                ? `We found ${capPrompt.found} trades in your file.`
-                : "You've hit the free limit."}
-            </h2>
-            <p className="text-stone-600 text-sm leading-relaxed mb-4">
-              {capPrompt.found > 0 && capPrompt.imported > 0 ? (
-                <>
-                  We've imported your most recent <strong>{capPrompt.imported}</strong> and built
-                  everything above from them. Unlock the rest to see your full history —
-                  the calendar, the curve and your real numbers across all {capPrompt.found}.
-                </>
-              ) : (
-                <>
-                  Free accounts keep their most recent trades. Unlock unlimited logging and
-                  imports, remove the Porfilr badge from your page, and turn on your public
-                  calendar.
-                </>
-              )}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Link
-                to={`/create/${portfolio.template_id}`}
-                onClick={() => track('cap_prompt_upgrade_clicked', { slug, found: capPrompt.found })}
-                className="bg-stone-900 hover:bg-stone-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition"
-              >
-                Unlock everything — $35 once
-              </Link>
-              <button
-                type="button"
-                onClick={() => { track('cap_prompt_dismissed', { slug }); setCapPrompt(null); }}
-                className="border border-stone-200 hover:bg-stone-50 text-stone-600 px-5 py-2.5 rounded-xl text-sm font-medium transition"
-              >
-                {capPrompt.imported > 0 ? `Keep the free ${capPrompt.imported}` : 'Not now'}
-              </button>
-            </div>
-            <p className="text-stone-400 text-xs mt-3">
-              One payment, no subscription. What you've already logged stays yours either way.
-            </p>
           </div>
         )}
 
@@ -1592,7 +1643,7 @@ const TradeJournal = () => {
                           {editingId === t.id ? 'Editing' : 'Edit'}
                         </button>
                         <button
-                          onClick={() => deleteTrade(t.id)}
+                          onClick={() => setDeleteTarget(t)}
                           className="text-stone-300 hover:text-red-500 transition text-xs font-medium"
                           aria-label={`Delete ${t.symbol} trade`}
                         >

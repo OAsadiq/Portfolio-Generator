@@ -21,6 +21,32 @@
   animation: slideDown 0.25s ease-out;
 }
 
+/* Used by the toast and by Modal. It was referenced in markup but never defined, so both
+   appeared instantly — fine for a toast, jarring for a dialog that covers the page. */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.18s ease-out;
+}
+
+/* Respect the OS setting. A dialog sliding up is decoration; for someone who has asked
+   for less motion it can be genuinely unpleasant. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-slideDown {
+    animation: none;
+  }
+}
+
 body {
   -ms-overflow-style: none; 
   scrollbar-width: none; 
