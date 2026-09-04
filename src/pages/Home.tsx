@@ -2,6 +2,7 @@ import Navbar from "../components/Navbar";
 import Hero from "../components/HeroSection";
 import CreatorTypes from "../components/CreatorTypesSection";
 import SampleSection from "../components/SampleSection";
+import KitsSection from "../components/KitsSection";
 import Feature from "../components/FeatureSection";
 import ComparisonSection from "../components/ComparisonSection";
 import HowItWorks from "../components/HowItWorksSection";
@@ -19,6 +20,9 @@ const Home = () => {
       <Hero />
       <CreatorTypes />
       <SampleSection />
+      {/* Straight after Templates: a kit is the same idea one step further, so it only
+          makes sense once you've seen what a template is. */}
+      <KitsSection />
       <Feature />
       <ComparisonSection />
       <HowItWorks />

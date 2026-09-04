@@ -14,6 +14,7 @@ import { parseTradeCsv } from '../../api/_lib/tradeCsv.js';
 import { extractLinks } from '../../api/_lib/noteLinks.js';
 import Modal from '../components/Modal';
 import { startKitCheckout } from '../lib/kitCheckout';
+import { FREE_TRADE_CAP } from '../lib/plan';
 // Trading performance calendar — same closed-only, net-of-fees maths as the metrics, so
 // the calendar can never disagree with the headline numbers.
 import { monthGrid, activeMonths } from '../../api/_lib/calendar.js';
@@ -50,7 +51,6 @@ type Trade = {
  * name the number without a round trip. If you change the cap, change it in SQL first
  * (see sql/014_trade_cap_15.sql) and update this line to match.
  */
-const FREE_TRADE_CAP = 15;
 
 const EMPTY_FORM = {
   symbol: '',

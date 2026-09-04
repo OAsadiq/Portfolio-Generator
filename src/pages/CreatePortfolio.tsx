@@ -11,6 +11,7 @@ import { startKitCheckout } from "../lib/kitCheckout";
 import { suggestEmailFix } from "../lib/emailTypo";
 import { useIsMobileOnce } from "../lib/useIsMobile";
 import { requestDesktopLink } from "../lib/desktopLink";
+import { FREE_TRADE_CAP } from "../lib/plan";
 import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from "../lib/formSections";
 
 interface TemplateField {
@@ -694,8 +695,8 @@ const CreatePortfolio = () => {
             <p className="font-bold text-stone-900 text-sm mb-1">You're on the free plan</p>
             <p className="text-stone-600 text-sm leading-relaxed">
               Publish as many times as you like — your page will carry a small "Made with
-              Porfilr" badge, and your journal keeps your most recent 25 trades. A one-time
-              unlock removes both.
+              Porfilr" badge, and your journal keeps your most recent {FREE_TRADE_CAP} trades.
+              A one-time unlock removes both.
             </p>
           </div>
         )}
