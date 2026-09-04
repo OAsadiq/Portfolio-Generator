@@ -12,6 +12,7 @@ import { suggestEmailFix } from "../lib/emailTypo";
 import { useIsMobileOnce } from "../lib/useIsMobile";
 import { requestDesktopLink } from "../lib/desktopLink";
 import { FREE_TRADE_CAP } from "../lib/plan";
+import PreviewSheet from "../components/PreviewSheet";
 import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from "../lib/formSections";
 
 interface TemplateField {
@@ -90,6 +91,10 @@ const CreatePortfolio = () => {
   const [template, setTemplate] = useState<Template | null>(null);
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const [deskOpen, setDeskOpen] = useState(false);
   const [deskEmail, setDeskEmail] = useState('');
   const [deskStatus, setDeskStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
@@ -251,6 +256,35 @@ const CreatePortfolio = () => {
       sessionStorage.removeItem('porfilr_pending_kit');
     }
   }, [user, template, templateId]);
+
+  /**
+   * Render what they have so far, without publishing.
+   *
+   * Same endpoint the desktop builder's canvas uses, so the preview is the real page and
+   * not an approximation that drifts from it.
+   */
+  const openPreview = async () => {
+    if (!templateId) return;
+    setPreviewOpen(true);
+    setPreviewLoading(true);
+    setPreviewError(null);
+    track('mobile_preview_opened', { templateId });
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId, ...formData }),
+      });
+      if (!res.ok) throw new Error('Preview failed');
+      const data = await res.json();
+      if (!data.html) throw new Error('No preview returned');
+      setPreviewHtml(data.html);
+    } catch (err: any) {
+      setPreviewError(err?.message || 'Something went wrong building the preview.');
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -914,6 +948,18 @@ const CreatePortfolio = () => {
             </div>
           )}
 
+          {/* Preview, above Publish.
+              Deliberately not only at the bottom — see the sticky bar below. Someone
+              filling a long form wants to check their work partway through, not once
+              they've finished everything. */}
+          <button
+            type="button"
+            onClick={openPreview}
+            className="w-full border border-stone-300 hover:bg-stone-50 text-stone-700 py-3.5 rounded-xl font-semibold text-sm transition"
+          >
+            Preview my page
+          </button>
+
           {/* Submit */}
           <button
             type="submit"
@@ -939,6 +985,33 @@ const CreatePortfolio = () => {
           </p>
         </form>
       </div>
+
+      {/* Sticky preview, phones only.
+          The button inside the form is at the bottom of ~30 fields; on a phone that's a
+          long way from wherever you're typing. This keeps "show me what I've got" one tap
+          away throughout, which is the thing the desktop builder gives for free by having
+          the canvas permanently on screen.
+          Hidden while the sheet is open so it can't sit on top of the preview. */}
+      {isMobile && !previewOpen && (
+        <div className="fixed bottom-0 inset-x-0 z-40 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 bg-gradient-to-t from-stone-50 via-stone-50 to-transparent pointer-events-none">
+          <button
+            type="button"
+            onClick={openPreview}
+            className="pointer-events-auto w-full bg-white border border-stone-300 shadow-lg text-stone-800 py-3.5 rounded-xl font-semibold text-sm transition active:scale-[0.99]"
+          >
+            Preview my page
+          </button>
+        </div>
+      )}
+
+      <PreviewSheet
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        html={previewHtml}
+        loading={previewLoading}
+        error={previewError}
+        onRetry={openPreview}
+      />
     </div>
   );
 };

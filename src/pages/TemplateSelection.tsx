@@ -313,6 +313,22 @@ const TemplateSelection = () => {
       const selected = templates.find(t => t.id === templateId);
       if (selected) localStorage.setItem("selectedTemplate", JSON.stringify(selected));
       track('template_selected', { templateId, loggedOut: true });
+
+      // A journal kit goes to the journal, logged in or not. This branch used to send
+      // everyone to /create, so "Start free" on the Journal card dropped logged-out
+      // visitors into the page builder on desktop and the form on mobile — the
+      // page-first flow we moved away from, and not what the button promises.
+      //
+      // /journal is behind ProtectedRoute, so it will bounce to login; stashing the
+      // destination here means they land in the journal afterwards rather than on the
+      // template grid. localStorage because router state does not survive Google's
+      // OAuth round-trip.
+      if (selected?.kit) {
+        localStorage.setItem('porfilr_after_login', '/journal');
+        navigate('/journal');
+        return;
+      }
+
       navigate(`/create/${templateId}`);
       return;
     }
