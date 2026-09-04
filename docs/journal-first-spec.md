@@ -31,23 +31,31 @@ Directional, not conclusive — it's four pages. But it all points one way.
 - CSV import **enabled** — this is the accelerant, not the paywall
 - Calendar, equity curve, win rate, drawdown, profit factor
 - One published page, with Porfilr branding
-- **Capped at 25 trades stored**
+- **Capped at 15 trades stored**
+- The live track record and public calendar on the page — **free**
 
 **Paid — $35 once**
 - Cap removed
 - Branding removed
-- Public calendar, custom domain
+- Custom domain
 
 **The cap is on the journal, not the page.** If the page is a side-benefit, charging for
 page polish would be charging for the part nobody wants. The thing they pay for is the
 thing they're using.
 
-### Why 25
+### Why 15
 
-No current user has more than 21 trades, so the cap would bind on **nobody** today. That's
-deliberate: it must not feel mean to an honest manual logger. It fires on **importers** —
-someone dropping in a Bybit export with 200 trades hits it immediately, having just seen
-their own calendar. That's the buyer.
+Started at 25, lowered once everything else became free. The paid tier is now just two
+things — the cap and the Porfilr badge — so the cap carries more of the weight than it did
+when it was one limit among several.
+
+15 is still roughly a month of trading for most people, so it lands *after* someone has a
+real calendar to look at rather than before. It fires hardest on **importers** — someone
+dropping in a Bybit export with 200 trades hits it immediately, having just watched their
+own history render. That's the buyer.
+
+Nothing is ever deleted: the trigger only fires on INSERT, so anyone already above the cap
+keeps every trade they have and simply can't add more.
 
 Manual loggers take months to reach it. That's fine; they aren't this quarter's revenue.
 
@@ -61,19 +69,19 @@ never before.
 On CSV import, when the file exceeds the remaining allowance:
 
 > **We found 214 trades in your file.**
-> We've imported the most recent 25 and built your calendar from them.
+> We've imported the most recent 15 and built your calendar from them.
 > Unlock the rest — $35 once, yours forever.
 >
-> [ Unlock all 214 ]   [ Keep the free 25 ]
+> [ Unlock all 214 ]   [ Keep the free 15 ]
 
 Rules:
 - Import the **most recent** N, not the first N. Recent trades are the ones they care about.
 - Render the calendar and curve from what was imported **before** showing the prompt.
-- "Keep the free 25" must be a real, non-punished choice. No nag on every page load.
+- "Keep the free 15" must be a real, non-punished choice. No nag on every page load.
 
 Manual logging hits a quieter version at the form:
 
-> You've logged 25 trades — that's the free limit. Unlock unlimited for $35 once.
+> You've logged 15 trades — that's the free limit. Unlock unlimited for $35 once.
 
 ---
 
@@ -87,7 +95,7 @@ API route. So a check in JavaScript is advisory only — anyone can bypass it fr
 ```
 BEFORE INSERT ON public.trades
   → count existing rows for NEW.user_id
-  → if count >= 25 AND no template_purchases row for (user_id, 'trader-template')
+  → if count >= free_trade_cap() AND no template_purchases row for (user_id, 'trader-template')
     → raise exception 'TRADE_CAP_REACHED'
 ```
 
@@ -180,7 +188,7 @@ Stop counting signups. The number that matters:
 **Activation — users who log 5 or more trades.** Today that is **one person.**
 
 - Activation: signed up → 5 trades
-- Cap-hit rate: activated → reached 25
+- Cap-hit rate: activated → reached the cap
 - Conversion: reached cap → paid
 
 If activation moves from 1 to 10, the model works and revenue follows. If it stays near

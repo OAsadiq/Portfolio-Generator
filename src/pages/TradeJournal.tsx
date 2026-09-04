@@ -42,6 +42,16 @@ type Trade = {
   screenshot_url?: string | null;
 };
 
+/**
+ * Mirrors public.free_trade_cap() in the database — used for copy only.
+ *
+ * The DATABASE is the source of truth: the trigger in sql/011_trade_cap.sql reads that
+ * function, so enforcement never depends on this constant. It exists so the dialog can
+ * name the number without a round trip. If you change the cap, change it in SQL first
+ * (see sql/014_trade_cap_15.sql) and update this line to match.
+ */
+const FREE_TRADE_CAP = 15;
+
 const EMPTY_FORM = {
   symbol: '',
   direction: 'long' as 'long' | 'short',
@@ -761,8 +771,8 @@ const TradeJournal = () => {
           </p>
         ) : (
           <p>
-            Free accounts keep their most recent {25} trades. Unlock unlimited logging and
-            imports, remove the Porfilr badge from your page, and turn on your public calendar.
+            Free accounts keep their most recent {FREE_TRADE_CAP} trades. Unlock unlimited
+            logging and imports, and remove the Porfilr badge from your page.
           </p>
         )}
         {unlockError && <p className="text-red-500 text-sm mt-3">{unlockError}</p>}
