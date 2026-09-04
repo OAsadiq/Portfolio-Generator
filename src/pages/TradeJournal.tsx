@@ -217,6 +217,22 @@ const TradeJournal = () => {
       setPortfolio(p);
       setBalanceInput(p.starting_balance ? String(p.starting_balance) : '');
 
+      // Re-attach any trades left behind by a page they deleted. Runs on every open, and
+      // is a no-op once there's nothing orphaned.
+      //
+      // It must happen BEFORE the trades are fetched, or the adopted ones wouldn't appear
+      // until the next visit. Orphans stay counted against the free cap the whole time
+      // they're detached, so a trader could be told they'd used 25 trades while looking at
+      // 4 — which is what happened before this existed.
+      try {
+        const { data: adopted } = await supabase.rpc('adopt_orphan_trades', { target_portfolio: p.id });
+        if (typeof adopted === 'number' && adopted > 0) {
+          track('orphan_trades_adopted', { slug, count: adopted });
+        }
+      } catch {
+        // The RPC may not be deployed yet — never block the journal over a repair step.
+      }
+
       const { data: t, error: tErr } = await supabase
         .from('trades')
         .select('*')
