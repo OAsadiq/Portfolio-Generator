@@ -328,60 +328,68 @@ export const NICHES: NicheConfig[] = [
   {
     slug: 'portfolio-website-for-traders',
     niche: 'Traders',
-    seoTitle: 'Portfolio Website for Traders — Share a Verified Track Record | Porfilr',
+    // Rewritten for Porfilr Journal. The old copy sold "prove yourself to investors" and
+    // led with "stop sending screenshots" — an angle traders openly rejected, since almost
+    // none of them are raising money. It also promised a "Verified" track record in the
+    // title, which we do not do: the trader enters their own numbers and we say so.
+    seoTitle: 'Trading Journal for Traders — Track Your Results | Porfilr',
     seoDescription:
-      'Stop sending messy screenshots. Organize your verified performance and strategy into one clean link that builds instant trust with investors. No code, free to start.',
-    h1: 'A track record that proves your consistency.',
+      'Log or import your trades and see your calendar, equity curve, win rate and drawdown. Works with Bybit, MEXC, Binance, MT4 and MT5. Free to start, and you get a page to share if you want one.',
+    h1: 'See your trading clearly.',
     subhead:
-      'Stop sending messy screenshots. Organize your verified performance and strategy into one clean, professional link that builds instant trust with investors and prop firms.',
+      'Log your trades — or import your history from your exchange or broker — and Porfilr works out your equity curve, a calendar of every green and red day, your real win rate and drawdown. The patterns costing you money, in front of you.',
     benefits: [
       {
-        title: 'Trust at a glance',
-        body: 'A clean, organized page beats a folder of cropped screenshots — it signals you’re a professional, not a gambler.',
+        title: 'Your real numbers, not your memory',
+        body: 'Most traders can’t say their actual win rate. Porfilr works it out from your trades — win rate, average win and loss, profit factor, drawdown.',
       },
       {
-        title: 'Your numbers, presented well',
-        body: 'Lay out your performance, strategy, and risk approach in one place anyone can read in seconds.',
+        title: 'Spot the pattern you keep repeating',
+        body: 'A calendar of every trading day, coloured by profit or loss, with wins and losses on each. The days you keep giving it back become obvious.',
       },
       {
-        title: 'One link for every conversation',
-        body: 'Send the same professional link to investors, prop firms, and your audience — no more scattered images.',
+        title: 'Import instead of typing',
+        body: 'Export your closed positions from Bybit, MEXC, Binance, MT4, MT5 or cTrader and drop the file in. Months of history in about a minute.',
       },
     ],
     essentials: [
       {
-        title: 'Verified performance up front',
-        body: 'Lead with your key metrics and a link to your verified track record (MyfxBook, broker statement, etc.) so the numbers are credible.',
+        title: 'Start with your history',
+        body: 'Import what you’ve already traded rather than starting from an empty journal — the patterns only show up once there’s enough in there to see them.',
       },
       {
-        title: 'A clear strategy summary',
-        body: 'A short, plain explanation of how you trade and how you manage risk builds more trust than raw P&L alone.',
+        title: 'Log the why, not just the numbers',
+        body: 'A line on the setup and what you were thinking is what makes a journal worth re-reading. Add a chart screenshot and the trade makes sense months later.',
       },
       {
-        title: 'Proof, not just claims',
-        body: 'Link to verifiable sources and add context. Credibility is the whole game when someone’s deciding whether to back you.',
+        title: 'Judge yourself by the curve',
+        body: 'One good day proves nothing. The equity curve and the calendar together show whether you’re consistent or carried by a couple of outliers.',
       },
       {
-        title: 'An easy way to reach you',
-        body: 'A contact form so an interested investor or firm can start the conversation without hunting for your DMs.',
+        title: 'A page, when you want one',
+        body: 'Your journal is private. If you do want to show your trading — to a prop firm, a community, anyone who asks — publish a page that updates itself as you log.',
       },
     ],
     faq: [
       {
-        q: 'Can I link my verified track record?',
-        a: 'Yes. You can link out to verified statements or third-party tracking (broker statements, MyfxBook, etc.) so investors can confirm your numbers.',
+        q: 'Which brokers and exchanges can I import from?',
+        a: 'Bybit, MEXC, Binance, MT4, MT5 and cTrader. Export your closed positions (on Bybit it’s called "Closed P&L") and drop the file in — we map the columns for you. You can also log trades by hand, and mix both.',
       },
       {
-        q: 'Do I need any technical skills?',
-        a: 'No. Add your details, performance, and strategy, then publish — Porfilr builds a clean, professional, responsive page for you. No code.',
+        q: 'Does Porfilr verify my numbers?',
+        a: 'No, and we say so plainly on your page. You enter your own P&L, or import it from your broker, and we do the maths on it honestly — we don’t audit it. You can link out to a broker statement or third-party tracking if someone needs independent confirmation.',
       },
       {
         q: 'How much does it cost?',
-        a: 'Porfilr Journal is free to start — log or import your first 25 trades, see your calendar, equity curve and real stats, and publish a page if you want one. Unlocking unlimited trades and removing the Porfilr badge is a one-time founding price for early users, then it moves to a monthly plan. No separate Pro plan needed.',
+        a: 'Porfilr Journal is free to start — log or import your first 15 trades, see your calendar, equity curve and real stats, and publish a page if you want one. Unlocking unlimited trades and removing the Porfilr badge is a one-time founding price for early users, then it moves to a monthly plan. No separate Pro plan needed.',
       },
       {
-        q: 'Why not just send screenshots?',
-        a: 'Screenshots are easy to fake and hard to follow. A clean page that links to verified results builds far more trust with investors and prop firms.',
+        q: 'Is my journal private?',
+        a: 'Yes. Your trades, notes and screenshots are yours alone — nothing is public unless you publish a page, and even then your notes and daily amounts stay private. Turning the public calendar on shows the shape of your month, never the figures.',
+      },
+      {
+        q: 'Do I need any technical skills?',
+        a: 'No. Log or import your trades and Porfilr does the rest — no code, and it works on your phone.',
       },
     ],
   },
