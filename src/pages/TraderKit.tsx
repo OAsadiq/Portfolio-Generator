@@ -178,24 +178,53 @@ const TraderKit = () => {
         </div>
       </section>
 
-      {/* Live example — the strongest proof is a real page they can click into */}
-      <section className="max-w-3xl mx-auto px-6 pb-16 text-center">
-        <h2 className="text-2xl font-bold text-stone-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-          And a page, if you want one.
-        </h2>
-        <p className="text-stone-600 mb-6">
-          Your journal is private by default. When you do want to show your trading — to a prop
-          firm, a community, or anyone who asks — this is what it looks like. Generated from the
-          trades you've already logged, and it keeps itself current.
+      {/* Live preview, embedded.
+          This used to be a link to a preview file, which asked someone to leave the page
+          to find out what they'd get. The templates grid shows previews in a modal, but
+          this page is the product page — the preview belongs in it, scrollable, with the
+          page-view toggle right there. */}
+      <section className="max-w-5xl mx-auto px-6 pb-16">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-stone-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+            And a page, if you want one.
+          </h2>
+          <p className="text-stone-600 max-w-2xl mx-auto">
+            Your journal is private by default. When you do want to show your trading — to a prop
+            firm, a community, or anyone who asks — this is what it looks like. Built from the
+            trades you've already logged, and it keeps itself current.
+          </p>
+        </div>
+
+        {/* Browser chrome, so it reads as a real page rather than an image on our site. */}
+        <div className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-2.5 border-b border-stone-200 bg-stone-50">
+            <span className="w-2.5 h-2.5 rounded-full bg-stone-300" />
+            <span className="w-2.5 h-2.5 rounded-full bg-stone-300" />
+            <span className="w-2.5 h-2.5 rounded-full bg-stone-300" />
+            <span className="flex-1 text-center text-xs text-stone-400 font-medium truncate">
+              porfilr.com/p/your-name
+            </span>
+            <a
+              href="/templates/trader-template/preview.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track('kit_preview_opened_fullscreen')}
+              className="flex-none text-xs font-semibold text-stone-500 hover:text-stone-800 transition"
+            >
+              Open full ↗
+            </a>
+          </div>
+          <iframe
+            src="/templates/trader-template/preview.html"
+            title="Porfilr Journal — example published page"
+            loading="lazy"
+            className="w-full h-[460px] sm:h-[560px] bg-white"
+          />
+        </div>
+
+        <p className="text-stone-400 text-xs text-center mt-3">
+          Example page with sample trades. Scroll inside it.
         </p>
-        <a
-          href="/templates/trader-template/preview.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-stone-900 hover:bg-stone-700 text-white font-semibold px-6 py-3 rounded-xl transition"
-        >
-          View the live example →
-        </a>
       </section>
 
       {/* How it works — removes the "is this a lot of work?" objection */}

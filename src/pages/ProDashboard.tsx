@@ -74,11 +74,17 @@ const PROFESSIONAL_TEMPLATES = ['professional-writer-template', 'modern-writer-t
 const INPUT = 'w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-100 transition';
 
 const ProDashboard = () => {
-  const { user, isPro, ownedTemplates, subscriptionLoading, signOut } = useAuth();
+  const { user, isPro, ownedTemplates, hasPortfolio, subscriptionLoading, signOut } = useAuth();
   const isMobile = useIsMobileOnce();
   // Kit owners get the same portfolio management as Pro (analytics, custom domain) —
   // the kit is a standalone product that includes the hosting perks.
-  const hasDashboardAccess = isPro || ownedTemplates.length > 0;
+  // Anyone who has actually made something gets their dashboard, paid or not.
+  //
+  // This was `isPro || ownedTemplates.length > 0`, which made sense when a page required
+  // a purchase. With the journal free to start, a free user can publish a page and then
+  // be locked out of the only screen showing its link, its views, and the messages people
+  // send them. Pro-only features (custom domains, billing) are gated individually below.
+  const hasDashboardAccess = isPro || ownedTemplates.length > 0 || hasPortfolio;
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [stats, setStats] = useState<Stats>({ totalPortfolios: 0, totalViews: 0, templatesUsed: 0, lastCreated: null });
   const [loading, setLoading] = useState(true);
@@ -327,11 +333,17 @@ const ProDashboard = () => {
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-stone-900 mb-2">Dashboard</h2>
-          <p className="text-stone-500 mb-6">The dashboard is available with Pro or any kit.</p>
-          <Link to="/pricing">
-            <button className="w-full bg-stone-900 hover:bg-stone-700 text-white py-3 px-6 rounded-xl font-bold transition">
-              See plans
+          <p className="text-stone-500 mb-6">
+            Your dashboard appears once you've made something — start a journal or publish a
+            page and everything shows up here.
+          </p>
+          <Link to="/journal">
+            <button className="w-full bg-stone-900 hover:bg-stone-700 text-white py-3 px-6 rounded-xl font-bold transition mb-2">
+              Start your journal — free
             </button>
+          </Link>
+          <Link to="/templates" className="text-stone-400 hover:text-stone-700 text-sm transition">
+            Browse templates
           </Link>
         </div>
       </div>
@@ -725,13 +737,13 @@ const ProDashboard = () => {
                           <p className="text-stone-500 text-sm">
                             {kit.amount ? `${fmtPrice(kit.amount)} one-time` : 'Unlocked'} · trade journal &amp; live track record
                           </p>
-                          <p className="text-stone-400 text-xs mt-1">Lifetime access — includes everything the kit needs, no Pro required.</p>
+                          <p className="text-stone-400 text-xs mt-1">Lifetime access — unlimited trades and no Porfilr badge. No Pro required.</p>
                         </div>
                       </div>
                     ))}
 
                     {!hasPro && kitPurchases.length === 0 && (
-                      <p className="text-stone-500 text-sm">You're on the free plan. Upgrade to Pro or get a kit to unlock more.</p>
+                      <p className="text-stone-500 text-sm">You're on the free plan — the Journal is free to use. Unlock unlimited trades, or go Pro for the other templates.</p>
                     )}
                   </div>
                 </div>
@@ -756,7 +768,7 @@ const ProDashboard = () => {
                   ];
                   const groups = [
                     ...(hasPro ? [['Included with Pro', proFeatures] as const] : []),
-                    ...(kitPurchases.length > 0 ? [['Included with your kit', kitFeatures] as const] : []),
+                    ...(kitPurchases.length > 0 ? [['Included with Porfilr Journal', kitFeatures] as const] : []),
                   ];
                   return groups.map(([title, features]) => (
                     <div key={title} className="bg-white border border-stone-200 rounded-2xl p-6">

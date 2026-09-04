@@ -9,8 +9,10 @@ function esc(s) {
 
 const traderTemplate = {
   id: 'trader-template',
-  name: 'Trader',
-  description: 'A premium, credible track-record page for traders — get funded, get clients, get taken seriously.',
+  // The card in the template grid is the product, not just a layout: this is the journal,
+  // and the page is what it publishes. Named to match /trader-kit and everything else.
+  name: 'Porfilr Journal',
+  description: 'Log or import your trades and see your calendar, equity curve and real win rate — with a page you can share when you want one. Free to start.',
   thumbnail: '/images/minimal-template.jpg',
 
   // `isPro` conflated two unrelated things: "render in the visual builder" and

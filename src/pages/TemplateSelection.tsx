@@ -556,11 +556,23 @@ const TemplateSelection = () => {
                     <h3 className="font-bold text-stone-900 text-base mb-1">{template.name}</h3>
                     <p className="text-stone-400 text-xs leading-relaxed mb-4 line-clamp-2">{template.description}</p>
                     <div className="flex gap-2" data-tour={idx === 0 ? "tour-card-actions" : undefined}>
+                      {/* The Journal isn't a layout you can judge from a screenshot — the
+                          value is the calendar, the curve and the import. Its "preview"
+                          goes to the product page, which can actually show that. Every
+                          other template is a page, so the iframe still makes sense. */}
                       <button
-                        onClick={() => setPreviewTemplate(template)}
+                        onClick={() => {
+                          const productPage = KIT_CLAIM_PATH[template.id];
+                          if (productPage) {
+                            track('kit_product_page_opened', { templateId: template.id, from: 'templates' });
+                            navigate(productPage);
+                          } else {
+                            setPreviewTemplate(template);
+                          }
+                        }}
                         className="flex-1 border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 py-2.5 rounded-xl text-sm font-medium transition"
                       >
-                        Preview
+                        {KIT_CLAIM_PATH[template.id] ? 'How it works' : 'Preview'}
                       </button>
                       <button
                         onClick={() => handleSelect(template.id)}
