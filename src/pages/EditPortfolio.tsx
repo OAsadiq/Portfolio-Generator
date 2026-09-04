@@ -435,13 +435,6 @@ const EditPortfolio = () => {
 
         {/* Form */}
         <form id="edit-form" onSubmit={handleSave} className="space-y-5">
-          {/* Same presets as the create form, from the same component — the two screens
-              were showing different colour controls for the same template. */}
-          <ColorPresets
-            fields={templateFields}
-            formData={formData}
-            onApply={(patch) => setFormData((prev: any) => ({ ...prev, ...patch }))}
-          />
 
           {groupedFields.map(([section, fields]) => {
             const meta = SECTION_META[section] || { label: section, icon: '📋' };
@@ -562,6 +555,27 @@ const EditPortfolio = () => {
             </div>
           )}
 
+          {/* Colour sits down here, after the content — same position as the create form.
+              At the top of the page it was the first thing a returning user saw, above
+              their own details, which no other template's edit page does. */}
+          <ColorPresets
+            fields={templateFields}
+            formData={formData}
+            onApply={(patch) => setFormData((prev: any) => ({ ...prev, ...patch }))}
+          />
+
+          {/* Preview, inline and directly above Save — not a floating bar. It belongs in
+              the same flow as the button it precedes: look, then save. */}
+          {isMobile && (
+            <button
+              type="button"
+              onClick={openSheet}
+              className="w-full bg-white border border-stone-300 text-stone-800 py-3.5 rounded-xl font-semibold text-sm transition active:scale-[0.99]"
+            >
+              Preview my page
+            </button>
+          )}
+
           {/* Bottom save — convenience duplicate for long forms */}
           <button
             type="submit"
@@ -581,21 +595,6 @@ const EditPortfolio = () => {
           </p>
         </form>
       </div>
-
-      {/* Sticky preview on phones. The header's Preview button is desktop-only (it opens
-          a tab, which mobile blocks), so without this the edit form had no way to see the
-          page at all — the exact gap we closed on the create form. */}
-      {isMobile && !sheetOpen && (
-        <div className="fixed bottom-0 inset-x-0 z-40 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 bg-gradient-to-t from-stone-50 via-stone-50 to-transparent pointer-events-none">
-          <button
-            type="button"
-            onClick={openSheet}
-            className="pointer-events-auto w-full bg-white border border-stone-300 shadow-lg text-stone-800 py-3.5 rounded-xl font-semibold text-sm transition active:scale-[0.99]"
-          >
-            Preview my page
-          </button>
-        </div>
-      )}
 
       <PreviewSheet
         open={sheetOpen}
