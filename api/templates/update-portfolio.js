@@ -171,6 +171,11 @@ export default async function handler(req, res) {
         // dashboard kept saying "Journal only — publish one" for a page that was already
         // published, and /p/:slug 404'd because it filters on status='active'.
         status: 'active',
+        // Keep the stored field list current. A journal-first draft is created in the
+        // browser with no template_fields at all, and the old snapshot goes stale as
+        // templates gain fields — /edit falls back to this copy when it can't reach the
+        // API, so a null or ancient list is what someone edits offline.
+        template_fields: template.fields,
         // Required: sql/012 enforces that an ACTIVE row has a file_path, so a page can
         // never be marked live with nothing to serve. A draft's file_path is null until
         // this first publish writes the HTML above.

@@ -67,15 +67,19 @@ const EditPortfolio = () => {
       .single();
     if (!data || !PROFESSIONAL_TEMPLATES.includes(data.template_id)) return;
 
-    // On a phone, stay on this form rather than redirecting into the builder, which
-    // blocks below 900px — the redirect used to bounce mobile users out of a working
-    // editor and into a dead end.
+    // On a phone, stay on this form. The builder blocks below 900px, so redirecting there
+    // is a dead end.
     //
-    // Only when the page actually has saved fields to edit, though. modern-writer stores
-    // none (it's builder-only), and this form renders "No template data found" for it,
-    // which is a worse dead end than the one we're avoiding.
-    const editableOnMobile = Array.isArray(data.template_fields) && data.template_fields.length > 0;
-    if (isMobile && editableOnMobile) return;
+    // This used to be conditional on the row's stored `template_fields`, which created an
+    // infinite loop: a journal-first page is created client-side by /journal and stores
+    // NULL there, so /edit bounced to /builder, the builder's small-screen screen offered
+    // "Edit on my phone" back to /edit, and round it went. To the user that looks like
+    // tapping Edit does nothing at all.
+    //
+    // The condition isn't needed any more either: fetchPortfolio prefers the LIVE template
+    // fields over the stored snapshot, and every template now declares fields (the
+    // builder-only modern-writer case that motivated the check no longer exists).
+    if (isMobile) return;
 
     navigate(`/builder/${slug}`, { replace: true });
   };

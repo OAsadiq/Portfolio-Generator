@@ -41,7 +41,11 @@ const supabase = createClient(url, key);
 
 let q = supabase
   .from('portfolios')
-  .select('id, slug, template_id, form_data, sections, file_path, user_id, journal_enabled, starting_balance, metrics_cache, calendar_public');
+  .select('id, slug, template_id, form_data, sections, file_path, user_id, journal_enabled, starting_balance, metrics_cache, calendar_public, status')
+  // Published pages only. A journal-first draft has no file_path and nothing public to
+  // serve — regenerating one would invent `portfolios/<slug>.html` for a page the owner
+  // has never published, and /p/:slug 404s drafts by design anyway.
+  .eq('status', 'active');
 if (slugArg) q = q.eq('slug', slugArg);
 const { data: portfolios, error } = await q;
 
