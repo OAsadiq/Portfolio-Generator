@@ -13,6 +13,7 @@ import { computeMetrics } from '../../api/_lib/metrics.js';
 import { parseTradeCsv } from '../../api/_lib/tradeCsv.js';
 import { extractLinks } from '../../api/_lib/noteLinks.js';
 import Modal from '../components/Modal';
+import { startKitCheckout } from '../lib/kitCheckout';
 // Trading performance calendar — same closed-only, net-of-fees maths as the metrics, so
 // the calendar can never disagree with the headline numbers.
 import { monthGrid, activeMonths } from '../../api/_lib/calendar.js';
@@ -134,6 +135,8 @@ const TradeJournal = () => {
   const [capPrompt, setCapPrompt] = useState<{ found: number; imported: number } | null>(null);
   // The trade awaiting delete confirmation. Holds the whole row so the dialog can name it.
   const [deleteTarget, setDeleteTarget] = useState<Trade | null>(null);
+  const [unlocking, setUnlocking] = useState(false);
+  const [unlockError, setUnlockError] = useState<string | null>(null);
   const [showErrors, setShowErrors] = useState(false);
 
   type Mover = { symbol: string; price: number; changePct: number; major: boolean };
@@ -538,6 +541,30 @@ const TradeJournal = () => {
     }
   };
 
+  /** Buy from inside the dialog. Sends them to Stripe without leaving the journal first. */
+  const unlockKit = async () => {
+    if (!user) return;
+    setUnlocking(true);
+    setUnlockError(null);
+    track('cap_prompt_upgrade_clicked', { slug, found: capPrompt?.found ?? 0 });
+    try {
+      const r = await startKitCheckout(portfolio.template_id, user);
+      if (r.kind === 'checkout') {
+        window.location.href = r.url;
+        return;                       // navigating away; leave the spinner up
+      }
+      // Granted by a referral credit, or already owned — no payment needed. Reload so the
+      // cap lifts and the journal reflects it.
+      setCapPrompt(null);
+      showToast(r.kind === 'granted' ? 'Unlocked with your referral credit.' : 'Already unlocked.');
+      load();
+    } catch (err: any) {
+      setUnlockError(err?.message || 'Could not open checkout. Please try again.');
+    } finally {
+      setUnlocking(false);
+    }
+  };
+
   const confirmDelete = async () => {
     const t = deleteTarget;
     if (!t) return;
@@ -696,13 +723,17 @@ const TradeJournal = () => {
             >
               {capPrompt.imported > 0 ? `Keep the free ${capPrompt.imported}` : 'Not now'}
             </button>
-            <Link
-              to={`/create/${portfolio.template_id}`}
-              onClick={() => track('cap_prompt_upgrade_clicked', { slug, found: capPrompt.found })}
-              className="bg-stone-900 hover:bg-stone-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition text-center"
+            {/* Straight to Stripe from here — no detour through the page builder. The
+                decision was made in this dialog; making them navigate somewhere else to
+                act on it is where intent leaks away. */}
+            <button
+              type="button"
+              disabled={unlocking}
+              onClick={unlockKit}
+              className="bg-stone-900 hover:bg-stone-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition text-center"
             >
-              Unlock everything — $35 once
-            </Link>
+              {unlocking ? 'Opening checkout…' : 'Unlock everything — $35 once'}
+            </button>
           </>
         ) : null}
       >
@@ -718,6 +749,7 @@ const TradeJournal = () => {
             imports, remove the Porfilr badge from your page, and turn on your public calendar.
           </p>
         )}
+        {unlockError && <p className="text-red-500 text-sm mt-3">{unlockError}</p>}
         <p className="text-stone-400 text-xs mt-3">
           One payment, no subscription. What you've already logged stays yours either way.
         </p>

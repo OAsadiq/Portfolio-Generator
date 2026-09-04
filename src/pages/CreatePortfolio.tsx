@@ -6,7 +6,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import PortfolioVisualBuilder from "../components/PortfolioVisualBuilder.tsx";
 import SharePortfolio from "../components/SharePortfolio";
-import { track, attributionSource } from "../lib/track";
+import { track } from "../lib/track";
+import { startKitCheckout } from "../lib/kitCheckout";
 import { suggestEmailFix } from "../lib/emailTypo";
 import { useIsMobileOnce } from "../lib/useIsMobile";
 import { requestDesktopLink } from "../lib/desktopLink";
@@ -215,44 +216,20 @@ const CreatePortfolio = () => {
     setKitLoading(true);
     setKitError(null);
     try {
-      // Price is resolved server-side from templateId — the client must not send it, or
-      // it could substitute a cheaper price. See KIT_PRICE_ENV in api/stripe/actions.js.
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/stripe/actions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'create-template-checkout',
-          templateId: template?.id,
-          userId: user.id,
-          userEmail: user.email,
-          // Who drove this visitor here (first-touch). Recorded on the purchase so
-          // growth commission is provable from data rather than memory.
-          attribution: attributionSource(),
-        }),
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        let msg = 'Failed to start checkout';
-        try { msg = JSON.parse(text).error || msg; } catch { /* empty */ }
-        throw new Error(msg);
-      }
-      const data = await res.json();
+      // Shared with the journal's free-limit dialog — see src/lib/kitCheckout.ts.
+      const r = await startKitCheckout(String(template?.id), user);
 
-      // A referral credit (or an existing purchase) unlocks the kit without Stripe —
-      // there's no checkout URL in that case, and treating it as an error would tell
-      // someone their free kit failed.
-      if (data.granted || data.alreadyOwned) {
+      if (r.kind === 'granted' || r.kind === 'alreadyOwned') {
         await checkSubscription(); // refresh ownedTemplates so the gate opens
-        track(data.granted ? 'kit_granted' : 'kit_already_owned', {
+        track(r.kind === 'granted' ? 'kit_granted' : 'kit_already_owned', {
           templateId: template?.id,
-          reason: data.reason || null,
+          reason: r.kind === 'granted' ? r.reason : null,
         });
         setKitLoading(false);
         return;
       }
 
-      if (data.url) window.location.href = data.url;
-      else throw new Error('No checkout URL returned');
+      window.location.href = r.url;
     } catch (err: any) {
       setKitError(err.message || 'Could not start checkout. Please try again.');
       setKitLoading(false);
