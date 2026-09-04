@@ -16,7 +16,16 @@ export type KitCheckoutResult =
  */
 export async function startKitCheckout(
   templateId: string,
-  user: { id: string; email?: string | null }
+  user: { id: string; email?: string | null },
+  /**
+   * Where Stripe's "back" link returns to. Defaults to the page they're on, so abandoning
+   * checkout puts them back where they were — the journal, usually — instead of on the
+   * template grid, which is where the old fixed cancel_url sent everyone.
+   *
+   * The server only accepts a same-site path and falls back to /templates otherwise; a
+   * full URL from here would make the Stripe session an open redirect.
+   */
+  cancelPath: string = typeof window !== 'undefined' ? window.location.pathname : '/templates'
 ): Promise<KitCheckoutResult> {
   const res = await fetch(`${import.meta.env.VITE_API_URL}/api/stripe/actions`, {
     method: 'POST',
@@ -26,6 +35,7 @@ export async function startKitCheckout(
       templateId,
       userId: user.id,
       userEmail: user.email,
+      cancelPath,
       // Who drove this visitor here (first-touch). Recorded on the purchase so growth
       // commission is provable from data rather than memory.
       attribution: attributionSource(),

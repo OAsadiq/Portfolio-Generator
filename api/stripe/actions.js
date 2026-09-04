@@ -101,10 +101,21 @@ const KIT_PRICE_ENV = {
     'trader-template': 'STRIPE_TRADER_KIT_PRICE_ID',
 };
 
-async function handleCreateTemplateCheckout({ templateId, userId, userEmail, attribution }, res) {
+async function handleCreateTemplateCheckout({ templateId, userId, userEmail, attribution, cancelPath }, res) {
     if (!userId || !templateId) {
         return res.status(400).json({ error: 'Missing user or template' });
     }
+
+    // Where "back" goes if they abandon checkout. Checkout can now start from the journal's
+    // free-limit dialog, and dumping someone on /templates after they change their mind
+    // loses the page they were working in.
+    //
+    // Only a same-site path is accepted — never a full URL from the client. Echoing an
+    // arbitrary URL into cancel_url would turn our Stripe session into an open redirect.
+    const safeCancelPath =
+        typeof cancelPath === 'string' && /^\/[A-Za-z0-9\-._~/]*$/.test(cancelPath) && !cancelPath.startsWith('//')
+            ? cancelPath
+            : '/templates';
 
     const priceEnv = KIT_PRICE_ENV[templateId];
     const priceId = priceEnv ? process.env[priceEnv] : null;
@@ -169,7 +180,7 @@ async function handleCreateTemplateCheckout({ templateId, userId, userEmail, att
             line_items: [{ price: priceId, quantity: 1 }],
             customer_email: userEmail,
             success_url: `${process.env.VITE_REDIRECT_URL}/template-success?template_id=${templateId}`,
-            cancel_url: `${process.env.VITE_REDIRECT_URL}/templates`,
+            cancel_url: `${process.env.VITE_REDIRECT_URL}${safeCancelPath}`,
             // attribution rides through Stripe so the webhook can record who drove the
             // sale — Stripe metadata values must be strings, hence the ?? ''.
             metadata: { userId, templateId, type: 'premium_template', attribution: attribution || '' }
