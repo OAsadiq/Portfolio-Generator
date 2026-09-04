@@ -13,6 +13,7 @@ import { useIsMobileOnce } from "../lib/useIsMobile";
 import { requestDesktopLink } from "../lib/desktopLink";
 import { FREE_TRADE_CAP } from "../lib/plan";
 import PreviewSheet from "../components/PreviewSheet";
+import { getTemplateConfig, COLOR_PRESETS } from "../components/builder/builder.config";
 import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from "../lib/formSections";
 
 interface TemplateField {
@@ -91,6 +92,33 @@ const CreatePortfolio = () => {
   const [template, setTemplate] = useState<Template | null>(null);
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  // Which page sections are switched on. Seeded from the template's own defaults so the
+  // form starts where the builder would.
+  const [pageSections, setPageSections] = useState<{ id: string; name: string; visible: boolean; order: number }[]>([]);
+  useEffect(() => {
+    if (!templateId) return;
+    const cfg = getTemplateConfig(templateId);
+    setPageSections((cfg.sections || []).map((s) => ({ id: s.id, name: s.name, visible: s.visible, order: s.order })));
+  }, [templateId]);
+
+  /**
+   * Sections in the shape the publish route stores and the templates read.
+   * `{ id, enabled, order }` matches what the builder saves, so a page built on a phone
+   * and later opened in the builder describes its layout the same way.
+   */
+  const sectionsForSave = () =>
+    pageSections.map((s) => ({ id: s.id, enabled: s.visible, order: s.order }));
+
+  /** Apply a preset to whichever colour fields this template declares. */
+  const applyPreset = (preset: { primary: string; accent: string }) => {
+    const names = new Set((template?.fields || []).filter((f) => f.type === 'color').map((f) => f.name));
+    setFormData((prev: any) => ({
+      ...prev,
+      ...(names.has('primaryColor') ? { primaryColor: preset.primary } : {}),
+      ...(names.has('accentColor') ? { accentColor: preset.accent } : {}),
+    }));
+  };
+
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -273,7 +301,7 @@ const CreatePortfolio = () => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ templateId, ...formData }),
+        body: JSON.stringify({ templateId, ...formData, sections: sectionsForSave() }),
       });
       if (!res.ok) throw new Error('Preview failed');
       const data = await res.json();
@@ -317,7 +345,7 @@ const CreatePortfolio = () => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates/create-portfolio`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ templateId, formData }),
+        body: JSON.stringify({ templateId, formData, sections: sectionsForSave() }),
       });
       if (res.status === 413) throw new Error("Image is too large. Please use a smaller file and try again.");
       const data = await res.json();
@@ -945,6 +973,69 @@ const CreatePortfolio = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {error}
+            </div>
+          )}
+
+          {/* Colour presets.
+              The raw <input type="color"> is still below in "Look & layout", but on a
+              phone it opens the OS colour wheel and asks a trader to pick a hex value —
+              the builder hands desktop users thirteen curated pairs instead. Same list,
+              same source (builder.config.ts), so they can't drift apart. */}
+          {(template?.fields || []).some((f) => f.type === 'color') && (
+            <div className="bg-white border border-stone-200 rounded-2xl p-6">
+              <h2 className="font-bold text-stone-900 text-sm mb-1">🎨 Colour</h2>
+              <p className="text-stone-400 text-xs mb-4">Tap one, or set an exact colour under “Look &amp; layout”.</p>
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                {COLOR_PRESETS.map((p) => {
+                  const active = formData.accentColor === p.accent || formData.primaryColor === p.primary;
+                  return (
+                    <button
+                      key={p.name}
+                      type="button"
+                      onClick={() => applyPreset(p)}
+                      title={p.name}
+                      aria-label={p.name}
+                      aria-pressed={active}
+                      className={`aspect-square rounded-xl border-2 transition ${active ? 'border-stone-900 scale-95' : 'border-transparent hover:border-stone-300'}`}
+                      style={{ background: `linear-gradient(135deg, ${p.primary} 50%, ${p.accent} 50%)` }}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Section show/hide.
+              Reordering stays desktop-only — dragging to reorder on a phone is genuinely
+              unpleasant — but choosing what appears at all shouldn't require a laptop. */}
+          {pageSections.length > 0 && (
+            <div className="bg-white border border-stone-200 rounded-2xl p-6">
+              <h2 className="font-bold text-stone-900 text-sm mb-1">🧱 Sections on your page</h2>
+              <p className="text-stone-400 text-xs mb-4">
+                Turn off anything you don't need. You can change this any time.
+              </p>
+              <div className="space-y-1">
+                {pageSections.map((s) => (
+                  <label
+                    key={s.id}
+                    className="flex items-center justify-between gap-3 py-2.5 cursor-pointer border-b border-stone-50 last:border-0"
+                  >
+                    <span className={`text-sm ${s.visible ? 'text-stone-800 font-medium' : 'text-stone-400'}`}>
+                      {s.name}
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={s.visible}
+                      onChange={(e) =>
+                        setPageSections((prev) =>
+                          prev.map((x) => (x.id === s.id ? { ...x, visible: e.target.checked } : x))
+                        )
+                      }
+                      className="w-5 h-5 rounded accent-stone-900 flex-none"
+                    />
+                  </label>
+                ))}
+              </div>
             </div>
           )}
 

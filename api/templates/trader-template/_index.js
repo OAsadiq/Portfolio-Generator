@@ -300,7 +300,12 @@ const traderTemplate = {
     // for the form flow and for pages published before sections existed.
     const chosen = (Array.isArray(sections) && sections.length)
       ? sections
-          .filter(s => s && s.visible !== false && blocks[s.id])
+          // Accept BOTH shapes. The builder saves `{ id, enabled, order }` while the
+          // in-memory section list uses `visible` — this filter only checked `visible`,
+          // so a section hidden in the builder still rendered on the published page:
+          // `undefined !== false` is true. The other two templates read `enabled`, which
+          // is why the bug was specific to trader pages.
+          .filter(s => s && (s.visible !== false) && (s.enabled === undefined || s.enabled) && blocks[s.id])
           .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
           .map(s => s.id)
       : DEFAULT_ORDER;

@@ -44,7 +44,12 @@ export default function handler(req, res) {
         return res.status(404).json({ error: "Template not found" });
       }
 
-      const html = template.generateHTML(body);
+      // generateHTML(data, sections, meta) — `sections` is a separate argument, so passing
+      // the whole body as `data` silently ignored it. The mobile preview sends the user's
+      // section toggles, and without this they'd see a page that still showed sections
+      // they'd just switched off, then a published page that differed from the preview.
+      const { sections, templateId: _id, ...data } = body;
+      const html = template.generateHTML(data, Array.isArray(sections) ? sections : []);
 
       return res.status(200).json({
         message: "Portfolio generated",
