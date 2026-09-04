@@ -13,7 +13,8 @@ import { useIsMobileOnce } from "../lib/useIsMobile";
 import { requestDesktopLink } from "../lib/desktopLink";
 import { FREE_TRADE_CAP } from "../lib/plan";
 import PreviewSheet from "../components/PreviewSheet";
-import { getTemplateConfig, COLOR_PRESETS } from "../components/builder/builder.config";
+import { getTemplateConfig } from "../components/builder/builder.config";
+import ColorPresets from "../components/ColorPresets";
 import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from "../lib/formSections";
 
 interface TemplateField {
@@ -108,16 +109,6 @@ const CreatePortfolio = () => {
    */
   const sectionsForSave = () =>
     pageSections.map((s) => ({ id: s.id, enabled: s.visible, order: s.order }));
-
-  /** Apply a preset to whichever colour fields this template declares. */
-  const applyPreset = (preset: { primary: string; accent: string }) => {
-    const names = new Set((template?.fields || []).filter((f) => f.type === 'color').map((f) => f.name));
-    setFormData((prev: any) => ({
-      ...prev,
-      ...(names.has('primaryColor') ? { primaryColor: preset.primary } : {}),
-      ...(names.has('accentColor') ? { accentColor: preset.accent } : {}),
-    }));
-  };
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
@@ -981,29 +972,11 @@ const CreatePortfolio = () => {
               phone it opens the OS colour wheel and asks a trader to pick a hex value —
               the builder hands desktop users thirteen curated pairs instead. Same list,
               same source (builder.config.ts), so they can't drift apart. */}
-          {(template?.fields || []).some((f) => f.type === 'color') && (
-            <div className="bg-white border border-stone-200 rounded-2xl p-6">
-              <h2 className="font-bold text-stone-900 text-sm mb-1">🎨 Colour</h2>
-              <p className="text-stone-400 text-xs mb-4">Tap one, or set an exact colour under “Look &amp; layout”.</p>
-              <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
-                {COLOR_PRESETS.map((p) => {
-                  const active = formData.accentColor === p.accent || formData.primaryColor === p.primary;
-                  return (
-                    <button
-                      key={p.name}
-                      type="button"
-                      onClick={() => applyPreset(p)}
-                      title={p.name}
-                      aria-label={p.name}
-                      aria-pressed={active}
-                      className={`aspect-square rounded-xl border-2 transition ${active ? 'border-stone-900 scale-95' : 'border-transparent hover:border-stone-300'}`}
-                      style={{ background: `linear-gradient(135deg, ${p.primary} 50%, ${p.accent} 50%)` }}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          <ColorPresets
+            fields={template?.fields || []}
+            formData={formData}
+            onApply={(patch) => setFormData((prev: any) => ({ ...prev, ...patch }))}
+          />
 
           {/* Section show/hide.
               Reordering stays desktop-only — dragging to reorder on a phone is genuinely

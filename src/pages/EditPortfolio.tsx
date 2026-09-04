@@ -6,6 +6,8 @@ import Logo from '../components/Logo';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useIsMobileOnce } from '../lib/useIsMobile';
+import ColorPresets from '../components/ColorPresets';
+import PreviewSheet from '../components/PreviewSheet';
 import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from '../lib/formSections';
 
 interface TemplateField {
@@ -35,6 +37,40 @@ const EditPortfolio = () => {
   const [templateFields, setTemplateFields] = useState<TemplateField[]>([]);
   const [templateName, setTemplateName]     = useState<string>('');
   const [openSections, setOpenSections]     = useState<Record<string, boolean>>({});
+  const [sheetOpen, setSheetOpen]           = useState(false);
+  const [sheetHtml, setSheetHtml]           = useState<string | null>(null);
+  const [sheetLoading, setSheetLoading]     = useState(false);
+  const [sheetError, setSheetError]         = useState<string | null>(null);
+
+  /**
+   * Preview on a phone.
+   *
+   * Separate from handlePreview() below, which opens a new tab — that one is desktop-only
+   * because mobile browsers block window.open after an await and iOS refuses blob: URLs
+   * in a new tab. This renders into a sheet instead, so the edit form has the preview the
+   * create form got.
+   */
+  const openSheet = async () => {
+    if (!portfolio) return;
+    setSheetOpen(true);
+    setSheetLoading(true);
+    setSheetError(null);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId: portfolio.template_id, ...formData, sections: portfolio.sections || [] }),
+      });
+      if (!res.ok) throw new Error('Preview failed');
+      const data = await res.json();
+      if (!data.html) throw new Error('No preview returned');
+      setSheetHtml(data.html);
+    } catch (err: any) {
+      setSheetError(err?.message || 'Something went wrong building the preview.');
+    } finally {
+      setSheetLoading(false);
+    }
+  };
   const [formData, setFormData]             = useState<any>({});
   const [loading, setLoading]               = useState(true);
   const [saving, setSaving]                 = useState(false);
@@ -399,6 +435,13 @@ const EditPortfolio = () => {
 
         {/* Form */}
         <form id="edit-form" onSubmit={handleSave} className="space-y-5">
+          {/* Same presets as the create form, from the same component — the two screens
+              were showing different colour controls for the same template. */}
+          <ColorPresets
+            fields={templateFields}
+            formData={formData}
+            onApply={(patch) => setFormData((prev: any) => ({ ...prev, ...patch }))}
+          />
 
           {groupedFields.map(([section, fields]) => {
             const meta = SECTION_META[section] || { label: section, icon: '📋' };
@@ -538,6 +581,30 @@ const EditPortfolio = () => {
           </p>
         </form>
       </div>
+
+      {/* Sticky preview on phones. The header's Preview button is desktop-only (it opens
+          a tab, which mobile blocks), so without this the edit form had no way to see the
+          page at all — the exact gap we closed on the create form. */}
+      {isMobile && !sheetOpen && (
+        <div className="fixed bottom-0 inset-x-0 z-40 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 bg-gradient-to-t from-stone-50 via-stone-50 to-transparent pointer-events-none">
+          <button
+            type="button"
+            onClick={openSheet}
+            className="pointer-events-auto w-full bg-white border border-stone-300 shadow-lg text-stone-800 py-3.5 rounded-xl font-semibold text-sm transition active:scale-[0.99]"
+          >
+            Preview my page
+          </button>
+        </div>
+      )}
+
+      <PreviewSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        html={sheetHtml}
+        loading={sheetLoading}
+        error={sheetError}
+        onRetry={openSheet}
+      />
 
       <style>{`
         @keyframes fade-up {
