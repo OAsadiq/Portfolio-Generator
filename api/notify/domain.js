@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { ownerEmailFor, shouldEmailOwner, isJournalTemplate } from '../_lib/liveEmail.js';
 
 // Admin notifier. Target of one or more Supabase Database Webhooks.
 // Each webhook sends { type: 'INSERT'|'UPDATE'|'DELETE', table, record, old_record }.
@@ -73,26 +74,104 @@ async function buildEmail(payload) {
       } catch { /* fall through */ }
     }
 
+    // A journal draft is also a portfolios INSERT. Say which this is rather than
+    // reporting every row as a publish.
+    const isDraft = record.status !== 'active';
+
     const messages = [{
       to: ADMIN_EMAIL,
-      subject: `🚀 New portfolio: ${record.user_name || record.slug}`,
-      html: shell('🚀 New portfolio published', 'A user just published a portfolio.', [
-        ['Name', record.user_name],
-        ['Account email', accountEmail],
-        ['Contact email', record.user_email],
-        ['Template', record.template_id],
-        ['Live URL', record.slug ? `porfilr.com/p/${record.slug}` : null],
-      ], '#ea580c'),
+      subject: isDraft
+        ? `📓 Journal started: ${record.user_name || record.slug}`
+        : `🚀 New portfolio: ${record.user_name || record.slug}`,
+      html: shell(
+        isDraft ? '📓 Journal started' : '🚀 New portfolio published',
+        isDraft
+          ? 'A user opened a journal. No page is published yet.'
+          : 'A user just published a portfolio.',
+        [
+          ['Name', record.user_name],
+          ['Account email', accountEmail],
+          ['Contact email', record.user_email],
+          ['Template', record.template_id],
+          ['Status', record.status],
+          ['Live URL', isDraft || !record.slug ? null : `porfilr.com/p/${record.slug}`],
+        ],
+        isDraft ? '#0d9488' : '#ea580c',
+      ),
     }];
 
-    if (record.user_email && record.slug) {
-      messages.push({
-        to: record.user_email,
-        subject: '🎉 Your portfolio is live',
-        html: portfolioLiveEmail(record.user_name, record.slug),
+    // Only a genuinely published page earns an email, and which one depends on the
+    // template — see api/_lib/liveEmail.js for why both of those were wrong before.
+    if (shouldEmailOwner(record)) {
+      let ownsKit = false;
+      if (isJournalTemplate(record.template_id) && record.user_id) {
+        try {
+          const { data } = await supabase
+            .from('template_purchases')
+            .select('id')
+            .eq('user_id', record.user_id)
+            .eq('template_id', record.template_id)
+            .limit(1);
+          ownsKit = (data || []).length > 0;
+        } catch { /* assume free — the worst case is mentioning a limit they don't have */ }
+      }
+
+      const { subject, html } = ownerEmailFor({
+        templateId: record.template_id,
+        name: record.user_name,
+        slug: record.slug,
+        ownsKit,
       });
+      messages.push({ to: record.user_email, subject, html });
     }
     return messages;
+  }
+
+  // ── Draft promoted to published → the "you're live" email ──
+  //
+  // A journal user's row is INSERTed as a draft and only becomes a real page later, so
+  // the publish is an UPDATE. Without this branch they'd never be told their page went
+  // live. Gated on the TRANSITION, not on the new value, so ordinary edits to an
+  // already-published page don't re-send it.
+  //
+  // NOTE: this needs the portfolios Database Webhook to have UPDATE ticked, not just
+  // INSERT. If journal users stop getting the email, check that first.
+  if (table === 'portfolios' && type === 'UPDATE'
+      && old.status !== 'active' && record.status === 'active') {
+    if (!shouldEmailOwner(record)) return [];
+
+    let ownsKit = false;
+    if (isJournalTemplate(record.template_id) && record.user_id) {
+      try {
+        const { data } = await supabase
+          .from('template_purchases')
+          .select('id')
+          .eq('user_id', record.user_id)
+          .eq('template_id', record.template_id)
+          .limit(1);
+        ownsKit = (data || []).length > 0;
+      } catch { /* assume free */ }
+    }
+
+    const { subject, html } = ownerEmailFor({
+      templateId: record.template_id,
+      name: record.user_name,
+      slug: record.slug,
+      ownsKit,
+    });
+    return [
+      {
+        to: ADMIN_EMAIL,
+        subject: `🚀 Page published: ${record.user_name || record.slug}`,
+        html: shell('🚀 Page published', 'A draft just went live.', [
+          ['Name', record.user_name],
+          ['Contact email', record.user_email],
+          ['Template', record.template_id],
+          ['Live URL', `porfilr.com/p/${record.slug}`],
+        ], '#ea580c'),
+      },
+      { to: record.user_email, subject, html },
+    ];
   }
 
   // ── Mobile visitor asked for a "finish on desktop" link → email it to them ──
@@ -161,35 +240,8 @@ function welcomeEmail(name) {
     </div>`;
 }
 
-// ── "Your portfolio is live" email sent when a user publishes ──
-function portfolioLiveEmail(name, slug) {
-  const first = (name || '').split(' ')[0] || 'there';
-  const url = `https://porfilr.com/p/${slug}`;
-  const display = `porfilr.com/p/${slug}`;
-  return `
-    <div style="font-family:Inter,sans-serif;max-width:600px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
-      <div style="background:#fff;border-radius:12px;padding:36px;border:1px solid #e2e8f0;">
-        <p style="font-size:22px;font-weight:800;color:#0f172a;margin:0 0 4px;">Porfil<span style="color:#ea580c;">r</span></p>
-        <h1 style="font-size:24px;color:#0f172a;margin:18px 0 10px;">It's live, ${first} 🎉</h1>
-        <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 20px;">
-          Your portfolio is published and ready to share. Here's your link:
-        </p>
-        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:15px;font-weight:600;color:#0f172a;">${display}</div>
-        <a href="${url}" style="display:inline-block;background:#0f172a;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">View my portfolio →</a>
-        <p style="color:#475569;font-size:15px;line-height:1.7;margin:24px 0 8px;font-weight:600;">Now put it to work:</p>
-        <table style="width:100%;border-collapse:collapse;margin-bottom:8px;">
-          <tr><td style="padding:6px 0;color:#475569;font-size:14px;">• Drop the link in your email signature, LinkedIn, and Instagram bio</td></tr>
-          <tr><td style="padding:6px 0;color:#475569;font-size:14px;">• Send it with your next pitch instead of a Google Doc</td></tr>
-          <tr><td style="padding:6px 0;color:#475569;font-size:14px;">• Enquiries from your contact form land straight in your inbox</td></tr>
-        </table>
-        <p style="color:#64748b;font-size:13px;line-height:1.7;margin:20px 0 0;">
-          You can edit any detail anytime from your account. Want a custom domain (yourname.com) and analytics? Pro is a one-time $19.
-        </p>
-        <p style="color:#64748b;font-size:14px;line-height:1.7;margin:20px 0 0;">— Sadiq, founder of Porfilr</p>
-      </div>
-      <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;">Sent because you published a portfolio at porfilr.com</p>
-    </div>`;
-}
+// The "you're live" emails now live in api/_lib/liveEmail.js — there are two of them
+// (page vs journal), the choice is template-dependent, and it needed tests.
 
 // ── "Finish on desktop" link for a mobile visitor who hit the Pro builder ──
 function desktopLinkEmail(resumeUrl) {
