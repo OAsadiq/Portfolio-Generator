@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useMemo, Fragment } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import { useBackTarget } from '../lib/useBackTarget';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { track } from '../lib/track';
@@ -105,7 +106,7 @@ const fmtMetric = (n: number | null, suffix = '') =>
 const TradeJournal = () => {
   const { slug } = useParams();
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { goBack } = useBackTarget('/dashboard');
 
   const [portfolio, setPortfolio] = useState<any>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
@@ -711,8 +712,8 @@ const TradeJournal = () => {
       <div className="min-h-screen bg-stone-50 flex items-center justify-center px-6">
         <div className="text-center">
           <p className="text-stone-900 font-semibold mb-2">{error}</p>
-          <button onClick={() => navigate('/dashboard')} className="text-orange-600 text-sm font-medium hover:text-orange-500">
-            ← Back to dashboard
+          <button onClick={goBack} className="text-orange-600 text-sm font-medium hover:text-orange-500">
+            ← Back
           </button>
         </div>
       </div>

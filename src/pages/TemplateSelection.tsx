@@ -8,6 +8,7 @@ import TutorialTour, { TourStep } from "../components/tutorial/TutorialTour";
 import ReferralCard from "../components/ReferralCard";
 import { track } from "../lib/track";
 import { useIsMobileOnce } from "../lib/useIsMobile";
+import { backTo, useHere } from "../lib/useBackTarget";
 
 const KIT_OPTIONS = ["Photographer", "Developer / Engineer", "Designer", "Real Estate", "Consultant / Coach", "Other"];
 
@@ -204,6 +205,7 @@ const TemplateSelection = () => {
   const navigate = useNavigate();
   const { user, portfolios, isPro, ownsTemplate, checkPortfolio, checkSubscription, session } = useAuth();
   const isMobile = useIsMobileOnce();
+  const here = useHere();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
@@ -329,7 +331,7 @@ const TemplateSelection = () => {
         return;
       }
 
-      navigate(`/create/${templateId}`);
+      navigate(`/create/${templateId}`, backTo(here));
       return;
     }
     if (!canSelectTemplate(templateId)) {
@@ -357,7 +359,7 @@ const TemplateSelection = () => {
       // The journal templates open the JOURNAL, not the page builder. Logging trades is
       // the product; the page is what you publish once you have something to put on it.
       // /journal resolves or creates their journal, so this works with no page yet.
-      navigate(selected.kit ? '/journal' : `/create/${selected.id}`);
+      navigate(selected.kit ? '/journal' : `/create/${selected.id}`, backTo(here));
     } catch (err: any) {
       console.error(err);
     } finally {
@@ -499,6 +501,7 @@ const TemplateSelection = () => {
                 to={!isMobile && templates.find((t) => t.id === generalPortfolio.template_id)?.usesBuilder
                   ? `/builder/${generalPortfolio.slug}`
                   : `/edit/${generalPortfolio.slug}`}
+                {...backTo(here)}
                 className="bg-stone-900 hover:bg-stone-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
               >
                 Edit mine

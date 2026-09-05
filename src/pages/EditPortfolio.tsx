@@ -9,6 +9,7 @@ import { useIsMobileOnce } from '../lib/useIsMobile';
 import { getTemplateConfig } from '../components/builder/builder.config';
 import PreviewSheet from '../components/PreviewSheet';
 import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from '../lib/formSections';
+import { useBackTarget } from '../lib/useBackTarget';
 
 interface TemplateField {
   name: string;
@@ -32,6 +33,11 @@ const EditPortfolio = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobileOnce();
+  // Five entrances lead here (dashboard, create, templates, the builder's mobile
+  // fallback, deep links). The dashboard is much the most common, so it's the fallback
+  // for anyone who arrived without state — not /templates, which is where this link
+  // used to send everyone regardless.
+  const { to: backTo } = useBackTarget('/dashboard');
 
   const [portfolio, setPortfolio]           = useState<any>(null);
   const [templateFields, setTemplateFields] = useState<TemplateField[]>([]);
@@ -139,7 +145,9 @@ const EditPortfolio = () => {
     // builder-only modern-writer case that motivated the check no longer exists).
     if (isMobile) return;
 
-    navigate(`/builder/${slug}`, { replace: true });
+    // Forward the origin. This is a `replace`, so without it the builder loses all
+    // memory of where the user actually came from and falls back to a guess.
+    navigate(`/builder/${slug}`, { replace: true, state: { from: backTo } });
   };
 
   const fetchPortfolio = async () => {
@@ -365,7 +373,7 @@ const EditPortfolio = () => {
         <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <Link to="/" className="flex-shrink-0"><Logo size={28} /></Link>
           <span className="text-stone-300 hidden sm:block">|</span>
-          <Link to="/templates" className="text-stone-400 hover:text-stone-700 text-sm transition flex items-center gap-1.5 flex-shrink-0" aria-label="Back to templates">
+          <Link to={backTo} className="text-stone-400 hover:text-stone-700 text-sm transition flex items-center gap-1.5 flex-shrink-0" aria-label="Go back">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>

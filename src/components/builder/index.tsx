@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Undo, Redo, Palette, Type, Layout, Settings, Monitor, Tablet, Smartphone, AlertCircle, X, Check } from 'lucide-react';
 import { useBuilderState } from './useBuilderState';
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { backTo, useBackTarget } from "../../lib/useBackTarget";
 import { requestDesktopLink } from '../../lib/desktopLink';
 import DesignTab from './tabs/DesignTab';
 import ContentTab from './tabs/ContentTab';
@@ -66,7 +67,11 @@ export default function PortfolioBuilder({ onCancel }: Props) {
       .catch(() => { /* leave false — the email link still works */ });
     return () => { cancelled = true; };
   }, [state.isMobile, editSlug, state.selectedTemplate]);
-  const goBack = () => { if (onCancel) onCancel(); else navigate('/'); };
+  // Editing an existing page means they came from the dashboard or templates; a fresh
+  // build came from /templates. Home was never right for either — it was just the
+  // safest-looking constant.
+  const { to: backHref, goBack: goBackTo } = useBackTarget(editSlug ? '/dashboard' : '/templates');
+  const goBack = () => { if (onCancel) onCancel(); else goBackTo(); };
   const [remEmail, setRemEmail] = useState('');
   const [remStatus, setRemStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
 
@@ -114,7 +119,10 @@ export default function PortfolioBuilder({ onCancel }: Props) {
                 text and details right here on your phone.
               </p>
               <button
-                onClick={() => navigate(`/edit/${editSlug}`)}
+                // Pass OUR back target through rather than this screen. Back from /edit
+                // must not return to /builder — on a phone that bounces straight back
+                // here, which is the loop we fixed before.
+                onClick={() => navigate(`/edit/${editSlug}`, backTo(backHref))}
                 className="w-full bg-stone-900 hover:bg-stone-700 text-white px-6 py-3 rounded-xl font-semibold transition text-sm mb-4"
               >
                 Edit on my phone

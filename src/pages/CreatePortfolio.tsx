@@ -15,6 +15,7 @@ import { FREE_TRADE_CAP } from "../lib/plan";
 import PreviewSheet from "../components/PreviewSheet";
 import { getTemplateConfig } from "../components/builder/builder.config";
 import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from "../lib/formSections";
+import { backTo, useBackTarget, useHere } from "../lib/useBackTarget";
 
 interface TemplateField {
   name: string;
@@ -88,6 +89,9 @@ const StepIndicator = ({ current }: { current: number }) => (
 const CreatePortfolio = () => {
   const { templateId } = useParams();
   const navigate = useNavigate();
+  // Usually /templates, but Home's "Start for free" and the kit page both land here too.
+  const { to: backHref } = useBackTarget('/templates');
+  const here = useHere();
   const draftKey = `porfilr_draft_${templateId}`;
   const [template, setTemplate] = useState<Template | null>(null);
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
@@ -451,6 +455,7 @@ const CreatePortfolio = () => {
           <div className="space-y-2.5">
             <Link
               to={usesBuilder ? `/builder/${alreadyBuilt.slug}` : `/edit/${alreadyBuilt.slug}`}
+              {...backTo(here)}
               className="block w-full text-center bg-stone-900 hover:bg-stone-700 text-white font-semibold py-3 px-6 rounded-xl transition"
             >
               Edit my page
@@ -543,8 +548,8 @@ const CreatePortfolio = () => {
             </p>
           )}
           <div className="text-center mt-4">
-            <Link to="/templates" className="text-stone-400 hover:text-stone-700 text-sm transition">
-              ← Back to templates
+            <Link to={backHref} className="text-stone-400 hover:text-stone-700 text-sm transition">
+              ← Back
             </Link>
           </div>
         </div>
@@ -569,8 +574,8 @@ const CreatePortfolio = () => {
               Upgrade to Pro
             </button>
           </Link>
-          <Link to="/templates" className="text-stone-400 hover:text-stone-700 text-sm transition">
-            ← Back to templates
+          <Link to={backHref} className="text-stone-400 hover:text-stone-700 text-sm transition">
+            ← Back
           </Link>
         </div>
       </div>
@@ -673,7 +678,10 @@ const CreatePortfolio = () => {
               View my portfolio
             </a>
 
-            <Link to={`/edit/${portfolioSlug}`} className="w-full">
+            {/* Deliberately NOT `here`. This is the post-publish screen; sending them
+                back into the create form for a page that's already live reads as "it
+                didn't save" and invites a duplicate. */}
+            <Link to={`/edit/${portfolioSlug}`} {...backTo('/dashboard')} className="w-full">
               <button className="w-full border border-stone-200 hover:bg-stone-50 text-stone-700 py-3.5 rounded-xl font-semibold text-sm transition">
                 Edit details
               </button>
@@ -699,7 +707,7 @@ const CreatePortfolio = () => {
         <Link to="/" className="text-stone-900 font-bold text-xl tracking-tight">
           <Logo size={28} />
         </Link>
-        <Link to="/templates" className="text-stone-400 hover:text-stone-700 text-sm transition flex items-center gap-1.5">
+        <Link to={backHref} className="text-stone-400 hover:text-stone-700 text-sm transition flex items-center gap-1.5">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
@@ -726,6 +734,7 @@ const CreatePortfolio = () => {
             <div className="flex flex-wrap gap-2">
               <Link
                 to={`/edit/${generalSlotTaken.slug}`}
+                {...backTo(here)}
                 className="bg-stone-900 hover:bg-stone-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
               >
                 Edit the one I have

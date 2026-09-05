@@ -9,6 +9,7 @@ import { useIsMobileOnce } from '../lib/useIsMobile';
 import { Globe, Copy, Check, ExternalLink, AlertCircle, CheckCircle, Clock, Mail, Inbox, TrendingUp } from 'lucide-react';
 import TutorialTour, { TourStep } from '../components/tutorial/TutorialTour';
 import ReferralCard from '../components/ReferralCard';
+import { backTo, useHere } from '../lib/useBackTarget';
 
 const DASHBOARD_TOUR: TourStep[] = [
   { title: "Your dashboard", body: "This is home base for everything you've built. Here's a quick tour — replay it anytime from the ? button.", placement: "center" },
@@ -76,6 +77,7 @@ const INPUT = 'w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 te
 const ProDashboard = () => {
   const { user, isPro, ownedTemplates, hasPortfolio, subscriptionLoading, signOut } = useAuth();
   const isMobile = useIsMobileOnce();
+  const here = useHere();
   // Kit owners get the same portfolio management as Pro (analytics, custom domain) —
   // the kit is a standalone product that includes the hosting perks.
   // Anyone who has actually made something gets their dashboard, paid or not.
@@ -595,7 +597,7 @@ const ProDashboard = () => {
                         </details>
 
                         <div className="flex gap-2">
-                          <Link to={getEditRoute(portfolio)} className="flex-1">
+                          <Link to={getEditRoute(portfolio)} {...backTo(here)} className="flex-1">
                             <button className="w-full bg-stone-900 hover:bg-stone-700 text-white py-2 px-3 rounded-lg text-sm font-semibold transition">
                               Edit
                             </button>
