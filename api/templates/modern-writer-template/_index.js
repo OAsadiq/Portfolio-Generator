@@ -636,7 +636,9 @@ const modernTemplate = {
     { name: 'headline',    label: 'Headline',         type: 'text', section: 'hero', placeholder: 'The one line people should remember' },
     { name: 'bio',         label: 'About You',        type: 'textarea', section: 'hero' },
     { name: 'profileImage', label: 'Profile Photo',   type: 'file', section: 'hero' },
-    { name: 'primaryColor', label: 'Accent Colour',   type: 'color', default: '#4f46e5', section: 'theme' },
+    // One colour only — generateHTML reads data.primaryColor and uses it as the accent.
+    // Labelled to match the desktop builder rather than the field's internal name.
+    { name: 'primaryColor', label: 'Accent Color',    type: 'color', default: '#4f46e5', section: 'theme' },
 
     // Availability — a live "open for work" badge is the single highest-intent thing on
     // the page, and it's one tap on a phone.

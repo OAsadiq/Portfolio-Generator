@@ -6,7 +6,7 @@ import Logo from '../components/Logo';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useIsMobileOnce } from '../lib/useIsMobile';
-import ColorPresets from '../components/ColorPresets';
+import { getTemplateConfig } from '../components/builder/builder.config';
 import PreviewSheet from '../components/PreviewSheet';
 import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from '../lib/formSections';
 
@@ -37,6 +37,28 @@ const EditPortfolio = () => {
   const [templateFields, setTemplateFields] = useState<TemplateField[]>([]);
   const [templateName, setTemplateName]     = useState<string>('');
   const [openSections, setOpenSections]     = useState<Record<string, boolean>>({});
+  // Section show/hide, same control the create form has. Seeded from the template's
+  // defaults, then overlaid with whatever this page actually saved — so a section the
+  // owner switched off stays off when they come back.
+  const [pageSections, setPageSections] = useState<{ id: string; name: string; visible: boolean; order: number }[]>([]);
+  useEffect(() => {
+    if (!portfolio?.template_id) return;
+    const defaults = getTemplateConfig(portfolio.template_id).sections || [];
+    const saved: any[] = Array.isArray(portfolio.sections) ? portfolio.sections : [];
+    setPageSections(
+      defaults.map((d) => {
+        const hit = saved.find((s) => s && s.id === d.id);
+        // Stored rows use `enabled`; the in-memory list uses `visible`. Accept either,
+        // the same way the templates now do.
+        const on = hit ? (hit.enabled ?? hit.visible ?? true) : d.visible;
+        return { id: d.id, name: d.name, visible: !!on, order: hit?.order ?? d.order };
+      })
+    );
+  }, [portfolio?.template_id, portfolio?.sections]);
+
+  const sectionsForSave = () =>
+    pageSections.map((s) => ({ id: s.id, enabled: s.visible, order: s.order }));
+
   const [sheetOpen, setSheetOpen]           = useState(false);
   const [sheetHtml, setSheetHtml]           = useState<string | null>(null);
   const [sheetLoading, setSheetLoading]     = useState(false);
@@ -59,7 +81,7 @@ const EditPortfolio = () => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ templateId: portfolio.template_id, ...formData, sections: portfolio.sections || [] }),
+        body: JSON.stringify({ templateId: portfolio.template_id, ...formData, sections: sectionsForSave() }),
       });
       if (!res.ok) throw new Error('Preview failed');
       const data = await res.json();
@@ -261,7 +283,7 @@ const EditPortfolio = () => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/templates/update-portfolio`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ slug: portfolio.slug, templateId: portfolio.template_id, formData }),
+        body: JSON.stringify({ slug: portfolio.slug, templateId: portfolio.template_id, formData, sections: sectionsForSave() }),
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Save failed'); }
       showToast('Changes saved.');
@@ -555,14 +577,37 @@ const EditPortfolio = () => {
             </div>
           )}
 
-          {/* Colour sits down here, after the content — same position as the create form.
-              At the top of the page it was the first thing a returning user saw, above
-              their own details, which no other template's edit page does. */}
-          <ColorPresets
-            fields={templateFields}
-            formData={formData}
-            onApply={(patch) => setFormData((prev: any) => ({ ...prev, ...patch }))}
-          />
+          {/* Which sections appear on the published page. The create form has had this;
+              the edit form didn't, so the only way to change it afterwards was the
+              desktop builder. */}
+          {pageSections.length > 0 && (
+            <div className="bg-white border border-stone-200 rounded-2xl p-6">
+              <h2 className="font-bold text-stone-900 text-sm mb-1">🧱 Sections on your page</h2>
+              <p className="text-stone-400 text-xs mb-4">Turn off anything you don't need.</p>
+              <div className="space-y-1">
+                {pageSections.map((s) => (
+                  <label
+                    key={s.id}
+                    className="flex items-center justify-between gap-3 py-2.5 cursor-pointer border-b border-stone-50 last:border-0"
+                  >
+                    <span className={`text-sm ${s.visible ? 'text-stone-800 font-medium' : 'text-stone-400'}`}>
+                      {s.name}
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={s.visible}
+                      onChange={(e) =>
+                        setPageSections((prev) =>
+                          prev.map((x) => (x.id === s.id ? { ...x, visible: e.target.checked } : x))
+                        )
+                      }
+                      className="w-5 h-5 rounded accent-stone-900 flex-none"
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Preview, inline and directly above Save — not a floating bar. It belongs in
               the same flow as the button it precedes: look, then save. */}

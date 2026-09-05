@@ -14,7 +14,6 @@ import { requestDesktopLink } from "../lib/desktopLink";
 import { FREE_TRADE_CAP } from "../lib/plan";
 import PreviewSheet from "../components/PreviewSheet";
 import { getTemplateConfig } from "../components/builder/builder.config";
-import ColorPresets from "../components/ColorPresets";
 import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from "../lib/formSections";
 
 interface TemplateField {
@@ -967,16 +966,6 @@ const CreatePortfolio = () => {
             </div>
           )}
 
-          {/* Colour presets.
-              The raw <input type="color"> is still below in "Look & layout", but on a
-              phone it opens the OS colour wheel and asks a trader to pick a hex value —
-              the builder hands desktop users thirteen curated pairs instead. Same list,
-              same source (builder.config.ts), so they can't drift apart. */}
-          <ColorPresets
-            fields={template?.fields || []}
-            formData={formData}
-            onApply={(patch) => setFormData((prev: any) => ({ ...prev, ...patch }))}
-          />
 
           {/* Section show/hide.
               Reordering stays desktop-only — dragging to reorder on a phone is genuinely

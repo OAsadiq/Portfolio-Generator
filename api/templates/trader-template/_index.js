@@ -71,7 +71,12 @@ const traderTemplate = {
     // Accent colour. The template already reads primaryColor (falling back to the gold
     // #e0b252), but nothing asked for it — so anyone building on a phone was stuck with
     // the default and had no way to know why.
-    { name: 'primaryColor', label: 'Accent Colour', type: 'color', default: '#e0b252', section: 'theme' },
+    { name: 'primaryColor', // This template renders from ONE colour (see `const accent` in generateHTML — it reads
+    // data.primaryColor and uses it as the accent). The key stays primaryColor for
+    // compatibility with what's already stored; the label says what it actually does.
+    // Spelling matches the desktop builder's "Accent Color" so the same control isn't
+    // named two different ways depending on which editor you opened.
+    label: 'Accent Color', type: 'color', default: '#e0b252', section: 'theme' },
 
     // Optional custom disclaimer
     { name: 'disclaimerText', label: 'Risk Disclaimer (leave blank for the default)', type: 'textarea', section: 'other' },
