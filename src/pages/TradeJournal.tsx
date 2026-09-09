@@ -771,9 +771,15 @@ const TradeJournal = () => {
             all {capPrompt.found} trades, your real win rate, and the whole curve.
           </p>
         ) : (
+          /* Was: "Free accounts keep their most recent 15 trades" — which describes a
+             rolling window that silently drops older ones. It isn't what happens: the
+             trigger in sql/011 fires on INSERT only, so nothing is ever deleted. Past the
+             cap you simply can't add more. Leading with "nothing is deleted" answers the
+             question this dialog actually raises. */
           <p>
-            Free accounts keep their most recent {FREE_TRADE_CAP} trades. Unlock unlimited
-            logging and imports, and remove the Porfilr badge from your page.
+            You've used all {FREE_TRADE_CAP} of your free trades. Nothing is deleted —
+            everything you've logged stays exactly where it is. Unlock to keep adding,
+            import without limits, and remove the Porfilr badge from your page.
           </p>
         )}
         {unlockError && <p className="text-red-500 text-sm mt-3">{unlockError}</p>}

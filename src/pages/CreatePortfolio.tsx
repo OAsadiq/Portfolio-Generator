@@ -755,8 +755,12 @@ const CreatePortfolio = () => {
           <div className="mb-8 bg-stone-50 border border-stone-200 rounded-2xl p-5">
             <p className="font-bold text-stone-900 text-sm mb-1">You're on the free plan</p>
             <p className="text-stone-600 text-sm leading-relaxed">
+              {/* "keeps your most recent 15" described a rolling window that drops older
+                  trades. It doesn't — the trigger in sql/011 fires on INSERT only, so
+                  nothing is ever deleted. Saying it the old way told people we'd eat their
+                  history, which is the exact fear that stops someone starting a journal. */}
               Publish as many times as you like — your page will carry a small "Made with
-              Porfilr" badge, and your journal keeps your most recent {FREE_TRADE_CAP} trades.
+              Porfilr" badge, and your journal is free for your first {FREE_TRADE_CAP} trades.
               A one-time unlock removes both.
             </p>
           </div>
