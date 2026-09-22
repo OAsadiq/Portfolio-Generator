@@ -274,3 +274,40 @@ test('forex exports still work exactly as before', () => {
   assert.equal(t.pnl, -23.13);
   assert.equal(t.fees, 0.2);
 });
+
+// ── Negative commission (MT4/MT5/cTrader) ─────────────────────────────────
+// This shipped broken: MT4/MT5 and cTrader write commission as a negative (a cost), and
+// every such row was rejected with "Fees cannot be negative" — so three of the six
+// platforms we advertise imported nothing at all. A fee is a magnitude.
+test('a negative commission is a cost, not an invalid row', () => {
+  const csv = [
+    'Ticket,Symbol,Type,Volume,Open Time,Open Price,Close Time,Close Price,Commission,Swap,Profit',
+    '5018,EURUSD,Buy,1.00,2026.08.03 08:14:02,1.08420,2026.08.03 12:47:31,1.08965,-7.00,-1.20,54.50',
+  ].join('\n');
+  const r = parseTradeCsv(csv);
+  assert.equal(r.errors.length, 0, JSON.stringify(r.errors));
+  assert.equal(r.valid.length, 1);
+  assert.equal(r.valid[0].fees, 7, 'stored as a positive magnitude');
+  assert.equal(r.valid[0].pnl, 54.5, 'profit keeps its own sign');
+});
+
+test('a whole MT5-shaped export imports rather than failing every row', () => {
+  const rows = ['Ticket,Symbol,Type,Volume,Open Time,Open Price,Close Time,Close Price,Commission,Swap,Profit'];
+  for (let i = 0; i < 5; i++) {
+    rows.push(`50${i},EURUSD,${i % 2 ? 'Sell' : 'Buy'},1.00,2026.08.0${i + 1} 08:00:00,1.0800,2026.08.0${i + 1} 12:00:00,1.0850,-7.00,-1.20,${i % 2 ? '-20.10' : '45.30'}`);
+  }
+  const r = parseTradeCsv(rows.join('\n'));
+  assert.equal(r.valid.length, 5);
+  assert.equal(r.errors.length, 0);
+  assert.equal(r.assumedOpenTime, false, 'forex exports carry a real open time');
+});
+
+test('a non-numeric fee is still rejected', () => {
+  const csv = [
+    'Symbol,Type,Open Time,Close Time,Open Price,Close Price,Volume,Profit,Commission',
+    'EURUSD,Buy,2026-08-03 08:00,2026-08-03 12:00,1.08,1.085,1.0,50,abc',
+  ].join('\n');
+  const r = parseTradeCsv(csv);
+  assert.equal(r.valid.length, 0);
+  assert.match(r.errors[0].message, /Fees must be a number/);
+});

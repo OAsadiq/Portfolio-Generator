@@ -229,8 +229,13 @@ export function rowToTrade(row, mapping) {
   const exit_price = parseNumber(cell('exit_price'));
   if (cell('exit_price') !== '' && (exit_price === null || exit_price <= 0)) return { error: 'Exit price must be greater than 0' };
 
+  // Brokers write costs as NEGATIVE numbers: MT4/MT5 and cTrader export commission and
+  // swap as "-7.00", meaning 7.00 was charged. Rejecting those rejected every row of
+  // every real forex export — three of the six platforms we advertise imported nothing.
+  // A fee is a magnitude, so store it as one. A non-numeric fee is still an error.
   let fees = parseNumber(cell('fees'));
-  if (cell('fees') !== '' && (fees === null || fees < 0)) return { error: 'Fees cannot be negative' };
+  if (cell('fees') !== '' && fees === null) return { error: 'Fees must be a number' };
+  if (fees !== null) fees = Math.abs(fees);
   if (fees === null) fees = 0;
 
   return {
