@@ -1,3 +1,0 @@
-[build]
-  base = "white-stone-properties"
-  publish = "."
