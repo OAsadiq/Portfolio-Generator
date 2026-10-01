@@ -125,7 +125,12 @@ const SampleSection = () => {
   };
 
   return (
-    <section className="py-24 px-6 bg-white border-t border-stone-100">
+    // id="LiveDemo" is the target of the "See a live example" button in FinalCTASection.
+    // It used to point at a SeeItInAction section that was dropped from the home page but
+    // never unlinked, so the CTA silently did nothing — a dead conversion button, reported
+    // by someone who found it from the outside. That component has since been deleted;
+    // this gallery is what replaced it, with a live preview on every card.
+    <section id="LiveDemo" className="py-24 px-6 bg-white border-t border-stone-100">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}

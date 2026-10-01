@@ -142,7 +142,10 @@ export function renderModernSection(
     case 'case-studies': {
       const nums = Array.from({ length: 12 }, (_, i) => i + 1).filter(n => formData[`case${n}Title`]);
       return nums.length ? (
-        <section key="case-studies" data-section="case-studies" className={pad} style={{ background: 'var(--bg, #fff)', borderTop: '1px solid var(--border, #e5e7eb)' }}>
+        // id="work" is the target of the hero's "View Work" button. The published
+        // template (api/templates/modern-writer-template) already carries it; the preview
+        // didn't, so that button did nothing in the builder.
+        <section key="case-studies" id="work" data-section="case-studies" className={pad} style={{ background: 'var(--bg, #fff)', borderTop: '1px solid var(--border, #e5e7eb)' }}>
           <div className={wrap}>
             <SectionHeader title="Selected Work" count={`${nums.length} project${nums.length > 1 ? 's' : ''}`} />
             <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
