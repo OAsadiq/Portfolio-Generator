@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { supabase } from './supabase';
+import { getRegion } from './region';
 
 // Stable per-browser id so events can be grouped into sessions without cookies.
 function sessionId(): string {
@@ -65,12 +66,19 @@ export function attributionSource(): string {
 export async function track(name: string, props: Record<string, any> = {}) {
   try {
     const { data } = await supabase.auth.getSession();
+    // Country/timezone ride along on every event. Columns rather than props so the split
+    // can be grouped in SQL without digging through jsonb — see sql/015_event_region.sql
+    // for why this exists at all (priced for the US, distributed through Nigerian
+    // channels, and nobody could tell which audience actually turns up).
+    const region = getRegion();
     await supabase.from('events').insert({
       name,
       props: { ...attribution(), ...props },
       path: typeof window !== 'undefined' ? window.location.pathname : null,
       user_id: data.session?.user?.id ?? null,
       session_id: sessionId(),
+      country: region.country,
+      timezone: region.timezone,
     });
   } catch {
     /* ignore — never surface analytics errors to the user */
