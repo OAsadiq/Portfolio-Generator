@@ -104,7 +104,7 @@ const ProDashboard = () => {
   const [customDomains, setCustomDomains] = useState<CustomDomain[]>([]);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [kitPurchases, setKitPurchases] = useState<{ template_id: string; amount: number | null; purchased_at: string | null }[]>([]);
+  const [kitPurchases, setKitPurchases] = useState<{ template_id: string; amount: number | null; currency: string | null; purchased_at: string | null }[]>([]);
   const [billingLoading, setBillingLoading] = useState(false);
 
   useEffect(() => {
@@ -116,7 +116,7 @@ const ProDashboard = () => {
     if (!user?.id) return;
     const { data, error } = await supabase
       .from('template_purchases')
-      .select('template_id, amount, purchased_at')
+      .select('template_id, amount, currency, purchased_at')
       .eq('user_id', user.id)
       .order('purchased_at', { ascending: false });
     if (!error && data) setKitPurchases(data);
@@ -126,8 +126,16 @@ const ProDashboard = () => {
   const hasPro = subscription?.status === 'active' && subscription?.plan === 'pro';
   const KIT_NAMES: Record<string, string> = { 'trader-template': 'Porfilr Journal' };
   const kitLabel = (id: string) => KIT_NAMES[id] || id.replace(/-template$/, '').replace(/-/g, ' ');
-  const fmtPrice = (cents: number | null) =>
-    cents == null ? '' : `$${(cents / 100).toFixed(2).replace(/\.00$/, '')}`;
+  // Shows the customer what THEY paid, so the currency has to come from the row. A manual
+  // naira sale stores 2500000 (kobo); printing that as "$25,000" would be a lie on the
+  // buyer's own dashboard. See sql/016_purchase_currency.sql.
+  const fmtPrice = (minor: number | null, currency?: string | null) => {
+    if (minor == null) return '';
+    const n = (minor / 100).toFixed(2).replace(/\.00$/, '');
+    const cur = (currency || 'USD').toUpperCase();
+    if (cur === 'USDT') return `${n} USDT`;
+    return `${cur === 'NGN' ? '₦' : '$'}${n}`;
+  };
 
   const fetchLeads = async () => {
     if (!user?.id) return;
@@ -737,7 +745,7 @@ const ProDashboard = () => {
                             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Owned</span>
                           </div>
                           <p className="text-stone-500 text-sm">
-                            {kit.amount ? `${fmtPrice(kit.amount)} one-time` : 'Unlocked'} · trade journal &amp; live track record
+                            {kit.amount ? `${fmtPrice(kit.amount, kit.currency)} one-time` : 'Unlocked'} · trade journal &amp; live track record
                           </p>
                           <p className="text-stone-400 text-xs mt-1">Lifetime access — unlimited trades and no Porfilr badge. No Pro required.</p>
                         </div>
