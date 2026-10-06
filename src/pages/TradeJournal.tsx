@@ -15,7 +15,8 @@ import { parseTradeCsv } from '../../api/_lib/tradeCsv.js';
 import { extractLinks } from '../../api/_lib/noteLinks.js';
 import Modal from '../components/Modal';
 import { startKitCheckout } from '../lib/kitCheckout';
-import { FREE_TRADE_CAP } from '../lib/plan';
+import PaymentOptions from '../components/PaymentOptions';
+import { FREE_TRADE_CAP, KIT_PRICE_USD } from '../lib/plan';
 // Trading performance calendar — same closed-only, net-of-fees maths as the metrics, so
 // the calendar can never disagree with the headline numbers.
 import { monthGrid, activeMonths } from '../../api/_lib/calendar.js';
@@ -742,26 +743,29 @@ const TradeJournal = () => {
           ? `We found ${capPrompt.found} trades in your file`
           : "You've hit the free limit"}
         footer={capPrompt ? (
-          <>
+          <div className="w-full">
+            {/* Card goes straight to Stripe — the decision was made in this dialog, and
+                making them navigate elsewhere to act on it is where intent leaks away.
+                Bank transfer and USDT are here because many Nigerian cards simply cannot
+                be charged in dollars, so for part of our audience the card button is not
+                a payment option at all. */}
+            <PaymentOptions
+              onCardCheckout={unlockKit}
+              cardBusy={unlocking}
+              defaultEmail={user?.email}
+              userId={user?.id}
+              product={portfolio?.template_id || 'trader-template'}
+              priceUsd={KIT_PRICE_USD}
+              cardLabel={`Unlock everything — $${KIT_PRICE_USD} once`}
+            />
             <button
               type="button"
               onClick={() => { track('cap_prompt_dismissed', { slug }); setCapPrompt(null); }}
-              className="border border-stone-200 hover:bg-stone-50 text-stone-600 px-5 py-2.5 rounded-xl text-sm font-medium transition"
+              className="w-full mt-2 text-stone-400 hover:text-stone-600 px-5 py-2 rounded-xl text-sm font-medium transition"
             >
               {capPrompt.imported > 0 ? `Keep the free ${capPrompt.imported}` : 'Not now'}
             </button>
-            {/* Straight to Stripe from here — no detour through the page builder. The
-                decision was made in this dialog; making them navigate somewhere else to
-                act on it is where intent leaks away. */}
-            <button
-              type="button"
-              disabled={unlocking}
-              onClick={unlockKit}
-              className="bg-stone-900 hover:bg-stone-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition text-center"
-            >
-              {unlocking ? 'Opening checkout…' : 'Unlock everything — $35 once'}
-            </button>
-          </>
+          </div>
         ) : null}
       >
         {capPrompt && capPrompt.found > 0 && capPrompt.imported > 0 ? (

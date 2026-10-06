@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import Navbar from "../components/Navbar";
 import { track } from "../lib/track";
+import PaymentOptions from "../components/PaymentOptions";
+import { PRO_PRICE_USD } from "../lib/plan";
 
 const CHECK = (
   <svg className="w-4 h-4 text-orange-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,10 +184,21 @@ const PricingPage = () => {
                   <li key={f} className={`flex items-start gap-2.5 text-sm ${i === 0 ? 'font-semibold text-stone-900' : 'text-stone-700'}`}>{CHECK}{f}</li>
                 ))}
               </ul>
-              <button onClick={handleUpgrade} disabled={loading}
-                className="w-full bg-orange-600 hover:bg-orange-500 text-white py-3 rounded-xl font-bold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed">
-                {loading ? "Loading..." : "Upgrade to Pro"}
-              </button>
+              {/* Card is the only automated rail we have. Bank transfer and USDT are here
+                  because most Nigerian cards cannot be charged in dollars at all — without
+                  them, a large part of the audience we actually reach has no way to buy
+                  Pro, which is the plan every non-trader template funnels toward.
+                  PaymentOptions renders the plain card button on its own when no manual
+                  method is configured, so this is unchanged until the env vars are set. */}
+              <PaymentOptions
+                onCardCheckout={handleUpgrade}
+                cardBusy={loading}
+                defaultEmail={user?.email}
+                userId={user?.id}
+                product="pro"
+                priceUsd={PRO_PRICE_USD}
+                cardLabel="Upgrade to Pro"
+              />
             </div>
           </div>
 

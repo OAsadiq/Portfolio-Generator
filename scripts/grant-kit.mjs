@@ -17,6 +17,18 @@
 //
 // `--paid` is in MAJOR units (dollars/naira), stored as minor units to match Stripe.
 //
+// A paid sale also sends the same welcome email a Stripe buyer gets. Add --no-email if
+// you've already written to them personally, or --dry-email to see who would receive one.
+//
+// PRO (an account plan, not a kit — it lives in `subscriptions`):
+//
+//   node scripts/grant-kit.mjs --pro --paid=15000 --currency=NGN --ref=FT24 ade@example.com
+//   node scripts/grant-kit.mjs --pro --revoke ade@example.com
+//
+// PENDING "I'VE PAID" CLAIMS from the site:
+//
+//   node scripts/grant-kit.mjs --claims     (prints the exact command to fulfil each)
+//
 // WHY THIS MATTERS: Paystack and Flutterwave both require a Nigerian entity we don't have,
 // so Nigerian sales are collected by hand. Recording them as amount 0 would file a real
 // customer as a free grant — the founding counter ignores them, revenue stays wrong, and
@@ -32,6 +44,8 @@
 
 import { readFileSync } from 'fs';
 import { createClient } from '@supabase/supabase-js';
+import { sendKitWelcomeEmail } from '../api/_lib/kitEmail.js';
+import { grantLifetimePro, hasActivePro } from '../api/_lib/proAccess.js';
 
 // --- load .env (quoted values tolerated) ---
 const env = Object.fromEntries(
@@ -39,6 +53,10 @@ const env = Object.fromEntries(
     .split('\n').filter((l) => l.includes('=') && !l.trim().startsWith('#'))
     .map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^["']|["']$/g, '')]; })
 );
+
+// kitEmail.js reads process.env directly (it normally runs in a Vercel function, where
+// that's already populated). Hand it the key we just parsed out of .env.
+if (env.RESEND_API_KEY) process.env.RESEND_API_KEY = env.RESEND_API_KEY;
 
 const url = env.SUPABASE_URL;
 const key = env.SUPABASE_SERVICE_KEY;
@@ -49,6 +67,9 @@ const sb = createClient(url, key);
 const args = process.argv.slice(2);
 const revoke = args.includes('--revoke');
 const list = args.includes('--list');
+const claims = args.includes('--claims');
+// Pro is an account plan, not a kit — it lives in `subscriptions`. Same manual-sale flags.
+const isPro = args.includes('--pro');
 const templateId = (args.find((a) => a.startsWith('--template=')) || '--template=trader-template').split('=')[1];
 const emails = args.filter((a) => !a.startsWith('--')).map((e) => e.toLowerCase());
 
@@ -59,6 +80,9 @@ const flag = (name) => {
 };
 
 const CURRENCIES = ['USD', 'NGN', 'USDT'];
+// For when you've already written to them yourself and a templated welcome would be odd.
+const noEmail = args.includes('--no-email');
+const dryEmail = args.includes('--dry-email');
 const paidRaw = flag('paid');
 const currency = (flag('currency') || 'USD').toUpperCase();
 const ref = flag('ref');
@@ -140,7 +164,35 @@ async function doList() {
   for (const [c, v] of Object.entries(byCur)) console.log(`  ${v.n} × ${c}: ${money(v.total, c)}`);
 }
 
+/**
+ * The "I've paid" queue. These are CLAIMS, not payments — somebody typed into a form on
+ * the site. Check each one against the bank statement or a block explorer before granting
+ * anything, and treat every field as untrusted text, because it is.
+ */
+async function doClaims() {
+  const { data, error } = await sb
+    .from('payment_claims')
+    .select('created_at, email, method, amount_major, currency, reference, status, product')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  if (!data.length) { console.log('No pending claims.'); return; }
+
+  console.log(`${data.length} pending claim(s) — VERIFY EACH ONE before granting:\n`);
+  for (const c of data) {
+    const amt = c.amount_major != null ? `${c.amount_major} ${c.currency}` : `? ${c.currency}`;
+    console.log(`  ${String(c.created_at).slice(0, 16).replace('T', ' ')}  ${c.email}  [${c.product}]`);
+    console.log(`    ${c.method}  ${amt}  ref: ${c.reference || '(none given)'}`);
+    // Pro isn't a kit — it lives in `subscriptions`, which this script doesn't write.
+    const target = c.product === 'pro' ? '--pro' : `--template=${c.product}`;
+    console.log(`    once confirmed:  node scripts/grant-kit.mjs ${target} --paid=${c.amount_major ?? '<amount>'} --currency=${c.currency} --ref=${c.reference || '<ref>'} ${c.email}`);
+    console.log('');
+  }
+  console.log("Mark one done in Supabase: update payment_claims set status='fulfilled', reviewed_at=now() where reference='…';");
+}
+
 async function main() {
+  if (claims) { await doClaims(); return; }
   if (list) { await doList(); return; }
   if (emails.length === 0) {
     console.error('Usage: node scripts/grant-kit.mjs [--revoke] [--template=trader-template] <email> [email…]');
@@ -150,6 +202,35 @@ async function main() {
   for (const email of emails) {
     const user = await findUserByEmail(email);
     if (!user) { console.log(`SKIP  ${email} — no account (ask them to sign in once first)`); continue; }
+
+    // ── Pro ─────────────────────────────────────────────────────────────────
+    // Written because a Nigerian buyer could not get Pro at all: the only Pro path was
+    // Stripe, and most naira cards can't be charged in dollars.
+    if (isPro) {
+      if (revoke) {
+        const { error } = await sb.from('subscriptions')
+          .update({ status: 'canceled', updated_at: new Date().toISOString() })
+          .eq('user_id', user.id);
+        console.log(error ? `FAIL  ${email} — ${error.message}` : `REVOKED  ${email} — Pro set to canceled`);
+        continue;
+      }
+      if (await hasActivePro(sb, user.id)) { console.log(`ALREADY  ${email} already has active Pro`); continue; }
+      try {
+        const { created } = await grantLifetimePro(sb, user.id);
+        console.log(amountMinor > 0
+          ? `SOLD     ${email} → Pro (lifetime)  ${money(amountMinor, currency)} via ${provider} (${ref})`
+          : `GRANTED  ${email} → Pro (lifetime)  (free — nobody paid)`);
+        if (!created) console.log('         (updated an existing subscriptions row)');
+        // The Stripe path also credits whoever referred this buyer. That ladder lives
+        // inside api/stripe/webhook.js and isn't reachable from here, so a manual Pro sale
+        // does NOT advance a referrer's count. Rare enough to handle by hand; say so
+        // rather than let it fail silently.
+        console.log('         note: referral credit is NOT applied — check referrals.referred_by if this buyer was referred');
+      } catch (e) {
+        console.log(`FAIL  ${email} — ${e.message}`);
+      }
+      continue;
+    }
 
     if (revoke) {
       const { error } = await sb.from('template_purchases').delete().eq('user_id', user.id).eq('template_id', templateId);
@@ -174,6 +255,31 @@ async function main() {
     console.log(amountMinor > 0
       ? `SOLD     ${email} → ${templateId}  ${money(amountMinor, currency)} via ${provider} (${ref})`
       : `GRANTED  ${email} → ${templateId}  (free — nobody paid)`);
+
+    // Welcome email — same one a Stripe buyer gets. A manual buyer is the LEAST likely to
+    // find their way around unaided (they just sent a bank transfer to a stranger), so
+    // skipping it would leave the customer who most needs onboarding with none.
+    //
+    // Paid sales only: a tester grant is something you hand over in person, and a "thank
+    // you for backing us" mail would read oddly.
+    //
+    // Deliberately AFTER the insert, and never allowed to throw — access is already
+    // granted and a mail failure must not make it look as though the sale failed.
+    if (amountMinor > 0 && !noEmail) {
+      const firstName = (user.user_metadata?.full_name || '').trim().split(/\s+/)[0] || '';
+      if (dryEmail) {
+        console.log(`         [dry] welcome email would go to ${email}${firstName ? ` ("Hi ${firstName},")` : ''}`);
+      } else {
+        try {
+          const ok = await sendKitWelcomeEmail({ to: email, firstName });
+          console.log(ok
+            ? `         welcome email sent to ${email}`
+            : `         welcome email NOT sent to ${email} — they have access; send one by hand`);
+        } catch (mailErr) {
+          console.log(`         welcome email threw (access is fine): ${mailErr.message}`);
+        }
+      }
+    }
   }
 }
 

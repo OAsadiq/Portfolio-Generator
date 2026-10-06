@@ -14,3 +14,6 @@ export const FREE_TRADE_CAP = 15;
 
 /** One-time founding price, in whole dollars. Stripe holds the real price. */
 export const KIT_PRICE_USD = 35;
+
+/** One-time Pro price, in whole dollars. Stripe holds the real price (VITE_STRIPE_PRO_PRICE_ID). */
+export const PRO_PRICE_USD = 19;
