@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import Navbar from "../components/Navbar";
 import { track } from "../lib/track";
@@ -24,15 +24,28 @@ const TICK = (
 );
 
 const PricingPage = () => {
-  const { user, signInWithGoogle } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   const handleUpgrade = async () => {
     if (!user) {
-      sessionStorage.setItem('pendingUpgrade', 'true');
-      await signInWithGoogle();
+      // Send them to the login PAGE, not straight into Google.
+      //
+      // Forcing Google here was wrong twice over: it removes the email-code option the
+      // login page offers, and — worse — someone who originally signed up by email with a
+      // non-Gmail address can end up authenticating as a different identity and landing in
+      // a second, empty account. They'd then be buying Pro for the wrong one.
+      //
+      // This matches how buyKit in CreatePortfolio already does it.
+      // Deliberately NOT setting `pendingUpgrade`: UpgradeHandler (homepage only) acts on
+      // it by opening Stripe immediately, which would skip the transfer and USDT options
+      // and silently pick card for them — possibly much later, whenever they next hit the
+      // homepage. Returning them here, where the choice is, is both safer and clearer.
+      localStorage.setItem('porfilr_after_login', '/pricing');
+      navigate('/login', { state: { from: { pathname: '/pricing' } } });
       return;
     }
     setLoading(true);

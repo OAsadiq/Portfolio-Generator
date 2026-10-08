@@ -1,19 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import PaymentOptions from "./PaymentOptions";
 import { PRO_PRICE_USD } from "../lib/plan";
 
 const PricingSection = () => {
-  const { user, signInWithGoogle } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleUpgrade = async () => {
     if (!user) {
-      sessionStorage.setItem("pendingUpgrade", "true");
-      await signInWithGoogle();
+      // The login PAGE, not straight into Google — see the same fix in src/pages/Pricing.tsx.
+      // Forcing Google removes the email-code option and can authenticate someone as a
+      // different identity than the account they already have.
+      //
+      // Sending them to /pricing rather than back here: that page is the full comparison
+      // and carries the same payment options, so they land somewhere they can finish.
+      localStorage.setItem("porfilr_after_login", "/pricing");
+      navigate("/login", { state: { from: { pathname: "/pricing" } } });
       return;
     }
     setLoading(true);
