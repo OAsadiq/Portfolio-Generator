@@ -9,7 +9,6 @@ import HowItWorks from "../components/HowItWorksSection";
 import TestimonialsSection from "../components/TestimonialsSection";
 import PricingSection from "../components/PricingSection";
 import FinalCTASection from "../components/FinalCTASection";
-import UpgradeHandler from "../components/UpgradeHandler";
 import NewsletterSection from "../components/NewsletterSection";
 import Footer from "../components/Footer";
 
@@ -29,7 +28,6 @@ const Home = () => {
       <TestimonialsSection />
       <PricingSection />
       <FinalCTASection />
-      <UpgradeHandler />
       <NewsletterSection />
       <Footer />
     </div>

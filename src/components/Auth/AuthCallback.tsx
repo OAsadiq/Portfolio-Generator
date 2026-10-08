@@ -25,14 +25,15 @@ const AuthCallback = () => {
           // Return to where the user was headed before signing in (e.g. mid-way through
           // filling a portfolio). Set by promptSignup; survives the OAuth round-trip.
           const afterLogin = takeAfterLogin();
-          const pendingUpgrade = sessionStorage.getItem('pendingUpgrade');
 
           if (afterLogin) {
             navigate(afterLogin, { replace: true });
-          } else if (pendingUpgrade === 'true') {
-            sessionStorage.removeItem('pendingUpgrade');
-            navigate('/pricing', { replace: true });
           } else {
+            // The old `pendingUpgrade` branch lived here. Nothing sets that flag now:
+            // clicking Upgrade while logged out stashes `/pricing#upgrade` as the return
+            // path instead, which this first branch already handles. The flag's other
+            // reader, UpgradeHandler, auto-opened Stripe — which would silently pick card
+            // over bank transfer and USDT.
             // Same rule the OTP form uses: returning builders get their dashboard.
             navigate(await postLoginPath(session.user.id, null), { replace: true });
           }
