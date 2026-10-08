@@ -11,7 +11,8 @@ import { startKitCheckout } from "../lib/kitCheckout";
 import { suggestEmailFix } from "../lib/emailTypo";
 import { useIsMobileOnce } from "../lib/useIsMobile";
 import { requestDesktopLink } from "../lib/desktopLink";
-import { FREE_TRADE_CAP } from "../lib/plan";
+import { FREE_TRADE_CAP, KIT_PRICE_USD } from "../lib/plan";
+import PaymentOptions from "../components/PaymentOptions";
 import PreviewSheet from "../components/PreviewSheet";
 import { getTemplateConfig } from "../components/builder/builder.config";
 import { SECTION_META, groupFields, startsOpen, filledCount, sectionOf } from "../lib/formSections";
@@ -532,15 +533,27 @@ const CreatePortfolio = () => {
             </div>
           )}
           {kitError && <p className="text-red-500 text-sm mb-3">{kitError}</p>}
-          <button
-            onClick={buyKit}
-            disabled={kitLoading}
-            className="w-full bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white py-3 rounded-xl font-bold text-sm transition"
-          >
-            {kitLoading
-              ? (kitCredit > 0 ? 'Unlocking…' : 'Opening checkout…')
-              : kitCredit > 0 ? 'Unlock with my referral credit' : 'Unlock Porfilr Journal'}
-          </button>
+          {/* A referral credit isn't a payment — it unlocks instantly and there is nothing
+              to pay by transfer, so the plain button stays for that case. */}
+          {kitCredit > 0 ? (
+            <button
+              onClick={buyKit}
+              disabled={kitLoading}
+              className="w-full bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white py-3 rounded-xl font-bold text-sm transition"
+            >
+              {kitLoading ? 'Unlocking…' : 'Unlock with my referral credit'}
+            </button>
+          ) : (
+            <PaymentOptions
+              onCardCheckout={buyKit}
+              cardBusy={kitLoading}
+              defaultEmail={user?.email}
+              userId={user?.id}
+              product={String(template?.id || '')}
+              priceUsd={KIT_PRICE_USD}
+              cardLabel="Unlock Porfilr Journal"
+            />
+          )}
           {kitCredit === 0 && (
             <p className="text-stone-400 text-xs text-center mt-3">
               {/* Say this plainly: Pro is a different product and does not include kits. */}

@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import PaymentOptions from "./PaymentOptions";
+import { PRO_PRICE_USD } from "../lib/plan";
 
 const PricingSection = () => {
   const { user, signInWithGoogle } = useAuth();
@@ -155,13 +157,19 @@ const PricingSection = () => {
                 </li>
               ))}
             </ul>
-            <button
-              onClick={handleUpgrade}
-              disabled={loading}
-              className="w-full bg-orange-600 hover:bg-orange-500 text-white py-3 rounded-xl font-bold text-sm transition disabled:opacity-50"
-            >
-              {loading ? "Loading..." : "Upgrade to Pro"}
-            </button>
+            {/* This button went straight to Stripe, so the homepage quietly bypassed the
+                transfer and USDT options that /pricing offers — and most Nigerian cards
+                can't be charged in dollars at all. Falls back to the plain card button
+                when no manual method is configured, so this is unchanged until then. */}
+            <PaymentOptions
+              onCardCheckout={handleUpgrade}
+              cardBusy={loading}
+              defaultEmail={user?.email}
+              userId={user?.id}
+              product="pro"
+              priceUsd={PRO_PRICE_USD}
+              cardLabel="Upgrade to Pro"
+            />
           </div>
         </div>
 
