@@ -19,7 +19,7 @@ const PricingSection = () => {
       //
       // Sending them to /pricing rather than back here: that page is the full comparison
       // and carries the same payment options, so they land somewhere they can finish.
-      localStorage.setItem("porfilr_after_login", "/pricing");
+      localStorage.setItem("porfilr_after_login", "/pricing#upgrade");
       navigate("/login", { state: { from: { pathname: "/pricing" } } });
       return;
     }

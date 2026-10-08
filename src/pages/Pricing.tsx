@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import Navbar from "../components/Navbar";
@@ -26,6 +26,19 @@ const TICK = (
 const PricingPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Someone who clicked "Upgrade" while logged out is sent here after signing in. A router
+  // navigation doesn't jump to a hash the way a full page load does, so do it ourselves —
+  // otherwise they land at the top of a page they've already read and have to find the
+  // button again, which feels like starting over rather than carrying on.
+  useEffect(() => {
+    if (window.location.hash !== '#upgrade') return;
+    // After paint, so the card exists to scroll to.
+    const id = window.setTimeout(() => {
+      document.getElementById('upgrade')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 80);
+    return () => window.clearTimeout(id);
+  }, []);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
@@ -44,7 +57,7 @@ const PricingPage = () => {
       // it by opening Stripe immediately, which would skip the transfer and USDT options
       // and silently pick card for them — possibly much later, whenever they next hit the
       // homepage. Returning them here, where the choice is, is both safer and clearer.
-      localStorage.setItem('porfilr_after_login', '/pricing');
+      localStorage.setItem('porfilr_after_login', '/pricing#upgrade');
       navigate('/login', { state: { from: { pathname: '/pricing' } } });
       return;
     }
@@ -168,7 +181,10 @@ const PricingPage = () => {
             </div>
 
             {/* Pro Plan */}
-            <div className="relative bg-white border-2 border-orange-500 rounded-2xl p-8 shadow-lg shadow-orange-100">
+            {/* id="upgrade" is where we send someone after they log in mid-purchase, so
+                they land on the payment choice instead of the top of a page they already
+                read. See the hash effect above. */}
+            <div id="upgrade" className="relative scroll-mt-24 bg-white border-2 border-orange-500 rounded-2xl p-8 shadow-lg shadow-orange-100">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <div className="bg-orange-600 text-white px-5 py-1.5 rounded-full text-xs font-bold shadow-md">
                   ⭐ Most Popular
