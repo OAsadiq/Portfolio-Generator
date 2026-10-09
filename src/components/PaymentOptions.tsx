@@ -153,7 +153,12 @@ export default function PaymentOptions({
   return (
     <div>
       <div className="flex flex-wrap gap-2 mb-4">
-        {tabBtn('card', 'Card', 'Instant')}
+        {/* Labelled by what the buyer DOES, not by who processes it. Stripe checkout also
+            offers Link, Apple Pay and Google Pay, so "Card" alone undersells it — but
+            "Stripe" names a company most buyers have no relationship with, and an
+            unfamiliar brand at the moment of payment costs more trust than it earns. The
+            sublabel carries the extras instead. */}
+        {tabBtn('card', 'Card', 'or Link, Apple Pay')}
         {bank && tabBtn('bank_transfer', 'Bank transfer', 'Naira')}
         {crypto && tabBtn('usdt', 'USDT', crypto.network)}
       </div>
@@ -166,9 +171,12 @@ export default function PaymentOptions({
           >
             {cardBusy ? 'Opening checkout…' : payLabel}
           </button>
+          {/* The old line here warned that Nigerian cards often can't be charged in
+              dollars. Accurate, but it singled out one country's buyers on a page everyone
+              sees, and told them to expect failure before they'd tried. The other tabs are
+              right there if it declines. */}
           <p className="text-stone-400 text-xs mt-2 leading-relaxed">
-            Unlocks straight away. Note that many Nigerian cards can't be charged in dollars —
-            if yours is declined, use bank transfer or USDT instead.
+            Unlocks straight away.
           </p>
         </>
       )}
