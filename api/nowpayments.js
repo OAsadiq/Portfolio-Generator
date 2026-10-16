@@ -41,7 +41,11 @@ const PRICE_USD = {
   // purchase insert and the Pro grant — are shared with paths that already run in
   // production. What it does prove is the part that has never run anywhere: that a real
   // NOWPayments callback survives Vercel's JSON parsing and still matches the signature.
-  'test-1usd': 1,
+  // NOWPayments enforces a minimum per pay-currency (network fees have to be worth paying),
+  // and $1 is below it on every network. The amount is an env var so it can be raised
+  // without a code change — set NOWPAYMENTS_TEST_USD if the default is still too low, and
+  // use the min-amount diagnostic below to find the real floor.
+  'test-1usd': Number(process.env.NOWPAYMENTS_TEST_USD || 12),
 };
 
 const TEST_PRODUCT = 'test-1usd';
@@ -104,6 +108,34 @@ async function createInvoice(req, res) {
     console.error('nowpayments invoice error:', err.message);
     return res.status(502).json({ error: 'Could not start crypto checkout' });
   }
+}
+
+// ── Diagnostic: what's the minimum NOWPayments will accept? ──────────────────
+//
+// The minimum differs per network and changes with fees, so it can't be hardcoded. This
+// asks NOWPayments directly, using the server-side key. Returns only public pricing
+// information — no key, no account detail — so it's safe to leave in place.
+async function minAmount(req, res) {
+  const apiKey = process.env.NOWPAYMENTS_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'Crypto payments are not configured' });
+
+  // Only our own currency codes, so this can't be used to probe arbitrary endpoints.
+  const ALLOWED = ['usdttrc20', 'usdtbsc', 'usdterc20', 'usdtsol', 'usdtmatic'];
+  const from = String(req.body?.from || '').toLowerCase();
+  const list = from && ALLOWED.includes(from) ? [from] : ALLOWED;
+
+  const out = {};
+  for (const c of list) {
+    try {
+      const r = await fetch(`${API}/min-amount?currency_from=${c}&fiat_equivalent=usd`, {
+        headers: { 'x-api-key': apiKey },
+      });
+      out[c] = r.ok ? await r.json() : { error: `HTTP ${r.status}` };
+    } catch (e) {
+      out[c] = { error: e.message };
+    }
+  }
+  return res.status(200).json({ configuredTestUsd: PRICE_USD[TEST_PRODUCT], minimums: out });
 }
 
 // ── Fulfilment ───────────────────────────────────────────────────────────────
@@ -195,5 +227,6 @@ export default async function handler(req, res) {
   // its way past — it's what separates a callback from a checkout request.
   if (req.headers['x-nowpayments-sig']) return handleIpn(req, res);
   if (req.body?.action === 'create-invoice') return createInvoice(req, res);
+  if (req.body?.action === 'min-amount') return minAmount(req, res);
   return res.status(400).json({ error: 'Unknown action' });
 }
