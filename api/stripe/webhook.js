@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendKitWelcomeEmail, sendFounderSaleAlert } from '../_lib/kitEmail.js';
+import { sendProWelcomeEmail } from '../_lib/proEmail.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabase = createClient(
@@ -193,6 +194,18 @@ async function handleCheckoutCompleted(session) {
 
       if (error) {
         throw error;
+      }
+
+      // Welcome email. Pro purchases were silent for their entire history — the only mail
+      // sent was an admin notice, so a buyer heard nothing about what they'd just paid for.
+      // After the grant, and never allowed to throw: a mail failure must not fail the
+      // webhook and make Stripe retry a purchase we've already honoured.
+      try {
+        const to = session.customer_details?.email || session.customer_email || null;
+        const fullName = session.customer_details?.name || '';
+        await sendProWelcomeEmail({ to, firstName: fullName.split(' ')[0] || '' });
+      } catch (mailErr) {
+        console.error('pro welcome email threw (ignored):', mailErr.message);
       }
 
       // Credit whoever referred this buyer (referral hook). Never block the purchase on this.

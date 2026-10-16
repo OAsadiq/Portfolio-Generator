@@ -46,6 +46,7 @@ import { readFileSync } from 'fs';
 import { createClient } from '@supabase/supabase-js';
 import { sendKitWelcomeEmail } from '../api/_lib/kitEmail.js';
 import { grantLifetimePro, hasActivePro } from '../api/_lib/proAccess.js';
+import { sendProWelcomeEmail } from '../api/_lib/proEmail.js';
 
 // --- load .env (quoted values tolerated) ---
 const env = Object.fromEntries(
@@ -221,6 +222,25 @@ async function main() {
           ? `SOLD     ${email} → Pro (lifetime)  ${money(amountMinor, currency)} via ${provider} (${ref})`
           : `GRANTED  ${email} → Pro (lifetime)  (free — nobody paid)`);
         if (!created) console.log('         (updated an existing subscriptions row)');
+
+        // Same welcome email a card buyer gets. A manual buyer needs it most: they sent a
+        // transfer hours ago and have heard nothing since. Paid sales only — a free grant
+        // is handed over in person, where "thank you for upgrading" would read oddly.
+        if (amountMinor > 0 && !noEmail) {
+          const firstName = (user.user_metadata?.full_name || '').trim().split(/\s+/)[0] || '';
+          if (dryEmail) {
+            console.log(`         [dry] Pro welcome email would go to ${email}`);
+          } else {
+            try {
+              const ok = await sendProWelcomeEmail({ to: email, firstName });
+              console.log(ok
+                ? `         welcome email sent to ${email}`
+                : `         welcome email NOT sent to ${email} — they have Pro; send one by hand`);
+            } catch (e) {
+              console.log(`         welcome email threw (access is fine): ${e.message}`);
+            }
+          }
+        }
         // The Stripe path also credits whoever referred this buyer. That ladder lives
         // inside api/stripe/webhook.js and isn't reachable from here, so a manual Pro sale
         // does NOT advance a referrer's count. Rare enough to handle by hand; say so

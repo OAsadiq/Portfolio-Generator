@@ -21,6 +21,7 @@ import { createClient } from '@supabase/supabase-js';
 import { verifyIpnSignature, buildOrderId, parseOrderId, isPaid, isNoticeable } from './_lib/nowpayments.js';
 import { grantLifetimePro, hasActivePro } from './_lib/proAccess.js';
 import { sendKitWelcomeEmail } from './_lib/kitEmail.js';
+import { sendProWelcomeEmail } from './_lib/proEmail.js';
 
 const API = 'https://api.nowpayments.io/v1';
 
@@ -137,6 +138,12 @@ async function fulfil({ userId, product, paymentId, amountUsd, email }) {
   if (product === 'pro') {
     if (await hasActivePro(supabase, userId)) return 'already';
     await grantLifetimePro(supabase, userId);
+    // After the grant, and never allowed to throw — see the note in proEmail.js.
+    try {
+      if (email) await sendProWelcomeEmail({ to: email, firstName: '' });
+    } catch (e) {
+      console.error('pro welcome email after crypto purchase failed:', e.message);
+    }
     return 'granted';
   }
 
