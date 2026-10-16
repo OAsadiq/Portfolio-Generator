@@ -137,7 +137,11 @@ async function minAmount(req, res) {
 async function fulfil({ userId, product, paymentId, amountUsd, email }) {
   if (product === 'pro') {
     if (await hasActivePro(supabase, userId)) return 'already';
-    await grantLifetimePro(supabase, userId);
+    await grantLifetimePro(supabase, userId, {
+      provider: 'nowpayments',
+      amount: Math.round(Number(amountUsd || 0) * 100),
+      currency: 'USD',   // the invoice is priced in dollars even though they paid USDT
+    });
     // After the grant, and never allowed to throw — see the note in proEmail.js.
     try {
       if (email) await sendProWelcomeEmail({ to: email, firstName: '' });

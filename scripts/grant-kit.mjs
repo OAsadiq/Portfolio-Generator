@@ -217,7 +217,12 @@ async function main() {
       }
       if (await hasActivePro(sb, user.id)) { console.log(`ALREADY  ${email} already has active Pro`); continue; }
       try {
-        const { created } = await grantLifetimePro(sb, user.id);
+        // Record what was actually paid. Before sql/018 there was nowhere to put it, so a
+        // manual Pro sale's price was validated and then thrown away — Pro revenue was
+        // unknowable. Minor units and currency, same shape as template_purchases.
+        const { created } = await grantLifetimePro(sb, user.id, amountMinor > 0
+          ? { provider, amount: amountMinor, currency }
+          : { provider: 'grant' });
         console.log(amountMinor > 0
           ? `SOLD     ${email} → Pro (lifetime)  ${money(amountMinor, currency)} via ${provider} (${ref})`
           : `GRANTED  ${email} → Pro (lifetime)  (free — nobody paid)`);
