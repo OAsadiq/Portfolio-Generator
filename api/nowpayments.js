@@ -78,7 +78,11 @@ async function createInvoice(req, res) {
         order_id: buildOrderId(userId, product),
         order_description: product === 'pro' ? 'Porfilr Pro (lifetime)' : 'Porfilr Journal',
         ipn_callback_url: `${site}/api/nowpayments`,
-        success_url: `${site}/dashboard?paid=1`,
+        // NOT the dashboard. A crypto payment is confirmed by IPN, which can lag the
+        // redirect by minutes — so dropping them on /dashboard showed an account with no
+        // access and looked exactly like a failed payment. /success waits for the
+        // entitlement to appear and says what's happening.
+        success_url: `${site}/success?crypto=1&product=${encodeURIComponent(product)}`,
         cancel_url: `${site}/pricing`,
         customer_email: email || undefined,
       }),
