@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { bankDetails, cryptoDetails, hasManualMethods } from '../lib/payMethods';
+import { bankDetails, cryptoDetails, cryptoAutomated, hasManualMethods } from '../lib/payMethods';
 import { submitPaymentClaim, type PaymentMethod } from '../lib/paymentClaim';
+import { startCryptoCheckout } from '../lib/cryptoCheckout';
 
 /**
  * How to pay for a kit.
@@ -45,6 +46,22 @@ export default function PaymentOptions({
   const payLabel = cardLabel || `Pay $${priceUsd} by card`;
   const bank = bankDetails(product);
   const crypto = cryptoDetails(product);
+  const automated = cryptoAutomated();
+  const [cryptoBusy, setCryptoBusy] = useState(false);
+  const [cryptoError, setCryptoError] = useState('');
+
+  const payWithCrypto = async () => {
+    if (!userId) { setCryptoError('Sign in first.'); return; }
+    setCryptoBusy(true); setCryptoError('');
+    try {
+      const r = await startCryptoCheckout(product, { id: userId, email: defaultEmail });
+      if (r.kind === 'alreadyOwned') { setCryptoError('You already have this.'); setCryptoBusy(false); return; }
+      window.location.href = r.url;
+    } catch (e) {
+      setCryptoError(e instanceof Error ? e.message : 'Could not start crypto checkout.');
+      setCryptoBusy(false);
+    }
+  };
   const [tab, setTab] = useState<Tab>('card');
 
   // Claim form
@@ -160,7 +177,9 @@ export default function PaymentOptions({
             sublabel carries the extras instead. */}
         {tabBtn('card', 'Card', 'or Link, Apple Pay')}
         {bank && tabBtn('bank_transfer', 'Bank transfer', 'Naira')}
-        {crypto && tabBtn('usdt', 'USDT', crypto.network)}
+        {/* Automated checkout needs no wallet configured — NOWPayments supplies the
+            address, so the tab stands on the flag alone. */}
+        {(automated || crypto) && tabBtn('usdt', 'USDT', automated ? 'Any network' : crypto!.network)}
       </div>
 
       {tab === 'card' && (
@@ -196,7 +215,30 @@ export default function PaymentOptions({
         </div>
       )}
 
-      {tab === 'usdt' && crypto && (
+      {/* Two very different experiences behind one tab.
+          Automated (NOWPayments connected): a hosted invoice picks the network, shows a
+          fresh address and a countdown, and access is granted by the IPN — no block
+          explorer, no waiting on us.
+          Manual (wallet configured instead): they send to a fixed address and tell us, and
+          someone verifies it by hand. */}
+      {tab === 'usdt' && automated && (
+        <div>
+          <button
+            type="button" disabled={cryptoBusy}
+            onClick={payWithCrypto}
+            className="w-full bg-stone-900 hover:bg-stone-700 disabled:opacity-60 text-white px-5 py-3 rounded-xl text-sm font-semibold transition"
+          >
+            {cryptoBusy ? 'Opening checkout…' : `Pay ${priceUsd} USDT`}
+          </button>
+          {cryptoError && <p className="text-red-500 text-xs mt-2">{cryptoError}</p>}
+          <p className="text-stone-400 text-xs mt-2 leading-relaxed">
+            Pick your network at checkout — TRC20, BEP20, ERC20 and others. Unlocks
+            automatically once the transfer confirms, usually a few minutes.
+          </p>
+        </div>
+      )}
+
+      {tab === 'usdt' && !automated && crypto && (
         <div>
           <div className="bg-stone-50 border border-stone-200 rounded-xl px-4 py-2">
             <Row label="Network" value={crypto.network} />

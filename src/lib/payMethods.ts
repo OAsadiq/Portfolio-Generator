@@ -90,7 +90,23 @@ export function cryptoDetails(product: string): CryptoDetails | null {
   return { address, network, price };
 }
 
+/**
+ * Is automated crypto checkout live?
+ *
+ * When NOWPayments is connected the USDT tab becomes a button: they pay on a hosted
+ * invoice, the IPN fires, and access is granted without anyone checking a block explorer.
+ * The wallet-address-and-claim fallback stays for when it isn't.
+ *
+ * Only a flag lives in the client — the API key is server-side (NOWPAYMENTS_API_KEY) and
+ * must never carry a VITE_ prefix, or it would be baked into the bundle for anyone to read.
+ */
+export function cryptoAutomated(): boolean {
+  return val('VITE_NOWPAYMENTS_ENABLED').toLowerCase() === 'true';
+}
+
 /** Anything beyond card for this product? Drives whether the picker renders at all. */
 export function hasManualMethods(product: string): boolean {
-  return !!bankDetails(product) || !!cryptoDetails(product);
+  // Automated crypto counts: the tab is worth showing even with no wallet configured,
+  // because NOWPayments supplies the address at checkout.
+  return !!bankDetails(product) || !!cryptoDetails(product) || cryptoAutomated();
 }
