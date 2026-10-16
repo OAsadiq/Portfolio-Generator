@@ -31,7 +31,20 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 const PRICE_USD = {
   pro: 19,
   'trader-template': 35,
+  // TEMPORARY — remove once crypto is proven in production.
+  //
+  // A $1 product so the whole chain can be exercised for real money without spending $35:
+  // invoice created -> paid on-chain -> IPN received -> signature verified -> order_id
+  // parsed -> status checked -> fulfilment dispatched.
+  //
+  // It grants NOTHING and writes NOTHING (see fulfil). The parts it can't prove — the
+  // purchase insert and the Pro grant — are shared with paths that already run in
+  // production. What it does prove is the part that has never run anywhere: that a real
+  // NOWPayments callback survives Vercel's JSON parsing and still matches the signature.
+  'test-1usd': 1,
 };
+
+const TEST_PRODUCT = 'test-1usd';
 
 function siteUrl(req) {
   const host = req.headers['x-forwarded-host'] || req.headers.host || 'porfilr.com';
@@ -49,8 +62,10 @@ async function createInvoice(req, res) {
   const price = PRICE_USD[product];
   if (!price) return res.status(400).json({ error: 'Unknown product' });
 
-  // Already owns it? Don't take money for something they have.
-  if (product === 'pro') {
+  // Already owns it? Don't take money for something they have. The test product is
+  // exempt — it grants nothing, so it can be bought repeatedly while debugging.
+  if (product === TEST_PRODUCT) { /* no ownership to check */ }
+  else if (product === 'pro') {
     if (await hasActivePro(supabase, userId)) return res.status(200).json({ alreadyOwned: true });
   } else {
     const { data: owned } = await supabase
@@ -93,6 +108,13 @@ async function createInvoice(req, res) {
 
 // ── Fulfilment ───────────────────────────────────────────────────────────────
 async function fulfil({ userId, product, paymentId, amountUsd, email }) {
+  // The $1 test deliberately writes nothing: a junk row in template_purchases would skew
+  // the paid-vs-granted numbers we use to judge whether anyone actually buys this.
+  if (product === TEST_PRODUCT) {
+    console.log(`[nowpayments TEST] callback verified end to end — payment ${paymentId}, user ${userId}, $${amountUsd}. Nothing granted, nothing written.`);
+    return 'test-ok';
+  }
+
   if (product === 'pro') {
     if (await hasActivePro(supabase, userId)) return 'already';
     await grantLifetimePro(supabase, userId);
