@@ -12,6 +12,8 @@ import { computeMetrics } from '../../api/_lib/metrics.js';
 // Shared, unit-tested CSV import (api/_lib/tradeCsv.js). A trader with real history won't
 // hand-log hundreds of trades, so this is what makes the journal usable for them.
 import { parseTradeCsv } from '../../api/_lib/tradeCsv.js';
+import { normalizeTags, customTagsIn, isNegative, POSITIVE_TAG, PRESET_TAGS } from '../../api/_lib/tags.js';
+import TagPicker from '../components/TagPicker';
 import { extractLinks } from '../../api/_lib/noteLinks.js';
 import Modal from '../components/Modal';
 import { startKitCheckout } from '../lib/kitCheckout';
@@ -43,6 +45,8 @@ type Trade = {
   fees: number | null;
   notes: string | null;
   screenshot_url?: string | null;
+  /** Execution tags. Presets feed the score; customs are neutral. See api/_lib/tags.js. */
+  tags?: string[] | null;
 };
 
 /**
@@ -66,6 +70,7 @@ const EMPTY_FORM = {
   fees: '',
   notes: '',
   screenshot_url: '',
+  tags: [] as string[],
 };
 
 /** <input type="datetime-local"> wants 'YYYY-MM-DDTHH:mm' in LOCAL time. */
@@ -147,6 +152,21 @@ const TradeJournal = () => {
   const [capPrompt, setCapPrompt] = useState<{ found: number; imported: number } | null>(null);
   // The trade awaiting delete confirmation. Holds the whole row so the dialog can name it.
   const [deleteTarget, setDeleteTarget] = useState<Trade | null>(null);
+
+  // Tag filter. Lives in state rather than the URL — it's a glance ("where do I keep
+  // moving my stop?"), not something anyone wants to bookmark or share.
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+  // Presets first, then this user's own tags. Only tags actually in use are offered:
+  // a filter listing seven presets against a journal that uses two is noise.
+  const allTags = useMemo(() => {
+    const used = new Set<string>();
+    for (const t of trades) for (const tag of (Array.isArray(t.tags) ? t.tags : [])) used.add(tag);
+    return [...PRESET_TAGS.filter((p) => used.has(p)), ...customTagsIn(trades)];
+  }, [trades]);
+  const visibleTrades = useMemo(
+    () => (tagFilter ? trades.filter((t) => (Array.isArray(t.tags) ? t.tags : []).includes(tagFilter)) : trades),
+    [trades, tagFilter],
+  );
   const [unlocking, setUnlocking] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
   const [showErrors, setShowErrors] = useState(false);
@@ -451,6 +471,8 @@ const TradeJournal = () => {
     notes: t.notes || '',
     // Without this, editing a trade and saving would blank an existing screenshot.
     screenshot_url: t.screenshot_url || '',
+    // Same hazard: omit this and opening a tagged trade to fix a typo would strip its tags.
+    tags: Array.isArray(t.tags) ? t.tags : [],
   });
 
   const focusForm = () => {
@@ -529,6 +551,10 @@ const TradeJournal = () => {
         fees: numOrNull(form.fees) ?? 0,
         notes: form.notes.trim() || null,
         screenshot_url: form.screenshot_url || null,
+        // Normalised on the way in, so a typed "fomo entry" is stored as the preset rather
+        // than as a neutral custom that the score would quietly ignore. Always an array —
+        // the column is NOT NULL with a '{}' default.
+        tags: normalizeTags(form.tags),
       };
 
       if (editingId) {
@@ -1571,6 +1597,16 @@ const TradeJournal = () => {
               Enter the P&amp;L your broker shows you — Porfilr doesn't guess it from your entry and exit.
             </p>
 
+            {/* Tags sit ABOVE notes on purpose: they're the countable layer, and a chip is
+                a far lower bar than writing prose. Someone who won't type a note will
+                still tap "FOMO entry" — and that tap is what the score is built on. */}
+            <TagPicker
+              value={form.tags}
+              onChange={(tags) => setForm({ ...form, tags })}
+              suggestions={customTagsIn(trades)}
+              disabled={saving}
+            />
+
             <div>
               <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wide">
                 Notes <span className="text-stone-400 font-normal normal-case">(private — never shown on your page)</span>
@@ -1653,10 +1689,39 @@ const TradeJournal = () => {
 
         {/* Trades */}
         <div className="bg-white border border-stone-200 rounded-2xl p-6">
-          <h2 className="font-bold text-stone-900 text-sm mb-5">Your trades</h2>
+          <div className="flex items-start justify-between gap-3 mb-5 flex-wrap">
+            <h2 className="font-bold text-stone-900 text-sm">
+              Your trades
+              {tagFilter && (
+                <span className="text-stone-400 font-normal"> — {visibleTrades.length} tagged “{tagFilter}”</span>
+              )}
+            </h2>
+            {/* Filtering is what makes a tag more than a note. If you can't ask "show me
+                every trade where I moved my stop", the chip is decoration. */}
+            {allTags.length > 0 && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <select
+                  value={tagFilter ?? ''}
+                  onChange={(e) => setTagFilter(e.target.value || null)}
+                  className="px-2.5 py-1.5 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                  aria-label="Filter trades by tag"
+                >
+                  <option value="">All trades</option>
+                  {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+                {tagFilter && (
+                  <button type="button" onClick={() => setTagFilter(null)} className="text-xs text-stone-400 hover:text-stone-700">
+                    clear
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
 
           {trades.length === 0 ? (
             <p className="text-stone-400 text-sm">No trades logged yet.</p>
+          ) : visibleTrades.length === 0 ? (
+            <p className="text-stone-400 text-sm">No trades tagged “{tagFilter}” yet.</p>
           ) : (
             <div className="overflow-x-auto -mx-6 px-6">
               <table className="w-full text-sm min-w-[640px]">
@@ -1672,7 +1737,7 @@ const TradeJournal = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {trades.map((t) => (
+                  {visibleTrades.map((t) => (
                     <Fragment key={t.id}>
                     <tr className="border-t border-stone-100">
                       <td className="py-3 font-semibold text-stone-900">{t.symbol}</td>
@@ -1722,6 +1787,35 @@ const TradeJournal = () => {
                     </tr>
                     {/* The note, shown under its trade. Reviewing your own notes is the
                         point of a journal — a note you can't see afterwards is worthless. */}
+                    {/* Tags get their own row rather than a column: a trade can carry
+                        several, and squeezing them into the table would either truncate
+                        them or force a horizontal scroll on the phone where most logging
+                        happens. */}
+                    {Array.isArray(t.tags) && t.tags.length > 0 && (
+                      <tr>
+                        <td colSpan={7} className="pt-0 pb-2">
+                          <div className="flex flex-wrap gap-1.5">
+                            {t.tags.map((tag) => (
+                              <button
+                                key={tag}
+                                type="button"
+                                onClick={() => setTagFilter(tagFilter === tag ? null : tag)}
+                                title={`Show only ${tag} trades`}
+                                className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition ${
+                                  tag === POSITIVE_TAG
+                                    ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                                    : isNegative(tag)
+                                    ? 'bg-red-50 border-red-200 text-red-600'
+                                    : 'bg-stone-50 border-stone-200 text-stone-600'
+                                } ${tagFilter === tag ? 'ring-2 ring-stone-900/15' : ''}`}
+                              >
+                                {tag}
+                              </button>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                     {(t.notes || t.screenshot_url) && (() => {
                       // Links are lifted out of the prose and listed underneath. Inline
                       // linkifying breaks the sentence and a 120-character chart URL wraps
