@@ -18,6 +18,7 @@ import { extractLinks } from '../../api/_lib/noteLinks.js';
 import Modal from '../components/Modal';
 import { startKitCheckout } from '../lib/kitCheckout';
 import PaymentOptions from '../components/PaymentOptions';
+import ReportCardPanel from '../components/ReportCardPanel';
 import { FREE_TRADE_CAP, KIT_PRICE_USD } from '../lib/plan';
 // Trading performance calendar — same closed-only, net-of-fees maths as the metrics, so
 // the calendar can never disagree with the headline numbers.
@@ -1335,6 +1336,22 @@ const TradeJournal = () => {
         )}
 
         {/* Import from CSV — the adoption unlock for traders with existing history */}
+        {/* Execution report for the month just gone. Sits above the import panel because
+            it's the thing worth seeing on the 1st — the import box is a one-off setup
+            task people use once and then scroll past. */}
+        {user && (
+          <ReportCardPanel
+            userId={user.id}
+            displayName={portfolio?.form_data?.name || portfolio?.user_name || null}
+            onTagTrades={() => {
+              // Send them to their untagged trades: the filter is the fastest way to see
+              // exactly which ones still need a chip.
+              setTagFilter(null);
+              document.getElementById('trade-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+          />
+        )}
+
         <div data-tour="journal-import" className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>

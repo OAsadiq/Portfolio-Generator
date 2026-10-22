@@ -111,6 +111,21 @@ test('no money figure is produced by default', () => {
   assert.equal(typeof s.netResultPct, 'number', 'the percentage is still there');
 });
 
+test('INVARIANT: the toggle-off object carries no money-shaped key at all', () => {
+  // This object becomes a public PNG. Privacy here is by construction, not by discipline:
+  // a template bug can print a null, it cannot print a key that does not exist. If a
+  // future field smuggles a currency amount in, this fails before anyone posts it.
+  const s = reportCardStats(month(30, 30).map((x) => ({ ...x, pnl: 77, fees: 3 })), '2026-10', 10000);
+  const moneyish = Object.keys(s).filter((k) => /money|value|amount|pnl|profit|net(?!ResultPct)/i.test(k));
+  assert.deepEqual(moneyish, ['showMoney'], `unexpected money-shaped keys: ${moneyish.join(', ')}`);
+  assert.equal(s.showMoney, false);
+
+  // And no VALUE in the object equals the month's net, however it might be named.
+  const net = 30 * 74;
+  const leaked = Object.entries(s).filter(([, v]) => v === net);
+  assert.deepEqual(leaked, [], 'the net figure must not appear under any key');
+});
+
 test('the money figure appears only when explicitly asked for', () => {
   const trades = month(20, 20).map((x) => ({ ...x, pnl: 50, fees: 2 }));
   const on = reportCardStats(trades, '2026-10', 10000, { showMoney: true });
