@@ -182,14 +182,19 @@ export function calendarHtml(trades, opts = {}) {
           ? `rgba(248,113,113,${(0.16 + 0.5 * strength).toFixed(2)})`
           : 'rgba(255,255,255,.05)';
 
+      // W/L is the hero of the cell. The separate trade count was redundant — wins plus
+      // losses already says how busy the day was — and a third line left every cell
+      // looking like a form with nothing filled in. The exact count lives in the tooltip.
       const wl = [
         c.wins > 0 ? `<i class="cal-w">${c.wins}W</i>` : '',
         c.losses > 0 ? `<i class="cal-l">${c.losses}L</i>` : '',
       ].join('');
+      const label = `${c.trades} ${c.trades === 1 ? 'trade' : 'trades'}`
+        + (c.wins ? `, ${c.wins} won` : '')
+        + (c.losses ? `, ${c.losses} lost` : '');
 
-      return `<span class="cal-cell cal-on" style="background:${bg}">`
+      return `<span class="cal-cell cal-on" style="background:${bg}" title="${esc(label)}">`
         + `<b class="cal-day">${c.day}</b>`
-        + `<u class="cal-n">${c.trades}</u>`
         + `<s class="cal-wl">${wl}</s>`
         + `</span>`;
     })

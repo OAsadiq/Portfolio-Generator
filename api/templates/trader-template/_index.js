@@ -461,30 +461,36 @@ const traderTemplate = {
     .cal-key{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:2px}
     .cal-key-up{background:rgba(34,197,94,.55)}
     .cal-key-down{background:rgba(248,113,113,.55)}
-    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-    .cal-dow{font-size:9.5px;font-weight:700;color:var(--dim);text-align:center;padding-bottom:2px}
-    /* Cells now carry the date, trade count and W/L — matching the journal's own calendar.
-       The day's P&L is deliberately NOT rendered: the publish toggle promises "colours
-       only, never your daily amounts". <b>/<u>/<s> are reset below; they're used only
-       because the generated markup needs three cheap inline tags. */
-    .cal-cell{aspect-ratio:1;border-radius:5px;background:rgba(255,255,255,.03);border:1px solid var(--line);
-      position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;
-      padding:5px 6px;overflow:hidden}
-    .cal-cell b,.cal-cell u,.cal-cell s{font-weight:inherit;text-decoration:none}
-    .cal-day{font-size:9.5px;font-weight:700;color:var(--dim);line-height:1}
-    .cal-n{font-size:10px;font-weight:700;color:#e9e9ee;line-height:1;align-self:center;opacity:.9}
-    .cal-wl{display:flex;gap:4px;font-size:8.5px;font-weight:700;line-height:1}
+    /* The grid is CAPPED, not full-width. A 7-column grid across the whole card gave
+       136px squares holding 28px of content — 79% of every cell was empty, which is what
+       made this look unfinished. Competitors can fill a cell that size because the day's
+       P&L is the hero; ours deliberately doesn't show amounts, so the cell has to be
+       sized for what it actually carries. */
+    .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;max-width:430px}
+    .cal-dow{font-size:10px;font-weight:700;color:var(--dim);text-align:center;padding-bottom:4px}
+    /* Not square, and not tall: the date sits top-left, the W/L sits under it. The day's
+       P&L is deliberately absent — the publish toggle promises "colours only, never your
+       daily amounts". <b>/<s> are reset below; the generated markup just needs two cheap
+       inline tags. */
+    .cal-cell{height:52px;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid var(--line);
+      display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;
+      padding:0 7px;overflow:hidden}
+    .cal-cell b,.cal-cell s{font-weight:inherit;text-decoration:none}
+    .cal-day{font-size:10px;font-weight:700;color:var(--dim);line-height:1}
+    .cal-wl{display:flex;gap:5px;font-size:11px;font-weight:800;line-height:1}
     .cal-w{color:rgba(34,197,94,.95);font-style:normal}
     .cal-l{color:rgba(248,113,113,.95);font-style:normal}
     .cal-blank{background:none;border:0}
     .cal-on{border-color:transparent}
     .cal-note{font-size:12px;color:var(--dim);margin-top:14px}
-    /* On a phone the squares are too small for three lines — keep the date and the colour,
-       drop the rest rather than render an unreadable stack. */
+    /* Phone: cells get shorter and the W/L drops to the date alone. At ~44px wide, "3W 1L"
+       wraps or clips — the colour already carries the day, so losing the split costs less
+       than rendering it badly. */
     @media(max-width:560px){
-      .cal-card{padding:14px}.cal-grid{gap:3px}
-      .cal-cell{padding:3px 4px}
-      .cal-n,.cal-wl{display:none}
+      .cal-card{padding:14px}
+      .cal-grid{gap:4px;max-width:none}
+      .cal-cell{height:38px;padding:0 5px;justify-content:center}
+      .cal-wl{display:none}
     }
 
     .proof-note{font-size:13px;color:var(--dim);margin-top:18px}
