@@ -144,4 +144,28 @@ export function cardFooter(stats) {
     + `Porfilr doesn't audit results — your numbers, computed honestly.`;
 }
 
+/**
+ * The execution score for a trader's WHOLE journal, for the published page.
+ *
+ * Lifetime, not monthly, because it sits beside lifetime metrics — total return, win rate,
+ * drawdown. A monthly figure in that row would look like it covered the same period and
+ * quietly mean something else.
+ *
+ * Same 50% gate as the card: returns null when too little is tagged, and the template
+ * drops an absent metric rather than printing a dash. A score from a handful of tagged
+ * trades is the screenshot problem wearing a percentage sign.
+ *
+ * @returns {number|null} whole percent, or null when it must not be shown
+ */
+export function publicExecutionScore(trades) {
+  const all = Array.isArray(trades) ? trades : [];
+  if (!all.length) return null;
+  const tags = tagStats(all);
+  if (!tags.tagged) return null;
+  const ratio = tags.taggedRatio ?? 0;
+  if (ratio < MIN_TAGGED_RATIO) return null;
+  if (tags.score === null) return null;
+  return Math.round(tags.score * 100);
+}
+
 export default reportCardStats;

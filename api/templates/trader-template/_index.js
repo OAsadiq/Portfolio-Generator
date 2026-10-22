@@ -125,6 +125,16 @@ const traderTemplate = {
           ['Profit factor', plain(cache.profitFactor)         ?? data.profitFactor, '',    'profitFactor'],
           ['Max drawdown',  plain(cache.maxDrawdownPct, '%')  ?? data.maxDrawdown,  'neg', 'maxDrawdownPct'],
           ['Trades',        plain(cache.totalTrades),                               '',    'totalTrades'],
+          // Execution score. Comes from meta, not from `data` — there is no typed
+          // fallback on purpose: a trader cannot hand-enter how well they followed their
+          // own plan, and a made-up execution score would be the least defensible number
+          // on the page. Absent unless the journal actually computed one, and the rules
+          // in api/_lib/reportCard.js already withhold it when too little is tagged.
+          //
+          // The underlying TAGS never appear here. "Revenge trade" is private; the
+          // percentage of trades that went to plan is the only part a trader would ever
+          // want public.
+          ['On plan',       plain(meta.executionScorePct, '%'),                     '',    'executionScorePct'],
           ['Track record',  cache.trackRecordLabel            ?? data.tradingSince, '',    'trackRecordLabel'],
         ]
       : [
@@ -171,7 +181,7 @@ const traderTemplate = {
     const barFor = (label, val) => {
       const n = parseFloat(String(val).replace(/[^0-9.]/g, ''));
       if (!Number.isFinite(n)) return '';
-      if (/win rate/i.test(label)) return `<div class="tr-bar"><i style="width:${Math.min(n, 100)}%;background:var(--pos)"></i></div>`;
+      if (/win rate|on plan/i.test(label)) return `<div class="tr-bar"><i style="width:${Math.min(n, 100)}%;background:var(--pos)"></i></div>`;
       if (/drawdown/i.test(label)) return `<div class="tr-bar"><i style="width:${Math.min(n, 100)}%;background:var(--neg)"></i></div>`;
       return '';
     };

@@ -17,6 +17,7 @@ import { createClient } from '@supabase/supabase-js';
 import { templates } from '../api/templates/_templateConfig.js';
 import { computeMetrics } from '../api/_lib/metrics.js';
 import { removeBrandingFor } from '../api/_lib/branding.js';
+import { publicExecutionScore } from '../api/_lib/reportCard.js';
 
 const DRY = process.argv.includes('--dry');
 const slugArg = (process.argv.find((a) => a.startsWith('--slug=')) || '').split('=')[1] || null;
@@ -77,7 +78,10 @@ async function computeRemoveBranding(userId, tpl) {
 async function loadClosedTrades(p) {
   if (!(p.journal_enabled && p.starting_balance > 0)) return [];
   const { data: trades } = await supabase
-    .from('trades').select('opened_at, closed_at, pnl, fees')
+    // `tags` is needed for the execution score tile. Without it every regenerated page
+    // would silently drop that metric, which looks identical to a trader who never
+    // tagged anything — the regen would quietly erase a published number.
+    .from('trades').select('opened_at, closed_at, pnl, fees, tags')
     .eq('portfolio_id', p.id).not('closed_at', 'is', null).limit(5000);
   return trades || [];
 }
@@ -105,6 +109,9 @@ for (const p of portfolios) {
       // Preserve the trader's opt-in calendar choice on bulk republish.
       calendarPublic: !!p.calendar_public,
       trades: closedTrades,
+      // Lifetime execution score, or null when too little is tagged. The template drops
+      // an absent metric rather than printing a dash.
+      executionScorePct: p.journal_enabled ? publicExecutionScore(closedTrades) : null,
     };
 
     const html = tpl.generateHTML(p.form_data || {}, p.sections || [], meta);

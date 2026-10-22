@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   reportCardStats, blockedReason, cardFooter, monthLabel, previousMonth,
-  CARD_MIN_TRADES, MIN_TAGGED_RATIO,
+  CARD_MIN_TRADES, MIN_TAGGED_RATIO, publicExecutionScore,
 } from './reportCard.js';
 
 // A closed trade in October 2026.
@@ -175,4 +175,39 @@ test('footer singularises one trade', () => {
 
 test('the tagging threshold is the documented one', () => {
   assert.equal(MIN_TAGGED_RATIO, 0.5);
+});
+
+// ── Published-page score ──────────────────────────────────────────────────
+test('the public score is lifetime, not a single month', () => {
+  const trades = [
+    ...Array.from({ length: 10 }, () => ({ tags: ['On plan'], pnl: 10, closed_at: '2026-09-05T12:00:00Z' })),
+    ...Array.from({ length: 10 }, () => ({ tags: ['On plan'], pnl: 10, closed_at: '2026-10-05T12:00:00Z' })),
+  ];
+  assert.equal(publicExecutionScore(trades), 100, 'both months count');
+});
+
+test('the public score obeys the same 50% gate', () => {
+  const tagged = (n, m) => [
+    ...Array.from({ length: m }, () => ({ tags: ['On plan'], pnl: 10, closed_at: '2026-10-05T12:00:00Z' })),
+    ...Array.from({ length: n - m }, () => ({ tags: [], pnl: 10, closed_at: '2026-10-05T12:00:00Z' })),
+  ];
+  assert.equal(publicExecutionScore(tagged(20, 9)), null, 'under half tagged shows nothing');
+  assert.equal(publicExecutionScore(tagged(20, 10)), 100, 'exactly half is enough');
+});
+
+test('the public score is null rather than zero when there is nothing to score', () => {
+  // Null makes the template DROP the tile. Zero would publish "0% on plan" to a trader
+  // who simply never tagged anything — the worst possible misreading.
+  assert.equal(publicExecutionScore([]), null);
+  assert.equal(publicExecutionScore(null), null);
+  assert.equal(publicExecutionScore([{ tags: [], pnl: 5, closed_at: '2026-10-01T00:00:00Z' }]), null);
+});
+
+test('a genuinely poor score still publishes — honesty cuts both ways', () => {
+  const trades = Array.from({ length: 10 }, (_, i) => ({
+    tags: i < 2 ? ['On plan'] : ['Revenge trade'],
+    pnl: 10,
+    closed_at: '2026-10-05T12:00:00Z',
+  }));
+  assert.equal(publicExecutionScore(trades), 20);
 });

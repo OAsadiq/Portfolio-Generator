@@ -3,6 +3,7 @@ import { templates } from "./_templateConfig.js";
 import { computeMetrics } from "../_lib/metrics.js";
 import { removeBrandingFor } from "../_lib/branding.js";
 import { validateFormData } from "../_lib/formSize.js";
+import { publicExecutionScore } from "../_lib/reportCard.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -100,7 +101,9 @@ export default async function handler(req, res) {
     if (portfolio.journal_enabled && portfolio.starting_balance > 0) {
       const { data: trades, error: tradesErr } = await supabase
         .from('trades')
-        .select('opened_at, closed_at, pnl, fees')
+        // `tags` feeds the execution score tile — see the same select in
+        // scripts/regen-portfolios.mjs. Omitting it drops the metric silently.
+        .select('opened_at, closed_at, pnl, fees, tags')
         .eq('portfolio_id', portfolio.id)
         .not('closed_at', 'is', null)
         .limit(5000);
@@ -128,6 +131,8 @@ export default async function handler(req, res) {
       // Opt-in trading calendar: only rendered when the trader turned it on.
       calendarPublic: !!portfolio.calendar_public,
       trades: closedTradeRows,
+      // Lifetime execution score, gated at 50% tagged. Null drops the tile entirely.
+      executionScorePct: portfolio.journal_enabled ? publicExecutionScore(closedTradeRows) : null,
     });
 
     const filePath = `portfolios/${slug}.html`;
