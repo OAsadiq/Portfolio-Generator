@@ -466,7 +466,16 @@ const traderTemplate = {
        made this look unfinished. Competitors can fill a cell that size because the day's
        P&L is the hero; ours deliberately doesn't show amounts, so the cell has to be
        sized for what it actually carries. */
-    .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;max-width:430px}
+    /* Grid left, month summary right. Capping the grid stopped the cells ballooning, but
+       left a wide gap beside it — this fills that with consistency stats rather than
+       stretching the grid back out. */
+    .cal-body{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+    .cal-stats{display:grid;grid-template-columns:1fr 1fr;gap:16px 28px;flex:1;min-width:200px;padding-top:22px}
+    .cal-stat b{display:block;font-size:22px;font-weight:800;color:#e9e9ee;line-height:1.1;letter-spacing:-.01em}
+    .cal-stat span{display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+      color:var(--dim);margin-top:5px}
+    .cal-of{font-size:13px;font-weight:700;color:var(--dim)}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;max-width:430px;flex:0 0 auto}
     .cal-dow{font-size:10px;font-weight:700;color:var(--dim);text-align:center;padding-bottom:4px}
     /* Not square, and not tall: the date sits top-left, the W/L sits under it. The day's
        P&L is deliberately absent — the publish toggle promises "colours only, never your
@@ -488,9 +497,13 @@ const traderTemplate = {
        than rendering it badly. */
     @media(max-width:560px){
       .cal-card{padding:14px}
-      .cal-grid{gap:4px;max-width:none}
+      .cal-body{gap:18px}
+      .cal-grid{gap:4px;max-width:none;width:100%}
       .cal-cell{height:38px;padding:0 5px;justify-content:center}
       .cal-wl{display:none}
+      /* Stats move below the grid and shrink — two columns still fit at 375px. */
+      .cal-stats{padding-top:0;width:100%;gap:14px 18px}
+      .cal-stat b{font-size:18px}
     }
 
     .proof-note{font-size:13px;color:var(--dim);margin-top:18px}

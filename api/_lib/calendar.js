@@ -203,6 +203,50 @@ export function calendarHtml(trades, opts = {}) {
   const dows = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
     .map((d) => `<span class="cal-dow">${d}</span>`).join('');
 
+  // ── Month summary, shown beside the grid ─────────────────────────────────
+  //
+  // Capping the grid width fixed the giant-empty-cells problem but left a wide gap to its
+  // right. This fills it with what the calendar is actually here to prove — consistency —
+  // rather than stretching the grid back out.
+  //
+  // Everything here is a COUNT or a RATIO. No amounts, same rule as the cells: the publish
+  // toggle promises "colours only, never your daily amounts", and a month total would
+  // break that just as surely as a daily one.
+  const traded = cells.filter((c) => c && c.pnl !== null);
+
+  // Weekdays in the month, so "traded 20 of 22" reads as a consistency claim rather than
+  // a bare number. Weekend trading still counts in the numerator — crypto doesn't stop.
+  let weekdays = 0;
+  for (const c of cells) {
+    if (!c) continue;
+    const dow = new Date(Date.UTC(year, month - 1, c.day)).getUTCDay();
+    if (dow !== 0 && dow !== 6) weekdays++;
+  }
+
+  const wins = traded.reduce((s, c) => s + (c.wins || 0), 0);
+  const losses = traded.reduce((s, c) => s + (c.losses || 0), 0);
+  const decided = wins + losses;
+  const winRate = decided ? Math.round((wins / decided) * 100) : null;
+
+  // Longest run of consecutive GREEN trading days. Days with no trades don't break the
+  // run — a trader who sits out Wednesday hasn't ended a streak, they just didn't trade.
+  let bestRun = 0, run = 0;
+  for (const c of cells) {
+    if (!c || c.pnl === null) continue;
+    if (c.pnl > 0) { run++; bestRun = Math.max(bestRun, run); } else { run = 0; }
+  }
+
+  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+  const stats = [
+    [`${g.summary.tradingDays}<span class="cal-of">/${weekdays}</span>`, 'Weekdays traded'],
+    [`${g.summary.greenDays}<span class="cal-of"> / ${g.summary.redDays}</span>`, 'Green / red days'],
+    winRate !== null ? [`${winRate}<span class="cal-of">%</span>`, 'Win rate this month'] : null,
+    bestRun > 1 ? [`${bestRun}<span class="cal-of"> days</span>`, 'Longest green run'] : null,
+  ].filter(Boolean)
+    .map(([v, l]) => `<div class="cal-stat"><b>${v}</b><span>${l}</span></div>`)
+    .join('');
+
   return `
       <div class="cal-card">
         <div class="cal-head">
@@ -212,8 +256,11 @@ export function calendarHtml(trades, opts = {}) {
             <i class="cal-key cal-key-down"></i> loss
           </span>
         </div>
-        <div class="cal-grid">${dows}${dayCells}</div>
-        <p class="cal-note">${g.summary.tradingDays} days traded · ${g.summary.greenDays} green · ${g.summary.redDays} red</p>
+        <div class="cal-body">
+          <div class="cal-grid">${dows}${dayCells}</div>
+          <div class="cal-stats">${stats}</div>
+        </div>
+        <p class="cal-note">${plural(g.summary.tradingDays, 'day')} traded · ${plural(g.summary.trades, 'trade')}</p>
       </div>`;
 }
 
