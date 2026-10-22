@@ -158,10 +158,22 @@ export function calendarHtml(trades, opts = {}) {
   const cells = g.weeks.flat();
   const maxAbs = Math.max(...cells.filter((c) => c && c.pnl !== null).map((c) => Math.abs(c.pnl)), 0);
 
+  // Day cells now carry what the journal's own calendar shows — the date, how many trades,
+  // and the win/loss split — so the published page and the private journal look like the
+  // same product rather than two different features.
+  //
+  // WHAT IS DELIBERATELY ABSENT: the day's P&L figure. The toggle that publishes this
+  // promises "colours only, never your daily amounts", and people switched it on having
+  // read that. The colour still encodes the size of the day relative to the month, so the
+  // shape is intact; the number itself stays private. Do not add it here without changing
+  // that promise first — and that is a product decision, not a rendering one.
   const dayCells = cells
     .map((c) => {
       if (!c) return '<span class="cal-cell cal-blank"></span>';
-      if (c.pnl === null) return '<span class="cal-cell"></span>';
+      if (c.pnl === null) {
+        // A day inside the month with no closed trades: show the date, nothing else.
+        return `<span class="cal-cell"><b class="cal-day">${c.day}</b></span>`;
+      }
       const up = c.pnl > 0;
       const strength = maxAbs ? 0.3 + 0.7 * (Math.abs(c.pnl) / maxAbs) : 0.3;
       const bg = up
@@ -169,7 +181,17 @@ export function calendarHtml(trades, opts = {}) {
         : c.pnl < 0
           ? `rgba(248,113,113,${(0.16 + 0.5 * strength).toFixed(2)})`
           : 'rgba(255,255,255,.05)';
-      return `<span class="cal-cell cal-on" style="background:${bg}"></span>`;
+
+      const wl = [
+        c.wins > 0 ? `<i class="cal-w">${c.wins}W</i>` : '',
+        c.losses > 0 ? `<i class="cal-l">${c.losses}L</i>` : '',
+      ].join('');
+
+      return `<span class="cal-cell cal-on" style="background:${bg}">`
+        + `<b class="cal-day">${c.day}</b>`
+        + `<u class="cal-n">${c.trades}</u>`
+        + `<s class="cal-wl">${wl}</s>`
+        + `</span>`;
     })
     .join('');
 
