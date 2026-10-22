@@ -1105,6 +1105,22 @@ const TradeJournal = () => {
           )}
         </div>
 
+        {/* Execution report, directly under the track record.
+            It was originally further down, below the calendar and the market panel, and
+            the first person to look for it couldn't find it. A monthly summary nobody
+            scrolls to is a monthly summary nobody uses — it belongs next to the numbers
+            it summarises. */}
+        {user && (
+          <ReportCardPanel
+            userId={user.id}
+            displayName={portfolio?.form_data?.name || portfolio?.user_name || null}
+            onTagTrades={() => {
+              setTagFilter(null);
+              document.getElementById('trade-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+          />
+        )}
+
         {/* Trading performance calendar — shows consistency at a glance, which is what an
             investor actually reads: steady green, or one big day carrying a wall of red? */}
         {closedCount > 0 && (
@@ -1336,22 +1352,6 @@ const TradeJournal = () => {
         )}
 
         {/* Import from CSV — the adoption unlock for traders with existing history */}
-        {/* Execution report for the month just gone. Sits above the import panel because
-            it's the thing worth seeing on the 1st — the import box is a one-off setup
-            task people use once and then scroll past. */}
-        {user && (
-          <ReportCardPanel
-            userId={user.id}
-            displayName={portfolio?.form_data?.name || portfolio?.user_name || null}
-            onTagTrades={() => {
-              // Send them to their untagged trades: the filter is the fastest way to see
-              // exactly which ones still need a chip.
-              setTagFilter(null);
-              document.getElementById('trade-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}
-          />
-        )}
-
         <div data-tour="journal-import" className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
