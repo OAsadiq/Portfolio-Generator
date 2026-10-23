@@ -30,6 +30,16 @@ export function captureAttribution(): void {
       const v = params.get(k);
       if (v) attr[k] = v;
     }
+
+    // `ref` as well as utm_*. Shared report cards link with ?ref=reportcard, and without
+    // this those arrivals were indistinguishable from organic — we'd have had no way to
+    // tell whether sharing brought anyone in, which is the only question Build 1 exists
+    // to answer. Mirrored into utm_content so existing attribution reads it unchanged.
+    const refParam = params.get('ref');
+    if (refParam) {
+      attr.ref = refParam;
+      if (!attr.utm_content) attr.utm_content = refParam;
+    }
     const ref = document.referrer;
     if (ref && !ref.includes(window.location.hostname)) attr.referrer = ref;
 

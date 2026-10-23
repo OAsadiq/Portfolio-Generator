@@ -1,0 +1,36 @@
+-- Porfilr — let a trader set their journal's currency.
+--
+-- Run this in the Supabase SQL editor. Safe to re-run.
+--
+-- THE BUG
+-- Adding the `currency` column in sql/020 was not enough: saving it failed with
+--
+--   permission denied for table portfolios
+--
+-- RLS gates ROWS; column-level GRANTs gate COLUMNS, and sql/003 deliberately revoked the
+-- blanket UPDATE and re-granted only the columns the client wrote at the time. An UPDATE
+-- touching ANY ungranted column is refused outright — so `currency` was denied even though
+-- the row itself belonged to the user.
+--
+-- This is the same step sql/008 took for `calendar_public`. Worth remembering: every new
+-- client-writable column on `portfolios` needs its own grant, or it fails at runtime with
+-- an error that sounds like a row-security problem and isn't.
+--
+-- Why this is safe: currency is a display label. It performs no calculation, converts
+-- nothing, and gates no entitlement. The worst a user can do is mislabel their own
+-- numbers on their own page — which is exactly the choice the field exists to give them.
+
+grant update (currency) on public.portfolios to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Verify
+-- ---------------------------------------------------------------------------
+-- Should now list: calendar_public, currency, custom_domain, domain_verified,
+--                  journal_enabled, starting_balance
+--
+--   select column_name
+--   from information_schema.column_privileges
+--   where table_name = 'portfolios'
+--     and grantee = 'authenticated'
+--     and privilege_type = 'UPDATE'
+--   order by column_name;

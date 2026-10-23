@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getReportCardStats, lastCompletedMonth, type ReportCard } from '../lib/getReportCardStats';
 import { drawReportCard, reportCardBlob } from '../lib/renderReportCard';
 import { track } from '../lib/track';
+import { canShare, shareIntentUrl, ATTACH_HINT } from '../../api/_lib/shareCard.js';
 
 /**
  * Execution Report Card — Phase 1.
@@ -31,6 +32,7 @@ export default function ReportCardPanel({ userId, displayName, onTagTrades, curr
   const [showMoney, setShowMoney] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [shared, setShared] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const month = lastCompletedMonth();
@@ -58,6 +60,42 @@ export default function ReportCardPanel({ userId, displayName, onTagTrades, curr
     if (!stats) return;
     setGenerated(true);
     track('report_card_generated', { month, showScore: stats.showScore, journaled: stats.journaled });
+  };
+
+  /**
+   * Share to X.
+   *
+   * X's Web Intent cannot attach an image — there is no parameter for it. So the card is
+   * downloaded first and the composer opens second, and the UI says so plainly rather
+   * than promising one-tap image posting that X doesn't support.
+   *
+   * Porfilr never posts. This opens an editable composer; the trader sends it.
+   */
+  const share = async () => {
+    if (!stats || !canShare(stats)) return;
+    setBusy(true);
+    try {
+      // Download first: the file needs to exist before they reach the composer, or
+      // they'll be sitting in X with nothing to attach.
+      const blob = await reportCardBlob(stats, displayName, currency);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `porfilr-${stats.yearMonth}-execution-report.png`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      track('report_card_shared', { month, scorePct: stats.scorePct, leak: stats.biggestLeak });
+
+      // Opened after the download so the browser doesn't treat the new tab as the
+      // user-gesture target and silently drop the save.
+      window.open(shareIntentUrl(stats), '_blank', 'noopener,noreferrer');
+      setShared(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not prepare the share.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const download = async () => {
@@ -189,16 +227,37 @@ export default function ReportCardPanel({ userId, displayName, onTagTrades, curr
                 Generate my card
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={download}
-                disabled={busy}
-                className="bg-stone-900 hover:bg-stone-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition"
-              >
-                {busy ? 'Creating…' : 'Download PNG'}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={download}
+                  disabled={busy}
+                  className="border border-stone-200 hover:bg-stone-50 disabled:opacity-60 text-stone-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition"
+                >
+                  {busy ? 'Creating…' : 'Download PNG'}
+                </button>
+                {/* Only when there's a real score behind it — see canShare. */}
+                {canShare(stats) && (
+                  <button
+                    type="button"
+                    onClick={share}
+                    disabled={busy}
+                    className="bg-stone-900 hover:bg-stone-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition"
+                  >
+                    Share to X
+                  </button>
+                )}
+              </>
             )}
           </div>
+
+          {generated && canShare(stats) && (
+            <p className="text-stone-400 text-xs mt-2 leading-relaxed">
+              {shared
+                ? 'Card downloaded and X opened — attach the image before you post.'
+                : ATTACH_HINT}
+            </p>
+          )}
 
           {generated && (
             <div className="mt-4">
