@@ -1,6 +1,7 @@
 import { collectSocials, socialIconSvg } from '../_social.js';
 import { equityCurveSvg, CLIENT_REDRAW } from '../../_lib/chart.js';
 import { calendarHtml } from '../../_lib/calendar.js';
+import { formatMoney, currencyOf } from '../../_lib/money.js';
 
 function esc(s) {
   return String(s || '')
@@ -163,16 +164,19 @@ const traderTemplate = {
       : '';
 
     const hasCurve = journalOn && Array.isArray(cache.curve) && cache.curve.length >= 2;
-    const journalCurve = hasCurve ? equityCurveSvg(cache.curve) : '';
+    const journalCurve = hasCurve ? equityCurveSvg(cache.curve, { currency: meta.currency }) : '';
 
     // "Started $X → $Y · [span]" — concrete equity framing under the big return, drawn
     // from the real curve. Honest: it's the journal's own start and end.
-    const usd = (n) => '$' + Math.round(Number(n)).toLocaleString('en-US');
+    // Was hardcoded to "$", which labelled every trader's equity in dollars whatever they
+    // actually traded — a ₦ journal read as a $ one to every stranger who opened the page.
+    // Undeclared currency still prints a bare number rather than a guess.
+    const money = (n) => formatMoney(n, meta.currency, { round: true });
     const equityLine = hasCurve ? (() => {
       const c = cache.curve;
       const start = c[0].equity, end = c[c.length - 1].equity;
       const span = cache.trackRecordLabel ? ` · ${esc(cache.trackRecordLabel)}` : '';
-      return `<div class="tr-equity mono">Started ${usd(start)} → <b>${usd(end)}</b>${span}</div>`;
+      return `<div class="tr-equity mono">Started ${money(start)} → <b>${money(end)}</b>${span}</div>`;
     })() : '';
 
     // A thin fill bar under the metrics that map to 0–100 (win rate, drawdown). Others
@@ -640,6 +644,10 @@ ${body}
     // time; this refreshes them. Every failure path is silent and leaves the baked-in
     // values in place — a stale-but-real number beats a broken metrics card, which is
     // the single worst thing this page could show an investor.
+    // Tell the client redraw which currency to label ticks with, so it can't overwrite
+    // the server-rendered symbols with dollars. Empty strings = undeclared = bare numbers.
+    window.__porfilrCurPrefix=${JSON.stringify(currencyOf(meta.currency)?.symbol || '')};
+    window.__porfilrCurSuffix=${JSON.stringify(currencyOf(meta.currency) && !currencyOf(meta.currency).symbol ? ' ' + currencyOf(meta.currency).code : '')};
     ${CLIENT_REDRAW}
 
     (function(){

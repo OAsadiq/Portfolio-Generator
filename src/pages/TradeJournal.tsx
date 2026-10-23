@@ -13,6 +13,7 @@ import { computeMetrics } from '../../api/_lib/metrics.js';
 // hand-log hundreds of trades, so this is what makes the journal usable for them.
 import { parseTradeCsv } from '../../api/_lib/tradeCsv.js';
 import { normalizeTags, customTagsIn, isNegative, POSITIVE_TAG, PRESET_TAGS } from '../../api/_lib/tags.js';
+import { CURRENCIES } from '../../api/_lib/money.js';
 import TagPicker from '../components/TagPicker';
 import { extractLinks } from '../../api/_lib/noteLinks.js';
 import Modal from '../components/Modal';
@@ -129,6 +130,7 @@ const TradeJournal = () => {
 
   const [balanceInput, setBalanceInput] = useState('');
   const [savingBalance, setSavingBalance] = useState(false);
+  const [savingCurrency, setSavingCurrency] = useState(false);
   const [togglingJournal, setTogglingJournal] = useState(false);
   const [togglingCalendar, setTogglingCalendar] = useState(false);
 
@@ -237,7 +239,7 @@ const TradeJournal = () => {
         .from('portfolios')
         // form_data/sections are needed to republish the page when the journal is
         // toggled — the live-metrics script is baked in at publish time.
-        .select('id, slug, user_id, template_id, starting_balance, journal_enabled, calendar_public, form_data, sections')
+        .select('id, slug, user_id, template_id, starting_balance, currency, journal_enabled, calendar_public, form_data, sections')
         .eq('slug', slug)
         .maybeSingle();
 
@@ -316,6 +318,33 @@ const TradeJournal = () => {
   const hasBalanceNow = portfolio?.starting_balance > 0;
   // All three conditions the published page needs before it can show live numbers.
   const liveReady = hasBalanceNow && closedCount > 0 && !!portfolio?.journal_enabled;
+
+  /**
+   * Declare what currency this journal's numbers are in.
+   *
+   * Empty string clears it back to undeclared, which stays valid — bare numbers print and
+   * nothing is blocked. Saved immediately on change: this is a one-off declaration, and
+   * pairing it with the balance's Save button would make it easy to set and never commit.
+   */
+  const saveCurrency = async (code: string) => {
+    if (!portfolio) return;
+    setSavingCurrency(true);
+    try {
+      const value = code || null;
+      const { error } = await supabase
+        .from('portfolios')
+        .update({ currency: value })
+        .eq('id', portfolio.id);
+      if (error) throw error;
+      setPortfolio({ ...portfolio, currency: value });
+      showToast(value ? `Currency set to ${value}.` : 'Currency cleared.');
+      track('journal_currency_set', { slug, currency: value });
+    } catch (err: any) {
+      showToast(err?.message || 'Could not save that.');
+    } finally {
+      setSavingCurrency(false);
+    }
+  };
 
   const saveBalance = async () => {
     const n = Number(balanceInput);
@@ -985,6 +1014,33 @@ const TradeJournal = () => {
                 What your account started at. Your return % is measured against this.
               </p>
             </div>
+
+            {/* Declared once, never per trade, and never converted. Without it the page
+                and the report card print bare numbers — which is honest. What they must
+                never do is assume dollars: a ₦450,000 month reading as $450k to a stranger
+                is the kind of flattering mistake that costs more trust than it wins. */}
+            <div className="sm:w-48">
+              <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wide">
+                Currency
+              </label>
+              <select
+                value={portfolio.currency || ''}
+                onChange={(e) => saveCurrency(e.target.value)}
+                disabled={savingCurrency}
+                className="w-full bg-stone-50 border border-stone-200 text-stone-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 transition disabled:opacity-50"
+              >
+                <option value="">Not set</option>
+                {CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>{c.code} — {c.label}</option>
+                ))}
+              </select>
+              <p className="text-stone-400 text-xs mt-1.5">
+                {portfolio.currency
+                  ? 'Shown wherever money appears on your page.'
+                  : 'Set it so readers aren’t guessing.'}
+              </p>
+            </div>
+
             <button
               onClick={saveBalance}
               disabled={savingBalance}
@@ -1114,6 +1170,7 @@ const TradeJournal = () => {
           <ReportCardPanel
             userId={user.id}
             displayName={portfolio?.form_data?.name || portfolio?.user_name || null}
+            currency={portfolio?.currency || null}
             onTagTrades={() => {
               setTagFilter(null);
               document.getElementById('trade-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });

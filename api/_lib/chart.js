@@ -1,3 +1,5 @@
+import { compactMoney } from './money.js';
+
 // Porfilr — equity curve renderer.
 //
 // Draws the curve computed from a trader's logged trades as inline SVG. No chart
@@ -82,15 +84,17 @@ export function fmtMoney(n) {
   return (Math.round(v * 100) / 100).toLocaleString('en-US');
 }
 
-/** Axis tick label: $60k, $8.5k, $940. Keeps the right gutter readable. */
-export function tickLabel(v) {
+/**
+ * Axis tick label: ₦60k, $8.5k, 940. Keeps the right gutter readable.
+ *
+ * `currency` is the journal's declared unit. It used to hardcode "$", which labelled every
+ * trader's chart in dollars regardless of what they actually traded — see api/_lib/money.js
+ * for why that matters on a page strangers read. Undeclared prints a bare number.
+ */
+export function tickLabel(v, currency = null) {
   const n = num(v);
   if (n === null) return '';
-  const abs = Math.abs(n);
-  if (abs >= 1e6) return '$' + (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
-  if (abs >= 1e4) return '$' + Math.round(n / 1000) + 'k';
-  if (abs >= 1000) return '$' + (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-  return '$' + Math.round(n);
+  return compactMoney(n, currency);
 }
 
 function fmtDate(iso) {
@@ -111,6 +115,9 @@ const GRID_LINES = 4; // → 5 ticks (0..4)
 export function equityCurveSvg(curve, opts = {}) {
   const g = curveGeometry(curve, opts);
   if (!g) return '';
+  // The journal's declared unit, so axis ticks say what they are. Undeclared = bare
+  // numbers; we never assume dollars on a page strangers read.
+  const currency = opts.currency ?? null;
 
   const stroke = g.up ? '#22c55e' : '#f87171';
   const id = 'eqg';
@@ -126,7 +133,7 @@ export function equityCurveSvg(curve, opts = {}) {
     const gy = g.yOf(val);
     grid +=
       `<line x1="${g.padL}" y1="${gy}" x2="${g.w - g.padR}" y2="${gy}" stroke="${gridColor}" stroke-width="1"/>` +
-      `<text class="eq-tick" x="${g.w - g.padR + 8}" y="${gy + 3.5}" fill="${tickColor}" font-family="ui-monospace,Menlo,monospace" font-size="10.5">${esc(tickLabel(val))}</text>`;
+      `<text class="eq-tick" x="${g.w - g.padR + 8}" y="${gy + 3.5}" fill="${tickColor}" font-family="ui-monospace,Menlo,monospace" font-size="10.5">${esc(tickLabel(val, currency))}</text>`;
   }
 
   const lastX = g.coords[g.coords.length - 1][0];
@@ -186,7 +193,11 @@ function redrawCurve(curve){
   var stops=svg.querySelectorAll('linearGradient stop');
   if (stops.length===2){ stops[0].setAttribute('stop-color',stroke); stops[1].setAttribute('stop-color',stroke); }
   // Refresh gridline positions + $ ticks to the new range.
-  var tick=function(v){var a=Math.abs(v); if(a>=1e6)return '$'+(v/1e6).toFixed(1).replace(/\\.0$/,'')+'M'; if(a>=1e4)return '$'+Math.round(v/1000)+'k'; if(a>=1000)return '$'+(v/1000).toFixed(1).replace(/\\.0$/,'')+'k'; return '$'+Math.round(v);};
+  // Currency comes from the page (set by the template from the journal's declaration).
+  // This used to hardcode '$': the server rendered the correct symbol and then this
+  // overwrote it with dollars the moment live metrics arrived.
+  var CP=(window.__porfilrCurPrefix||''), CS=(window.__porfilrCurSuffix||'');
+  var tick=function(v){var a=Math.abs(v),b; if(a>=1e6)b=(v/1e6).toFixed(1).replace(/\\.0$/,'')+'M'; else if(a>=1e4)b=Math.round(v/1000)+'k'; else if(a>=1000)b=(v/1000).toFixed(1).replace(/\\.0$/,'')+'k'; else b=String(Math.round(v)); return CP+b+CS;};
   var grid=q('#eqGrid');
   if (grid){
     var gh='';

@@ -133,6 +133,7 @@ export default async function handler(req, res) {
       trades: closedTradeRows,
       // Lifetime execution score, gated at 50% tagged. Null drops the tile entirely.
       executionScorePct: portfolio.journal_enabled ? publicExecutionScore(closedTradeRows) : null,
+      currency: portfolio.currency || null,
     });
 
     const filePath = `portfolios/${slug}.html`;

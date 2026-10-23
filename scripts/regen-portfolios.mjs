@@ -112,6 +112,8 @@ for (const p of portfolios) {
       // Lifetime execution score, or null when too little is tagged. The template drops
       // an absent metric rather than printing a dash.
       executionScorePct: p.journal_enabled ? publicExecutionScore(closedTrades) : null,
+      // Declared unit for every money figure on the page. Null = print bare numbers.
+      currency: p.currency || null,
     };
 
     const html = tpl.generateHTML(p.form_data || {}, p.sections || [], meta);

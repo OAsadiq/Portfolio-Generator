@@ -98,11 +98,26 @@ test('the curve spans the plot area and touches top and bottom', () => {
   assert.equal(Math.min(...ys), DEFAULTS.padT, 'peak sits at the top padding');
 });
 
-test('tickLabel renders compact $ values', () => {
-  assert.equal(tickLabel(60650), '$61k');
-  assert.equal(tickLabel(8500), '$8.5k');
-  assert.equal(tickLabel(940), '$940');
-  assert.equal(tickLabel(2_400_000), '$2.4M');
+test('tickLabel renders compact values in the journal\'s declared currency', () => {
+  assert.equal(tickLabel(60650, 'USD'), '$61k');
+  assert.equal(tickLabel(8500, 'USD'), '$8.5k');
+  assert.equal(tickLabel(940, 'USD'), '$940');
+  assert.equal(tickLabel(2_400_000, 'USD'), '$2.4M');
+  assert.equal(tickLabel(60650, 'NGN'), '₦61k');
+});
+
+test('tickLabel prints a BARE number when no currency is declared', () => {
+  // This used to hardcode "$", which labelled every trader's chart in dollars whatever
+  // they actually traded. On a page strangers read, that is a wrong guess roughly half
+  // the time for the audience we actually reach.
+  assert.equal(tickLabel(60650), '61k');
+  assert.equal(tickLabel(940, null), '940');
+  assert.ok(!tickLabel(60650).includes('$'));
+});
+
+test('an undeclared currency never leaks a $ into the rendered chart', () => {
+  const svg = equityCurveSvg(CURVE);
+  assert.ok(!svg.includes('$'), 'no dollar sign anywhere in the SVG');
 });
 
 test('the SVG has gridlines, a dashed baseline, and an endpoint halo', () => {

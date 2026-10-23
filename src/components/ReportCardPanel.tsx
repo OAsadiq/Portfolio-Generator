@@ -20,9 +20,11 @@ interface Props {
   displayName?: string | null;
   /** Lets the blocked state send someone to their untagged trades. */
   onTagTrades?: () => void;
+  /** The journal's declared currency, or null. Shown on the card beside a money figure. */
+  currency?: string | null;
 }
 
-export default function ReportCardPanel({ userId, displayName, onTagTrades }: Props) {
+export default function ReportCardPanel({ userId, displayName, onTagTrades, currency }: Props) {
   const [stats, setStats] = useState<ReportCard | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -49,8 +51,8 @@ export default function ReportCardPanel({ userId, displayName, onTagTrades }: Pr
   // Redraw whenever the numbers change, so toggling money updates the preview in place
   // rather than silently leaving a stale image to be downloaded.
   useEffect(() => {
-    if (generated && stats && canvasRef.current) drawReportCard(canvasRef.current, stats, displayName);
-  }, [generated, stats, displayName]);
+    if (generated && stats && canvasRef.current) drawReportCard(canvasRef.current, stats, displayName, currency);
+  }, [generated, stats, displayName, currency]);
 
   const generate = () => {
     if (!stats) return;
@@ -62,7 +64,7 @@ export default function ReportCardPanel({ userId, displayName, onTagTrades }: Pr
     if (!stats) return;
     setBusy(true);
     try {
-      const blob = await reportCardBlob(stats, displayName);
+      const blob = await reportCardBlob(stats, displayName, currency);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -166,6 +168,16 @@ export default function ReportCardPanel({ userId, displayName, onTagTrades }: Pr
               <span className="text-stone-400"> — off by default; the card shows a percentage</span>
             </span>
           </label>
+
+          {/* Nudge, never a block. A card with a bare number is honest; a card with an
+              assumed "$" is not. So we ask once, at the moment it starts to matter —
+              when the trader has chosen to put a money figure in front of strangers. */}
+          {showMoney && !currency && (
+            <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
+              Your currency isn't set, so the card will show a plain number. Add it in
+              Journal setup above so readers aren't guessing what you trade in.
+            </p>
+          )}
 
           <div className="flex gap-2 mt-4 flex-wrap">
             {!generated ? (

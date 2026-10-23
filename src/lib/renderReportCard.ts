@@ -1,5 +1,6 @@
 import type { ReportCard } from './getReportCardStats';
 import { cardFooter } from '../../api/_lib/reportCard.js';
+import { formatMoney } from '../../api/_lib/money.js';
 
 /**
  * Draw an Execution Report Card at 1080×1080.
@@ -63,7 +64,12 @@ const pct = (n: number | null) => (n === null ? '—' : `${n > 0 ? '+' : ''}${n}
  * @param stats  what to draw
  * @param name   the trader's display name, optional
  */
-export function drawReportCard(canvas: HTMLCanvasElement, stats: ReportCard, name?: string | null) {
+export function drawReportCard(
+  canvas: HTMLCanvasElement,
+  stats: ReportCard,
+  name?: string | null,
+  currency?: string | null,
+) {
   canvas.width = SIZE;
   canvas.height = SIZE;
   const ctx = canvas.getContext('2d');
@@ -195,11 +201,10 @@ export function drawReportCard(canvas: HTMLCanvasElement, stats: ReportCard, nam
     const v = stats.netResultValue;
     ctx.fillStyle = v >= 0 ? C.green : C.red;
     ctx.font = font(30, 800);
-    ctx.fillText(
-      `${v >= 0 ? '+' : ''}${v.toLocaleString(undefined, { maximumFractionDigits: 2 })} net`,
-      SIZE / 2,
-      y + 52,
-    );
+    // formatMoney prints the journal's declared currency, or a bare number when it is
+    // undeclared — never an assumed "$". The panel nudges for a currency rather than
+    // blocking the card, so an undeclared number reaching here is expected, not a bug.
+    ctx.fillText(`${formatMoney(v, currency, { signed: true })} net`, SIZE / 2, y + 52);
   }
 
   // ── Footer ───────────────────────────────────────────────────────────────
@@ -216,13 +221,17 @@ export function drawReportCard(canvas: HTMLCanvasElement, stats: ReportCard, nam
 }
 
 /** Render and hand back a PNG blob, ready to download or attach. */
-export async function reportCardBlob(stats: ReportCard, name?: string | null): Promise<Blob> {
+export async function reportCardBlob(
+  stats: ReportCard,
+  name?: string | null,
+  currency?: string | null,
+): Promise<Blob> {
   // Wait for webfonts, or the first render falls back to a system face and the card looks
   // different from every later one.
   try { await (document as any).fonts?.ready; } catch { /* older browser — draw anyway */ }
 
   const canvas = document.createElement('canvas');
-  drawReportCard(canvas, stats, name);
+  drawReportCard(canvas, stats, name, currency);
 
   return new Promise((resolve, reject) => {
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Could not render the card.'))), 'image/png');
