@@ -20,6 +20,10 @@ import Modal from '../components/Modal';
 import { startKitCheckout } from '../lib/kitCheckout';
 import PaymentOptions from '../components/PaymentOptions';
 import ReportCardPanel from '../components/ReportCardPanel';
+import MonthlyCardPrompt from '../components/MonthlyCardPrompt';
+import { reportCardStats } from '../../api/_lib/reportCard.js';
+import { lastCompletedMonth, type ReportCard } from '../lib/getReportCardStats';
+import { isPreset } from '../../api/_lib/tags.js';
 import { FREE_TRADE_CAP, KIT_PRICE_USD } from '../lib/plan';
 // Trading performance calendar — same closed-only, net-of-fees maths as the metrics, so
 // the calendar can never disagree with the headline numbers.
@@ -111,6 +115,9 @@ const fmtMoney = (n: number | null) =>
 const fmtMetric = (n: number | null, suffix = '') =>
   n === null || n === undefined ? '—' : `${n}${suffix}`;
 
+/** Sentinel for the tag filter: "trades with no preset tag". Not a real tag. */
+const UNTAGGED = '__untagged__';
+
 const TradeJournal = () => {
   const { slug } = useParams();
   const { user } = useAuth();
@@ -166,9 +173,23 @@ const TradeJournal = () => {
     for (const t of trades) for (const tag of (Array.isArray(t.tags) ? t.tags : [])) used.add(tag);
     return [...PRESET_TAGS.filter((p) => used.has(p)), ...customTagsIn(trades)];
   }, [trades]);
-  const visibleTrades = useMemo(
-    () => (tagFilter ? trades.filter((t) => (Array.isArray(t.tags) ? t.tags : []).includes(tagFilter)) : trades),
-    [trades, tagFilter],
+  // UNTAGGED is a sentinel, not a tag: the monthly prompt sends people straight to the
+  // trades that are blocking their score, which is the one filter they actually need.
+  const visibleTrades = useMemo(() => {
+    if (!tagFilter) return trades;
+    if (tagFilter === UNTAGGED) {
+      return trades.filter((t) => !(Array.isArray(t.tags) ? t.tags : []).some(isPreset));
+    }
+    return trades.filter((t) => (Array.isArray(t.tags) ? t.tags : []).includes(tagFilter));
+  }, [trades, tagFilter]);
+
+  // Report card for the month just gone. Computed from trades already in memory — the
+  // panel and the prompt read the same object, so they can never disagree.
+  // Cast: reportCardStats is plain JS, so TS infers `negatives` as {} rather than the
+  // Record<string, number> it actually builds. The shape is pinned by its own tests.
+  const cardStats = useMemo(
+    () => reportCardStats(trades, lastCompletedMonth(), portfolio?.starting_balance ?? null) as ReportCard,
+    [trades, portfolio?.starting_balance],
   );
   const [unlocking, setUnlocking] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
@@ -1161,21 +1182,41 @@ const TradeJournal = () => {
           )}
         </div>
 
+        {/* Monthly prompt. Sits at the top because its whole job is to be noticed once a
+            month; the panel it points at is further down with the numbers it summarises. */}
+        {user && (
+          <MonthlyCardPrompt
+            stats={cardStats}
+            onGenerate={() => document.getElementById('report-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+            onTag={() => {
+              setTagFilter(UNTAGGED);
+              document.getElementById('trade-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+          />
+        )}
+
         {/* Execution report, directly under the track record.
             It was originally further down, below the calendar and the market panel, and
             the first person to look for it couldn't find it. A monthly summary nobody
             scrolls to is a monthly summary nobody uses — it belongs next to the numbers
             it summarises. */}
         {user && (
+          <div id="report-card">
           <ReportCardPanel
-            userId={user.id}
+            trades={trades}
+            startingBalance={portfolio?.starting_balance ?? null}
             displayName={portfolio?.form_data?.name || portfolio?.user_name || null}
             currency={portfolio?.currency || null}
+            userId={user?.id || null}
+            handle={portfolio?.form_data?.x || portfolio?.form_data?.twitter || null}
             onTagTrades={() => {
-              setTagFilter(null);
-              document.getElementById('trade-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              // Same destination as the monthly prompt's tag action — show exactly the
+              // trades holding the score back, rather than the whole list.
+              setTagFilter(UNTAGGED);
+              document.getElementById('trade-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
           />
+          </div>
         )}
 
         {/* Trading performance calendar — shows consistency at a glance, which is what an
@@ -1762,12 +1803,16 @@ const TradeJournal = () => {
         </div>
 
         {/* Trades */}
-        <div className="bg-white border border-stone-200 rounded-2xl p-6">
+        <div id="trade-list" className="bg-white border border-stone-200 rounded-2xl p-6">
           <div className="flex items-start justify-between gap-3 mb-5 flex-wrap">
             <h2 className="font-bold text-stone-900 text-sm">
               Your trades
               {tagFilter && (
-                <span className="text-stone-400 font-normal"> — {visibleTrades.length} tagged “{tagFilter}”</span>
+                <span className="text-stone-400 font-normal">
+                  {tagFilter === UNTAGGED
+                    ? ` — ${visibleTrades.length} untagged`
+                    : ` — ${visibleTrades.length} tagged “${tagFilter}”`}
+                </span>
               )}
             </h2>
             {/* Filtering is what makes a tag more than a note. If you can't ask "show me
@@ -1781,6 +1826,7 @@ const TradeJournal = () => {
                   aria-label="Filter trades by tag"
                 >
                   <option value="">All trades</option>
+                  <option value={UNTAGGED}>Untagged</option>
                   {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
                 {tagFilter && (

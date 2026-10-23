@@ -18,6 +18,7 @@ import JournalEntry from './pages/JournalEntry';
 import PortfolioVisualBuilder from './components/PortfolioVisualBuilder';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import PricingPage from './pages/Pricing';
+import FinishersWall from './pages/FinishersWall';
 import NicheLanding from './pages/niches/NicheLanding';
 import { NICHES } from './pages/niches/nicheConfig';
 import ScrollToTop from './components/ScrollToTop';
@@ -33,6 +34,9 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/pricing" element={<PricingPage />} />
+            {/* Finishers' wall. The page gates itself on VITE_FINISHERS_WALL and shows a
+                "not open yet" state when off, so the route can exist before the wall does. */}
+            <Route path="/finishers" element={<FinishersWall />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 

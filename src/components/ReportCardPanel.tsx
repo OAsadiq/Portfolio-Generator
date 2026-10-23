@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
-import { getReportCardStats, lastCompletedMonth, type ReportCard } from '../lib/getReportCardStats';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { lastCompletedMonth, type ReportCard } from '../lib/getReportCardStats';
+import { reportCardStats } from '../../api/_lib/reportCard.js';
 import { drawReportCard, reportCardBlob } from '../lib/renderReportCard';
 import { track } from '../lib/track';
 import { canShare, shareIntentUrl, ATTACH_HINT } from '../../api/_lib/shareCard.js';
+import { wallEnabled, joinWall, leaveWall, isOnWall } from '../lib/finishersWall';
 
 /**
  * Execution Report Card — Phase 1.
@@ -17,38 +19,48 @@ import { canShare, shareIntentUrl, ATTACH_HINT } from '../../api/_lib/shareCard.
  */
 
 interface Props {
-  userId: string;
+  /** Every trade the journal already loaded. Stats are computed from these, not refetched:
+      the page has them in memory, and a second query could disagree with what's on screen. */
+  trades: any[];
+  startingBalance: number | null;
   displayName?: string | null;
   /** Lets the blocked state send someone to their untagged trades. */
   onTagTrades?: () => void;
   /** The journal's declared currency, or null. Shown on the card beside a money figure. */
   currency?: string | null;
+  /** Needed only for the finishers' wall opt-in. */
+  userId?: string | null;
+  /** The trader's X handle, if their page has one. */
+  handle?: string | null;
 }
 
-export default function ReportCardPanel({ userId, displayName, onTagTrades, currency }: Props) {
-  const [stats, setStats] = useState<ReportCard | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function ReportCardPanel({
+  trades, startingBalance, displayName, onTagTrades, currency, userId, handle,
+}: Props) {
   const [error, setError] = useState('');
   const [showMoney, setShowMoney] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [busy, setBusy] = useState(false);
   const [shared, setShared] = useState(false);
+  const [onWall, setOnWall] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const month = lastCompletedMonth();
 
+  // Pure, from trades already in memory. Toggling money recomputes instantly instead of
+  // round-tripping, and the panel can never show numbers the rest of the page doesn't.
+  const stats = useMemo(
+    () => reportCardStats(trades, month, startingBalance, { showMoney }) as ReportCard,
+    [trades, month, startingBalance, showMoney],
+  );
+
+  // Do they already appear on the wall for this month?
   useEffect(() => {
+    if (!wallEnabled() || !userId || !stats.yearMonth) return;
     let cancelled = false;
-    (async () => {
-      try {
-        const s = await getReportCardStats(userId, month, { showMoney });
-        if (!cancelled) { setStats(s); setLoading(false); }
-      } catch (e) {
-        if (!cancelled) { setError(e instanceof Error ? e.message : 'Could not load your month.'); setLoading(false); }
-      }
-    })();
+    isOnWall(userId, stats.yearMonth).then((v) => { if (!cancelled) setOnWall(v); }).catch(() => {});
     return () => { cancelled = true; };
-  }, [userId, month, showMoney]);
+  }, [userId, stats.yearMonth]);
 
   // Redraw whenever the numbers change, so toggling money updates the preview in place
   // rather than silently leaving a stale image to be downloaded.
@@ -118,13 +130,6 @@ export default function ReportCardPanel({ userId, displayName, onTagTrades, curr
     }
   };
 
-  if (loading) {
-    return (
-      <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
-        <div className="h-4 w-40 bg-stone-100 rounded animate-pulse" />
-      </div>
-    );
-  }
   if (error || !stats) {
     return (
       <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
@@ -257,6 +262,52 @@ export default function ReportCardPanel({ userId, displayName, onTagTrades, curr
                 ? 'Card downloaded and X opened — attach the image before you post.'
                 : ATTACH_HINT}
             </p>
+          )}
+
+          {/* Finishers' wall opt-in. Hidden entirely until the wall is seeded and the flag
+              is on — offering to add someone to a page that doesn't exist yet would be a
+              promise we can't keep. Nothing appears on the wall without this click. */}
+          {generated && canShare(stats) && wallEnabled() && userId && (
+            <div className="mt-4 pt-4 border-t border-stone-100">
+              {onWall ? (
+                <p className="text-sm text-stone-600">
+                  You're on the{' '}
+                  <a href="/finishers" className="underline hover:text-stone-900">finishers' wall</a>{' '}
+                  for {stats.label}.{' '}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try { await leaveWall(userId, stats.yearMonth); setOnWall(false); }
+                      catch (e) { setError(e instanceof Error ? e.message : 'Could not remove you.'); }
+                    }}
+                    className="text-stone-400 hover:text-stone-700 underline"
+                  >
+                    Remove me
+                  </button>
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={async () => {
+                    setBusy(true);
+                    try {
+                      await joinWall(userId, stats, displayName || 'Anonymous trader', handle);
+                      setOnWall(true);
+                      track('finishers_wall_joined', { month, scorePct: stats.scorePct });
+                    } catch (e) {
+                      setError(e instanceof Error ? e.message : 'Could not add you.');
+                    } finally { setBusy(false); }
+                  }}
+                  className="text-sm font-semibold text-stone-700 hover:text-stone-900 underline"
+                >
+                  Add me to the finishers' wall
+                </button>
+              )}
+              <p className="text-stone-400 text-xs mt-1.5 leading-relaxed">
+                Shows your name, score and trade count. Never your tags, notes or P&amp;L.
+              </p>
+            </div>
           )}
 
           {generated && (

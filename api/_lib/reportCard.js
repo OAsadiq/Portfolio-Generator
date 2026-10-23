@@ -47,9 +47,10 @@ export function previousMonth(now = new Date()) {
 /**
  * Build the card for one month.
  *
- * @param trades         every trade for the user (filtered to the month here)
- * @param yearMonth      'YYYY-MM'
- * @param startingBalance needed for net result %; null leaves it null rather than guessing
+ * @param {Array<any>} trades          every trade for the user (filtered to the month here)
+ * @param {string} yearMonth            'YYYY-MM'
+ * @param {number|null} [startingBalance] needed for net result %; null leaves it null rather than guessing
+ * @param {{showMoney?: boolean}} [options]
  *
  * Returns a flat object — no nested shapes — because three separate surfaces render from
  * it and each one reaching into a different nesting level is how they drift apart.
