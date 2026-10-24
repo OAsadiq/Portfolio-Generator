@@ -146,13 +146,26 @@ export function drawReportCard(
   const boxW = (SIZE - PAD * 2 - gap * (cols - 1)) / cols;
 
   const net = stats.netResultPct;
-  const tiles: Array<[string, string, string]> = [
+
+  // The money figure lives INSIDE the net-result tile, as a second line under the
+  // percentage. It used to sit on its own below the leak, where its only label was the
+  // word "net" — so it read as the leak's cost. The first person to QA a card misread it
+  // exactly that way, which is all the evidence needed.
+  //
+  // Here the layout states the rule rather than relying on it being known: the percentage
+  // is the number, money is an addition beneath it, under one label.
+  const netMoney = stats.showMoney && typeof stats.netResultValue === 'number'
+    ? formatMoney(stats.netResultValue, currency, { signed: true })
+    : null;
+
+  // [value, label, colour, secondLine?]
+  const tiles: Array<[string, string, string, string?]> = [
     [String(stats.journaled), 'TRADES JOURNALED', C.text],
-    [pct(net), 'NET RESULT', net === null ? C.dim : net >= 0 ? C.green : C.red],
+    [pct(net), 'NET RESULT', net === null ? C.dim : net >= 0 ? C.green : C.red, netMoney ?? undefined],
     [stats.winRatePct === null ? '—' : `${stats.winRatePct}%`, 'WIN RATE', C.text],
   ];
 
-  tiles.forEach(([value, label, colour], i) => {
+  tiles.forEach(([value, label, colour, sub], i) => {
     const x = PAD + i * (boxW + gap);
     ctx.fillStyle = C.panel;
     roundRect(ctx, x, boxY, boxW, boxH, 18);
@@ -163,13 +176,21 @@ export function drawReportCard(
 
     ctx.textAlign = 'center';
     ctx.fillStyle = colour;
-    ctx.font = font(56, 800);
-    ctx.fillText(value, x + boxW / 2, boxY + 86);
+    // A tile carrying a second line lifts its value to make room; the others keep their
+    // original position so the row still reads as one set.
+    ctx.font = font(sub ? 50 : 56, 800);
+    ctx.fillText(value, x + boxW / 2, boxY + (sub ? 72 : 86));
+
+    if (sub) {
+      ctx.fillStyle = colour;
+      ctx.font = font(25, 700);
+      ctx.fillText(sub, x + boxW / 2, boxY + 106);
+    }
 
     ctx.fillStyle = C.dim;
     ctx.font = font(17, 800);
     ctx.letterSpacing = '2.5px';
-    ctx.fillText(label, x + boxW / 2, boxY + 126);
+    ctx.fillText(label, x + boxW / 2, boxY + (sub ? 140 : 126));
     ctx.letterSpacing = '0px';
   });
 
@@ -181,7 +202,7 @@ export function drawReportCard(
     ctx.fillStyle = C.dim;
     ctx.font = font(22, 700);
     ctx.letterSpacing = '2px';
-    ctx.fillText('BIGGEST LEAK', SIZE / 2, y);
+    ctx.fillText('MOST COMMON SLIP', SIZE / 2, y);
     ctx.letterSpacing = '0px';
     ctx.fillStyle = C.red;
     ctx.font = font(40, 800);
@@ -192,19 +213,6 @@ export function drawReportCard(
     ctx.font = font(34, 800);
     ctx.fillText('No leaks detected — clean month.', SIZE / 2, y + 18);
     y += 18;
-  }
-
-  // The money figure, only when the trader asked for it. Unlabelled by currency on
-  // purpose: Porfilr doesn't know whether these are dollars or naira, and guessing on a
-  // card strangers read would be worse than omitting it.
-  if (stats.showMoney && typeof stats.netResultValue === 'number') {
-    const v = stats.netResultValue;
-    ctx.fillStyle = v >= 0 ? C.green : C.red;
-    ctx.font = font(30, 800);
-    // formatMoney prints the journal's declared currency, or a bare number when it is
-    // undeclared — never an assumed "$". The panel nudges for a currency rather than
-    // blocking the card, so an undeclared number reaching here is expected, not a bug.
-    ctx.fillText(`${formatMoney(v, currency, { signed: true })} net`, SIZE / 2, y + 52);
   }
 
   // ── Footer ───────────────────────────────────────────────────────────────
