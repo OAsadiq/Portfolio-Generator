@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "test": "node --test api/_lib/*.test.js",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json",
+    "typecheck": "npm run type-check",
     "build": "vite build && node scripts/prerender-niches.mjs",
     "lint": "eslint .",
     "preview": "vite preview"

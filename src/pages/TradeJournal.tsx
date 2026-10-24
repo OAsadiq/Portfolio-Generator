@@ -1863,7 +1863,7 @@ const TradeJournal = () => {
                   aria-label="Filter trades by date"
                 >
                   <option value="">All time</option>
-                  {PERIOD_GROUPS.map(([group, opts]: [string, [string, string][]]) => (
+                  {PERIOD_GROUPS.map(([group, opts]) => (
                     <optgroup key={group} label={group}>
                       {opts.map(([key, label]) => (
                         <option key={key} value={key}>{label}</option>

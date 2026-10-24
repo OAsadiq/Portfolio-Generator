@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   reportCardStats, blockedReason, cardFooter, monthLabel, previousMonth,
   CARD_MIN_TRADES, MIN_TAGGED_RATIO, publicExecutionScore,
+  dayResults,
 } from './reportCard.js';
 
 // A closed trade in October 2026.
@@ -210,4 +211,66 @@ test('a genuinely poor score still publishes — honesty cuts both ways', () => 
     closed_at: '2026-10-05T12:00:00Z',
   }));
   assert.equal(publicExecutionScore(trades), 20);
+});
+
+test('dayResults returns one slot per calendar day', () => {
+  assert.equal(dayResults([], '2026-09').length, 30);
+  assert.equal(dayResults([], '2026-10').length, 31);
+  assert.equal(dayResults([], '2026-02').length, 28);
+  assert.equal(dayResults([], '2024-02').length, 29);
+});
+
+test('dayResults marks win, loss and flat, and leaves quiet days null', () => {
+  const d = dayResults([
+    { closed_at: '2026-09-02', pnl: 100, fees: 5 },
+    { closed_at: '2026-09-03', pnl: -40 },
+    { closed_at: '2026-09-04', pnl: 25, fees: 25 },
+  ], '2026-09');
+  assert.equal(d[0], null);     // 1st: nothing
+  assert.equal(d[1], 'win');    // 2nd: +95
+  assert.equal(d[2], 'loss');
+  assert.equal(d[3], 'flat');   // fees ate it exactly
+});
+
+test('dayResults nets a day, so two trades can cancel into one colour', () => {
+  const d = dayResults([
+    { closed_at: '2026-09-10T09:00:00Z', pnl: 300 },
+    { closed_at: '2026-09-10T15:00:00Z', pnl: -400 },
+  ], '2026-09');
+  assert.equal(d[9], 'loss'); // the day lost money overall, not "one win one loss"
+});
+
+test('dayResults ignores other months, open trades and unpriced rows', () => {
+  const d = dayResults([
+    { closed_at: '2026-08-31', pnl: 999 },
+    { closed_at: '2026-10-01', pnl: 999 },
+    { opened_at: '2026-09-05', closed_at: null, pnl: 999 },
+    { closed_at: '2026-09-06', pnl: null },
+  ], '2026-09');
+  assert.deepEqual([...new Set(d)], [null]);
+});
+
+test('dayResults buckets on the date string, so a late timestamp stays on its own day', () => {
+  // Parsed as UTC in a western timezone this lands on the 1st, which is the bug.
+  const d = dayResults([{ closed_at: '2026-09-02T00:30:00Z', pnl: 50 }], '2026-09');
+  assert.equal(d[1], 'win');
+  assert.equal(d[0], null);
+});
+
+test('dayResults survives a junk month', () => {
+  assert.deepEqual(dayResults([], ''), []);
+  assert.deepEqual(dayResults([], '2026-13'), []);
+  assert.deepEqual(dayResults(null, '2026-09').length, 30);
+});
+
+test('reportCardStats carries the day strip', () => {
+  const trades = Array.from({ length: 20 }, (_, i) => ({
+    closed_at: `2026-09-${String((i % 28) + 1).padStart(2, '0')}`,
+    pnl: i % 3 === 0 ? -20 : 40,
+    tags: ['On plan'],
+  }));
+  const s = reportCardStats(trades, '2026-09', 10000);
+  assert.equal(s.days.length, 30);
+  assert.ok(s.days.some((d) => d === 'win'));
+  assert.ok(s.days.some((d) => d === 'loss'));
 });

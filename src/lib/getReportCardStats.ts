@@ -30,6 +30,9 @@ export interface ReportCard {
   biggestLeak: string | null;
   negatives: Record<string, number>;
 
+  /** Each calendar day as 'win' | 'loss' | 'flat', or null when nothing closed. */
+  days: Array<'win' | 'loss' | 'flat' | null>;
+
   netResultPct: number | null;
   winRatePct: number | null;
 

@@ -142,6 +142,7 @@ export function inRange(trade, range) {
 }
 
 /** The fixed presets, in menu order, grouped the way they're reached for. */
+/** @type {Array<[string, Array<[string, string]>]>} */
 export const PERIOD_GROUPS = [
   ['Day', [['today', 'Today'], ['yesterday', 'Yesterday']]],
   ['Week', [['week', 'This week'], ['lastWeek', 'Last week'], ['7d', 'Last 7 days']]],

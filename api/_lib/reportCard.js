@@ -45,6 +45,50 @@ export function previousMonth(now = new Date()) {
 }
 
 /**
+ * Each day of the month as 'win' | 'loss' | 'flat' | null (no trades closed).
+ *
+ * The card needs something that could only be THIS month. Four summary numbers could
+ * belong to anyone; the shape of a month — where the red clusters, whether the green is
+ * steady or one spike — is particular to the trader who traded it.
+ *
+ * Win/loss only, never amounts, matching the public calendar. A day's P&L is exactly the
+ * figure a trader may not want on a post, and this object is rendered into a PNG people
+ * put on a timeline.
+ *
+ * Bucketed on the date STRING, not a parsed Date: the journal stores a mix of plain dates
+ * and ISO timestamps, and parsing '2026-09-01' as UTC in a western timezone moves it into
+ * August.
+ */
+export function dayResults(trades, yearMonth) {
+  const ym = String(yearMonth || '');
+  const [y, m] = ym.split('-').map(Number);
+  if (!y || !m || m < 1 || m > 12) return [];
+
+  const net = new Map();
+  for (const t of Array.isArray(trades) ? trades : []) {
+    const d = String(t?.closed_at || '').slice(0, 10);
+    if (!d.startsWith(`${ym}-`)) continue;        // open, or another month
+    // Explicit emptiness check first: Number(null) and Number('') are both 0, so an
+    // unpriced row would otherwise count as a real day that broke exactly even.
+    if (t.pnl === null || t.pnl === undefined || t.pnl === '') continue;
+    const pnl = Number(t.pnl);
+    if (!Number.isFinite(pnl)) continue;
+    const fees = Number(t.fees);
+    const day = Number(d.slice(8, 10));
+    net.set(day, (net.get(day) || 0) + pnl - (Number.isFinite(fees) ? fees : 0));
+  }
+
+  const total = new Date(y, m, 0).getDate();
+  const out = [];
+  for (let d = 1; d <= total; d++) {
+    if (!net.has(d)) { out.push(null); continue; }
+    const v = net.get(d);
+    out.push(v > 0 ? 'win' : v < 0 ? 'loss' : 'flat');
+  }
+  return out;
+}
+
+/**
  * Build the card for one month.
  *
  * @param {Array<any>} trades          every trade for the user (filtered to the month here)
@@ -110,6 +154,9 @@ export function reportCardStats(trades, yearMonth, startingBalance = null, optio
 
     // Leaks. Only meaningful alongside a score, for the same reason.
     biggestLeak: showScore ? tags.biggestLeak : null,
+
+    // The month's shape, for the card's day strip. Win/loss only — see dayResults.
+    days: dayResults(month, yearMonth),
     negatives: tags.negatives,
 
     // Performance. A PERCENTAGE — never money by default. `netResultPct` is null when
