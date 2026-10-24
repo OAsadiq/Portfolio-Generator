@@ -166,6 +166,10 @@ const TradeJournal = () => {
   // Tag filter. Lives in state rather than the URL — it's a glance ("where do I keep
   // moving my stop?"), not something anyone wants to bookmark or share.
   const [tagFilter, setTagFilter] = useState<string | null>(null);
+  // Month filter, 'YYYY-MM' or null for all. Separate from the calendar's own month
+  // picker on purpose: that one is a view of a month, this one narrows the list you're
+  // about to edit, and tying them would move the calendar every time you filtered.
+  const [monthFilter, setMonthFilter] = useState<string | null>(null);
   // Presets first, then this user's own tags. Only tags actually in use are offered:
   // a filter listing seven presets against a journal that uses two is noise.
   const allTags = useMemo(() => {
@@ -175,13 +179,37 @@ const TradeJournal = () => {
   }, [trades]);
   // UNTAGGED is a sentinel, not a tag: the monthly prompt sends people straight to the
   // trades that are blocking their score, which is the one filter they actually need.
-  const visibleTrades = useMemo(() => {
-    if (!tagFilter) return trades;
-    if (tagFilter === UNTAGGED) {
-      return trades.filter((t) => !(Array.isArray(t.tags) ? t.tags : []).some(isPreset));
+  // Months that actually contain trades, newest first. Only offering months with
+  // something in them keeps the dropdown honest — an empty August is not a choice.
+  const monthOptions = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const t of trades) {
+      const when = t.closed_at || t.opened_at;
+      if (!when) continue;
+      const key = String(when).slice(0, 7);
+      if (!seen.has(key)) {
+        const d = new Date(`${key}-01T00:00:00Z`);
+        seen.set(key, d.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }));
+      }
     }
-    return trades.filter((t) => (Array.isArray(t.tags) ? t.tags : []).includes(tagFilter));
-  }, [trades, tagFilter]);
+    return [...seen.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1));
+  }, [trades]);
+
+  // Tag and month compose with AND. The monthly prompt sets both at once, so "tag the
+  // trades holding September back" lands on exactly those and not on October's.
+  const visibleTrades = useMemo(() => {
+    let list = trades;
+    if (monthFilter) {
+      list = list.filter((t) => String(t.closed_at || t.opened_at || '').slice(0, 7) === monthFilter);
+    }
+    if (tagFilter === UNTAGGED) {
+      return list.filter((t) => !(Array.isArray(t.tags) ? t.tags : []).some(isPreset));
+    }
+    if (tagFilter) {
+      return list.filter((t) => (Array.isArray(t.tags) ? t.tags : []).includes(tagFilter));
+    }
+    return list;
+  }, [trades, tagFilter, monthFilter]);
 
   // Report card for the month just gone. Computed from trades already in memory — the
   // panel and the prompt read the same object, so they can never disagree.
@@ -1189,6 +1217,8 @@ const TradeJournal = () => {
             stats={cardStats}
             onGenerate={() => document.getElementById('report-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
             onTag={() => {
+              // Month AND untagged: these are the trades holding THIS card back.
+              setMonthFilter(cardStats.yearMonth);
               setTagFilter(UNTAGGED);
               document.getElementById('trade-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
@@ -1212,6 +1242,8 @@ const TradeJournal = () => {
             onTagTrades={() => {
               // Same destination as the monthly prompt's tag action — show exactly the
               // trades holding the score back, rather than the whole list.
+              // Month AND untagged: these are the trades holding THIS card back.
+              setMonthFilter(cardStats.yearMonth);
               setTagFilter(UNTAGGED);
               document.getElementById('trade-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
@@ -1807,18 +1839,32 @@ const TradeJournal = () => {
           <div className="flex items-start justify-between gap-3 mb-5 flex-wrap">
             <h2 className="font-bold text-stone-900 text-sm">
               Your trades
-              {tagFilter && (
+              {(tagFilter || monthFilter) && (
                 <span className="text-stone-400 font-normal">
-                  {tagFilter === UNTAGGED
-                    ? ` — ${visibleTrades.length} untagged`
-                    : ` — ${visibleTrades.length} tagged “${tagFilter}”`}
+                  {` — ${visibleTrades.length}`}
+                  {tagFilter === UNTAGGED ? ' untagged' : tagFilter ? ` tagged “${tagFilter}”` : ''}
+                  {monthFilter ? ` in ${monthOptions.find(([k]) => k === monthFilter)?.[1] ?? monthFilter}` : ''}
                 </span>
               )}
             </h2>
             {/* Filtering is what makes a tag more than a note. If you can't ask "show me
                 every trade where I moved my stop", the chip is decoration. */}
-            {allTags.length > 0 && (
+            {(allTags.length > 0 || monthOptions.length > 1) && (
               <div className="flex items-center gap-1.5 flex-wrap">
+                {/* Month first: it's the coarser cut, and the monthly prompt sets it. */}
+                {monthOptions.length > 1 && (
+                  <select
+                    value={monthFilter ?? ''}
+                    onChange={(e) => setMonthFilter(e.target.value || null)}
+                    className="px-2.5 py-1.5 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                    aria-label="Filter trades by month"
+                  >
+                    <option value="">All months</option>
+                    {monthOptions.map(([key, label]) => (
+                      <option key={key} value={key}>{label}</option>
+                    ))}
+                  </select>
+                )}
                 <select
                   value={tagFilter ?? ''}
                   onChange={(e) => setTagFilter(e.target.value || null)}
@@ -1829,8 +1875,12 @@ const TradeJournal = () => {
                   <option value={UNTAGGED}>Untagged</option>
                   {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
-                {tagFilter && (
-                  <button type="button" onClick={() => setTagFilter(null)} className="text-xs text-stone-400 hover:text-stone-700">
+                {(tagFilter || monthFilter) && (
+                  <button
+                    type="button"
+                    onClick={() => { setTagFilter(null); setMonthFilter(null); }}
+                    className="text-xs text-stone-400 hover:text-stone-700"
+                  >
                     clear
                   </button>
                 )}
