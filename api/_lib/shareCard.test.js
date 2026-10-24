@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildShareText, shareIntentUrl, canShare, SHARE_URL, SHARE_REF } from './shareCard.js';
+import { buildShareText, shareIntentUrl, canShare, SHARE_URL, SHARE_REF , cardFileName, canAttachFiles, shareDoneHint, shareLabels, ATTACH_HINT,
+} from './shareCard.js';
 
 const ready = (over = {}) => ({
   label: 'September 2026',
@@ -88,4 +89,55 @@ test('special characters survive encoding', () => {
   const u = shareIntentUrl(ready({ biggestLeak: 'FOMO entry' }));
   assert.ok(!u.includes(' '), 'spaces must be encoded');
   assert.ok(decodeURIComponent(u.split('text=')[1]).includes("What's yours?"));
+});
+
+test('cardFileName names the month, and survives a card without one', () => {
+  assert.equal(cardFileName({ yearMonth: '2026-09' }), 'porfilr-2026-09-execution-report.png');
+  assert.equal(cardFileName({}), 'porfilr-card-execution-report.png');
+  assert.equal(cardFileName(null), 'porfilr-card-execution-report.png');
+});
+
+test('canAttachFiles needs BOTH share and canShare', () => {
+  assert.equal(canAttachFiles({ share: () => {}, canShare: () => true }), true);
+  assert.equal(canAttachFiles({ share: () => {} }), false);            // no canShare: Safari 14
+  assert.equal(canAttachFiles({ canShare: () => true }), false);       // canShare without share
+  assert.equal(canAttachFiles(null), false);
+  assert.equal(canAttachFiles(undefined), false);
+});
+
+test('canAttachFiles believes a browser that says no to files', () => {
+  // Desktop Chrome: navigator.share exists, file sharing does not.
+  assert.equal(canAttachFiles({ share: () => {}, canShare: () => false }), false);
+});
+
+test('canAttachFiles treats a throwing canShare as unsupported', () => {
+  // Must not bubble out of a click handler and kill the whole share.
+  const nav = { share: () => {}, canShare: () => { throw new Error('nope'); } };
+  assert.equal(canAttachFiles(nav), false);
+});
+
+test('canAttachFiles probes with a real image File, not a bare object', () => {
+  // A browser that validates the file type must see a genuine PNG File.
+  let seen = null;
+  canAttachFiles({ share: () => {}, canShare: (d) => { seen = d; return true; } });
+  assert.ok(seen.files[0] instanceof File);
+  assert.equal(seen.files[0].type, 'image/png');
+});
+
+test('the two share paths end on different messages', () => {
+  assert.match(shareDoneHint('native'), /attached/);
+  // The fallback must still tell them to attach it — nothing has yet.
+  assert.match(shareDoneHint('fallback'), /attach the image/);
+  assert.notEqual(shareDoneHint('native'), shareDoneHint('fallback'));
+});
+
+test('share copy matches the path the browser will take', () => {
+  const nat = shareLabels(true);
+  const web = shareLabels(false);
+  assert.equal(web.hint, ATTACH_HINT);
+  assert.equal(web.button, 'Share to X');
+  // The sheet offers every app, so naming X would be wrong, as would warning about a
+  // download that never happens.
+  assert.doesNotMatch(nat.button, /X/);
+  assert.doesNotMatch(nat.hint, /download/i);
 });

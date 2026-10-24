@@ -3,7 +3,10 @@ import { lastCompletedMonth, type ReportCard } from '../lib/getReportCardStats';
 import { reportCardStats } from '../../api/_lib/reportCard.js';
 import { drawReportCard, reportCardBlob } from '../lib/renderReportCard';
 import { track } from '../lib/track';
-import { canShare, shareIntentUrl, ATTACH_HINT } from '../../api/_lib/shareCard.js';
+import {
+  canShare, shareIntentUrl,
+  buildShareText, cardFileName, canAttachFiles, shareDoneHint, shareLabels,
+} from '../../api/_lib/shareCard.js';
 import { wallEnabled, joinWall, leaveWall, isOnWall } from '../lib/finishersWall';
 
 /**
@@ -41,7 +44,9 @@ export default function ReportCardPanel({
   const [showMoney, setShowMoney] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [shared, setShared] = useState(false);
+  // null until a share happens, then which path it took — the two end somewhere
+  // different, so they can't report the same thing.
+  const [shared, setShared] = useState<'native' | 'fallback' | null>(null);
   const [onWall, setOnWall] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -68,6 +73,10 @@ export default function ReportCardPanel({
     if (generated && stats && canvasRef.current) drawReportCard(canvasRef.current, stats, displayName, currency);
   }, [generated, stats, displayName, currency]);
 
+  // Fixed for the session — a browser does not gain file sharing mid-visit. Drives the
+  // button label and hint so the UI promises whichever path share() will take.
+  const labels = useMemo(() => shareLabels(canAttachFiles()), []);
+
   const generate = () => {
     if (!stats) return;
     setGenerated(true);
@@ -75,36 +84,78 @@ export default function ReportCardPanel({
   };
 
   /**
-   * Share to X.
+   * Share the card.
    *
-   * X's Web Intent cannot attach an image — there is no parameter for it. So the card is
-   * downloaded first and the composer opens second, and the UI says so plainly rather
-   * than promising one-tap image posting that X doesn't support.
+   * Two paths, because the platforms differ in what they can actually do:
    *
-   * Porfilr never posts. This opens an editable composer; the trader sends it.
+   * MOBILE — navigator.share() with a `files` array opens the OS share sheet with the PNG
+   * already attached. The trader picks X (or anything else) and the image is there. This
+   * is the only path that solves the attach problem rather than explaining it.
+   *
+   * DESKTOP — no file sharing, so the card downloads and X's Web Intent opens a composer
+   * to attach it to. The Intent has no image parameter; this is as good as it gets.
+   *
+   * The popup bug this replaces: window.open() ran AFTER `await reportCardBlob()`. That
+   * await ends the user-gesture window, so the call was a popup rather than a navigation,
+   * and mobile browsers block popups outright — the card downloaded and X never opened.
+   * The fix is to commit to a path and reserve the tab BEFORE any await, while the click
+   * is still live.
+   *
+   * Porfilr never posts. Both paths hand the trader an editable composer; they send it.
    */
   const share = async () => {
     if (!stats || !canShare(stats)) return;
+
+    // Decided synchronously, inside the gesture. Probing after the render would be too
+    // late to open a tab, which is the whole bug.
+    const native = canAttachFiles();
+    // Reserved now for the same reason. Not `noopener` — that makes window.open return
+    // null and we need the handle to point it at X once the render finishes. The opener
+    // is severed below instead.
+    const tab = native ? null : window.open('', '_blank');
+    if (tab) { try { tab.opener = null; } catch { /* some browsers forbid the write */ } }
+
     setBusy(true);
+    setError('');
     try {
-      // Download first: the file needs to exist before they reach the composer, or
-      // they'll be sitting in X with nothing to attach.
       const blob = await reportCardBlob(stats, displayName, currency);
+      const name = cardFileName(stats);
+
+      if (native) {
+        const file = new File([blob], name, { type: 'image/png' });
+        // Re-checked with the real file: the synchronous probe used a 1-byte stand-in,
+        // and a browser may still refuse the actual payload.
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file], text: buildShareText(stats) });
+          track('report_card_shared', { month, scorePct: stats.scorePct, leak: stats.biggestLeak, via: 'native' });
+          setShared('native');
+          return;
+        }
+      }
+
+      // Fallback: save the file, then send the reserved tab to the composer.
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `porfilr-${stats.yearMonth}-execution-report.png`;
+      a.download = name;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-      track('report_card_shared', { month, scorePct: stats.scorePct, leak: stats.biggestLeak });
+      track('report_card_shared', { month, scorePct: stats.scorePct, leak: stats.biggestLeak, via: 'intent' });
 
-      // Opened after the download so the browser doesn't treat the new tab as the
-      // user-gesture target and silently drop the save.
-      window.open(shareIntentUrl(stats), '_blank', 'noopener,noreferrer');
-      setShared(true);
+      const intent = shareIntentUrl(stats);
+      if (tab) tab.location.href = intent;
+      // No tab to use — either it was blocked or we expected a native share that the
+      // real file was refused for. Navigate directly; losing the journal tab beats
+      // downloading a card with nowhere to post it.
+      else window.location.href = intent;
+      setShared('fallback');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not prepare the share.');
+      // Dismissing the share sheet is a choice, not a failure. Reporting it as an error
+      // would tell the trader something broke when they simply changed their mind.
+      const aborted = e instanceof DOMException && e.name === 'AbortError';
+      if (!aborted) setError(e instanceof Error ? e.message : 'Could not prepare the share.');
+      if (tab) tab.close();
     } finally {
       setBusy(false);
     }
@@ -249,7 +300,7 @@ export default function ReportCardPanel({
                     disabled={busy}
                     className="bg-stone-900 hover:bg-stone-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition"
                   >
-                    Share to X
+                    {labels.button}
                   </button>
                 )}
               </>
@@ -259,8 +310,8 @@ export default function ReportCardPanel({
           {generated && canShare(stats) && (
             <p className="text-stone-400 text-xs mt-2 leading-relaxed">
               {shared
-                ? 'Card downloaded and X opened — attach the image before you post.'
-                : ATTACH_HINT}
+                ? shareDoneHint(shared)
+                : labels.hint}
             </p>
           )}
 

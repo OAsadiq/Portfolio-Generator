@@ -67,3 +67,57 @@ export const ATTACH_HINT = 'Your card downloads first — attach it in the post.
 
 /** Reused by the card footer so share copy and image stay consistent. */
 export { cardFooter };
+
+/** Filename for the rendered card. Shared by the download, the share sheet and tests. */
+export function cardFileName(stats) {
+  return `porfilr-${stats?.yearMonth || 'card'}-execution-report.png`;
+}
+
+/**
+ * Can this browser share the PNG itself?
+ *
+ * Mobile Safari and Android Chrome can: navigator.share() with a `files` array opens the
+ * OS share sheet with the image attached, which is the one path that actually solves the
+ * problem the Web Intent can't — see ATTACH_HINT. Desktop browsers almost universally
+ * cannot, and must fall back to download-then-compose.
+ *
+ * Probed with a real File because canShare() rejects on type, not just on shape, and a
+ * plain object passes feature detection on browsers that would then throw. The probe is
+ * synchronous on purpose: the caller has to decide BEFORE awaiting the render, while it
+ * still holds the user gesture.
+ */
+export function canAttachFiles(nav = typeof navigator === 'undefined' ? null : navigator) {
+  if (!nav || typeof nav.share !== 'function' || typeof nav.canShare !== 'function') return false;
+  try {
+    const probe = new File([new Uint8Array(1)], 'probe.png', { type: 'image/png' });
+    return nav.canShare({ files: [probe] });
+  } catch {
+    // No File constructor, or canShare threw. Either way, fall back.
+    return false;
+  }
+}
+
+/**
+ * What to tell the trader once the share has happened.
+ *
+ * The two paths end somewhere genuinely different — one has already attached the image,
+ * the other needs them to do it — so they cannot share one message. Telling a mobile
+ * user to "attach the image" after the sheet already attached it reads as a failure.
+ */
+export function shareDoneHint(mode) {
+  return mode === 'native'
+    ? 'Shared with your card attached.'
+    : 'Card downloaded and X opened — attach the image before you post.';
+}
+
+/**
+ * Button label and pre-share hint for the path this browser will actually take.
+ *
+ * On a phone the sheet attaches the card and offers every app, so promising "Share to X"
+ * and warning about a download would both be wrong. ATTACH_HINT stays the desktop copy.
+ */
+export function shareLabels(native) {
+  return native
+    ? { button: 'Share card', hint: 'Opens your share sheet with the card attached.' }
+    : { button: 'Share to X', hint: ATTACH_HINT };
+}
