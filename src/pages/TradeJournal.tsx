@@ -28,6 +28,9 @@ import { FREE_TRADE_CAP, KIT_PRICE_USD } from '../lib/plan';
 // Trading performance calendar — same closed-only, net-of-fees maths as the metrics, so
 // the calendar can never disagree with the headline numbers.
 import { monthGrid, activeMonths } from '../../api/_lib/calendar.js';
+// Timeline ranges for the trade list (api/_lib/dateRange.js, unit-tested). Day/week/month
+// windows live there rather than here so the boundary maths is covered by tests.
+import { resolveRange, inRange, monthsWithTrades, PERIOD_GROUPS } from '../../api/_lib/dateRange.js';
 import TutorialTour, { TourStep } from '../components/tutorial/TutorialTour';
 
 const JOURNAL_TOUR: TourStep[] = [
@@ -166,10 +169,15 @@ const TradeJournal = () => {
   // Tag filter. Lives in state rather than the URL — it's a glance ("where do I keep
   // moving my stop?"), not something anyone wants to bookmark or share.
   const [tagFilter, setTagFilter] = useState<string | null>(null);
-  // Month filter, 'YYYY-MM' or null for all. Separate from the calendar's own month
-  // picker on purpose: that one is a view of a month, this one narrows the list you're
-  // about to edit, and tying them would move the calendar every time you filtered.
-  const [monthFilter, setMonthFilter] = useState<string | null>(null);
+  // Timeline filter: a range key ('today', 'week', 'lastMonth', 'm:2026-09', 'custom')
+  // or '' for all time. Separate from the calendar's own month picker on purpose: that
+  // one is a view of a month, this one narrows the list you're about to edit, and tying
+  // them would move the calendar every time you filtered.
+  const [period, setPeriod] = useState('');
+  // Only read when period === 'custom'. Kept when switching away so flicking to a preset
+  // and back doesn't wipe dates someone just typed.
+  const [customStart, setCustomStart] = useState('');
+  const [customEnd, setCustomEnd] = useState('');
   // Presets first, then this user's own tags. Only tags actually in use are offered:
   // a filter listing seven presets against a journal that uses two is noise.
   const allTags = useMemo(() => {
@@ -179,29 +187,22 @@ const TradeJournal = () => {
   }, [trades]);
   // UNTAGGED is a sentinel, not a tag: the monthly prompt sends people straight to the
   // trades that are blocking their score, which is the one filter they actually need.
-  // Months that actually contain trades, newest first. Only offering months with
-  // something in them keeps the dropdown honest — an empty August is not a choice.
-  const monthOptions = useMemo(() => {
-    const seen = new Map<string, string>();
-    for (const t of trades) {
-      const when = t.closed_at || t.opened_at;
-      if (!when) continue;
-      const key = String(when).slice(0, 7);
-      if (!seen.has(key)) {
-        const d = new Date(`${key}-01T00:00:00Z`);
-        seen.set(key, d.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }));
-      }
-    }
-    return [...seen.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1));
-  }, [trades]);
+  // Specific months, appended to the preset list so "September" is still one click for
+  // anyone reviewing a closed month rather than a rolling window.
+  const monthOptions = useMemo(() => monthsWithTrades(trades), [trades]);
 
-  // Tag and month compose with AND. The monthly prompt sets both at once, so "tag the
+  // The resolved window, or null for all time. Recomputed when the inputs change; `new
+  // Date()` is read here rather than captured once so a journal left open overnight
+  // doesn't keep showing yesterday as "today".
+  const range = useMemo(
+    () => resolveRange(period, new Date(), { start: customStart, end: customEnd }),
+    [period, customStart, customEnd],
+  );
+
+  // Timeline and tag compose with AND. The monthly prompt sets both at once, so "tag the
   // trades holding September back" lands on exactly those and not on October's.
   const visibleTrades = useMemo(() => {
-    let list = trades;
-    if (monthFilter) {
-      list = list.filter((t) => String(t.closed_at || t.opened_at || '').slice(0, 7) === monthFilter);
-    }
+    let list = range ? trades.filter((t) => inRange(t, range)) : trades;
     if (tagFilter === UNTAGGED) {
       return list.filter((t) => !(Array.isArray(t.tags) ? t.tags : []).some(isPreset));
     }
@@ -209,7 +210,7 @@ const TradeJournal = () => {
       return list.filter((t) => (Array.isArray(t.tags) ? t.tags : []).includes(tagFilter));
     }
     return list;
-  }, [trades, tagFilter, monthFilter]);
+  }, [trades, tagFilter, range]);
 
   // Report card for the month just gone. Computed from trades already in memory — the
   // panel and the prompt read the same object, so they can never disagree.
@@ -1217,8 +1218,8 @@ const TradeJournal = () => {
             stats={cardStats}
             onGenerate={() => document.getElementById('report-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
             onTag={() => {
-              // Month AND untagged: these are the trades holding THIS card back.
-              setMonthFilter(cardStats.yearMonth);
+              // That month AND untagged: these are the trades holding THIS card back.
+              setPeriod(`m:${cardStats.yearMonth}`);
               setTagFilter(UNTAGGED);
               document.getElementById('trade-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
@@ -1242,8 +1243,8 @@ const TradeJournal = () => {
             onTagTrades={() => {
               // Same destination as the monthly prompt's tag action — show exactly the
               // trades holding the score back, rather than the whole list.
-              // Month AND untagged: these are the trades holding THIS card back.
-              setMonthFilter(cardStats.yearMonth);
+              // That month AND untagged: these are the trades holding THIS card back.
+              setPeriod(`m:${cardStats.yearMonth}`);
               setTagFilter(UNTAGGED);
               document.getElementById('trade-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
@@ -1839,32 +1840,67 @@ const TradeJournal = () => {
           <div className="flex items-start justify-between gap-3 mb-5 flex-wrap">
             <h2 className="font-bold text-stone-900 text-sm">
               Your trades
-              {(tagFilter || monthFilter) && (
+              {(tagFilter || range) && (
                 <span className="text-stone-400 font-normal">
                   {` — ${visibleTrades.length}`}
                   {tagFilter === UNTAGGED ? ' untagged' : tagFilter ? ` tagged “${tagFilter}”` : ''}
-                  {monthFilter ? ` in ${monthOptions.find(([k]) => k === monthFilter)?.[1] ?? monthFilter}` : ''}
+                  {range ? ` in ${range.label}` : ''}
                 </span>
               )}
             </h2>
             {/* Filtering is what makes a tag more than a note. If you can't ask "show me
                 every trade where I moved my stop", the chip is decoration. */}
-            {(allTags.length > 0 || monthOptions.length > 1) && (
+            {trades.length > 0 && (
               <div className="flex items-center gap-1.5 flex-wrap">
-                {/* Month first: it's the coarser cut, and the monthly prompt sets it. */}
-                {monthOptions.length > 1 && (
-                  <select
-                    value={monthFilter ?? ''}
-                    onChange={(e) => setMonthFilter(e.target.value || null)}
-                    className="px-2.5 py-1.5 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-200"
-                    aria-label="Filter trades by month"
-                  >
-                    <option value="">All months</option>
-                    {monthOptions.map(([key, label]) => (
-                      <option key={key} value={key}>{label}</option>
-                    ))}
-                  </select>
+                {/* Timeline first: it's the coarser cut, and the monthly prompt sets it.
+                    Grouped by granularity because "this week" and "September" are reached
+                    for in different moods — one is a review of what you just did, the
+                    other is going back to a closed month. */}
+                <select
+                  value={period}
+                  onChange={(e) => setPeriod(e.target.value)}
+                  className="px-2.5 py-1.5 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                  aria-label="Filter trades by date"
+                >
+                  <option value="">All time</option>
+                  {PERIOD_GROUPS.map(([group, opts]: [string, [string, string][]]) => (
+                    <optgroup key={group} label={group}>
+                      {opts.map(([key, label]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                  {monthOptions.length > 0 && (
+                    <optgroup label="Specific month">
+                      {monthOptions.map(([key, label]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
+                    </optgroup>
+                  )}
+                  <option value="custom">Custom range…</option>
+                </select>
+                {period === 'custom' && (
+                  <>
+                    <input
+                      type="date"
+                      value={customStart}
+                      max={customEnd || undefined}
+                      onChange={(e) => setCustomStart(e.target.value)}
+                      className="px-2 py-1.5 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                      aria-label="From date"
+                    />
+                    <span className="text-stone-300 text-xs">to</span>
+                    <input
+                      type="date"
+                      value={customEnd}
+                      min={customStart || undefined}
+                      onChange={(e) => setCustomEnd(e.target.value)}
+                      className="px-2 py-1.5 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                      aria-label="To date"
+                    />
+                  </>
                 )}
+                {allTags.length > 0 && (
                 <select
                   value={tagFilter ?? ''}
                   onChange={(e) => setTagFilter(e.target.value || null)}
@@ -1875,10 +1911,11 @@ const TradeJournal = () => {
                   <option value={UNTAGGED}>Untagged</option>
                   {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
-                {(tagFilter || monthFilter) && (
+                )}
+                {(tagFilter || period) && (
                   <button
                     type="button"
-                    onClick={() => { setTagFilter(null); setMonthFilter(null); }}
+                    onClick={() => { setTagFilter(null); setPeriod(''); setCustomStart(''); setCustomEnd(''); }}
                     className="text-xs text-stone-400 hover:text-stone-700"
                   >
                     clear
@@ -1891,7 +1928,13 @@ const TradeJournal = () => {
           {trades.length === 0 ? (
             <p className="text-stone-400 text-sm">No trades logged yet.</p>
           ) : visibleTrades.length === 0 ? (
-            <p className="text-stone-400 text-sm">No trades tagged “{tagFilter}” yet.</p>
+            <p className="text-stone-400 text-sm">
+              {tagFilter === UNTAGGED
+                ? `Every trade${range ? ` in ${range.label}` : ''} is tagged.`
+                : tagFilter
+                  ? `No trades tagged “${tagFilter}”${range ? ` in ${range.label}` : ''}.`
+                  : `No trades in ${range?.label ?? 'that range'}.`}
+            </p>
           ) : (
             <div className="overflow-x-auto -mx-6 px-6">
               <table className="w-full text-sm min-w-[640px]">
